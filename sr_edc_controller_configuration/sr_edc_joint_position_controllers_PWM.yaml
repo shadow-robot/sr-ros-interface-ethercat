@@ -9,7 +9,7 @@ sh_ffj0_position_controller:
     max_force: 0.0
     p: 2
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_ffj3_position_controller:
   joint: FFJ3
   pid:
@@ -21,7 +21,7 @@ sh_ffj3_position_controller:
     max_force: 400.0
     p: 3100
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_ffj4_position_controller:
   joint: FFJ4
   pid:
@@ -33,7 +33,7 @@ sh_ffj4_position_controller:
     max_force: 0.0
     p: 4000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_lfj0_position_controller:
   joint: LFJ0
   pid:
@@ -44,7 +44,7 @@ sh_lfj0_position_controller:
     max_force: 0.0
     p: -2.0
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_lfj3_position_controller:
   joint: LFJ3
   pid:
@@ -56,7 +56,7 @@ sh_lfj3_position_controller:
     max_force: 0.0
     p: 5000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_lfj4_position_controller:
   joint: LFJ4
   pid:
@@ -67,7 +67,7 @@ sh_lfj4_position_controller:
     i_clamp: 0
     max_force: 0
     p: 0
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_lfj5_position_controller:
   joint: LFJ5
   pid:
@@ -79,7 +79,7 @@ sh_lfj5_position_controller:
     max_force: 0.0
     p: 0
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_mfj0_position_controller:
   joint: MFJ0
   pid:
@@ -90,7 +90,7 @@ sh_mfj0_position_controller:
     max_force: 0.0
     p: 29
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_mfj3_position_controller:
   joint: MFJ3
   pid:
@@ -102,7 +102,7 @@ sh_mfj3_position_controller:
     max_force: 0.0
     p: -7900
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_mfj4_position_controller:
   joint: MFJ4
   pid:
@@ -114,7 +114,7 @@ sh_mfj4_position_controller:
     max_force: 0.0
     p: 4000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_rfj0_position_controller:
   joint: RFJ0
   pid:
@@ -125,7 +125,7 @@ sh_rfj0_position_controller:
     max_force: 0.0
     p: 2
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_rfj3_position_controller:
   joint: RFJ3
   pid:
@@ -137,7 +137,7 @@ sh_rfj3_position_controller:
     max_force: 0.0
     p: 5500
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_rfj4_position_controller:
   joint: RFJ4
   pid:
@@ -149,7 +149,7 @@ sh_rfj4_position_controller:
     max_force: 0.0
     p: 4000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_thj1_position_controller:
   joint: THJ1
   pid:
@@ -161,7 +161,7 @@ sh_thj1_position_controller:
     max_force: 0.0
     p: 5000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_thj2_position_controller:
   joint: THJ2
   pid:
@@ -173,7 +173,7 @@ sh_thj2_position_controller:
     max_force: 0.0
     p: -7000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_thj3_position_controller:
   joint: THJ3
   pid:
@@ -185,7 +185,7 @@ sh_thj3_position_controller:
     max_force: 0.0
     p: 4000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_thj4_position_controller:
   joint: THJ4
   pid:
@@ -197,7 +197,7 @@ sh_thj4_position_controller:
     max_force: 0.0
     p: 4000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_thj5_position_controller:
   joint: THJ5
   pid:
@@ -209,7 +209,7 @@ sh_thj5_position_controller:
     max_force: 0.0
     p: -5000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_wrj1_position_controller:
   joint: WRJ1
   pid:
@@ -221,7 +221,7 @@ sh_wrj1_position_controller:
     max_force: 0.0
     p: -3000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController
 sh_wrj2_position_controller:
   joint: WRJ2
   pid:
@@ -233,4 +233,4 @@ sh_wrj2_position_controller:
     max_force: 0.0
     p: 3000
     position_deadband: 0.014999999999999999
-  type: sr_edc_mechanism_controllers/SrhJointPositionController
+  type: sr_mechanism_controllers/SrhJointPositionController

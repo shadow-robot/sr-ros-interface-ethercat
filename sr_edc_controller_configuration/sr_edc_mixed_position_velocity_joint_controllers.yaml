@@ -11,7 +11,7 @@ sh_ffj0_mixed_position_velocity_controller:
     p: 0
     position_deadband: 0.0
     velocity_slope: -1.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_ffj3_mixed_position_velocity_controller:
   joint: FFJ3
   pid:
@@ -25,7 +25,7 @@ sh_ffj3_mixed_position_velocity_controller:
     p: 0
     position_deadband: 0.0
     velocity_slope: -1.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_ffj4_mixed_position_velocity_controller:
   joint: FFJ4
   pid:
@@ -39,7 +39,7 @@ sh_ffj4_mixed_position_velocity_controller:
     p: 0
     position_deadband: 0.0050000000000000001
     velocity_slope: -1.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_lfj0_mixed_position_velocity_controller:
   joint: LFJ0
   pid:
@@ -53,7 +53,7 @@ sh_lfj0_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_lfj3_mixed_position_velocity_controller:
   joint: LFJ3
   pid:
@@ -67,7 +67,7 @@ sh_lfj3_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_lfj4_mixed_position_velocity_controller:
   joint: LFJ4
   pid:
@@ -81,7 +81,7 @@ sh_lfj4_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_lfj5_mixed_position_velocity_controller:
   joint: LFJ5
   pid:
@@ -95,7 +95,7 @@ sh_lfj5_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_mfj0_mixed_position_velocity_controller:
   joint: MFJ0
   pid:
@@ -109,7 +109,7 @@ sh_mfj0_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_mfj3_mixed_position_velocity_controller:
   joint: MFJ3
   pid:
@@ -123,7 +123,7 @@ sh_mfj3_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_mfj4_mixed_position_velocity_controller:
   joint: MFJ4
   pid:
@@ -137,7 +137,7 @@ sh_mfj4_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_rfj0_mixed_position_velocity_controller:
   joint: RFJ0
   pid:
@@ -151,7 +151,7 @@ sh_rfj0_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_rfj3_mixed_position_velocity_controller:
   joint: RFJ3
   pid:
@@ -165,7 +165,7 @@ sh_rfj3_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_rfj4_mixed_position_velocity_controller:
   joint: RFJ4
   pid:
@@ -179,7 +179,7 @@ sh_rfj4_mixed_position_velocity_controller:
     p: 2
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_thj1_mixed_position_velocity_controller:
   joint: THJ1
   pid:
@@ -193,7 +193,7 @@ sh_thj1_mixed_position_velocity_controller:
     p: 0
     position_deadband: 0.0
     velocity_slope: -1.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_thj2_mixed_position_velocity_controller:
   joint: THJ2
   pid:
@@ -207,7 +207,7 @@ sh_thj2_mixed_position_velocity_controller:
     p: 0
     position_deadband: 0.0
     velocity_slope: -5.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_thj3_mixed_position_velocity_controller:
   joint: THJ3
   pid:
@@ -221,7 +221,7 @@ sh_thj3_mixed_position_velocity_controller:
     p: 0
     position_deadband: 0.0
     velocity_slope: -2.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_thj4_mixed_position_velocity_controller:
   joint: THJ4
   pid:
@@ -235,7 +235,7 @@ sh_thj4_mixed_position_velocity_controller:
     p: 0
     position_deadband: 0.0
     velocity_slope: -1.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_thj5_mixed_position_velocity_controller:
   joint: THJ5
   pid:
@@ -249,7 +249,7 @@ sh_thj5_mixed_position_velocity_controller:
     p: 0
     position_deadband: 0.0
     velocity_slope: -1.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_wrj1_mixed_position_velocity_controller:
   joint: WRJ1
   pid:
@@ -263,7 +263,7 @@ sh_wrj1_mixed_position_velocity_controller:
     p: 4.0
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_wrj2_mixed_position_velocity_controller:
   joint: WRJ2
   pid:
@@ -277,4 +277,4 @@ sh_wrj2_mixed_position_velocity_controller:
     p: -4.0
     position_deadband: 0.014999999999999999
     velocity_slope: 10.0
-  type: sr_edc_mechanism_controllers/SrhMixedPositionVelocityJointController
+  type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
