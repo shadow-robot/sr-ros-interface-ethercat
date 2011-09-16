@@ -38,7 +38,7 @@
 
 #include <sr_utilities/thread_safe_map.hpp>
 
-#include <sr_robot_lib/sr_actuator.hpp>
+#include <sr_hardware_interface/sr_actuator.hpp>
 
 #include <sr_robot_msgs/ForceController.h>
 #include <sr_robot_msgs/SetDebugData.h>
