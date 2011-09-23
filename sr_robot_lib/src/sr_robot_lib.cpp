@@ -104,7 +104,7 @@ namespace shadow_robot
       //If we have more than N values, filter the position:
       //    compute the average of the last N values
       int queue_size = joint_tmp->last_positions.size();
-      if(queue_size > number_of_positions_for_filter)
+      if(queue_size >= number_of_positions_for_filter)
       {
         double average = 0.0;
         //compute the average of the last N values
