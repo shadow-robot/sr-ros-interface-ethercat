@@ -30,8 +30,6 @@
 
 #include <sys/time.h>
 
-#include <sr_utilities/sr_math_utils.hpp>
-
 #include <ros/ros.h>
 
 namespace shadow_robot
@@ -41,8 +39,6 @@ namespace shadow_robot
   const int SrRobotLib::nb_debug_publishers_const = 20;
   const int SrRobotLib::debug_mutex_lock_wait_time = 100;
 #endif
-  const int SrRobotLib::number_of_positions_to_keep = 5;
-  const int SrRobotLib::number_of_positions_for_filter = 2;
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"),
@@ -95,33 +91,16 @@ namespace shadow_robot
       calibrate_joint(joint_tmp);
 
       //add the last position to the queue
-      std::pair<double, double> pos_and_time;
       joint_tmp->motor->actuator->state_.timestamp_ = timestamp;
-      pos_and_time.first = joint_tmp->motor->actuator->state_.position_;
-      pos_and_time.second = timestamp;
-      joint_tmp->last_positions.push_back( pos_and_time );
 
-      //If we have more than N values, filter the position:
-      //    compute the average of the last N values
-      int queue_size = joint_tmp->last_positions.size();
-      if(queue_size >= number_of_positions_for_filter)
-      {
-        double average = 0.0;
-        //compute the average of the last N values
-        for(int i=queue_size - 1; i > queue_size - number_of_positions_for_filter; --i)
-          average += joint_tmp->last_positions[i].first;
-        average /= number_of_positions_for_filter;
+      //filter the position and velocity
+      std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(joint_tmp->motor->actuator->state_.position_,
+                                                                                 timestamp);
 
-        //reset the position to the filtered value
-        joint_tmp->motor->actuator->state_.position_ = average;
-
-        //update the position queue with the filtered value
-        pos_and_time.first = average;
-      }
-      //compute the velocity
-      joint_tmp->motor->actuator->state_.velocity_ = (joint_tmp->last_positions.front().first - joint_tmp->last_positions.back().first) / (joint_tmp->last_positions.front().second - joint_tmp->last_positions.back().second);
-      if(queue_size > number_of_positions_to_keep)
-        joint_tmp->last_positions.pop_front();
+      //reset the position to the filtered value
+      joint_tmp->motor->actuator->state_.position_ = pos_and_velocity.first;
+      //set the velocity to the filtered velocity
+      joint_tmp->motor->actuator->state_.velocity_ = pos_and_velocity.second;
 
       //if no motor is associated to this joint, then continue
       if( (motor_index_full == -1) )
@@ -194,7 +173,7 @@ namespace shadow_robot
     if( reconfig_queue.empty() && reset_motors_queue.empty() )
     {
       //no config to send
-      command->to_motor_data_type   = MOTOR_DEMAND_PWM;
+      command->to_motor_data_type   = MOTOR_DEMAND_TORQUE;
 
       //loop on all the joints and update their motor: we're sending commands to all the motors.
       boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
@@ -202,7 +181,6 @@ namespace shadow_robot
       {
         if(joint_tmp->has_motor)
         {
-	  //ROS_ERROR_STREAM(" LFJ3 "<< joint_tmp->motor->actuator->command_.effort_);
           command->motor_data[joint_tmp->motor->motor_id] = joint_tmp->motor->actuator->command_.effort_;
 
 #ifdef DEBUG_PUBLISHER

@@ -43,6 +43,7 @@
 #include <sr_robot_msgs/ForceController.h>
 #include <sr_robot_msgs/SetDebugData.h>
 
+#include <sr_utilities/sr_math_utils.hpp>
 #include <sr_utilities/calibration.hpp>
 #include "sr_robot_lib/motor_updater.hpp"
 
@@ -130,9 +131,10 @@ namespace shadow_joints
     // compute the joint data.
     JointToSensor joint_to_sensor;
 
-    //A FIFO queue containing a given number of last positions and their timestamps.
-    // useful for computing the speed and filtering.
-    std::deque<std::pair<double, double> > last_positions;
+    //used to filter the position and the velocity
+    sr_math_utils::filters::AlphaBetaFilter pos_filter;
+    //used to filter the effort
+    sr_math_utils::filters::AlphaBetaFilter effort_filter;
 
     bool has_motor;
     boost::shared_ptr<Motor> motor;
@@ -312,19 +314,10 @@ namespace shadow_robot
     std_msgs::Int16 msg_debug;
 #endif
 
-    /**
-     * The maximum number of position to keep per joint.
-     *  Must be bigger than number_of_positions_for_filter
-     */
-    static const int number_of_positions_to_keep;
-    ///The number of positions we're using for the filter.
-    static const int number_of_positions_for_filter;
-
     ///We need to know if we're overflowing or not.
     int last_can_msgs_received;
     ///We need to know if we're overflowing or not.
     int last_can_msgs_transmitted;
-
   };//end class
 }//end namespace
 
