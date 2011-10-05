@@ -1190,10 +1190,10 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
     for(unsigned int id_tact = 0; id_tact < sr_hand_lib->nb_tactiles; ++id_tact)
     {
-      if( sr_math_utils::is_bit_mask_index_true(sr_hand_lib->tactile_data_valid, id_tact) )
+      if( sr_hand_lib->tactiles_vector[id_tact].tactile_data_valid )
       {
-        tactiles.pressure.push_back( static_cast<int16u>(sr_hand_lib->tactiles_vector[id_tact].word[0]) );
-        tactiles.temperature.push_back( static_cast<int16u>(sr_hand_lib->tactiles_vector[id_tact].word[1]) );
+        tactiles.pressure.push_back( static_cast<int16u>(sr_hand_lib->tactiles_vector[id_tact].sensor_data.pressure) );
+        tactiles.temperature.push_back( static_cast<int16u>(sr_hand_lib->tactiles_vector[id_tact].sensor_data.temperature) );
       }
       else
       {

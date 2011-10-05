@@ -139,13 +139,99 @@ namespace shadow_robot
     } //end for joint
 
     //then we read the tactile sensors information
-    tactile_data_valid = static_cast<int16u>(status_data->tactile_data_valid);
+    int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
     //TODO: use memcopy instead?
-    for( unsigned int id_sensor = 0; id_sensor<5; ++id_sensor)
+    for( unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
     {
-      for( unsigned int id_data = 0; id_data < 8; ++id_data)
+      switch( static_cast<int32u>(status_data->tactile_data_type) )
       {
-        tactiles_vector[id_sensor].word[id_data] = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[id_data]) );
+        //TACTILE DATA
+      case TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE:
+        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+        {
+          tactiles_vector[id_sensor].sensor_data.pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          tactiles_vector[id_sensor].sensor_data.pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
+          tactiles_vector[id_sensor].sensor_data.debug_1 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+          tactiles_vector[id_sensor].sensor_data.debug_2 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[3]) );
+        }
+        break;
+
+      case TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING:
+        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+        {
+          tactiles_vector[id_sensor].sensor_data.pressure_raw = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          tactiles_vector[id_sensor].sensor_data.zero_tracking = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
+        }
+        break;
+
+      case TACTILE_SENSOR_TYPE_PST3_DAC_VALUE:
+        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+        {
+          tactiles_vector[id_sensor].sensor_data.dac_value = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+        }
+        break;
+
+        //COMMON DATA
+      case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
+        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+        {
+          tactiles_vector[id_sensor].common_data.sample_frequency = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+        }
+        break;
+
+      case TACTILE_SENSOR_TYPE_MANUFACTURER:
+      {
+        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+        {
+          std::string manufacturer = "";
+          for (int i = 0; i < 16; ++i)
+          {
+            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
+            if( tmp != '0' )
+              manufacturer += static_cast<char>(status_data->tactile[id_sensor].string[i]);
+            else
+              break;
+          }
+          tactiles_vector[id_sensor].common_data.manufacturer = manufacturer;
+        }
+      }
+      break;
+
+      case TACTILE_SENSOR_TYPE_SERIAL_NUMBER:
+      {
+        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+        {
+          std::string serial = "";
+          for (int i = 0; i < 16; ++i)
+          {
+            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
+            if( tmp != '0' )
+              serial += static_cast<char>(status_data->tactile[id_sensor].string[i]);
+            else
+              break;
+          }
+          tactiles_vector[id_sensor].common_data.serial_number = serial;
+        }
+      }
+      break;
+
+      case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
+        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+        {
+          tactiles_vector[id_sensor].common_data.software_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+        }
+        break;
+
+      case TACTILE_SENSOR_TYPE_PCB_VERSION:
+        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+        {
+          tactiles_vector[id_sensor].common_data.pcb_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+        }
+        break;
+
+      default:
+        break;
+
       }
     }
   } //end update()
