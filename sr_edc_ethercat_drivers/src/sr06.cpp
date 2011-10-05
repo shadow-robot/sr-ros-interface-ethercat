@@ -1162,9 +1162,11 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
       debug_publisher->msg_.motor_data_packet_misc.push_back( status_data->motor_data_packet[i].misc );
     }
 
+    debug_publisher->msg_.tactile_data_type = static_cast<unsigned int>(static_cast<int32u>(status_data->tactile_data_type));
+    debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile_data_valid));
     debug_publisher->msg_.tactile.clear();
     for(unsigned int i=0; i < 5; ++i)
-      debug_publisher->msg_.tactile.push_back( static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[i].data[0])) );
+      debug_publisher->msg_.tactile.push_back( static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[i].word[0])) );
 
     debug_publisher->msg_.idle_time_us = status_data->idle_time_us;
 
@@ -1188,21 +1190,16 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
     for(unsigned int id_tact = 0; id_tact < sr_hand_lib->nb_tactiles; ++id_tact)
     {
-      //if( sr_math_utils::is_bit_mask_index_true(sr_hand_lib->tactile_data_valid, id_tact) )
-      //{
-      TACTILE_SENSOR_SHADOW_PST_DATA_CONTENTS data;
-      data.pressure = sr_hand_lib->tactiles_vector[id_tact].data[0];
-      data.temperature = sr_hand_lib->tactiles_vector[id_tact].data[1];
-
-      tactiles.pressure.push_back( static_cast<int16u>(data.pressure) );
-      tactiles.temperature.push_back( static_cast<int16u>(data.temperature) );
-      /*}
-        else
-        {
+      if( sr_math_utils::is_bit_mask_index_true(sr_hand_lib->tactile_data_valid, id_tact) )
+      {
+        tactiles.pressure.push_back( static_cast<int16u>(sr_hand_lib->tactiles_vector[id_tact].word[0]) );
+        tactiles.temperature.push_back( static_cast<int16u>(sr_hand_lib->tactiles_vector[id_tact].word[1]) );
+      }
+      else
+      {
         tactiles.pressure.push_back( -1 );
         tactiles.temperature.push_back( -1 );
-        }
-      */
+      }
     }
 
 
