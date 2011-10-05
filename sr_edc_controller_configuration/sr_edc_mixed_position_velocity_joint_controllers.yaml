@@ -20,11 +20,11 @@ sh_ffj3_mixed_position_velocity_controller:
     i: -850
     i_clamp: 330
     max_force: 303.0
-    max_velocity: -0.5
-    min_velocity: 0.5
+    max_velocity: 0.25
+    min_velocity: -0.25
     p: 0
     position_deadband: 0.0
-    velocity_slope: -1.0
+    velocity_slope: 1.0
   type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
 sh_ffj4_mixed_position_velocity_controller:
   joint: FFJ4
