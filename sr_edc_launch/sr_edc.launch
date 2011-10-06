@@ -63,7 +63,7 @@
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
   <node pkg="robot_state_publisher" type="state_publisher"
-	name="srh_robot_state_publisher_pos">
+	name="srh_robot_state_publisher_pos_etherCAT">
     <param name="publish_frequency" type="double" value="100.0" />
   </node>
 
