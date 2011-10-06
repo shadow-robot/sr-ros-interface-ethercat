@@ -52,7 +52,7 @@ namespace shadow_robot
                                                                            MOTOR_DATA_PTERM, MOTOR_DATA_ITERM,
                                                                            MOTOR_DATA_DTERM};
 
-  const unsigned int nb_tactiles = 5;
+  const unsigned int SrRobotLib::nb_tactiles = 5;
 
   SrHandLib::SrHandLib(pr2_hardware_interface::HardwareInterface *hw) :
     SrRobotLib(hw)

@@ -252,27 +252,29 @@ thj5:
     sign: 0.0
 wrj1:
   pid:
-    d: 0
-    deadband: 0.0
-    f: 0
-    i: 0
-    imax: 0
+    d: 18000
+    deadband: 15.0
+    f: 1900
+    i: 320
+    imax: 1700
     max_pwm: 0.0
-    p: 0
+    p: 4800
+    sg_left: 0
+    sg_right: 0
+    sgleftref: 0.0
+    sgrightref: 0.0
+    sign: 1.0
+wrj2:
+  pid:
+    d: 18000
+    deadband: 15.0
+    f: 1900
+    i: 320
+    imax: 1700
+    max_pwm: 0.0
+    p: 4800
     sg_left: 0
     sg_right: 0
     sgleftref: 0.0
     sgrightref: 0.0
     sign: 0.0
-wrj2:
-  pid:
-    d: 0
-    deadband: 0
-    f: 0
-    i: 0
-    imax: 0
-    max_pwm: 0
-    p: 0
-    sg_left: 0
-    sg_right: 0
-    sign: 1

@@ -103,7 +103,6 @@ namespace motor_updater
     }
 
     mutex->unlock();
-
   }
 }
 
