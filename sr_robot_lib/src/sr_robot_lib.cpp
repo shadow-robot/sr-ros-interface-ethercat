@@ -96,11 +96,15 @@ namespace shadow_robot
       //filter the position and velocity
       std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(joint_tmp->motor->actuator->state_.position_,
                                                                                  timestamp);
-
       //reset the position to the filtered value
       joint_tmp->motor->actuator->state_.position_ = pos_and_velocity.first;
       //set the velocity to the filtered velocity
       joint_tmp->motor->actuator->state_.velocity_ = pos_and_velocity.second;
+
+      //filter the effort
+      std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(joint_tmp->motor->actuator->state_.effort_,
+                                                                                       timestamp);
+      joint_tmp->motor->actuator->state_.effort_ = effort_and_effort_d.first;
 
       //if no motor is associated to this joint, then continue
       if( (motor_index_full == -1) )
