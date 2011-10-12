@@ -102,9 +102,9 @@ namespace shadow_robot
       joint_tmp->motor->actuator->state_.velocity_ = pos_and_velocity.second;
 
       //filter the effort
-      std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(joint_tmp->motor->actuator->state_.effort_,
+      std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(joint_tmp->motor->actuator->state_.last_measured_effort_,
                                                                                        timestamp);
-      joint_tmp->motor->actuator->state_.effort_ = effort_and_effort_d.first;
+      joint_tmp->motor->actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
 
       //if no motor is associated to this joint, then continue
       if( (motor_index_full == -1) )
