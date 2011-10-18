@@ -38,20 +38,20 @@ sh_ffj4_mixed_position_velocity_controller:
   joint: FFJ4
   position_pid:
     d: 0.0
-    i: 0.0
-    i_clamp: 0.0
+    i: -2.5
+    i_clamp: 0.60000002384185791
     max_velocity: 3.0
     min_velocity: -3.0
-    p: 2.0
+    p: -2.0
     position_deadband: 0.0040000000000000001
   type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
   velocity_pid:
     d: 0.0
     friction_deadband: 5000.0
-    i: 750.0
-    i_clamp: 305.0
-    max_force: 1023.0
-    p: 0.0
+    i: -170.0
+    i_clamp: 165.0
+    max_force: 200.0
+    p: -110.0
 sh_lfj0_mixed_position_velocity_controller:
   joint: LFJ0
   position_pid:
