@@ -238,13 +238,13 @@ thj4:
     sign: 0.0
 thj5:
   pid:
-    d: 18000
+    d: 18000.0
     deadband: 25.0
-    f: 1900
-    i: 220
-    imax: 1300
+    f: 1900.0
+    i: 80.0
+    imax: 1300.0
     max_pwm: 1023.0
-    p: 4800
+    p: 4800.0
     sg_left: 0
     sg_right: 0
     sgleftref: 0.0
