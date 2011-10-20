@@ -176,8 +176,7 @@ namespace shadow_robot
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
 
-    /// Number of tactile sensors (TODO: should probably be defined in the protocol)
-    static const unsigned int nb_tactiles;
+
 
     /// The vector containing all the tactile sensor information.
     boost::ptr_vector<tactiles::Tactile<tactiles::PST3Data> > tactiles_vector;

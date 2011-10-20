@@ -252,13 +252,13 @@ thj5:
     sign: 0.0
 wrj1:
   pid:
-    d: 18000
+    d: 18000.0
     deadband: 5.0
-    f: 1900
-    i: 320
-    imax: 1700
+    f: 1900.0
+    i: 250.0
+    imax: 900.0
     max_pwm: 1023.0
-    p: 4800
+    p: 3200.0
     sg_left: 0
     sg_right: 0
     sgleftref: 0.0
@@ -266,13 +266,13 @@ wrj1:
     sign: 1.0
 wrj2:
   pid:
-    d: 18000
+    d: 18000.0
     deadband: 5.0
-    f: 1900
-    i: 320
-    imax: 1700
+    f: 1900.0
+    i: 720.0
+    imax: 1700.0
     max_pwm: 1023.0
-    p: 4800
+    p: 6100.0
     sg_left: 0
     sg_right: 0
     sgleftref: 0.0
