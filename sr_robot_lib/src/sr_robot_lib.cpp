@@ -288,6 +288,117 @@ namespace shadow_robot
   }
 
 
+  void SrRobotLib::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                                   diagnostic_updater::DiagnosticStatusWrapper &d)
+  {
+    boost::ptr_vector<shadow_joints::Joint>::iterator joint = joints_vector.begin();
+    for(;joint != joints_vector.end(); ++joint)
+    {
+      std::stringstream name;
+      name.str("");
+      name << "SRDMotor "<< joint->joint_name;
+      d.name = name.str();
+
+      if( joint->has_motor )
+      {
+        const sr_actuator::SrActuatorState *state(&(joint->motor->actuator)->state_);
+
+        if(joint->motor->motor_ok)
+        {
+          if(joint->motor->bad_data)
+          {
+            d.summary(d.WARN, "WARNING, bad CAN data received");
+
+            d.clear();
+            d.addf("Motor ID", "%d", joint->motor->motor_id);
+          }
+          else //the data is good
+          {
+            d.summary(d.OK, "OK");
+
+            d.clear();
+            d.addf("Motor ID", "%d", joint->motor->motor_id);
+            d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
+            d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
+            d.addf("Strain Gauge Right", "%d", state->strain_gauge_right_);
+            d.addf("Executed Effort", "%f", state->last_executed_effort_);
+
+            //if some flags are set
+            std::stringstream ss;
+            if( state->flags_.size() > 0 )
+            {
+              int flags_seriousness = d.OK;
+              std::pair<std::string, bool> flag;
+              BOOST_FOREACH(flag, state->flags_)
+              {
+                //Serious error flag
+                if(flag.second)
+                  flags_seriousness = d.ERROR;
+
+                if( flags_seriousness != d.ERROR )
+                  flags_seriousness = d.WARN;
+                ss << flag.first << " | ";
+              }
+              d.summary(flags_seriousness, ss.str().c_str() );
+            }
+            else
+              ss << " None";
+            d.addf("Motor Flags", "%s", ss.str().c_str() );
+
+            d.addf("Measured Current", "%f", state->last_measured_current_);
+            d.addf("Measured Voltage", "%f", state->motor_voltage_);
+            d.addf("Temperature", "%f", state->temperature_);
+            d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
+            d.addf("Number of CAN messages transmitted", "%lld", state->can_msgs_transmitted_);
+
+            d.addf("Force control Pterm", "%d", state->force_control_pterm);
+            d.addf("Force control Iterm", "%d", state->force_control_iterm);
+            d.addf("Force control Dterm", "%d", state->force_control_dterm);
+
+            d.addf("Force control F", "%d", state->force_control_f_);
+            d.addf("Force control P", "%d", state->force_control_p_);
+            d.addf("Force control I", "%d", state->force_control_i_);
+            d.addf("Force control D", "%d", state->force_control_d_);
+            d.addf("Force control Imax", "%d", state->force_control_imax_);
+            d.addf("Force control Deadband", "%d", state->force_control_deadband_);
+
+            if( state->force_control_sign_ == 0 )
+              d.addf("Force control Sign", "+");
+            else
+              d.addf("Force control Sign", "-");
+
+            d.addf("Last Measured Effort", "%f", state->last_measured_effort_);
+            d.addf("Last Commanded Effort", "%f", state->last_commanded_effort_);
+            d.addf("Encoder Position", "%f", state->position_);
+
+            if(state->firmware_modified_ )
+              d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / True", state->server_firmware_svn_revision_,
+                     state->pic_firmware_svn_revision_ );
+            else
+              d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False", state->server_firmware_svn_revision_,
+                     state->pic_firmware_svn_revision_ );
+
+            d.addf("Tests", "%d", state->tests_);
+          }
+        }
+        else
+        {
+          d.summary(d.ERROR, "Motor error");
+          d.clear();
+          d.addf("Motor ID", "%d", joint->motor->motor_id);
+        }
+      }
+      else
+      {
+        d.summary(d.OK, "No motor associated to this joint");
+        d.clear();
+      }
+      vec.push_back(d);
+
+    } //end for each joints
+
+  }
+
   void SrRobotLib::calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
   {
     actuator->state_.raw_sensor_values_.clear();

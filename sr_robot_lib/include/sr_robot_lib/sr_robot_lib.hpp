@@ -40,6 +40,9 @@
 
 #include <sr_hardware_interface/sr_actuator.hpp>
 
+#include <diagnostic_msgs/DiagnosticStatus.h>
+#include <diagnostic_updater/DiagnosticStatusWrapper.h>
+
 #include <sr_robot_msgs/ForceController.h>
 #include <sr_robot_msgs/SetDebugData.h>
 
@@ -171,8 +174,13 @@ namespace shadow_robot
      */
     void build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
 
-    /// The vector containing all the robot joints.
-    boost::ptr_vector<shadow_joints::Joint> joints_vector;
+    /**
+     * This function adds the diagnostics for the hand to the
+     * multi diagnostic status published in sr06.cpp.
+     */
+    void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                         diagnostic_updater::DiagnosticStatusWrapper &d);
+
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
 
@@ -192,6 +200,9 @@ namespace shadow_robot
     int main_pic_idle_time_min;
 
   protected:
+    /// The vector containing all the robot joints.
+    boost::ptr_vector<shadow_joints::Joint> joints_vector;
+
     /**
      * Initializes the joints_vector.
      *
