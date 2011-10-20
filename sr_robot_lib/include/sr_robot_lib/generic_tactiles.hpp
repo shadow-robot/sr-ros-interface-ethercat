@@ -43,18 +43,25 @@ extern "C"
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
 #include "sr_robot_lib/tactile_sensors.hpp"
+#include "sr_robot_lib/generic_updater.hpp"
+#include "sr_robot_lib/sensor_updater.hpp"
 
 namespace tactiles
 {
   class GenericTactiles
   {
   public:
-    GenericTactiles();
+    GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector) {};
     ~GenericTactiles() {};
 
+    /**
+     * This function is called each time a new etherCAT message
+     * is received in the sr06.cpp driver. It  updates the tactile
+     * sensors values contained in tactiles_vector.
+     *
+     * @param status_data the received etherCAT message
+     */
     virtual void update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data) = 0;
-
-    virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command) = 0;
 
     /**
      * Publish the information to a ROS topic.
@@ -82,6 +89,8 @@ namespace tactiles
 
     /// Number of tactile sensors (TODO: should probably be defined in the protocol)
     static const unsigned int nb_tactiles;
+
+    generic_updater::SensorUpdater sensor_updater;
 
   protected:
     ros::NodeHandle nodehandle_;

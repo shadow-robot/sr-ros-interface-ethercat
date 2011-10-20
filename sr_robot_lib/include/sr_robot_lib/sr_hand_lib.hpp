@@ -135,11 +135,23 @@ namespace shadow_robot
      * @return A vector of UpdateConfig containing the type of data and the frequency
      *         at which we want to poll this data
      */
-    std::vector<motor_updater::UpdateConfig> read_update_rate_configs();
+    std::vector<generic_updater::UpdateConfig> read_update_rate_configs();
+
+    /**
+         * Simply reads the config from the parameter server.
+         *
+         * @return A vector of UpdateConfig containing the type of data and the frequency
+         *         at which we want to poll this data
+         */
+    std::vector<generic_updater::UpdateConfig> read_sensors_update_rate_configs();
 
     static const int nb_motor_data;
     static const char* human_readable_motor_data_types[];
-    static const FROM_MOTOR_DATA_TYPE motor_data_types[];
+    static const int32u motor_data_types[];
+
+    static const int nb_sensor_data;
+    static const char* human_readable_sensor_data_types[];
+    static const int32u sensor_data_types[];
 
     /// a service server for reconfiguring the debug data we want to publish
     ros::ServiceServer debug_service;

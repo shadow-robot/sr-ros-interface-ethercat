@@ -56,9 +56,6 @@ namespace shadow_robot
     }
 #endif
 
-    //TODO: create this after the init phase, based on the actual tactiles
-    // type (read from the palm)
-    tactiles = boost::shared_ptr<tactiles::ShadowPSTs>( new tactiles::ShadowPSTs() );
   }
 
 
@@ -158,7 +155,7 @@ namespace shadow_robot
     motor_updater_->build_update_motor_command(command);
 
     //update the command with the tactile command:
-    tactiles->build_command(command);
+    tactiles->sensor_updater.build_command(command);
 
     ///////
     // Now we chose the command to send to the motor

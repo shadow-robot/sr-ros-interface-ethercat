@@ -43,7 +43,7 @@ namespace shadow_robot
                                                                            "can_error_counters",
                                                                            "pterm", "iterm", "dterm"};
 
-  const FROM_MOTOR_DATA_TYPE SrHandLib::motor_data_types[nb_motor_data] = {MOTOR_DATA_SGL, MOTOR_DATA_SGR,
+  const int32u SrHandLib::motor_data_types[nb_motor_data] = {MOTOR_DATA_SGL, MOTOR_DATA_SGR,
                                                                            MOTOR_DATA_PWM, MOTOR_DATA_FLAGS,
                                                                            MOTOR_DATA_CURRENT, MOTOR_DATA_VOLTAGE,
                                                                            MOTOR_DATA_TEMPERATURE, MOTOR_DATA_CAN_NUM_RECEIVED,
@@ -52,12 +52,82 @@ namespace shadow_robot
                                                                            MOTOR_DATA_PTERM, MOTOR_DATA_ITERM,
                                                                            MOTOR_DATA_DTERM};
 
+  const int SrHandLib::nb_sensor_data = 30;
+  const char* SrHandLib::human_readable_sensor_data_types[nb_sensor_data] = {"TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1",
+                                                                             "TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3",
+                                                                             "TACTILE_SENSOR_TYPE_PST3_DAC_VALUE",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_PDC",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
+                                                                            "TACTILE_SENSOR_TYPE_BIOTAC_TDC",
+                                                                             "TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ",
+                                                                             "TACTILE_SENSOR_TYPE_MANUFACTURER",
+                                                                             "TACTILE_SENSOR_TYPE_SERIAL_NUMBER",
+                                                                             "TACTILE_SENSOR_TYPE_SOFTWARE_VERSION",
+                                                                             "TACTILE_SENSOR_TYPE_PCB_VERSION",
+                                                                             "TACTILE_SENSOR_TYPE_RESET_COMMAND"};
+
+  const int32u SrHandLib::sensor_data_types[nb_sensor_data] = {TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1,
+                                                               TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3,
+                                                               TACTILE_SENSOR_TYPE_PST3_DAC_VALUE,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_PDC,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_TAC,
+                                                              TACTILE_SENSOR_TYPE_BIOTAC_TDC,
+                                                               TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ,
+                                                               TACTILE_SENSOR_TYPE_MANUFACTURER,
+                                                               TACTILE_SENSOR_TYPE_SERIAL_NUMBER,
+                                                               TACTILE_SENSOR_TYPE_SOFTWARE_VERSION,
+                                                               TACTILE_SENSOR_TYPE_PCB_VERSION,
+                                                               TACTILE_SENSOR_TYPE_RESET_COMMAND
+
+                                                                  };
+
   SrHandLib::SrHandLib(pr2_hardware_interface::HardwareInterface *hw) :
     SrRobotLib(hw)
   {
     //read the motor polling frequency from the parameter server
-    std::vector<motor_updater::UpdateConfig> update_rate_configs_vector = read_update_rate_configs();
-    motor_updater_ = boost::shared_ptr<motor_updater::MotorUpdater>(new motor_updater::MotorUpdater(update_rate_configs_vector));
+    std::vector<generic_updater::UpdateConfig> update_rate_configs_vector = read_update_rate_configs();
+    motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater>(new generic_updater::MotorUpdater(update_rate_configs_vector));
+
+
+    //read the motor polling frequency from the parameter server
+    std::vector<generic_updater::UpdateConfig> sensor_update_rate_configs_vector = read_sensors_update_rate_configs();
+    //TODO: create this after the init phase, based on the actual tactiles
+     // type (read from the palm)
+     tactiles = boost::shared_ptr<tactiles::ShadowPSTs>( new tactiles::ShadowPSTs(sensor_update_rate_configs_vector) );
 
     //TODO: read this from config/EEProm?
     std::vector<shadow_joints::JointToSensor > joint_to_sensor_vect = read_joint_to_sensor_mapping();
@@ -409,7 +479,12 @@ namespace shadow_robot
       std::vector<joint_calibration::Point> calib_table_tmp;
 
       //now iterates on the calibration table for the current joint
-      for(int32_t index_table=0; index_table < calib[index_cal][1].size(); ++index_table)
+      for(int32_t index_table=0; index_table < calib[index_cal][1].size(); ++/**
+       * Simply reads the config from the parameter server.
+       *
+       * @return A vector of UpdateConfig containing the type of data and the frequency
+       *         at which we want to poll this data
+       */index_table)
       {
         ROS_ASSERT(calib[index_cal][1][index_table].getType() == XmlRpc::XmlRpcValue::TypeArray);
         //only 2 values per calibration point: raw and calibrated (doubles)
@@ -450,11 +525,11 @@ namespace shadow_robot
   } //end read_joint_to_motor_mapping
 
 
-  std::vector<motor_updater::UpdateConfig> SrHandLib::read_update_rate_configs()
+  std::vector<generic_updater::UpdateConfig> SrHandLib::read_update_rate_configs()
   {
-    std::vector<motor_updater::UpdateConfig> update_rate_configs_vector;
+    std::vector<generic_updater::UpdateConfig> update_rate_configs_vector;
     std::string base_param = "motor_data_update_rate/";
-    typedef std::pair<std::string, FROM_MOTOR_DATA_TYPE> ConfPair;
+    typedef std::pair<std::string, int32u> ConfPair;
     std::vector<ConfPair> config;
 
     for(int i=0; i<nb_motor_data; ++i)
@@ -472,7 +547,7 @@ namespace shadow_robot
     {
       double rate;
       nodehandle_.getParam(config[i].first, rate);
-      motor_updater::UpdateConfig config_tmp;
+      generic_updater::UpdateConfig config_tmp;
 
       config_tmp.when_to_update = rate;
       config_tmp.what_to_update = config[i].second;
@@ -481,6 +556,39 @@ namespace shadow_robot
 
     return update_rate_configs_vector;
   }
+
+  //TODO: make a unique read update rate that combines the two functions
+  std::vector<generic_updater::UpdateConfig> SrHandLib::read_sensors_update_rate_configs()
+    {
+      std::vector<generic_updater::UpdateConfig> update_rate_configs_vector;
+      std::string base_param = "sensor_data_update_rate/";
+      typedef std::pair<std::string, int32u> ConfPair;
+      std::vector<ConfPair> config;
+
+      for(int i=0; i<nb_sensor_data; ++i)
+      {
+        ConfPair tmp;
+
+        ROS_DEBUG_STREAM(" read sensor update rate config [" << i<< "] = "  << human_readable_sensor_data_types[i]);
+
+        tmp.first = base_param + human_readable_sensor_data_types[i];
+        tmp.second = motor_data_types[i];
+        config.push_back(tmp);
+      }
+
+      for(unsigned int i = 0; i < config.size(); ++i)
+      {
+        double rate;
+        nodehandle_.getParam(config[i].first, rate);
+        generic_updater::UpdateConfig config_tmp;
+
+        config_tmp.when_to_update = rate;
+        config_tmp.what_to_update = config[i].second;
+        update_rate_configs_vector.push_back(config_tmp);
+      }
+
+      return update_rate_configs_vector;
+    }
 
 #ifdef DEBUG_PUBLISHER
   bool SrHandLib::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,

@@ -30,8 +30,8 @@
 
 namespace tactiles
 {
-  ShadowPSTs::ShadowPSTs()
-    : GenericTactiles()
+  ShadowPSTs::ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector)
+    : GenericTactiles(update_configs_vector)
   {
     // Tactile sensor real time publisher
     tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nodehandle_ , "tactile", 4));
@@ -42,7 +42,6 @@ namespace tactiles
 
   void ShadowPSTs::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
   {
-    //TODO: implement me
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
     //TODO: use memcopy instead?
     for( unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
@@ -117,6 +116,8 @@ namespace tactiles
           tactiles_vector->at(id_sensor).serial_number = serial;
         }
       }
+
+      command->tactile_data_type = TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE;
       break;
 
       case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
@@ -138,13 +139,6 @@ namespace tactiles
 
       } //end switch
     } //end for tactile
-  }
-
-  void ShadowPSTs::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
-  {
-    //TODO: implement me
-
-    command->tactile_data_type = TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE;
   }
 
   void ShadowPSTs::publish()

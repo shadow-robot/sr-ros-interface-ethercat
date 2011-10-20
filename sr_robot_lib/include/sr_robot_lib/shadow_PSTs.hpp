@@ -33,6 +33,7 @@
 #include <realtime_tools/realtime_publisher.h>
 
 #include "sr_robot_lib/generic_tactiles.hpp"
+#include "sr_robot_lib/generic_updater.hpp"
 
 namespace tactiles
 {
@@ -40,7 +41,7 @@ namespace tactiles
     public GenericTactiles
   {
   public:
-    ShadowPSTs();
+    ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector);
     ~ShadowPSTs() {};
 
     /**

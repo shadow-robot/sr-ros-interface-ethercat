@@ -1,9 +1,8 @@
 /**
- * @file   motor_updater.hpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
- * @date   Tue Jun  7 09:15:21 2011
+ * @file   sensor_updater.hpp
+ * @author toni <toni@shadowrobot.com>
+ * @date   20 Oct 2011
  *
-*
 * Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
@@ -20,14 +19,15 @@
 * with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 *
- * @brief  This contains a class used to determin which data we should ask the motor for,
- * depending on the config we're using.
+ * @brief This is a generic robot library for Shadow Robot's Hardware.
  *
  *
  */
 
-#ifndef _MOTOR_UPDATER_HPP_
-#define _MOTOR_UPDATER_HPP_
+#ifndef SENSOR_UPDATER_HPP_
+#define SENSOR_UPDATER_HPP_
+
+
 
 #include <ros/ros.h>
 #include <vector>
@@ -46,28 +46,29 @@ extern "C"
 namespace generic_updater
 {
   /**
-   * The Motor Updater builds the next command we want to send to the hand.
+   * The Sensor Updater builds the next command we want to send to the hand.
    * We can ask for different types of data at different rates. The data and
-   * their rates are defined in the sr_robot_lib/config/motor_data_polling.yaml
+   * their rates are defined in the sr_robot_lib/config/sensor_data_polling.yaml
    * The important data are refreshed as often as possible (they have a -1. refresh
    * rate in the config file).
    *
    * The unimportant data are refreshed at their given rate (the value is defined in
    * the config in seconds).
    */
-  class MotorUpdater :
+  class SensorUpdater :
       public GenericUpdater
   {
   public:
-    MotorUpdater(std::vector<UpdateConfig> update_configs_vector);
-    ~MotorUpdater();
+    SensorUpdater(std::vector<UpdateConfig> update_configs_vector);
+    ~SensorUpdater();
 
     /**
-     * Building the motor command. This function is called at each packCommand() call.
+     * Updates the command to send to the hand. This function is called
+     * at each packCommand() call. Ask for the relevant information for the tactiles.
      * If an unimportant data is waiting then we send it, otherwise, we send the next
      * important data.
      *
-     * @param command The command which will be sent to the motor.
+     * @param command The command which will be sent to the palm.
      */
     void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
 
@@ -80,18 +81,14 @@ namespace generic_updater
      */
     void timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type);
 
-  private:
-    ///are we sending the command to the even or the uneven motors.
-    int even_motors;
-
   };
 }
 
 
 /* For the emacs weenies in the crowd.
-   Local Variables:
+Local Variables:
    c-basic-offset: 2
-   End:
+End:
 */
 
-#endif
+#endif /* SENSOR_UPDATER_HPP_ */

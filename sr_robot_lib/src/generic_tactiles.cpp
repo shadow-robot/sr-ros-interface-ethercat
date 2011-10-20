@@ -31,8 +31,9 @@ namespace tactiles
 {
   const unsigned int GenericTactiles::nb_tactiles = 5;
 
-  GenericTactiles::GenericTactiles()
+  GenericTactiles::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector)
   {
+    sensor_updater = new generic_updater::SensorUpdater(update_configs_vector);
     reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
   }
 
@@ -49,7 +50,6 @@ namespace tactiles
   {
     ROS_INFO_STREAM("Resetting tactiles");
   }
-
 }
 
 /* For the emacs weenies in the crowd.
