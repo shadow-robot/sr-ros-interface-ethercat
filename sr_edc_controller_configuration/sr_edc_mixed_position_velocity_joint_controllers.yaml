@@ -290,38 +290,38 @@ sh_thj4_mixed_position_velocity_controller:
   joint: THJ4
   position_pid:
     d: 0.0
-    i: -1.5
-    i_clamp: 0.5
+    i: -2.5
+    i_clamp: 0.89999997615814209
     max_velocity: 1.5
     min_velocity: -1.5
-    p: -2.0
+    p: -3.0
     position_deadband: 0.002
   type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
   velocity_pid:
     d: 0.0
     friction_deadband: 100.0
-    i: -320.0
-    i_clamp: 170.0
+    i: -270.0
+    i_clamp: 140.0
     max_force: 1023.0
-    p: -60.0
+    p: -130.0
 sh_thj5_mixed_position_velocity_controller:
   joint: THJ5
   position_pid:
     d: 0.0
-    i: -0.5
-    i_clamp: 0.5
+    i: -2.5
+    i_clamp: 0.89999997615814209
     max_velocity: 1.5
     min_velocity: -1.5
-    p: -2.0
+    p: -3.0
     position_deadband: 0.002
   type: sr_mechanism_controllers/SrhMixedPositionVelocityJointController
   velocity_pid:
     d: 0.0
     friction_deadband: 100.0
-    i: 310.0
-    i_clamp: 288.0
+    i: 320.0
+    i_clamp: 170.0
     max_force: 1023.0
-    p: 250.0
+    p: 160.0
 sh_wrj1_mixed_position_velocity_controller:
   joint: WRJ1
   position_pid:
