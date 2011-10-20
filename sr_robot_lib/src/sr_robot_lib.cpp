@@ -154,7 +154,7 @@ namespace shadow_robot
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
           tactiles_vector[id_sensor].sensor_data.pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          tactiles_vector[id_sensor].sensor_data.pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
+          tactiles_vector[id_sensor].sensor_data.temperature = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
           tactiles_vector[id_sensor].sensor_data.debug_1 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
           tactiles_vector[id_sensor].sensor_data.debug_2 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[3]) );
         }
@@ -209,7 +209,7 @@ namespace shadow_robot
           for (int i = 0; i < 16; ++i)
           {
             char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != '0' )
+            if( tmp != 0 )
               serial += static_cast<char>(status_data->tactile[id_sensor].string[i]);
             else
               break;
@@ -495,7 +495,7 @@ namespace shadow_robot
         actuator->state_.strain_gauge_right_ =  static_cast<int16s>( status_data->motor_data_packet[index_motor_in_msg].misc );
         break;
       case MOTOR_DATA_PWM:
-        actuator->state_.last_executed_effort_ =  static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
+        actuator->state_.pwm_ =  static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
         break;
       case MOTOR_DATA_FLAGS:
         actuator->state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
