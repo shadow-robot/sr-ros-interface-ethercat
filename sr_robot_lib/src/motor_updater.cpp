@@ -69,10 +69,6 @@ namespace motor_updater
       return;
 
     ///////
-    // Update the tactile sensors data type demand
-    command->tactile_data_type = TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE;
-
-    ///////
     // First we ask for the next data we want to receive
     if(even_motors)
       even_motors = 0;

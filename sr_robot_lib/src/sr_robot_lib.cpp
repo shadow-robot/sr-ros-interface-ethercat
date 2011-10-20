@@ -32,6 +32,8 @@
 
 #include <ros/ros.h>
 
+#include "sr_robot_lib/shadow_PSTs.hpp"
+
 namespace shadow_robot
 {
 #ifdef DEBUG_PUBLISHER
@@ -53,6 +55,10 @@ namespace shadow_robot
       debug_publishers.push_back(node_handle.advertise<std_msgs::Int16>(ss.str().c_str(),100));
     }
 #endif
+
+    //TODO: create this after the init phase, based on the actual tactiles
+    // type (read from the palm)
+    tactiles = boost::shared_ptr<tactiles::ShadowPSTs>( new tactiles::ShadowPSTs() );
   }
 
 
@@ -137,112 +143,22 @@ namespace shadow_robot
       // we'll print that in the diagnostics.
       joint_tmp->motor->msg_motor_id = index_motor_in_msg;
 
+      //then we read the tactile sensors information
+      tactiles->update(status_data);
+
       //ok now we read the info and add it to the actuator state
       if(read_motor_info)
         read_additional_data(joint_tmp);
     } //end for joint
-
-    //then we read the tactile sensors information
-    int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-    //TODO: use memcopy instead?
-    for( unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
-    {
-      switch( static_cast<int32u>(status_data->tactile_data_type) )
-      {
-        //TACTILE DATA
-      case TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].sensor_data.pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          tactiles_vector[id_sensor].sensor_data.temperature = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
-          tactiles_vector[id_sensor].sensor_data.debug_1 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-          tactiles_vector[id_sensor].sensor_data.debug_2 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[3]) );
-        }
-        break;
-
-      case TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].sensor_data.pressure_raw = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          tactiles_vector[id_sensor].sensor_data.zero_tracking = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
-        }
-        break;
-
-      case TACTILE_SENSOR_TYPE_PST3_DAC_VALUE:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].sensor_data.dac_value = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-        }
-        break;
-
-        //COMMON DATA
-      case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].common_data.sample_frequency = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-        }
-        break;
-
-      case TACTILE_SENSOR_TYPE_MANUFACTURER:
-      {
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          std::string manufacturer = "";
-          for (int i = 0; i < 16; ++i)
-          {
-            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != '0' )
-              manufacturer += static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            else
-              break;
-          }
-          tactiles_vector[id_sensor].common_data.manufacturer = manufacturer;
-        }
-      }
-      break;
-
-      case TACTILE_SENSOR_TYPE_SERIAL_NUMBER:
-      {
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          std::string serial = "";
-          for (int i = 0; i < 16; ++i)
-          {
-            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != 0 )
-              serial += static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            else
-              break;
-          }
-          tactiles_vector[id_sensor].common_data.serial_number = serial;
-        }
-      }
-      break;
-
-      case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].common_data.software_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-        }
-        break;
-
-      case TACTILE_SENSOR_TYPE_PCB_VERSION:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].common_data.pcb_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-        }
-        break;
-
-      default:
-        break;
-
-      }
-    }
   } //end update()
 
   void SrRobotLib::build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
+    //build the motor command
     motor_updater_->build_update_motor_command(command);
+
+    //update the command with the tactile command:
+    tactiles->build_command(command);
 
     ///////
     // Now we chose the command to send to the motor

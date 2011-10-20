@@ -28,6 +28,7 @@
 #ifndef _SHADOW_PSTS_HPP_
 #define _SHADOW_PSTS_HPP_
 
+#include <vector>
 #include "sr_robot_lib/generic_tactiles.hpp"
 
 namespace tactiles
@@ -57,10 +58,7 @@ namespace tactiles
      * @param command The command which will be sent to the palm.
      */
     virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
-
-  private:
-    boost::shared_ptr< Tactile<PST3Data> > tactiles_vector;
-  };//end class
+   };//end class
 }//end namespace
 
 /* For the emacs weenies in the crowd.

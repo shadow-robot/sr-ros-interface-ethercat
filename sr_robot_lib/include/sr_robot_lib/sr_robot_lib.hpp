@@ -47,7 +47,7 @@
 #include <sr_utilities/calibration.hpp>
 
 #include "sr_robot_lib/motor_updater.hpp"
-#include "sr_robot_lib/tactile_sensors.hpp"
+#include "sr_robot_lib/generic_tactiles.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
@@ -176,10 +176,7 @@ namespace shadow_robot
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
 
-
-
-    /// The vector containing all the tactile sensor information.
-    boost::ptr_vector<tactiles::Tactile<tactiles::PST3Data> > tactiles_vector;
+    boost::shared_ptr<tactiles::GenericTactiles> tactiles;
 
     /**
      * Contains the idle time of the PIC communicating
