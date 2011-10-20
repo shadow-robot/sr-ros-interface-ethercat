@@ -99,6 +99,8 @@ private:
 
   boost::shared_ptr<shadow_robot::SrHandLib> sr_hand_lib;
 
+  short cycle_count;
+
 #ifdef DEBUG_PUBLISHER
   /// Debug real time publisher: publishes the raw ethercat data
   boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;

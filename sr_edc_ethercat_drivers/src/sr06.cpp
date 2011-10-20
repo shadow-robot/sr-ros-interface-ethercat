@@ -129,7 +129,8 @@ SR06::SR06()
     can_message_sent(true),
     can_packet_acked(true),
     zero_buffer_read(0),
-    can_bus_(0)
+    can_bus_(0),
+    cycle_count(0)
 {
   int res = 0;
   check_for_pthread_mutex_init_error(res);
@@ -1176,8 +1177,14 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   //with the received information
   sr_hand_lib->update(status_data);
 
-  //Now publish the tactile sensor data:
-  sr_hand_lib->tactiles->publish();
+  //Now publish the tactile sensor data at 100Hz (every 10 cycles)
+  if( cycle_count >= 9)
+  {
+    sr_hand_lib->tactiles->publish();
+    cycle_count = 0;
+  }
+  ++cycle_count;
+
 
   //If we're flashing, check is the packet has been acked
   if (flashing & !can_packet_acked)
