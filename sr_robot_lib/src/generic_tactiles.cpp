@@ -30,6 +30,26 @@
 namespace tactiles
 {
   const unsigned int GenericTactiles::nb_tactiles = 5;
+
+  GenericTactiles::GenericTactiles()
+  {
+    reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
+  }
+
+  /**
+   * Reset the tactile sensors.
+   *
+   * @param request empty
+   * @param response empty
+   *
+   * @return true if success
+   */
+  bool GenericTactiles::reset(std_srvs::Empty::Request& request,
+                              std_srvs::Empty::Response& response)
+  {
+    ROS_INFO_STREAM("Resetting tactiles");
+  }
+
 }
 
 /* For the emacs weenies in the crowd.

@@ -37,6 +37,8 @@ extern "C"
 
 #include <ros/ros.h>
 #include <vector>
+#include <std_srvs/Empty.h>
+
 #include "sr_robot_lib/tactile_sensors.hpp"
 
 namespace tactiles
@@ -44,7 +46,7 @@ namespace tactiles
   class GenericTactiles
   {
   public:
-    GenericTactiles() {};
+    GenericTactiles();
     ~GenericTactiles() {};
 
     virtual void update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data) = 0;
@@ -57,11 +59,25 @@ namespace tactiles
      */
     virtual void publish() = 0;
 
+
+    /**
+     * Reset the tactile sensors.
+     *
+     * @param request empty
+     * @param response empty
+     *
+     * @return true if success
+     */
+    bool reset(std_srvs::Empty::Request& request,
+               std_srvs::Empty::Response& response);
+
     /// Number of tactile sensors (TODO: should probably be defined in the protocol)
     static const unsigned int nb_tactiles;
 
   protected:
     ros::NodeHandle nodehandle_;
+
+    ros::ServiceServer reset_service_client_;
 
   };//end class
 }//end namespace
