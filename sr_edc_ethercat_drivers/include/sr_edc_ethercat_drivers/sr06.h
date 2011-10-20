@@ -99,6 +99,10 @@ private:
 
   boost::shared_ptr<shadow_robot::SrHandLib> sr_hand_lib;
 
+  /**
+   *a counter used to publish the tactiles at 100Hz:
+   * count 10 cycles, then reset the cycle_count to 0.
+   */
   short cycle_count;
 
 #ifdef DEBUG_PUBLISHER
