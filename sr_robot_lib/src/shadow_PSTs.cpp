@@ -33,10 +33,11 @@ namespace tactiles
   ShadowPSTs::ShadowPSTs()
     : GenericTactiles()
   {
+    // Tactile sensor real time publisher
+    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nodehandle_ , "tactile", 4));
+
     //initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr< std::vector<PST3Data> >( new std::vector<PST3Data>(nb_tactiles) );
-
-    ROS_ERROR_STREAM("new vector of tactiles created with "<< nb_tactiles);
   }
 
   void ShadowPSTs::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
@@ -145,6 +146,38 @@ namespace tactiles
 
     command->tactile_data_type = TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE;
   }
+
+  void ShadowPSTs::publish()
+  {
+    if(tactile_publisher->trylock())
+    {
+      //for the time being, we only have PSTs tactile sensors
+      sr_robot_msgs::ShadowPST tactiles;
+      tactiles.header.stamp = ros::Time::now();
+
+      //tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
+
+      for(unsigned int id_tact = 0; id_tact < nb_tactiles; ++id_tact)
+      {
+        if( tactiles_vector->at(id_tact).tactile_data_valid )
+        {
+          tactiles.pressure.push_back( static_cast<int16u>(tactiles_vector->at(id_tact).pressure) );
+          tactiles.temperature.push_back( static_cast<int16u>(tactiles_vector->at(id_tact).temperature) );
+        }
+        else
+        {
+          tactiles.pressure.push_back( -1 );
+          tactiles.temperature.push_back( -1 );
+        }
+      }
+
+
+      tactile_publisher->msg_ = tactiles;
+      tactile_publisher->unlockAndPublish();
+    }
+
+  }
+
 }
 
 /* For the emacs weenies in the crowd.

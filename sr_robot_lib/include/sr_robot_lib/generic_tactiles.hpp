@@ -35,6 +35,7 @@ extern "C"
   #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
 }
 
+#include <ros/ros.h>
 #include <vector>
 #include "sr_robot_lib/tactile_sensors.hpp"
 
@@ -50,10 +51,18 @@ namespace tactiles
 
     virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command) = 0;
 
+    /**
+     * Publish the information to a ROS topic.
+     *
+     */
+    virtual void publish() = 0;
+
     /// Number of tactile sensors (TODO: should probably be defined in the protocol)
     static const unsigned int nb_tactiles;
 
-    boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;
+  protected:
+    ros::NodeHandle nodehandle_;
+
   };//end class
 }//end namespace
 

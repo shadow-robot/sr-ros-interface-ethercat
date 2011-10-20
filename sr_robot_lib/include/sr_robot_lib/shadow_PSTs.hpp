@@ -29,6 +29,9 @@
 #define _SHADOW_PSTS_HPP_
 
 #include <vector>
+#include <sr_robot_msgs/ShadowPST.h>
+#include <realtime_tools/realtime_publisher.h>
+
 #include "sr_robot_lib/generic_tactiles.hpp"
 
 namespace tactiles
@@ -58,7 +61,21 @@ namespace tactiles
      * @param command The command which will be sent to the palm.
      */
     virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
-   };//end class
+
+
+    /**
+     * Publish the information to a ROS topic.
+     *
+     */
+    virtual void publish();
+
+  protected:
+    /// the vector containing the data for the tactiles.
+    boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;
+
+    // Tactile sensor real time publisher
+    boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> > tactile_publisher;
+  };//end class
 }//end namespace
 
 /* For the emacs weenies in the crowd.

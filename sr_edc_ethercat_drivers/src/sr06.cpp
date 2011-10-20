@@ -294,9 +294,6 @@ int SR06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int>(ETHERCAT_COMMAND_DATA_SIZE) );
   ROS_INFO("ETHERCAT_CAN_BRIDGE_DATA_SIZE  = %4d bytes", static_cast<int>(ETHERCAT_CAN_BRIDGE_DATA_SIZE) );
 
-  // Tactile sensor real time publisher
-  tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nodehandle_ , "tactile", 4));
-
 #ifdef DEBUG_PUBLISHER
   // Debug real time publisher: publishes the raw ethercat data
   debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_ , "debug_etherCAT_data", 4));
@@ -1180,32 +1177,7 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   sr_hand_lib->update(status_data);
 
   //Now publish the tactile sensor data:
-  if(tactile_publisher->trylock())
-  {
-    //for the time being, we only have PSTs tactile sensors
-    sr_robot_msgs::ShadowPST tactiles;
-    tactiles.header.stamp = ros::Time::now();
-
-    //tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
-
-    for(unsigned int id_tact = 0; id_tact < sr_hand_lib->tactiles->nb_tactiles; ++id_tact)
-    {
-      if( sr_hand_lib->tactiles->tactiles_vector->at(id_tact).tactile_data_valid )
-      {
-        tactiles.pressure.push_back( static_cast<int16u>(sr_hand_lib->tactiles->tactiles_vector->at(id_tact).pressure) );
-        tactiles.temperature.push_back( static_cast<int16u>(sr_hand_lib->tactiles->tactiles_vector->at(id_tact).temperature) );
-      }
-      else
-      {
-        tactiles.pressure.push_back( -1 );
-        tactiles.temperature.push_back( -1 );
-      }
-    }
-
-
-    tactile_publisher->msg_ = tactiles;
-    tactile_publisher->unlockAndPublish();
-  }
+  sr_hand_lib->tactiles->publish();
 
   //If we're flashing, check is the packet has been acked
   if (flashing & !can_packet_acked)

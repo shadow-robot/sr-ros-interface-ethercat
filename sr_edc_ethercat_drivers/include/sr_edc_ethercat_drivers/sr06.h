@@ -40,7 +40,6 @@
 
 #include <sr_robot_lib/sr_hand_lib.hpp>
 
-#include <sr_robot_msgs/ShadowPST.h>
 #include <sr_robot_msgs/EthercatDebug.h>
 
 #include <sr_external_dependencies/types_for_external.h>
@@ -99,9 +98,6 @@ private:
   unsigned int                     zero_buffer_read;
 
   boost::shared_ptr<shadow_robot::SrHandLib> sr_hand_lib;
-
-  // Tactile sensor real time publisher
-  boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> > tactile_publisher;
 
 #ifdef DEBUG_PUBLISHER
   /// Debug real time publisher: publishes the raw ethercat data
