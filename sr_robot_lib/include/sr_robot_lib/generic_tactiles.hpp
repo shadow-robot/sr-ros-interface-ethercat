@@ -39,6 +39,9 @@ extern "C"
 #include <vector>
 #include <std_srvs/Empty.h>
 
+#include <diagnostic_msgs/DiagnosticStatus.h>
+#include <diagnostic_updater/DiagnosticStatusWrapper.h>
+
 #include "sr_robot_lib/tactile_sensors.hpp"
 
 namespace tactiles
@@ -59,6 +62,12 @@ namespace tactiles
      */
     virtual void publish() = 0;
 
+    /**
+     * This function adds the diagnostics for the tactiles to the
+     * multi diagnostic status published by the hand.
+     */
+    virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                                 diagnostic_updater::DiagnosticStatusWrapper &d) = 0;
 
     /**
      * Reset the tactile sensors.

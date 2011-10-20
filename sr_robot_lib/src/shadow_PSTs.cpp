@@ -176,8 +176,34 @@ namespace tactiles
       tactile_publisher->unlockAndPublish();
     }
 
-  }
+  }//end publish
 
+  void ShadowPSTs::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                                   diagnostic_updater::DiagnosticStatusWrapper &d)
+  {
+    for(unsigned int id_tact = 0; id_tact < nb_tactiles; ++id_tact)
+    {
+      std::stringstream ss;
+
+      ss << "Tactile " << id_tact + 1;
+
+      d.name = ss.str().c_str();
+      d.summary(d.OK, "OK");
+      d.clear();
+
+      d.addf("Sample Frequency", "%d", tactiles_vector->at(id_tact).sample_frequency);
+      d.addf("Manufacturer", "%s", tactiles_vector->at(id_tact).manufacturer.c_str());
+      d.addf("Serial Number", "%s", tactiles_vector->at(id_tact).serial_number.c_str());
+
+      d.addf("Software Version", "%d", tactiles_vector->at(id_tact).software_version);
+      d.addf("PCB Version", "%d", tactiles_vector->at(id_tact).pcb_version);
+
+      d.addf("Pressure Raw", "%d", tactiles_vector->at(id_tact).pressure_raw);
+      d.addf("DAC Value", "%d", tactiles_vector->at(id_tact).dac_value);
+
+      vec.push_back(d);
+    }
+  }
 }
 
 /* For the emacs weenies in the crowd.

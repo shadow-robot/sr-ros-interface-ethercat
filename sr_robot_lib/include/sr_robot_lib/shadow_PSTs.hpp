@@ -69,6 +69,13 @@ namespace tactiles
      */
     virtual void publish();
 
+    /**
+     * This function adds the diagnostics for the tactiles to the
+     * multi diagnostic status published by the hand.
+     */
+    virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                                 diagnostic_updater::DiagnosticStatusWrapper &d);
+
   protected:
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;

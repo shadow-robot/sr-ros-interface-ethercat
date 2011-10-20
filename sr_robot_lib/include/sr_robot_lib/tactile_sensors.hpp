@@ -41,15 +41,14 @@ namespace tactiles
 
     int software_version;
     int pcb_version;
-
-
-    int pressure;
-    int temperature;
   };
 
   struct PST3Data
     : public GenericTactileData
   {
+    int pressure;
+    int temperature;
+
     int debug_1;
     int debug_2;
 

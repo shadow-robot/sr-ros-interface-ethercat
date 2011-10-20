@@ -971,6 +971,9 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
     vec.push_back(d);
 
   } //end for each joints
+
+  //Add the diagnostics from the tactiles
+  sr_hand_lib->tactiles->add_diagnostics(vec, d);
 }
 
 

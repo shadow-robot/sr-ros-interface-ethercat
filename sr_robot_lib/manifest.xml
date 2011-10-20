@@ -15,6 +15,7 @@
   <depend package="sr_external_dependencies"/>
   <depend package="sr_robot_msgs"/>
   <depend package="std_srvs"/>
+  <depend package="diagnostic_updater"/>
   <depend package="realtime_tools"/>
 
   <depend package="roscpp"/>
