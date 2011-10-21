@@ -116,8 +116,6 @@ namespace tactiles
           tactiles_vector->at(id_sensor).serial_number = serial;
         }
       }
-
-      command->tactile_data_type = TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE;
       break;
 
       case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:

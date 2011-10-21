@@ -64,7 +64,7 @@ namespace generic_updater
     if(!unimportant_data_queue.empty())
     {
       //an unimportant data is available
-      command->from_motor_data_type = unimportant_data_queue.front();
+      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(unimportant_data_queue.front());
       unimportant_data_queue.pop();
 
       ROS_DEBUG_STREAM("Updating unimportant data type: "<<command->from_motor_data_type << " | queue size: "<<unimportant_data_queue.size());
@@ -72,7 +72,7 @@ namespace generic_updater
     else
     {
       //important data to update as often as possible
-      command->from_motor_data_type = important_update_configs_vector[which_data_to_request].what_to_update;
+      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(important_update_configs_vector[which_data_to_request].what_to_update);
       ROS_DEBUG_STREAM("Updating important data type: "<<command->from_motor_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
     }
 

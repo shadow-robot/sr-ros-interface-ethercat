@@ -39,6 +39,8 @@ extern "C"
 #include <vector>
 #include <std_srvs/Empty.h>
 
+#include <boost/smart_ptr.hpp>
+
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
@@ -51,7 +53,7 @@ namespace tactiles
   class GenericTactiles
   {
   public:
-    GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector) {};
+    GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector);
     ~GenericTactiles() {};
 
     /**
@@ -90,7 +92,7 @@ namespace tactiles
     /// Number of tactile sensors (TODO: should probably be defined in the protocol)
     static const unsigned int nb_tactiles;
 
-    generic_updater::SensorUpdater sensor_updater;
+    boost::shared_ptr<generic_updater::SensorUpdater> sensor_updater;
 
   protected:
     ros::NodeHandle nodehandle_;

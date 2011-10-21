@@ -43,7 +43,8 @@ namespace shadow_robot
 #endif
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
-    : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"),
+    : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE),
+      nh_tilde("~"), current_state(operation_mode::INITIALIZATION),
       last_can_msgs_received(0), last_can_msgs_transmitted(0)
   {
 #ifdef DEBUG_PUBLISHER
@@ -152,10 +153,10 @@ namespace shadow_robot
   void SrRobotLib::build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
     //build the motor command
-    motor_updater_->build_update_motor_command(command);
+    motor_updater_->build_command(command);
 
     //update the command with the tactile command:
-    tactiles->sensor_updater.build_command(command);
+    tactiles->sensor_updater->build_command(command);
 
     ///////
     // Now we chose the command to send to the motor

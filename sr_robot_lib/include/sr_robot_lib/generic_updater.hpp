@@ -82,7 +82,7 @@ namespace generic_updater
      */
     void timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type);
 
-  private:
+  protected:
     ros::NodeHandle nh_tilde;
 
     ///Contains all the important data types.

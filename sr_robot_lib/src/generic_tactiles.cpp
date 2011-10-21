@@ -33,7 +33,7 @@ namespace tactiles
 
   GenericTactiles::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector)
   {
-    sensor_updater = new generic_updater::SensorUpdater(update_configs_vector);
+    sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater>(new generic_updater::SensorUpdater(update_configs_vector));
     reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
   }
 

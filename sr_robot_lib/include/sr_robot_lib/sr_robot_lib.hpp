@@ -59,6 +59,16 @@ extern "C"
   #include <sr_external_dependencies/external/simplemotor-bootloader/bootloader.h>
 }
 
+namespace operation_mode
+{
+  enum RobotState
+  {
+    INITIALIZATION,
+    OPERATION,
+    SHUTDOWN
+  };
+}
+
 namespace crc_unions
 {
   typedef union
@@ -266,7 +276,7 @@ namespace shadow_robot
      * It's build_update_motor_command() is called each time the SR06::packCommand()
      * is called.
      */
-    boost::shared_ptr<motor_updater::MotorUpdater> motor_updater_;
+    boost::shared_ptr<generic_updater::MotorUpdater> motor_updater_;
 
     /**
      * The ForceConfig type consists of an int representing the motor index for this config
@@ -283,7 +293,6 @@ namespace shadow_robot
 
     ///contains a queue of motor indexes to reset
     std::queue<short, std::list<short> > reset_motors_queue;
-
 
     /// The current actuator.
     sr_actuator::SrActuator* actuator;
@@ -321,6 +330,9 @@ namespace shadow_robot
     ros::NodeHandle node_handle;
     std_msgs::Int16 msg_debug;
 #endif
+
+    ///The current state of the robot.
+    operation_mode::RobotState current_state;
 
     ///We need to know if we're overflowing or not.
     int last_can_msgs_received;

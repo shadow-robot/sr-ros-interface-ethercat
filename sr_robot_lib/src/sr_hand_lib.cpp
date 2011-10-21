@@ -34,6 +34,8 @@
 
 #include <sr_utilities/sr_math_utils.hpp>
 
+#include "sr_robot_lib/shadow_PSTs.hpp"
+
 namespace shadow_robot
 {
   const int SrHandLib::nb_motor_data = 14;
