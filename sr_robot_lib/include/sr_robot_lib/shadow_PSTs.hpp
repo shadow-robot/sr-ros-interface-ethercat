@@ -54,17 +54,6 @@ namespace tactiles
     virtual void update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data);
 
     /**
-     * Updates the command to send to the hand. This function is called
-     * at each packCommand() call. Ask for the relevant information for the tactiles.
-     * If an unimportant data is waiting then we send it, otherwise, we send the next
-     * important data.
-     *
-     * @param command The command which will be sent to the palm.
-     */
-    virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
-
-
-    /**
      * Publish the information to a ROS topic.
      *
      */

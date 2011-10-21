@@ -2,9 +2,13 @@
   <include file="$(find sr_edc_launch)/sr_edc.machine" />
   <param name="/use_sim_time" value="false"/>
 
+  <!-- polling rates -->
+  <rosparam command="load" file="$(find sr_robot_lib)/config/sensor_data_polling.yaml" />
+  <rosparam command="load" file="$(find sr_robot_lib)/config/motor_data_polling.yaml" />
+
   <!-- Default controllers -->
   <include file="$(find sr_edc_controller_configuration)/sr_edc_default_controllers.launch" />
-  <rosparam command="load" file="$(find sr_robot_lib)/config/motor_data_polling.yaml" />
+
   <!-- Should be loaded before starting/running pr2_etherCAT node -->
   <rosparam command="load" ns="srh" file="$(find sr_edc_launch)/sr_edc_sensor_gain_offset.yaml" />
   <!-- load parameters for the robot library -->
@@ -49,7 +53,7 @@
   <include file="$(find sr_hand)/launch/fingertip_static_transform.launch"/>
 
   <!-- pr2_etherCAT -->
-  <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth1 -x /robot_description" output="screen"  launch-prefix="nice -n -20"/> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+  <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x /robot_description" output="screen"  launch-prefix="nice -n 20"/> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
 
   <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
 
