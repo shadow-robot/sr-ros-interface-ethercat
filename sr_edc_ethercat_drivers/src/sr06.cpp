@@ -129,7 +129,8 @@ SR06::SR06()
     can_message_sent(true),
     can_packet_acked(true),
     zero_buffer_read(0),
-    can_bus_(0)
+    can_bus_(0),
+    cycle_count(0)
 {
   int res = 0;
   check_for_pthread_mutex_init_error(res);
@@ -293,9 +294,6 @@ int SR06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int>(ETHERCAT_STATUS_DATA_SIZE) );
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int>(ETHERCAT_COMMAND_DATA_SIZE) );
   ROS_INFO("ETHERCAT_CAN_BRIDGE_DATA_SIZE  = %4d bytes", static_cast<int>(ETHERCAT_CAN_BRIDGE_DATA_SIZE) );
-
-  // Tactile sensor real time publisher
-  tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nodehandle_ , "tactile", 4));
 
 #ifdef DEBUG_PUBLISHER
   // Debug real time publisher: publishes the raw ethercat data
@@ -869,110 +867,11 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
   this->ethercatDiagnostics(d,2);
   vec.push_back(d);
 
-  boost::ptr_vector<shadow_joints::Joint>::iterator joint = sr_hand_lib->joints_vector.begin();
-  for(;joint != sr_hand_lib->joints_vector.end(); ++joint)
-  {
-    name.str("");
-    name << "SRDMotor "<< joint->joint_name;
-    d.name = name.str();
+  //Add the diagnostics from the hand
+  sr_hand_lib->add_diagnostics(vec, d);
 
-    if( joint->has_motor )
-    {
-      const sr_actuator::SrActuatorState *state(&(joint->motor->actuator)->state_);
-
-      if(joint->motor->motor_ok)
-      {
-        if(joint->motor->bad_data)
-        {
-          d.summary(d.WARN, "WARNING, bad CAN data received");
-
-          d.clear();
-          d.addf("Motor ID", "%d", joint->motor->motor_id);
-        }
-        else //the data is good
-        {
-          d.summary(d.OK, "OK");
-
-          d.clear();
-          d.addf("Motor ID", "%d", joint->motor->motor_id);
-          d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
-          d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
-          d.addf("Strain Gauge Right", "%d", state->strain_gauge_right_);
-          d.addf("Executed Effort", "%f", state->last_executed_effort_);
-
-          //if some flags are set
-          std::stringstream ss;
-          if( state->flags_.size() > 0 )
-          {
-            int flags_seriousness = d.OK;
-            std::pair<std::string, bool> flag;
-            BOOST_FOREACH(flag, state->flags_)
-            {
-              //Serious error flag
-              if(flag.second)
-                flags_seriousness = d.ERROR;
-
-              if( flags_seriousness != d.ERROR )
-                flags_seriousness = d.WARN;
-              ss << flag.first << " | ";
-            }
-            d.summary(flags_seriousness, ss.str().c_str() );
-          }
-          else
-            ss << " None";
-          d.addf("Motor Flags", "%s", ss.str().c_str() );
-
-          d.addf("Measured Current", "%f", state->last_measured_current_);
-          d.addf("Measured Voltage", "%f", state->motor_voltage_);
-          d.addf("Temperature", "%f", state->temperature_);
-          d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
-          d.addf("Number of CAN messages transmitted", "%lld", state->can_msgs_transmitted_);
-
-          d.addf("Force control Pterm", "%d", state->force_control_pterm);
-          d.addf("Force control Iterm", "%d", state->force_control_iterm);
-          d.addf("Force control Dterm", "%d", state->force_control_dterm);
-
-          d.addf("Force control F", "%d", state->force_control_f_);
-          d.addf("Force control P", "%d", state->force_control_p_);
-          d.addf("Force control I", "%d", state->force_control_i_);
-          d.addf("Force control D", "%d", state->force_control_d_);
-          d.addf("Force control Imax", "%d", state->force_control_imax_);
-          d.addf("Force control Deadband", "%d", state->force_control_deadband_);
-
-          if( state->force_control_sign_ == 0 )
-            d.addf("Force control Sign", "+");
-          else
-            d.addf("Force control Sign", "-");
-
-          d.addf("Last Measured Effort", "%f", state->last_measured_effort_);
-          d.addf("Last Commanded Effort", "%f", state->last_commanded_effort_);
-          d.addf("Encoder Position", "%f", state->position_);
-
-          if(state->firmware_modified_ )
-            d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / True", state->server_firmware_svn_revision_,
-                   state->pic_firmware_svn_revision_ );
-          else
-            d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False", state->server_firmware_svn_revision_,
-                   state->pic_firmware_svn_revision_ );
-
-          d.addf("Tests", "%d", state->tests_);
-        }
-      }
-      else
-      {
-        d.summary(d.ERROR, "Motor error");
-        d.clear();
-        d.addf("Motor ID", "%d", joint->motor->motor_id);
-      }
-    }
-    else
-    {
-      d.summary(d.OK, "No motor associated to this joint");
-      d.clear();
-    }
-    vec.push_back(d);
-
-  } //end for each joints
+  //Add the diagnostics from the tactiles
+  sr_hand_lib->tactiles->add_diagnostics(vec, d);
 }
 
 
@@ -1179,33 +1078,14 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   //with the received information
   sr_hand_lib->update(status_data);
 
-  //Now publish the tactile sensor data:
-  if(tactile_publisher->trylock())
+  //Now publish the tactile sensor data at 100Hz (every 10 cycles)
+  if( cycle_count >= 9)
   {
-    //for the time being, we only have PSTs tactile sensors
-    sr_robot_msgs::ShadowPST tactiles;
-    tactiles.header.stamp = ros::Time::now();
-
-    //tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
-
-    for(unsigned int id_tact = 0; id_tact < sr_hand_lib->nb_tactiles; ++id_tact)
-    {
-      if( sr_hand_lib->tactiles_vector[id_tact].tactile_data_valid )
-      {
-        tactiles.pressure.push_back( static_cast<int16u>(sr_hand_lib->tactiles_vector[id_tact].sensor_data.pressure) );
-        tactiles.temperature.push_back( static_cast<int16u>(sr_hand_lib->tactiles_vector[id_tact].sensor_data.temperature) );
-      }
-      else
-      {
-        tactiles.pressure.push_back( -1 );
-        tactiles.temperature.push_back( -1 );
-      }
-    }
-
-
-    tactile_publisher->msg_ = tactiles;
-    tactile_publisher->unlockAndPublish();
+    sr_hand_lib->tactiles->publish();
+    cycle_count = 0;
   }
+  ++cycle_count;
+
 
   //If we're flashing, check is the packet has been acked
   if (flashing & !can_packet_acked)

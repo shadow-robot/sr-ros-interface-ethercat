@@ -40,6 +40,9 @@
 
 #include <sr_hardware_interface/sr_actuator.hpp>
 
+#include <diagnostic_msgs/DiagnosticStatus.h>
+#include <diagnostic_updater/DiagnosticStatusWrapper.h>
+
 #include <sr_robot_msgs/ForceController.h>
 #include <sr_robot_msgs/SetDebugData.h>
 
@@ -47,13 +50,23 @@
 #include <sr_utilities/calibration.hpp>
 
 #include "sr_robot_lib/motor_updater.hpp"
-#include "sr_robot_lib/tactile_sensors.hpp"
+#include "sr_robot_lib/generic_tactiles.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
   #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
   #include <sr_external_dependencies/external/simplemotor-bootloader/bootloader.h>
+}
+
+namespace operation_mode
+{
+  enum RobotState
+  {
+    INITIALIZATION,
+    OPERATION,
+    SHUTDOWN
+  };
 }
 
 namespace crc_unions
@@ -171,16 +184,22 @@ namespace shadow_robot
      */
     void build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
 
-    /// The vector containing all the robot joints.
-    boost::ptr_vector<shadow_joints::Joint> joints_vector;
+    /**
+     * This function adds the diagnostics for the hand to the
+     * multi diagnostic status published in sr06.cpp.
+     */
+    void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                         diagnostic_updater::DiagnosticStatusWrapper &d);
+
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
 
-    /// Number of tactile sensors (TODO: should probably be defined in the protocol)
-    static const unsigned int nb_tactiles;
-
-    /// The vector containing all the tactile sensor information.
-    boost::ptr_vector<tactiles::Tactile<tactiles::PST3Data> > tactiles_vector;
+    /**
+     * This is a pointer to the tactile object. This pointer
+     * will be instanciated during the initialization cycle,
+     * depending on the type of sensors attached to the hand.
+     */
+    boost::shared_ptr<tactiles::GenericTactiles> tactiles;
 
     /**
      * Contains the idle time of the PIC communicating
@@ -196,6 +215,9 @@ namespace shadow_robot
     int main_pic_idle_time_min;
 
   protected:
+    /// The vector containing all the robot joints.
+    boost::ptr_vector<shadow_joints::Joint> joints_vector;
+
     /**
      * Initializes the joints_vector.
      *
@@ -256,10 +278,10 @@ namespace shadow_robot
 
     /**
      * The motor updater is used to create a correct command to send to the motor.
-     * It's build_update_motor_command() is called each time the SR06::packCommand()
+     * It's build_command() is called each time the SR06::packCommand()
      * is called.
      */
-    boost::shared_ptr<motor_updater::MotorUpdater> motor_updater_;
+    boost::shared_ptr<generic_updater::MotorUpdater> motor_updater_;
 
     /**
      * The ForceConfig type consists of an int representing the motor index for this config
@@ -276,7 +298,6 @@ namespace shadow_robot
 
     ///contains a queue of motor indexes to reset
     std::queue<short, std::list<short> > reset_motors_queue;
-
 
     /// The current actuator.
     sr_actuator::SrActuator* actuator;
@@ -314,6 +335,9 @@ namespace shadow_robot
     ros::NodeHandle node_handle;
     std_msgs::Int16 msg_debug;
 #endif
+
+    ///The current state of the robot.
+    operation_mode::RobotState current_state;
 
     ///We need to know if we're overflowing or not.
     int last_can_msgs_received;

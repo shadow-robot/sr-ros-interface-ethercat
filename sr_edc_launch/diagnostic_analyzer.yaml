@@ -7,39 +7,45 @@ analyzers:
     type: AnalyzerGroup
     path: Shadow Hand
     analyzers:
+      tactiles:
+        type: GenericAnalyzer
+        path: Tactiles
+        timeout: 5.0
+        regex: 'Tactile .*[1-5].*'
+        num_items: 5
       first_finger:
         type: GenericAnalyzer
-        path: First Finger
+        path: Fingers/First Finger
         timeout: 5.0
         regex: 'SRDMotor .*FFJ[0-9].*'
         num_items: 5
       right_finger:
         type: GenericAnalyzer
-        path: Ring Finger
+        path: Fingers/Ring Finger
         timeout: 5.0
         regex: 'SRDMotor .*RFJ[0-9].*'
         num_items: 5
       middle_finger:
         type: GenericAnalyzer
-        path: Middle Finger
+        path: Fingers/Middle Finger
         timeout: 5.0
         regex: 'SRDMotor .*MFJ[0-9].*'
         num_items: 5
       little_finger:
         type: GenericAnalyzer
-        path: Little Finger
+        path: Fingers/Little Finger
         timeout: 5.0
         regex: 'SRDMotor .*LFJ[0-9].*'
         num_items: 6
       thumb:
         type: GenericAnalyzer
-        path: Thumb
+        path: Fingers/Thumb
         timeout: 5.0
         regex: 'SRDMotor .*THJ[0-9].*'
         num_items: 5
       wrist:
         type: GenericAnalyzer
-        path: Wrist
+        path: Fingers/Wrist
         timeout: 5.0
         regex: 'SRDMotor .*WRJ[0-9].*'
         num_items: 2

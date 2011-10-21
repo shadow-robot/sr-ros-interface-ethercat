@@ -1,9 +1,8 @@
 /**
- * @file   motor_updater.hpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
- * @date   Tue Jun  7 09:15:21 2011
+ * @file   generic_updater.hpp
+ * @author toni <toni@shadowrobot.com>
+ * @date   20 Oct 2011
  *
-*
 * Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
@@ -20,14 +19,15 @@
 * with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 *
- * @brief  This contains a class used to determin which data we should ask the motor for,
- * depending on the config we're using.
+ * @brief This is a generic command updater: it has 2 different queues one for
+ *        the important data which is updated as fast as possible, one for
+ *        unimportant data which is updated on a time basis.
  *
  *
  */
 
-#ifndef _MOTOR_UPDATER_HPP_
-#define _MOTOR_UPDATER_HPP_
+#ifndef GENERIC_UPDATER_HPP_
+#define GENERIC_UPDATER_HPP_
 
 #include <ros/ros.h>
 #include <vector>
@@ -35,7 +35,6 @@
 #include <queue>
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
-#include "sr_robot_lib/generic_updater.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
@@ -45,22 +44,27 @@ extern "C"
 
 namespace generic_updater
 {
+  struct UpdateConfig
+  {
+    int32u what_to_update;
+    double when_to_update;
+  };
+
   /**
-   * The Motor Updater builds the next command we want to send to the hand.
+   * The Generic Updater builds the next command we want to send to the hand.
    * We can ask for different types of data at different rates. The data and
-   * their rates are defined in the sr_robot_lib/config/motor_data_polling.yaml
+   * their rates are defined in the sr_robot_lib/config/xxxxxx.yaml
    * The important data are refreshed as often as possible (they have a -1. refresh
    * rate in the config file).
    *
    * The unimportant data are refreshed at their given rate (the value is defined in
    * the config in seconds).
    */
-  class MotorUpdater :
-      public GenericUpdater
+  class GenericUpdater
   {
   public:
-    MotorUpdater(std::vector<UpdateConfig> update_configs_vector);
-    ~MotorUpdater();
+    GenericUpdater(std::vector<UpdateConfig> update_configs_vector);
+    ~GenericUpdater();
 
     /**
      * Building the motor command. This function is called at each packCommand() call.
@@ -69,7 +73,7 @@ namespace generic_updater
      *
      * @param command The command which will be sent to the motor.
      */
-    void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+    virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command) = 0;
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback
@@ -80,18 +84,30 @@ namespace generic_updater
      */
     void timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type);
 
-  private:
-    ///are we sending the command to the even or the uneven motors.
-    int even_motors;
+  protected:
+    ros::NodeHandle nh_tilde;
 
+    ///Contains all the important data types.
+    std::vector<UpdateConfig> important_update_configs_vector;
+    ///iterate through the important data types.
+    int which_data_to_request;
+
+    ///All the timers for the unimportant data types.
+    std::vector<ros::Timer> timers;
+    ///A queue containing the unimportant data types we want to ask for next time (empty most of the time).
+    std::queue<int32u, std::list<int32u> > unimportant_data_queue;
+
+    boost::shared_ptr<boost::mutex> mutex;
   };
 }
 
 
+
+
 /* For the emacs weenies in the crowd.
-   Local Variables:
+Local Variables:
    c-basic-offset: 2
-   End:
+End:
 */
 
-#endif
+#endif /* GENERIC_UPDATER_HPP_ */

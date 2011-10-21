@@ -32,6 +32,8 @@
 
 #include <ros/ros.h>
 
+#include "sr_robot_lib/shadow_PSTs.hpp"
+
 namespace shadow_robot
 {
 #ifdef DEBUG_PUBLISHER
@@ -41,7 +43,8 @@ namespace shadow_robot
 #endif
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
-    : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"),
+    : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE),
+      nh_tilde("~"), current_state(operation_mode::INITIALIZATION),
       last_can_msgs_received(0), last_can_msgs_transmitted(0)
   {
 #ifdef DEBUG_PUBLISHER
@@ -53,6 +56,7 @@ namespace shadow_robot
       debug_publishers.push_back(node_handle.advertise<std_msgs::Int16>(ss.str().c_str(),100));
     }
 #endif
+
   }
 
 
@@ -137,112 +141,22 @@ namespace shadow_robot
       // we'll print that in the diagnostics.
       joint_tmp->motor->msg_motor_id = index_motor_in_msg;
 
+      //then we read the tactile sensors information
+      tactiles->update(status_data);
+
       //ok now we read the info and add it to the actuator state
       if(read_motor_info)
         read_additional_data(joint_tmp);
     } //end for joint
-
-    //then we read the tactile sensors information
-    int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-    //TODO: use memcopy instead?
-    for( unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
-    {
-      switch( static_cast<int32u>(status_data->tactile_data_type) )
-      {
-        //TACTILE DATA
-      case TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].sensor_data.pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          tactiles_vector[id_sensor].sensor_data.pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
-          tactiles_vector[id_sensor].sensor_data.debug_1 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-          tactiles_vector[id_sensor].sensor_data.debug_2 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[3]) );
-        }
-        break;
-
-      case TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].sensor_data.pressure_raw = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          tactiles_vector[id_sensor].sensor_data.zero_tracking = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
-        }
-        break;
-
-      case TACTILE_SENSOR_TYPE_PST3_DAC_VALUE:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].sensor_data.dac_value = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-        }
-        break;
-
-        //COMMON DATA
-      case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].common_data.sample_frequency = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-        }
-        break;
-
-      case TACTILE_SENSOR_TYPE_MANUFACTURER:
-      {
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          std::string manufacturer = "";
-          for (int i = 0; i < 16; ++i)
-          {
-            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != '0' )
-              manufacturer += static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            else
-              break;
-          }
-          tactiles_vector[id_sensor].common_data.manufacturer = manufacturer;
-        }
-      }
-      break;
-
-      case TACTILE_SENSOR_TYPE_SERIAL_NUMBER:
-      {
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          std::string serial = "";
-          for (int i = 0; i < 16; ++i)
-          {
-            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != '0' )
-              serial += static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            else
-              break;
-          }
-          tactiles_vector[id_sensor].common_data.serial_number = serial;
-        }
-      }
-      break;
-
-      case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].common_data.software_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-        }
-        break;
-
-      case TACTILE_SENSOR_TYPE_PCB_VERSION:
-        if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
-        {
-          tactiles_vector[id_sensor].common_data.pcb_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-        }
-        break;
-
-      default:
-        break;
-
-      }
-    }
   } //end update()
 
   void SrRobotLib::build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
-    motor_updater_->build_update_motor_command(command);
+    //build the motor command
+    motor_updater_->build_command(command);
+
+    //update the command with the tactile command:
+    tactiles->sensor_updater->build_command(command);
 
     ///////
     // Now we chose the command to send to the motor
@@ -372,6 +286,117 @@ namespace shadow_robot
   }
 
 
+  void SrRobotLib::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                                   diagnostic_updater::DiagnosticStatusWrapper &d)
+  {
+    boost::ptr_vector<shadow_joints::Joint>::iterator joint = joints_vector.begin();
+    for(;joint != joints_vector.end(); ++joint)
+    {
+      std::stringstream name;
+      name.str("");
+      name << "SRDMotor "<< joint->joint_name;
+      d.name = name.str();
+
+      if( joint->has_motor )
+      {
+        const sr_actuator::SrActuatorState *state(&(joint->motor->actuator)->state_);
+
+        if(joint->motor->motor_ok)
+        {
+          if(joint->motor->bad_data)
+          {
+            d.summary(d.WARN, "WARNING, bad CAN data received");
+
+            d.clear();
+            d.addf("Motor ID", "%d", joint->motor->motor_id);
+          }
+          else //the data is good
+          {
+            d.summary(d.OK, "OK");
+
+            d.clear();
+            d.addf("Motor ID", "%d", joint->motor->motor_id);
+            d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
+            d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
+            d.addf("Strain Gauge Right", "%d", state->strain_gauge_right_);
+            d.addf("Executed Effort", "%f", state->last_executed_effort_);
+
+            //if some flags are set
+            std::stringstream ss;
+            if( state->flags_.size() > 0 )
+            {
+              int flags_seriousness = d.OK;
+              std::pair<std::string, bool> flag;
+              BOOST_FOREACH(flag, state->flags_)
+              {
+                //Serious error flag
+                if(flag.second)
+                  flags_seriousness = d.ERROR;
+
+                if( flags_seriousness != d.ERROR )
+                  flags_seriousness = d.WARN;
+                ss << flag.first << " | ";
+              }
+              d.summary(flags_seriousness, ss.str().c_str() );
+            }
+            else
+              ss << " None";
+            d.addf("Motor Flags", "%s", ss.str().c_str() );
+
+            d.addf("Measured Current", "%f", state->last_measured_current_);
+            d.addf("Measured Voltage", "%f", state->motor_voltage_);
+            d.addf("Temperature", "%f", state->temperature_);
+            d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
+            d.addf("Number of CAN messages transmitted", "%lld", state->can_msgs_transmitted_);
+
+            d.addf("Force control Pterm", "%d", state->force_control_pterm);
+            d.addf("Force control Iterm", "%d", state->force_control_iterm);
+            d.addf("Force control Dterm", "%d", state->force_control_dterm);
+
+            d.addf("Force control F", "%d", state->force_control_f_);
+            d.addf("Force control P", "%d", state->force_control_p_);
+            d.addf("Force control I", "%d", state->force_control_i_);
+            d.addf("Force control D", "%d", state->force_control_d_);
+            d.addf("Force control Imax", "%d", state->force_control_imax_);
+            d.addf("Force control Deadband", "%d", state->force_control_deadband_);
+
+            if( state->force_control_sign_ == 0 )
+              d.addf("Force control Sign", "+");
+            else
+              d.addf("Force control Sign", "-");
+
+            d.addf("Last Measured Effort", "%f", state->last_measured_effort_);
+            d.addf("Last Commanded Effort", "%f", state->last_commanded_effort_);
+            d.addf("Encoder Position", "%f", state->position_);
+
+            if(state->firmware_modified_ )
+              d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / True", state->server_firmware_svn_revision_,
+                     state->pic_firmware_svn_revision_ );
+            else
+              d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False", state->server_firmware_svn_revision_,
+                     state->pic_firmware_svn_revision_ );
+
+            d.addf("Tests", "%d", state->tests_);
+          }
+        }
+        else
+        {
+          d.summary(d.ERROR, "Motor error");
+          d.clear();
+          d.addf("Motor ID", "%d", joint->motor->motor_id);
+        }
+      }
+      else
+      {
+        d.summary(d.OK, "No motor associated to this joint");
+        d.clear();
+      }
+      vec.push_back(d);
+
+    } //end for each joints
+
+  }
+
   void SrRobotLib::calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
   {
     actuator->state_.raw_sensor_values_.clear();
@@ -495,7 +520,7 @@ namespace shadow_robot
         actuator->state_.strain_gauge_right_ =  static_cast<int16s>( status_data->motor_data_packet[index_motor_in_msg].misc );
         break;
       case MOTOR_DATA_PWM:
-        actuator->state_.last_executed_effort_ =  static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
+        actuator->state_.pwm_ =  static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
         break;
       case MOTOR_DATA_FLAGS:
         actuator->state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);

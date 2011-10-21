@@ -1,9 +1,8 @@
 /**
- * @file   motor_updater.cpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
- * @date   Tue Jun  7 09:15:21 2011
+ * @file   sensor_updater.cpp
+ * @author toni <toni@shadowrobot.com>
+ * @date   20 Oct 2011
  *
-*
 * Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
@@ -20,69 +19,72 @@
 * with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 *
- * @brief  This contains a class used to determin which data we should ask the motor for,
- * depending on the config we're using.
+ * @brief This class is used to update the tactile sensor command.
  *
  *
  */
 
-#include "sr_robot_lib/motor_updater.hpp"
+
+#include "sr_robot_lib/sensor_updater.hpp"
 #include <boost/foreach.hpp>
 #include <iostream>
 
 namespace generic_updater
 {
-  MotorUpdater::MotorUpdater(std::vector<UpdateConfig> update_configs_vector)
-    : GenericUpdater(update_configs_vector), even_motors(1)
+  SensorUpdater::SensorUpdater(std::vector<UpdateConfig> update_configs_vector)
+    : GenericUpdater(update_configs_vector)
   {
   }
 
-  MotorUpdater::~MotorUpdater()
+  SensorUpdater::~SensorUpdater()
   {
   }
 
-  void MotorUpdater::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
+  void SensorUpdater::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
     if(!mutex->try_lock())
       return;
 
     ///////
     // First we ask for the next data we want to receive
-    if(even_motors)
-      even_motors = 0;
-    else
-    {
-      even_motors = 1;
+
       which_data_to_request ++;
 
       if( which_data_to_request >= important_update_configs_vector.size() )
         which_data_to_request = 0;
-    }
-
-    command->which_motors = even_motors;
 
     if(!unimportant_data_queue.empty())
     {
       //an unimportant data is available
-      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(unimportant_data_queue.front());
+      command->tactile_data_type = unimportant_data_queue.front();
       unimportant_data_queue.pop();
 
-      ROS_DEBUG_STREAM("Updating unimportant data type: "<<command->from_motor_data_type << " | queue size: "<<unimportant_data_queue.size());
+      ROS_DEBUG_STREAM("Updating sensor unimportant data type: "<<command->tactile_data_type << " | queue size: "<<unimportant_data_queue.size());
     }
     else
     {
       //important data to update as often as possible
-      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(important_update_configs_vector[which_data_to_request].what_to_update);
-      ROS_DEBUG_STREAM("Updating important data type: "<<command->from_motor_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
+      command->tactile_data_type = important_update_configs_vector[which_data_to_request].what_to_update;
+      ROS_DEBUG_STREAM("Updating sensor important data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
     }
 
     mutex->unlock();
   }
+
+  bool SensorUpdater::reset()
+  {
+    //We need to send the reset command twice in a row to make sure
+    // the tactiles are reset.
+    for( unsigned int i=0; i<2 ; ++i)
+      unimportant_data_queue.push(TACTILE_SENSOR_TYPE_RESET_COMMAND);
+  }
 }
 
 
+
+
 /* For the emacs weenies in the crowd.
-   Local Variables:
+Local Variables:
    c-basic-offset: 2
-   End:
+End:
 */

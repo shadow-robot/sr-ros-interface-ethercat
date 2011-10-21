@@ -27,10 +27,14 @@
 #ifndef _TACTILE_SENSORS_HPP_
 #define _TACTILE_SENSORS_HPP_
 
+#include <string>
+
 namespace tactiles
 {
-  struct CommonData
+  struct GenericTactileData
   {
+    bool tactile_data_valid;
+
     int sample_frequency;
     std::string manufacturer;
     std::string serial_number;
@@ -40,9 +44,11 @@ namespace tactiles
   };
 
   struct PST3Data
+    : public GenericTactileData
   {
     int pressure;
     int temperature;
+
     int debug_1;
     int debug_2;
 
@@ -50,16 +56,6 @@ namespace tactiles
     int zero_tracking;
 
     int dac_value;
-  };
-
-  template <class T>
-  struct Tactile
-  {
-    ///true if the data for this sensor is valid.
-    bool tactile_data_valid;
-
-    CommonData common_data;
-    T sensor_data;
   };
 }
 
