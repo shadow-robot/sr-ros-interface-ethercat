@@ -43,8 +43,8 @@ namespace generic_updater
         double tmp_dur = config.when_to_update;
         ros::Duration duration(tmp_dur);
 
-        //timers.push_back(nh_tilde.createTimer(duration, boost::bind(&GenericUpdater::timer_callback,
-        //                                                            this, _1, config.what_to_update)));
+        timers.push_back(nh_tilde.createTimer(duration, boost::bind(&GenericUpdater::timer_callback,
+                                                                    this, _1, static_cast<FROM_MOTOR_DATA_TYPE>(config.what_to_update)) ));
       }
       else
         important_update_configs_vector.push_back(config);
