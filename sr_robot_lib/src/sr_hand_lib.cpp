@@ -122,14 +122,16 @@ namespace shadow_robot
   {
     //read the motor polling frequency from the parameter server
     std::vector<generic_updater::UpdateConfig> update_rate_configs_vector = read_update_rate_configs();
-    motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater>(new generic_updater::MotorUpdater(update_rate_configs_vector));
+    motor_update_state_ = boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState>(new operation_mode::device_update_state::DeviceUpdateState(operation_mode::device_update_state::OPERATION));
+    motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater>(new generic_updater::MotorUpdater(update_rate_configs_vector, motor_update_state_));
 
 
     //read the motor polling frequency from the parameter server
     std::vector<generic_updater::UpdateConfig> sensor_update_rate_configs_vector = read_sensors_update_rate_configs();
+    sensor_update_state_ = boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState>(new operation_mode::device_update_state::DeviceUpdateState(operation_mode::device_update_state::OPERATION));
     //TODO: create this after the init phase, based on the actual tactiles
     // type (read from the palm)
-    tactiles = boost::shared_ptr<tactiles::ShadowPSTs>( new tactiles::ShadowPSTs(sensor_update_rate_configs_vector) );
+    tactiles = boost::shared_ptr<tactiles::ShadowPSTs>( new tactiles::ShadowPSTs(sensor_update_rate_configs_vector, sensor_update_state_) );
 
     //TODO: read this from config/EEProm?
     std::vector<shadow_joints::JointToSensor > joint_to_sensor_vect = read_joint_to_sensor_mapping();

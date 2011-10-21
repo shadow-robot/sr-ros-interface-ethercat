@@ -44,7 +44,7 @@ namespace shadow_robot
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE),
-      nh_tilde("~"), current_state(operation_mode::INITIALIZATION),
+      nh_tilde("~"), current_state(operation_mode::robot_state::INITIALIZATION),
       last_can_msgs_received(0), last_can_msgs_transmitted(0)
   {
 #ifdef DEBUG_PUBLISHER

@@ -32,8 +32,8 @@
 
 namespace generic_updater
 {
-  MotorUpdater::MotorUpdater(std::vector<UpdateConfig> update_configs_vector)
-    : GenericUpdater(update_configs_vector), even_motors(1)
+  MotorUpdater::MotorUpdater(std::vector<UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state)
+    : GenericUpdater(update_configs_vector, update_state), even_motors(1)
   {
   }
 

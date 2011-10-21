@@ -41,7 +41,7 @@ namespace tactiles
     public GenericTactiles
   {
   public:
-    ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector);
+    ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state);
     ~ShadowPSTs() {};
 
     /**

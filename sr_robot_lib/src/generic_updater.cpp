@@ -31,8 +31,8 @@
 
 namespace generic_updater
 {
-  GenericUpdater::GenericUpdater(std::vector<UpdateConfig> update_configs_vector)
-    : nh_tilde("~"), which_data_to_request(0)
+  GenericUpdater::GenericUpdater(std::vector<UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state)
+    : nh_tilde("~"), which_data_to_request(0), update_state(update_state)
   {
     mutex = boost::shared_ptr<boost::mutex>(new boost::mutex());
 

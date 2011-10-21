@@ -61,12 +61,15 @@ extern "C"
 
 namespace operation_mode
 {
-  enum RobotState
+  namespace robot_state
   {
-    INITIALIZATION,
-    OPERATION,
-    SHUTDOWN
-  };
+    enum RobotState
+    {
+      INITIALIZATION,
+      OPERATION,
+      SHUTDOWN
+    };
+  }
 }
 
 namespace crc_unions
@@ -332,12 +335,25 @@ namespace shadow_robot
 #endif
 
     ///The current state of the robot.
-    operation_mode::RobotState current_state;
+    operation_mode::robot_state::RobotState current_state;
 
     ///We need to know if we're overflowing or not.
     int last_can_msgs_received;
     ///We need to know if we're overflowing or not.
     int last_can_msgs_transmitted;
+
+    /**
+     * Sensor update state is used to store the state of the information retrieving from the sensors.
+     * The shared pointer will be used and modified by the generic and specific tactiles classes
+     * and by the sensor updater, and will be monitored by sr_robot_lib
+     */
+    boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> sensor_update_state_;
+
+    /**
+     * motor update state is used to store the state of the information retrieving from the motors.
+     * The shared pointer will be used and modified by the motor updaters, and will be monitored by sr_robot_lib
+     */
+    boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> motor_update_state_;
   };//end class
 }//end namespace
 

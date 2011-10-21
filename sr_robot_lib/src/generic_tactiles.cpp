@@ -31,9 +31,10 @@ namespace tactiles
 {
   const unsigned int GenericTactiles::nb_tactiles = 5;
 
-  GenericTactiles::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector)
+  GenericTactiles::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state)
+    :update_state(update_state)
   {
-    sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater>(new generic_updater::SensorUpdater(update_configs_vector));
+    sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater>(new generic_updater::SensorUpdater(update_configs_vector, update_state));
     reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
   }
 

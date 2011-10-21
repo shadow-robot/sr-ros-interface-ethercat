@@ -33,11 +33,22 @@
 #include <queue>
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
-
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
   #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+}
+
+namespace operation_mode
+{
+  namespace device_update_state
+  {
+    enum DeviceUpdateState
+    {
+      INITIALIZATION,
+      OPERATION
+    };
+  }
 }
 
 namespace generic_updater
@@ -61,7 +72,7 @@ namespace generic_updater
   class GenericUpdater
   {
   public:
-    GenericUpdater(std::vector<UpdateConfig> update_configs_vector);
+    GenericUpdater(std::vector<UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state);
     ~GenericUpdater();
 
     /**
@@ -94,6 +105,8 @@ namespace generic_updater
     std::vector<ros::Timer> timers;
     ///A queue containing the unimportant data types we want to ask for next time (empty most of the time).
     std::queue<int32u, std::list<int32u> > unimportant_data_queue;
+
+    boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state;
 
     boost::shared_ptr<boost::mutex> mutex;
   };

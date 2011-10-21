@@ -53,7 +53,7 @@ namespace tactiles
   class GenericTactiles
   {
   public:
-    GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector);
+    GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state);
     ~GenericTactiles() {};
 
     /**
@@ -93,6 +93,7 @@ namespace tactiles
     static const unsigned int nb_tactiles;
 
     boost::shared_ptr<generic_updater::SensorUpdater> sensor_updater;
+    boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state;
 
   protected:
     ros::NodeHandle nodehandle_;
