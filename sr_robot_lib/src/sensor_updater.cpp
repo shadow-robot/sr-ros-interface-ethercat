@@ -73,7 +73,10 @@ namespace generic_updater
 
   bool SensorUpdater::reset()
   {
-    unimportant_data_queue.push(TACTILE_SENSOR_TYPE_RESET_COMMAND);
+    //We need to send the reset command twice in a row to make sure
+    // the tactiles are reset.
+    for( unsigned int i=0; i<2 ; ++i)
+      unimportant_data_queue.push(TACTILE_SENSOR_TYPE_RESET_COMMAND);
   }
 }
 
