@@ -43,9 +43,17 @@ namespace tactiles
     int pcb_version;
   };
 
-  struct PST3Data
+  class PST3Data
     : public GenericTactileData
   {
+  public:
+      PST3Data() {};
+
+      PST3Data(const PST3Data& pst3);
+
+      PST3Data(const GenericTactileData& gtd);
+
+      ~PST3Data() {};
     int pressure;
     int temperature;
 

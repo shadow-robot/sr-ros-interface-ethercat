@@ -63,7 +63,7 @@ namespace tactiles
      *
      * @param status_data the received etherCAT message
      */
-    virtual void update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data) = 0;
+    virtual void update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data);
 
     /**
      * Publish the information to a ROS topic.
@@ -94,11 +94,15 @@ namespace tactiles
 
     boost::shared_ptr<generic_updater::SensorUpdater> sensor_updater;
     boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state;
+    /// the vector containing the data for the tactiles.
+    boost::shared_ptr< std::vector<GenericTactileData> > tactiles_vector;
 
   protected:
     ros::NodeHandle nodehandle_;
 
     ros::ServiceServer reset_service_client_;
+
+
 
   };//end class
 }//end namespace

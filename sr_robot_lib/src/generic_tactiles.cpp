@@ -26,6 +26,7 @@
  */
 
 #include "sr_robot_lib/generic_tactiles.hpp"
+#include <sr_utilities/sr_math_utils.hpp>
 
 namespace tactiles
 {
@@ -37,6 +38,79 @@ namespace tactiles
     sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater>(new generic_updater::SensorUpdater(update_configs_vector, update_state));
     reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
   }
+
+  void GenericTactiles::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
+    {
+      int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
+      //TODO: use memcopy instead?
+      for( unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
+      {
+        switch( static_cast<int32u>(status_data->tactile_data_type) )
+        {
+          //COMMON DATA
+        case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
+          if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+          {
+            tactiles_vector->at(id_sensor).sample_frequency = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          }
+          break;
+
+        case TACTILE_SENSOR_TYPE_MANUFACTURER:
+        {
+          if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+          {
+            std::string manufacturer = "";
+            for (int i = 0; i < 16; ++i)
+            {
+              char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
+              if( tmp != '0' )
+                manufacturer += static_cast<char>(status_data->tactile[id_sensor].string[i]);
+              else
+                break;
+            }
+            tactiles_vector->at(id_sensor).manufacturer = manufacturer;
+          }
+        }
+        break;
+
+        case TACTILE_SENSOR_TYPE_SERIAL_NUMBER:
+        {
+          if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+          {
+            std::string serial = "";
+            for (int i = 0; i < 16; ++i)
+            {
+              char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
+              if( tmp != 0 )
+                serial += static_cast<char>(status_data->tactile[id_sensor].string[i]);
+              else
+                break;
+            }
+            tactiles_vector->at(id_sensor).serial_number = serial;
+          }
+        }
+        break;
+
+        case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
+          if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+          {
+            tactiles_vector->at(id_sensor).software_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          }
+          break;
+
+        case TACTILE_SENSOR_TYPE_PCB_VERSION:
+          if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
+          {
+            tactiles_vector->at(id_sensor).pcb_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          }
+          break;
+
+        default:
+          break;
+
+        } //end switch
+      } //end for tactile
+    }
 
   /**
    * Reset the tactile sensors.

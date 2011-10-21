@@ -40,6 +40,15 @@ namespace tactiles
     tactiles_vector = boost::shared_ptr< std::vector<PST3Data> >( new std::vector<PST3Data>(nb_tactiles) );
   }
 
+  ShadowPSTs::ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector)
+    :ShadowPSTs(update_configs_vector, update_state)
+  {
+    for(int i=0;i<nb_tactiles;i++)
+    {
+      tactiles_vector[i] = new PST3Data(init_tactiles_vector[i]);
+    }
+  }
+
   void ShadowPSTs::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);

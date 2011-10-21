@@ -155,8 +155,14 @@ namespace shadow_robot
     //build the motor command
     motor_updater_->build_command(command);
 
-    //update the command with the tactile command:
-    tactiles->sensor_updater->build_command(command);
+//    //update the command with the tactile command:
+//    if(TACTILE_CURRENT_STATE == INITIALIZATION)
+//    {
+//      if( tactiles_init->sensor_updater->build_init_command(command) )
+//         tactiles = ...;
+//    }
+//    else
+      tactiles->sensor_updater->build_command(command);
 
     ///////
     // Now we chose the command to send to the motor
@@ -167,6 +173,7 @@ namespace shadow_robot
     if( reconfig_queue.empty() && reset_motors_queue.empty() )
     {
       //no config to send
+
       command->to_motor_data_type   = MOTOR_DEMAND_TORQUE;
 
       //loop on all the joints and update their motor: we're sending commands to all the motors.
