@@ -49,6 +49,8 @@ namespace tactiles
                               std_srvs::Empty::Response& response)
   {
     ROS_INFO_STREAM("Resetting tactiles");
+
+    return sensor_updater->reset();
   }
 }
 

@@ -62,44 +62,7 @@ namespace generic_updater
     ROS_DEBUG_STREAM("Timer: data type = "<<data_type << " | queue size: "<<unimportant_data_queue.size());
   }
 
-//  void GenericUpdater::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
-//  {
-//    if(!mutex->try_lock())
-//      return;
-//
-//    ///////
-//    // First we ask for the next data we want to receive
-//    if(even_motors)
-//      even_motors = 0;
-//    else
-//    {
-//      even_motors = 1;
-//      which_data_to_request ++;
-//
-//      if( which_data_to_request >= important_update_configs_vector.size() )
-//        which_data_to_request = 0;
-//    }
-//
-//    command->which_motors = even_motors;
-//
-//    if(!unimportant_data_queue.empty())
-//    {
-//      //an unimportant data is available
-//      command->from_motor_data_type = unimportant_data_queue.front();
-//      unimportant_data_queue.pop();
-//
-//      ROS_DEBUG_STREAM("Updating unimportant data type: "<<command->from_motor_data_type << " | queue size: "<<unimportant_data_queue.size());
-//    }
-//    else
-//    {
-//      //important data to update as often as possible
-//      command->from_motor_data_type = important_update_configs_vector[which_data_to_request].what_to_update;
-//      ROS_DEBUG_STREAM("Updating important data type: "<<command->from_motor_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
-//    }
-//
-//    mutex->unlock();
-//  }
-}
+}//end namespace generic_updater
 
 
 

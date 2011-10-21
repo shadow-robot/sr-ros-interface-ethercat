@@ -59,7 +59,7 @@ namespace generic_updater
       command->tactile_data_type = unimportant_data_queue.front();
       unimportant_data_queue.pop();
 
-      ROS_DEBUG_STREAM("Updating sensor unimportant data type: "<<command->from_motor_data_type << " | queue size: "<<unimportant_data_queue.size());
+      ROS_DEBUG_STREAM("Updating sensor unimportant data type: "<<command->tactile_data_type << " | queue size: "<<unimportant_data_queue.size());
     }
     else
     {
@@ -69,6 +69,11 @@ namespace generic_updater
     }
 
     mutex->unlock();
+  }
+
+  bool SensorUpdater::reset()
+  {
+    unimportant_data_queue.push(TACTILE_SENSOR_TYPE_RESET_COMMAND);
   }
 }
 

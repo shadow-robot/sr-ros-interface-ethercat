@@ -81,6 +81,16 @@ namespace generic_updater
      */
     void timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type);
 
+    /**
+     * Will send the reset command to the tactiles, on next build
+     * command call.
+     *
+     * Simply adds the reset command to the unimportant_data_queue.
+     *
+     *
+     * @return true if RESET added to the top queue.
+     */
+    bool reset();
   };
 }
 

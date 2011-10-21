@@ -191,7 +191,11 @@ namespace tactiles
       d.addf("PCB Version", "%d", tactiles_vector->at(id_tact).pcb_version);
 
       d.addf("Pressure Raw", "%d", tactiles_vector->at(id_tact).pressure_raw);
+      d.addf("Zero Tracking", "%d", tactiles_vector->at(id_tact).zero_tracking);
       d.addf("DAC Value", "%d", tactiles_vector->at(id_tact).dac_value);
+
+      d.addf("Debug Value 1", "%d", tactiles_vector->at(id_tact).debug_1);
+      d.addf("Debug Value 2", "%d", tactiles_vector->at(id_tact).debug_2);
 
       vec.push_back(d);
     }
