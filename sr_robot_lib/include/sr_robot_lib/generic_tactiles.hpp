@@ -53,7 +53,7 @@ namespace tactiles
   class GenericTactiles
   {
   public:
-    GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state);
+    GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
     ~GenericTactiles() {};
 
     /**
@@ -69,14 +69,14 @@ namespace tactiles
      * Publish the information to a ROS topic.
      *
      */
-    virtual void publish() = 0;
+    virtual void publish();
 
     /**
      * This function adds the diagnostics for the tactiles to the
      * multi diagnostic status published by the hand.
      */
     virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
-                                 diagnostic_updater::DiagnosticStatusWrapper &d) = 0;
+                                 diagnostic_updater::DiagnosticStatusWrapper &d);
 
     /**
      * Reset the tactile sensors.
@@ -93,14 +93,19 @@ namespace tactiles
     static const unsigned int nb_tactiles;
 
     boost::shared_ptr<generic_updater::SensorUpdater> sensor_updater;
-    boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state;
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<GenericTactileData> > tactiles_vector;
 
   protected:
+
+    void process_received_data_type(int32u data);
+
     ros::NodeHandle nodehandle_;
 
     ros::ServiceServer reset_service_client_;
+
+    ///Contains the received data types.
+    std::vector<int32u> initialization_received_data_vector;
 
 
 

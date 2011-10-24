@@ -198,6 +198,8 @@ namespace shadow_robot
     shadow_joints::CalibrationMap calibration_map;
 
     boost::shared_ptr<tactiles::GenericTactiles> tactiles;
+    boost::shared_ptr<tactiles::GenericTactiles> tactiles_init;
+    operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
     /**
      * Contains the idle time of the PIC communicating
@@ -224,7 +226,8 @@ namespace shadow_robot
      * @param joint_to_sensors The mapping between the joints and the sensors (e.g. FFJ0 = FFJ1+FFJ2)
      * @param actuators The actuators.
      */
-    virtual void initialize(std::vector<std::string> joint_names, std::vector<int> motor_ids,
+    virtual void initialize(std::vector<std::string> joint_names,
+                            std::vector<int> motor_ids,
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                             std::vector<sr_actuator::SrActuator*> actuators) = 0;
 
@@ -342,18 +345,11 @@ namespace shadow_robot
     ///We need to know if we're overflowing or not.
     int last_can_msgs_transmitted;
 
-    /**
-     * Sensor update state is used to store the state of the information retrieving from the sensors.
-     * The shared pointer will be used and modified by the generic and specific tactiles classes
-     * and by the sensor updater, and will be monitored by sr_robot_lib
-     */
-    boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> sensor_update_state_;
+    ///The update rate for each motor information
+    std::vector<generic_updater::UpdateConfig> update_rate_configs_vector;
+    ///The update rate for each sensor information type
+    std::vector<generic_updater::UpdateConfig> sensor_update_rate_configs_vector;
 
-    /**
-     * motor update state is used to store the state of the information retrieving from the motors.
-     * The shared pointer will be used and modified by the motor updaters, and will be monitored by sr_robot_lib
-     */
-    boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> motor_update_state_;
   };//end class
 }//end namespace
 

@@ -72,7 +72,7 @@ namespace generic_updater
   class GenericUpdater
   {
   public:
-    GenericUpdater(std::vector<UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state);
+    GenericUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
     ~GenericUpdater();
 
     /**
@@ -82,7 +82,7 @@ namespace generic_updater
      *
      * @param command The command which will be sent to the motor.
      */
-    virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command) = 0;
+    virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)=0;
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback
@@ -93,20 +93,22 @@ namespace generic_updater
      */
     void timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type);
 
+    operation_mode::device_update_state::DeviceUpdateState update_state;
+    ///Contains all the initialization data types.
+    std::vector<UpdateConfig> initialization_configs_vector;
+
   protected:
     ros::NodeHandle nh_tilde;
 
     ///Contains all the important data types.
     std::vector<UpdateConfig> important_update_configs_vector;
-    ///iterate through the important data types.
+    ///iterate through the important or initialization data types.
     int which_data_to_request;
 
     ///All the timers for the unimportant data types.
     std::vector<ros::Timer> timers;
     ///A queue containing the unimportant data types we want to ask for next time (empty most of the time).
     std::queue<int32u, std::list<int32u> > unimportant_data_queue;
-
-    boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state;
 
     boost::shared_ptr<boost::mutex> mutex;
   };

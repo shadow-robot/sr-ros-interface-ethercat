@@ -59,7 +59,7 @@ namespace generic_updater
       public GenericUpdater
   {
   public:
-    MotorUpdater(std::vector<UpdateConfig> update_configs_vector, boost::shared_ptr<operation_mode::device_update_state::DeviceUpdateState> update_state);
+    MotorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
     ~MotorUpdater();
 
     /**

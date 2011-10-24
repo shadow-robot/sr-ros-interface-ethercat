@@ -31,10 +31,12 @@
 
 namespace tactiles
 {
-  struct GenericTactileData
+  class GenericTactileData
   {
+  public:
     bool tactile_data_valid;
 
+    int which_sensor;
     int sample_frequency;
     std::string manufacturer;
     std::string serial_number;
