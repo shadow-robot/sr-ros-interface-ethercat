@@ -30,6 +30,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/array.hpp>
+
 namespace tactiles
 {
   struct GenericTactileData
@@ -62,12 +64,14 @@ namespace tactiles
   struct BiotacData
     : public GenericTactileData
   {
-    int pdc;
-    int tac;
-    int tdc;
-    std::vector<int> electrodes;
+    int pac0; //always there, in word[0] and 1; int16u (2kHz)
+    int pac1; //int16u
 
-    int num_values;
+    int pdc; //int16u in word[2]
+
+    int tac; //int16u in word[2]
+    int tdc; //int16u in word[2]
+    boost::array<short int, 19ul> electrodes; //int16u in word[2]
   };
 }
 

@@ -46,6 +46,11 @@ namespace tactiles
     //TODO: use memcopy instead?
     for( unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
     {
+      //We always receive pac0 and pac1
+      tactiles_vector->at(id_sensor).pac0 = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+      tactiles_vector->at(id_sensor).pac1 = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
+
+      //the rest of the data is sampled at different rates
       switch( static_cast<int32u>(status_data->tactile_data_type) )
       {
         //TACTILE DATA
@@ -54,53 +59,94 @@ namespace tactiles
         break;
 
       case TACTILE_SENSOR_TYPE_BIOTAC_PDC:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_TAC:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_TDC:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18:
-        break;
-      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19:
-        break;
-      case FROM_TACTILE_SENSOR_TYPE_BIOTAC_NUM_VALUES = 0x0017
+        tactiles_vector->at(id_sensor).pdc = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
         break;
 
-        //COMMON DATA
+      case TACTILE_SENSOR_TYPE_BIOTAC_TAC:
+        tactiles_vector->at(id_sensor).tac = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_TDC:
+        tactiles_vector->at(id_sensor).tdc = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1:
+        tactiles_vector->at(id_sensor).electrodes[0] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2:
+        tactiles_vector->at(id_sensor).electrodes[1] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3:
+        tactiles_vector->at(id_sensor).electrodes[2] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4:
+        tactiles_vector->at(id_sensor).electrodes[3] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5:
+        tactiles_vector->at(id_sensor).electrodes[4] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6:
+        tactiles_vector->at(id_sensor).electrodes[5] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7:
+        tactiles_vector->at(id_sensor).electrodes[6] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8:
+        tactiles_vector->at(id_sensor).electrodes[7] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9:
+        tactiles_vector->at(id_sensor).electrodes[8] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10:
+        tactiles_vector->at(id_sensor).electrodes[9] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11:
+        tactiles_vector->at(id_sensor).electrodes[10] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12:
+        tactiles_vector->at(id_sensor).electrodes[11] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13:
+        tactiles_vector->at(id_sensor).electrodes[12] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14:
+        tactiles_vector->at(id_sensor).electrodes[13] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15:
+        tactiles_vector->at(id_sensor).electrodes[14] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16:
+        tactiles_vector->at(id_sensor).electrodes[15] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17:
+        tactiles_vector->at(id_sensor).electrodes[16] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18:
+        tactiles_vector->at(id_sensor).electrodes[17] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19:
+        tactiles_vector->at(id_sensor).electrodes[18] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        break;
+
+      //COMMON DATA
       case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
@@ -180,26 +226,28 @@ namespace tactiles
         sr_robot_msgs::Biotac tactile_tmp;
         if( tactiles_vector->at(id_tact).tactile_data_valid )
         {
+          tactile_tmp.pac0 = static_cast<int16u>(tactiles_vector->at(id_tact).pac0);
+          tactile_tmp.pac1 = static_cast<int16u>(tactiles_vector->at(id_tact).pac1);
+
           tactile_tmp.pdc = static_cast<int16u>(tactiles_vector->at(id_tact).pdc);
           tactile_tmp.tac = static_cast<int16u>(tactiles_vector->at(id_tact).tac);
           tactile_tmp.tdc = static_cast<int16u>(tactiles_vector->at(id_tact).tdc);
 
           tactile_tmp.electrodes = tactiles_vector->at(id_tact).electrodes;
-
-          tactile_tmp.num_values = static_cast<int16u>(tactiles_vector->at(id_tact).num_values);
         }
         else
         {
+          tactile_tmp.pac0 = -1;
+          tactile_tmp.pac1 = -1;
+
           tactile_tmp.pdc = -1;
           tactile_tmp.tac = -1;
           tactile_tmp.tdc = -1;
 
           //TODO: push vector of -1 in electrodes?
-
-          tactile_tmp.num_values = -1;
         }
 
-        tactiles.tactiles.push_back(tactile_tmp);
+        tactiles.tactiles[id_tact] = tactile_tmp;
       }
 
 
