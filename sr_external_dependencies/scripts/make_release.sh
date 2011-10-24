@@ -20,4 +20,7 @@ VERS_BOOTLD=`svnversion include/sr_external_dependencies/external/simplemotor-bo
 VERS_FW=`svnversion compiled_firmware/released_firmware/`
 VERS_BZR_ETHERCAT=`bzr revno \`rosstack find shadow_robot_ethercat\``
 VERS_BZR_SHADOW=`bzr revno \`rosstack find shadow_robot\``
-echo "svn_0220:"${VERS_0220} "; bootloader:"${VERS_BOOTLD}" ; firmware:"${VERS_FW}" ; bzr_shadow:"${VERS_BZR_SHADOW} "; bzr_ethercat:"${VERS_BZR_ETHERCAT} > tested_version.yaml
+
+echo "protocol:"${VERS_0220} "; bootloader:"${VERS_BOOTLD}" ; firmware:"${VERS_FW}" ; bzr_shadow:"${VERS_BZR_SHADOW} "; bzr_ethercat:"${VERS_BZR_ETHERCAT} > tested_version.yaml
+
+bzr tag --force "protocol"${VERS_0220}"__bootloader_"${VERS_BOOTLD}"__firmware_"${VERS_FW}"__bzr_shadow_"${VERS_BZR_SHADOW}"__bzr_ethercat_"${VERS_BZR_ETHERCAT}
