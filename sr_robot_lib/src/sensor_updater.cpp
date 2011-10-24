@@ -31,13 +31,40 @@
 
 namespace generic_updater
 {
-  SensorUpdater::SensorUpdater(std::vector<UpdateConfig> update_configs_vector)
-    : GenericUpdater(update_configs_vector)
+  SensorUpdater::SensorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+    : GenericUpdater(update_configs_vector, update_state)
   {
   }
 
   SensorUpdater::~SensorUpdater()
   {
+  }
+
+  operation_mode::device_update_state::DeviceUpdateState SensorUpdater::build_init_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
+  {
+    if(!mutex->try_lock())
+      return update_state;
+
+    if (update_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      if(initialization_configs_vector.size()>0)
+      {
+        ///////
+        // First we ask for the next data we want to receive
+
+          which_data_to_request ++;
+
+          if( which_data_to_request >= initialization_configs_vector.size() )
+            which_data_to_request = 0;
+
+          //initialization data
+          command->tactile_data_type = initialization_configs_vector[which_data_to_request].what_to_update;
+          ROS_DEBUG_STREAM("Updating sensor initialization data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<initialization_configs_vector.size()<<"] ");
+      }
+    }
+    mutex->unlock();
+
+    return update_state;
   }
 
   void SensorUpdater::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)

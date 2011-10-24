@@ -35,11 +35,22 @@
 #include <queue>
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
-
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
   #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+}
+
+namespace operation_mode
+{
+  namespace device_update_state
+  {
+    enum DeviceUpdateState
+    {
+      INITIALIZATION,
+      OPERATION
+    };
+  }
 }
 
 namespace generic_updater
@@ -63,7 +74,7 @@ namespace generic_updater
   class GenericUpdater
   {
   public:
-    GenericUpdater(std::vector<UpdateConfig> update_configs_vector);
+    GenericUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
     ~GenericUpdater();
 
     /**
@@ -73,7 +84,7 @@ namespace generic_updater
      *
      * @param command The command which will be sent to the motor.
      */
-    virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command) = 0;
+    virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)=0;
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback
@@ -84,12 +95,16 @@ namespace generic_updater
      */
     void timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type);
 
+    operation_mode::device_update_state::DeviceUpdateState update_state;
+    ///Contains all the initialization data types.
+    std::vector<UpdateConfig> initialization_configs_vector;
+
   protected:
     ros::NodeHandle nh_tilde;
 
     ///Contains all the important data types.
     std::vector<UpdateConfig> important_update_configs_vector;
-    ///iterate through the important data types.
+    ///iterate through the important or initialization data types.
     int which_data_to_request;
 
     ///All the timers for the unimportant data types.

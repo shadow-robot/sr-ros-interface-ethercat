@@ -34,6 +34,7 @@
 
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include "sr_robot_lib/generic_updater.hpp"
+#include "sr_robot_lib/tactile_sensors.hpp"
 
 namespace tactiles
 {
@@ -41,8 +42,12 @@ namespace tactiles
     public GenericTactiles
   {
   public:
-    ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector);
+    ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
+    ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector);
+
     ~ShadowPSTs() {};
+
+    void init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
 
     /**
      * This function is called each time a new etherCAT message
@@ -67,8 +72,6 @@ namespace tactiles
                                  diagnostic_updater::DiagnosticStatusWrapper &d);
 
   protected:
-    /// the vector containing the data for the tactiles.
-    boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;
 
     // Tactile sensor real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> > tactile_publisher;

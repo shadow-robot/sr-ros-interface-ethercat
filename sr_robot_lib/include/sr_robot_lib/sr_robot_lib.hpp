@@ -61,12 +61,15 @@ extern "C"
 
 namespace operation_mode
 {
-  enum RobotState
+  namespace robot_state
   {
-    INITIALIZATION,
-    OPERATION,
-    SHUTDOWN
-  };
+    enum RobotState
+    {
+      INITIALIZATION,
+      OPERATION,
+      SHUTDOWN
+    };
+  }
 }
 
 namespace crc_unions
@@ -200,6 +203,8 @@ namespace shadow_robot
      * depending on the type of sensors attached to the hand.
      */
     boost::shared_ptr<tactiles::GenericTactiles> tactiles;
+    boost::shared_ptr<tactiles::GenericTactiles> tactiles_init;
+    operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
     /**
      * Contains the idle time of the PIC communicating
@@ -226,7 +231,8 @@ namespace shadow_robot
      * @param joint_to_sensors The mapping between the joints and the sensors (e.g. FFJ0 = FFJ1+FFJ2)
      * @param actuators The actuators.
      */
-    virtual void initialize(std::vector<std::string> joint_names, std::vector<int> motor_ids,
+    virtual void initialize(std::vector<std::string> joint_names,
+                            std::vector<int> motor_ids,
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                             std::vector<sr_actuator::SrActuator*> actuators) = 0;
 
@@ -337,12 +343,18 @@ namespace shadow_robot
 #endif
 
     ///The current state of the robot.
-    operation_mode::RobotState current_state;
+    operation_mode::robot_state::RobotState current_state;
 
     ///We need to know if we're overflowing or not.
     int last_can_msgs_received;
     ///We need to know if we're overflowing or not.
     int last_can_msgs_transmitted;
+
+    ///The update rate for each motor information
+    std::vector<generic_updater::UpdateConfig> update_rate_configs_vector;
+    ///The update rate for each sensor information type
+    std::vector<generic_updater::UpdateConfig> sensor_update_rate_configs_vector;
+
   };//end class
 }//end namespace
 

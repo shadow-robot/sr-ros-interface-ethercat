@@ -59,8 +59,17 @@ namespace generic_updater
       public GenericUpdater
   {
   public:
-    SensorUpdater(std::vector<UpdateConfig> update_configs_vector);
+    SensorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
     ~SensorUpdater();
+
+    /**
+     * Updates the initialization command to send to the hand. This function is called
+     * at each packCommand() call. Ask for the relevant information for the tactiles.
+     *
+     * @param command The command which will be sent to the palm.
+     * @return current update state
+     */
+    operation_mode::device_update_state::DeviceUpdateState build_init_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
 
     /**
      * Updates the command to send to the hand. This function is called
