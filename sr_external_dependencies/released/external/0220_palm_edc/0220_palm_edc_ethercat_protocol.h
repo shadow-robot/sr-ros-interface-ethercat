@@ -128,7 +128,7 @@ typedef enum
 typedef enum
 {
     MOTOR_SLOW_DATA_INVALID              = 0x0000,
-    MOTOR_SLOW_DATA_SVN_REVISION         = 0x0001,
+   MOTOR_SLOW_DATA_SVN_REVISION         = 0x0001,
     MOTOR_SLOW_DATA_SVN_SERVER_REVISION  = 0x0002,
     MOTOR_SLOW_DATA_SVN_MODIFIED         = 0x0003,
     MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW    = 0x0004,
@@ -145,8 +145,13 @@ typedef enum
     MOTOR_SLOW_DATA_CONTROLLER_DEADSIGN  = 0x000E,
     MOTOR_SLOW_DATA_CONTROLLER_FREQUENCY = 0x000F,
 
-    MOTOR_SLOW_DATA_LAST                 = 0x000F
+    MOTOR_SLOW_DATA_STRAIN_GAUGE_TYPE    = 0x0010,
+
+    MOTOR_SLOW_DATA_LAST                 = 0x0010
 }FROM_MOTOR_SLOW_DATA_TYPE;
+
+#define STRAIN_GAUGE_TYPE_COUPLED       0x0C
+#define STRAIN_GAUGE_TYPE_DECOUPLED     0x0D
 
 #ifndef NO_STRINGS													                    // The PIC compiler doesn't deal well with strings.
 
@@ -165,7 +170,7 @@ typedef enum
                                                 "Controller D",
                                                 "Controller Imax",
                                                 "Controller D",
-                                                "Controller deadband & sign",
+                                                "Controller deadband and sign",
                                                 "Controller loop frequency Hz"
                                                };
 
@@ -229,7 +234,7 @@ typedef enum
     MOTOR_CONFIG_I                      = 0xB,                  //!< Integral gain
     MOTOR_CONFIG_D                      = 0xC,                  //!< Derivative gain
     MOTOR_CONFIG_IMAX                   = 0xD,                  //!< Maximum integral windup
-    MOTOR_CONFIG_DEADBAND_SIGN          = 0xE,                  //!< MSB=Deadband. LSB=sign.
+    MOTOR_CONFIG_DEADBAND_SIGN          = 0xE,                  //!< MSB=sign. LSB=Deadband.
     MOTOR_CONFIG_LAST_VALUE             = 0xE,                  //!< This is the last config (apart from the CRC, which is special)
     MOTOR_CONFIG_CRC                    = 0xF                   //!< Sending this value, if it matches the CRC of the configs
                                                                 //!  above, causes the configs to take effect.
@@ -339,11 +344,6 @@ typedef enum
 #define MESSAGE_ID_MOTOR_ID_TOP_2_BITS  0b00110000000           //!< Used to group motors into fours.
 
 
-typedef struct
-{
-    int16u              data[8];                                //!< As yet unspecified
-}TACTILE_SENSOR_STATUS;
-
 
 #define SENSORS_NUM_0220  ((int)36)                             //!< The number of sensors in the robot.
                                                                 //!  This needs to be a #define because it's used to dimension an array.
@@ -400,14 +400,7 @@ typedef enum
 typedef enum
 {
       PALM_SVN_VERSION              =  0,
-    SERVER_SVN_VERSION              =  1,
-
-    TACTILE_SENSOR_FF_INSTALLED     =  2,
-    TACTILE_SENSOR_MF_INSTALLED     =  3,
-    TACTILE_SENSOR_RF_INSTALLED     =  4,
-    TACTILE_SENSOR_LF_INSTALLED     =  5,
-    TACTILE_SENSOR_TH_INSTALLED     =  6
-
+    SERVER_SVN_VERSION              =  1
 }HARD_CONFIGURATION_INFORMATION;
 
 
@@ -417,95 +410,79 @@ typedef enum
 //      TACTILE SENSORS
 //      ---------------
 
-
-typedef enum                                                            // Shadow Sensors
+typedef union
 {
-    TACTILE_SENSOR_SHADOW_TYPE_NONE             = 0,
-    TACTILE_SENSOR_SHADOW_TYPE_PST              = 1,
-    TACTILE_SENSOR_SHADOW_TYPE_6_AXIS           = 2
-}TACTILE_SENSOR_SHADOW_TYPE;
+    int16u  word[8];                                                    //!< As yet unspecified
+    char    string[16];
+}TACTILE_SENSOR_STATUS;
 
-typedef enum                                                            // Shadow Sensors
+typedef enum                                                            //! Data you can request from tactile sensors in general
 {
-    TACTILE_SENSOR_PST_DATA_TYPE_NONE                 = 0,
-    TACTILE_SENSOR_PST_DATA_TYPE_PRESSURE_TEMPERATURE = 1,
-    TACTILE_SENSOR_PST_DATA_TYPE_SVN_VERSIONS         = 2
-}TACTILE_SENSOR_PST_DATA_TYPE;
+    TACTILE_SENSOR_TYPE_WHICH_SENSORS           = 0xFFF9,               //!< Is this a PST, a BioTac, or what? Returns a TACTILE_SENSOR_PROTOCOL_TYPE
+    TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ     = 0xFFFA,               //!< currently only used by BioTacs
+    TACTILE_SENSOR_TYPE_MANUFACTURER            = 0xFFFB,               //!< e.g. "Shadow" or "Syntouch"
+    TACTILE_SENSOR_TYPE_SERIAL_NUMBER           = 0xFFFC,               //!< e.g. "PST3200110190001"
+    TACTILE_SENSOR_TYPE_SOFTWARE_VERSION        = 0xFFFD,               //!< e.g. "1825"
+    TACTILE_SENSOR_TYPE_PCB_VERSION             = 0xFFFE,               //!< currently only used by BioTacs
+    TACTILE_SENSOR_TYPE_RESET_COMMAND           = 0xFFFF                //!< Requesting this causes the tactile sensors to reset if they support it.
+}FROM_TACTILE_SENSOR_TYPE;
 
 
-typedef struct
+typedef enum                                                            //! This is the protocol that the palm is using for the tactile sensors.
 {
-    int16u  pressure;
-    int16u  temperature;
-    int16u  padding[6];
-}TACTILE_SENSOR_SHADOW_PST_DATA_CONTENTS;
+    TACTILE_SENSOR_PROTOCOL_TYPE_INVALID        = 0x0000,               //!< No supported sensors were found.
+    TACTILE_SENSOR_PROTOCOL_TYPE_PST3           = 0x0001,
+    TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3     = 0x0002,
+
+    TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING    = 0xFFFF                //!< More than 1 type of sensor is connected to the hand! (Very unlikely to happen)
+}TACTILE_SENSOR_PROTOCOL_TYPE;
 
 
-
-typedef enum                                                            // Syntouch
+typedef enum                                                            // Data you can request from PST3s
 {
-    TACTILE_SENSOR_SYNTOUCH_TYPE_NONE           = 0,
-    TACTILE_SENSOR_SYNTOUCH_TYPE_2_3            = 1
-}TACTILE_SENSOR_SYNTOUCH_TYPE;
+    TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE       = 0x0000,       //!< 0: Pressure.       1: Temperature
+    TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING = 0x0002,       //!< 0: Raw pressure    1: Zero tracking
+    TACTILE_SENSOR_TYPE_PST3_DAC_VALUE                  = 0x0004        //!< 0: DAC value       1: ----
+}FROM_TACTILE_SENSOR_TYPE_PST3;
 
 
-typedef enum                                                            // Syntouch
+typedef enum                                                            // Data you can request from BioTacs
 {
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_NONE          = 0x0000,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_1   = 0x0001,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_2   = 0x0002,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_3   = 0x0003,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_4   = 0x0004,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_5   = 0x0005,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_6   = 0x0006,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_7   = 0x0007,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_8   = 0x0008,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_9   = 0x0009,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_10  = 0x000A,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_11  = 0x000B,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_12  = 0x000C,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_13  = 0x000D,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_14  = 0x000E,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_15  = 0x000F,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_16  = 0x0010,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_17  = 0x0011,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_18  = 0x0012,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_ELECTRODE_19  = 0x0013,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_PDC           = 0x0014,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_TAC           = 0x0015,
-    TACTILE_SENSOR_SYNTOUCH_DATA_TYPE_TDC           = 0x0016
-}TACTILE_SENSOR_SYNTOUCH_DATA_TYPE;
+    TACTILE_SENSOR_TYPE_BIOTAC_INVALID       = 0x0000,
+    TACTILE_SENSOR_TYPE_BIOTAC_PDC           = 0x0001,
+    TACTILE_SENSOR_TYPE_BIOTAC_TAC           = 0x0002,
+    TACTILE_SENSOR_TYPE_BIOTAC_TDC           = 0x0003,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1   = 0x0004,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2   = 0x0005,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3   = 0x0006,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4   = 0x0007,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5   = 0x0008,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6   = 0x0009,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7   = 0x000A,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8   = 0x000B,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9   = 0x000C,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10  = 0x000D,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11  = 0x000E,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12  = 0x000F,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13  = 0x0010,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14  = 0x0011,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15  = 0x0012,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16  = 0x0013,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17  = 0x0014,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18  = 0x0015,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19  = 0x0016,
 
+    FROM_TACTILE_SENSOR_TYPE_BIOTAC_NUM_VALUES = 0x0017
+}FROM_TACTILE_SENSOR_TYPE_BIOTAC;
 
+/*
 typedef struct
 {
     int16u  pac;
     int16u  hall;
     int16u  misc[6];
 }TACTILE_SENSOR_SYNTOUCH_DATA_CONTENTS;
-
-
-
-typedef enum                                                            // Manufacturers
-{
-    TACTILE_SENSOR_MANUFACTURER_NONE            = 0,
-    TACTILE_SENSOR_MANUFACTURER_SHADOW          = 1,
-    TACTILE_SENSOR_MANUFACTURER_SYNTOUCH        = 2,
-    TACTILE_SENSOR_MANUFACTURER_BIELEFELD       = 3
-}TACTILE_SENSOR_MANUFACTURER;
-
-
-typedef enum
-{
-    TACTILE_SENSOR_GENERIC_INFO_INVALID         = 0,
-    TACTILE_SENSOR_GENERIC_INFO_SVN_REVISION    = 0x8001,
-    TACTILE_SENSOR_GENERIC_INFO_SVN_MODIFIED    = 0x8002,
-    TACTILE_SENSOR_GENERIC_INFO_SVN_SERVER      = 0x8003,
-    TACTILE_SENSOR_GENERIC_INFO_PCB_VERSION     = 0x8004,
-    TACTILE_SENSOR_GENERIC_INFO_SERIAL_NUMBER_L = 0x8005,
-    TACTILE_SENSOR_GENERIC_INFO_SERIAL_NUMBER_H = 0x8006
-}TACTILE_SENSOR_INFO_REQUEST;
-
+*/
 
 #ifndef NO_STRINGS
 

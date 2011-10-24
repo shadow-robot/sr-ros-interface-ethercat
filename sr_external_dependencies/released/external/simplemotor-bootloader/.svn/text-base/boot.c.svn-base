@@ -518,7 +518,7 @@ static void handle_can_msg(void)
                 write_flash_data();
                 acknowledge_packet();
                 break;
-
+    
             case READ_FLASH_COMMAND:
                 read_flash();                           // special ack, done in the function, will ack with the data
                 break;

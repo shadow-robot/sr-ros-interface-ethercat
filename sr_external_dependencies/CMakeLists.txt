@@ -16,4 +16,15 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/scripts/update_header.sh")
+SET(internal_firmware $ENV{INTERNAL_FIRMWARE})
+IF(DEFINED internal_firmware)
+  MESSAGE(" [x] Fetching new development firmware from Shadow's internal repository and headers.")
+ELSE(DEFINED internal_firmware)
+  MESSAGE(" [x] Fetching latest RELEASED firmware and headers.")
+ENDIF(DEFINED internal_firmware)
+
+IF(DEFINED internal_firmware)
+  EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/scripts/update_header.sh")
+ELSE(DEFINED internal_firmware)
+  EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/scripts/update_released_header.sh")
+ENDIF(DEFINED internal_firmware)
