@@ -45,11 +45,14 @@
 int64u      node_id                  = 0;
 int32u      global_AL_Event_Register = 0;
 
+TACTILE_SENSOR_PROTOCOL_TYPE    tactile_sensor_protocol = TACTILE_SENSOR_PROTOCOL_TYPE_INVALID;
+
 ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND   etherCAT_command_data;
 ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS    etherCAT_status_data;
 
 ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_from_ROS;
 ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
+
 
 #define CORE_TIMER_TO_MICROSECONDS(x) ((x) / (SYSTEM_FREQ_HZ/2000000))              //!< Convert from the number of core ticks returned by ReadCoreTimer to a real time in microseconds.
 
@@ -105,13 +108,13 @@ ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 #endif
 
 #ifdef PALM_PCB_01    
-    int8u palm_EDC_0200_sensor_mapping[64] = {IGNORE, IGNORE, IGNORE, IGNORE,  RFJ4,   THJ4,   IGNORE,  IGNORE,           // Channel 0
+    int8u palm_EDC_0200_sensor_mapping[64] = {IGNORE, IGNORE, IGNORE, IGNORE,  FFJ4,   THJ4,   IGNORE,  IGNORE,           // Channel 0
                                               IGNORE, IGNORE, IGNORE, IGNORE,  MFJ4,   THJ3,   IGNORE,  IGNORE,           // Channel 1
-                                              FFJ2  , MFJ2  , RFJ2  , LFJ2  ,  FFJ4,   AN0,    THJ1,    IGNORE,           // Channel 2
-                                              FFJ1  , MFJ1  , RFJ1  , LFJ1  ,  THJ5B,  THJ5A,  IGNORE,  IGNORE,           // Channel 3
+                                              RFJ2  , MFJ2  , FFJ2  , LFJ2  ,  RFJ4,   AN0,    THJ1,    IGNORE,           // Channel 2
+                                              RFJ1  , MFJ1  , FFJ1  , LFJ1  ,  THJ5B,  THJ5A,  IGNORE,  IGNORE,           // Channel 3
                                               IGNORE, IGNORE, IGNORE, IGNORE,  AN3,    WRJ2,   THJ2,    IGNORE,           // Channel 4
                                               IGNORE, IGNORE, IGNORE, IGNORE,  AN2,    LFJ4,   IGNORE,  IGNORE,           // Channel 5
-                                              FFJ3  , MFJ3  , RFJ3  , LFJ3  ,  AN1,    LFJ5,   IGNORE,  IGNORE,           // Channel 6
+                                              RFJ3  , MFJ3  , FFJ3  , LFJ3  ,  AN1,    LFJ5,   IGNORE,  IGNORE,           // Channel 6
                                               IGNORE, IGNORE, IGNORE, IGNORE,  WRJ1A,  WRJ1B,  IGNORE,  IGNORE            // Channel 7
                                              };
 #endif
@@ -168,7 +171,6 @@ void run_tests(void)
 
 
 
-
 //! This function should be called about once every millisecond.
 //! It can either be called once for every EtherCAT packet, or
 //! just based on a timer.
@@ -178,9 +180,14 @@ void run_tests(void)
 void approx_1ms_handler(void)
 {
     Handle_LEDs();
+
+    #if AUTO_TRIGGER == 1
+        etherCAT_command_data.EDC_command = EDC_COMMAND_SENSOR_DATA;
+        Read_All_Sensors();
+    #endif
+
     ClearWDT();
 }
-
 
 
 
@@ -237,26 +244,13 @@ void initialise_this_node(void)
 
     ET1200_Interface_Initialise(SPI_port, I2C_port, ET1200_reset, ET1200_AL_err_LED, ET1200_eeprom, ET1200_somi, ET1200_chip_select);
 
-    ET1200_Initialise();
+    #if AUTO_TRIGGER == 0
+        ET1200_Initialise();
+    #endif
+
     init_dual_CAN();
-    init_biotac();
 
-    //initialise_ITG3200(I2C_port);
 
-/*
-    LED_Single_Flashing(LED_CAN2_TX);
-    LED_Single_Blink(LED_CAN2_RX);
-    LED_Single_Flicker(LED_CAN2_ERR);
-
-    while(1)
-    {
-        LED_Single_Flashing(LED_CAN1_TX);
-        LED_Single_Blink(LED_CAN1_RX);
-        LED_Single_Flicker(LED_CAN1_ERR);
-        delay_ms(1);
-        Handle_LEDs();
-    }
-*/
     message.id     = 0x123;
     message.length = 0;
 
@@ -276,9 +270,22 @@ void initialise_this_node(void)
         SPIP_Setup_MOSI_Bits(7, 19, 0xF8000000);        // 1111 1000
     }
 
+
+    tactile_sensor_protocol = biotac_autodetect(tactile_sensor_protocol);
+    tactile_sensor_protocol =    pst_autodetect(tactile_sensor_protocol);
+
+    switch (tactile_sensor_protocol)
+    {
+        case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:             init_pst();         break;
+        case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:       init_biotac();      break;
+
+        default:
+            break;
+    }
+
+
     write_ET1200_register_32u(0x204, 0x100); //set AL event mask to get IRQ only on SyncMan0 activity
 }
-
 
 
 
@@ -291,6 +298,8 @@ void Read_Commands_From_ET1200(void)
                             (int8u*)(&etherCAT_command_data)  );
 }
 
+
+
 void Read_Packet_Header_From_ET1200(void)
 {
     assert_dynamic(ETHERCAT_COMMAND_DATA_SIZE > 0);
@@ -302,27 +311,47 @@ void Read_Packet_Header_From_ET1200(void)
 
 
 
-int16u fake=0x0800;
-int16u fake_time=200;
-
 int16u current_biotac_sensor = 0;
+
+void test_cs(void)
+{
+    SPIP_MOSI_DOWN
+    delay_us(5);
+
+    while (1)
+    {
+        SPIP_MOSI_DOWN
+        delay_us(1);
+        SPIP_CHIP_SELECT_DOWN
+        delay_us(300);
+        SPIP_CHIP_SELECT_UP
+        delay_us(300);
+
+        SPIP_MOSI_UP
+        delay_us(1);
+        SPIP_CHIP_SELECT_DOWN
+        delay_us(300);
+        SPIP_CHIP_SELECT_UP
+        delay_us(300);
+
+    }
+}
+
 
 void Read_All_Sensors(void)
 {
     int8u adc_channel;
     int8u j=0;
 
-    //begin_ITG3200_read();
 
-    biotac_sample_command(biotac_sample_sequence[current_biotac_sensor++]);
-    delay_us(50);
-    biotac_read_sample();
 
     for (adc_channel = 0; adc_channel < 8; ++adc_channel)
     {
+        delay_us(10);
         switch (etherCAT_command_data.EDC_command)
         {
             case EDC_COMMAND_SENSOR_DATA: 
+                SPIP_max_bits = 19;
                 SPIP_Xceive_Fast(adc_channel);
                 break;
             case EDC_COMMAND_SENSOR_CHANNEL_NUMBERS:
@@ -332,16 +361,6 @@ void Read_All_Sensors(void)
                 SPIP_PutChannel_Numbers(adc_channel);
                 break;
         }
-        /*
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = fake; //adc_channel;
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = fake; //adc_channel;
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = fake; //adc_channel;
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = fake; //adc_channel;
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = fake; //adc_channel;
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = fake; //adc_channel;
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = fake; //adc_channel;
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = fake; //adc_channel;
-*/
 
         etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(0);
         etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(1);
@@ -351,36 +370,36 @@ void Read_All_Sensors(void)
         etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(5);
         etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(6);
         etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(7);
-/*
-        if (adc_channel == 3)
-        {
-            biotac_read_sample();
-            biotac_sample_command(biotac_sample_sequence[current_biotac_sensor++]);
-        }
-*/
-        /*
-        *((int16s *)&etherCAT_status_data + palm_EDC_0200_sensor_mapping[adc_channel*8 + 0]) = TRANSLATE_SOMI_MCP3208(0);
-        *((int16s *)&etherCAT_status_data + palm_EDC_0200_sensor_mapping[adc_channel*8 + 1]) = TRANSLATE_SOMI_MCP3208(1);
-        *((int16s *)&etherCAT_status_data + palm_EDC_0200_sensor_mapping[adc_channel*8 + 2]) = TRANSLATE_SOMI_MCP3208(2);
-        *((int16s *)&etherCAT_status_data + palm_EDC_0200_sensor_mapping[adc_channel*8 + 3]) = TRANSLATE_SOMI_MCP3208(3);
-        *((int16s *)&etherCAT_status_data + palm_EDC_0200_sensor_mapping[adc_channel*8 + 4]) = TRANSLATE_SOMI_MCP3208(4);
-        *((int16s *)&etherCAT_status_data + palm_EDC_0200_sensor_mapping[adc_channel*8 + 5]) = TRANSLATE_SOMI_MCP3208(5);
-        *((int16s *)&etherCAT_status_data + palm_EDC_0200_sensor_mapping[adc_channel*8 + 6]) = TRANSLATE_SOMI_MCP3208(6);
-        *((int16s *)&etherCAT_status_data + palm_EDC_0200_sensor_mapping[adc_channel*8 + 7]) = TRANSLATE_SOMI_MCP3208(7);
-        */
+    }
+
+    #ifdef AUTO_TRIGGER
+        etherCAT_command_data.tactile_data_type = TACTILE_SENSOR_TYPE_BIOTAC_PDC;
+    #endif
+
+    switch (tactile_sensor_protocol)
+    {
+        case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
+            read_PSTs(&etherCAT_command_data, &etherCAT_status_data);
+            break;
+
+
+        case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
+            biotac_read_sensors(&etherCAT_command_data, &etherCAT_status_data);
+            break;
+
+        default:
+            break;
     }
 
 
-    biotac_sample_command(biotac_sample_sequence[current_biotac_sensor++]);
-    delay_us(50);
-    biotac_read_sample();
-
-    biotac_sample_command(biotac_sample_sequence[current_biotac_sensor++]);
-    delay_us(50);
-    biotac_read_sample();
-
-//    if (current_biotac_sensor == 22*4)
-//        current_biotac_sensor = 0;
+    if (etherCAT_command_data.tactile_data_type == TACTILE_SENSOR_TYPE_WHICH_SENSORS)
+    {
+        etherCAT_status_data.tactile[0].word[0] = tactile_sensor_protocol;
+        etherCAT_status_data.tactile[1].word[0] = tactile_sensor_protocol;
+        etherCAT_status_data.tactile[2].word[0] = tactile_sensor_protocol;
+        etherCAT_status_data.tactile[3].word[0] = tactile_sensor_protocol;
+        etherCAT_status_data.tactile[4].word[0] = tactile_sensor_protocol;
+    }
 }
 
 
@@ -528,7 +547,7 @@ void zero_motor_data_packets(void)
 {
     int i;
 
-    for (i=0; i<19; i++)
+    for (i=0; i<9; i++)
     {
         etherCAT_status_data.motor_data_packet[i].torque = 0;
         etherCAT_status_data.motor_data_packet[i].misc   = 0;
@@ -550,12 +569,22 @@ void Service_EtherCAT_Packet(void)
 {
     ET1200_Update();
 
+    #if AUTO_TRIGGER == 1                                                                   // This is just for debugging.
+        if (get_frame_time_us() > 1150)                                                         
+        {                                                                                       
+            approx_1ms_handler();                                                               
+            frame_start_time = ReadCoreTimer();                                                 
+        }
+        return;
+    #endif
 
-    if (get_frame_time_us() > 1150)                                                         // If there are no EtherCAT packets,
+
+    if (get_frame_time_us() > 1300)                                                         // If there are no EtherCAT packets,
     {                                                                                       // then we need to trigger approx_1ms_handler()
         approx_1ms_handler();                                                               // by time instead. 
         frame_start_time = ReadCoreTimer();                                                 // And so we think of a frame starting now.
     }
+
 
     if (!There_is_Command_From_ET1200())
         return;
@@ -580,15 +609,15 @@ void Service_EtherCAT_Packet(void)
             zero_motor_data_packets();                                                      // Housekeeping
 
 
-            Wait_For_Until_Frame_Time(562);                                                 // Give the node a little time to respond, and we might be able
-            biotac_sample_command(biotac_sample_sequence[current_biotac_sensor++]);
-            Wait_For_Until_Frame_Time(617);                                                 // Give the node a little time to respond, and we might be able
-            biotac_read_sample();
+            //Wait_For_Until_Frame_Time(562);                                                 // Give the node a little time to respond, and we might be able
+            //biotac_sample_command(biotac_sample_sequence[current_biotac_sensor++]);
+            //Wait_For_Until_Frame_Time(617);                                                 // Give the node a little time to respond, and we might be able
+            //biotac_read_sample();
         
-            if (current_biotac_sensor == 22*4)
-                current_biotac_sensor = 0;
+            //if (current_biotac_sensor == 11*5)
+            //    current_biotac_sensor = 0;
 
-            Wait_For_All_Motors_To_Send_Data(610);                                          // Wait for 600us max.
+            Wait_For_All_Motors_To_Send_Data(600);                                          // Wait for 600us max.
 
             Send_Data_To_Motors(&etherCAT_command_data);                                    // Send CAN messages to motors
 
@@ -611,17 +640,18 @@ void Service_EtherCAT_Packet(void)
                 global_AL_Event_Register = read_ET1200_register_32u(0x220);
             }
 
-            Wait_For_Until_Frame_Time(600);                                                 // Give the node a little time to respond, and we might be able
+            etherCAT_status_data.EDC_command  = EDC_COMMAND_SENSOR_DATA;
+            etherCAT_status_data.idle_time_us = calculate_idle_time();
+            write_status_data_To_ET1200();
+
+            Wait_For_Until_Frame_Time(500);                                                 // Give the node a little time to respond, and we might be able
                                                                                             // to get the reply message back into the very next EtherCAT packet.
 
-            
-            if (collect_one_CAN_message())
-            {
-                write_ET1200_register_N(ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
-                idle_time_start = ReadCoreTimer();                                          // Idle time begins now because the status data
-                                                                                            // has been written to the ET1200. The next EtherCAT
-                                                                                            // packet can arrive any time after this.
-            }
+            collect_one_CAN_message();
+
+            write_ET1200_register_N(ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
+            idle_time_start = ReadCoreTimer();                                              // Idle time begins now
+
             break;
 
 
@@ -677,7 +707,7 @@ void report_error_code   (ERROR_CODE  error_code)
             break;
     }
 }
- 
+
 void report_event_code   (EVENT_CODE  event_code)
 {
     switch (event_code)
