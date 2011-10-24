@@ -1,5 +1,5 @@
 /**
- * @file   generic_tactiles.cpp
+ * @file   shadow_PSTs.cpp
  * @author Toni Oliver <toni@shadowrobot.com>
  * @date   Th Oct 20 10:06:14 2011
  *
@@ -193,9 +193,6 @@ namespace tactiles
       d.addf("Pressure Raw", "%d", tactiles_vector->at(id_tact).pressure_raw);
       d.addf("Zero Tracking", "%d", tactiles_vector->at(id_tact).zero_tracking);
       d.addf("DAC Value", "%d", tactiles_vector->at(id_tact).dac_value);
-
-      d.addf("Debug Value 1", "%d", tactiles_vector->at(id_tact).debug_1);
-      d.addf("Debug Value 2", "%d", tactiles_vector->at(id_tact).debug_2);
 
       vec.push_back(d);
     }
