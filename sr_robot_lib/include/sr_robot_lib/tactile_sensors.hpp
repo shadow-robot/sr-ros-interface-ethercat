@@ -28,6 +28,7 @@
 #define _TACTILE_SENSORS_HPP_
 
 #include <string>
+#include <vector>
 
 namespace tactiles
 {
@@ -56,6 +57,17 @@ namespace tactiles
     int zero_tracking;
 
     int dac_value;
+  };
+
+  struct BiotacData
+    : public GenericTactileData
+  {
+    int pdc;
+    int tac;
+    int tdc;
+    std::vector<int> electrodes;
+
+    int num_values;
   };
 }
 

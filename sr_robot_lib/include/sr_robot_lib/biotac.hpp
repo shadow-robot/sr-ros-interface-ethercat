@@ -1,6 +1,6 @@
 /**
- * @file   shadow_PSTs.hpp
- * @author Toni Oliver <toni@shadowrobot.com>
+ * @file   biotac.hpp
+ * @author Ugo Cupcic <ugo@shadowrobot.com>
  * @date   Th Oct 20 10:06:14 2011
  *
 * Copyright 2011 Shadow Robot Company Ltd.
@@ -20,16 +20,17 @@
 *
 *
  * @brief This is a class for accessing the data from the
- *        PSTs tactiles.
+ *        Biotac tactiles.
  *
  *
  */
 
-#ifndef _SHADOW_PSTS_HPP_
-#define _SHADOW_PSTS_HPP_
+#ifndef _BIOTAC_HPP_
+#define _BIOTAC_HPP_
 
 #include <vector>
-#include <sr_robot_msgs/ShadowPST.h>
+#include <sr_robot_msgs/BiotacAll.h>
+#include <sr_robot_msgs/Biotac.h>
 #include <realtime_tools/realtime_publisher.h>
 
 #include "sr_robot_lib/generic_tactiles.hpp"
@@ -37,12 +38,12 @@
 
 namespace tactiles
 {
-  class ShadowPSTs :
+  class Biotac :
     public GenericTactiles
   {
   public:
-    ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector);
-    ~ShadowPSTs() {};
+    Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector);
+    ~Biotac() {};
 
     /**
      * This function is called each time a new etherCAT message
@@ -68,10 +69,10 @@ namespace tactiles
 
   protected:
     /// the vector containing the data for the tactiles.
-    boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;
+    boost::shared_ptr< std::vector<BiotacData> > tactiles_vector;
 
     // Tactile sensor real time publisher
-    boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> > tactile_publisher;
+    boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> > tactile_publisher;
   };//end class
 }//end namespace
 
