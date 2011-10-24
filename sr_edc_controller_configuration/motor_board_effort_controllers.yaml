@@ -227,10 +227,10 @@ thj4:
     d: 18000.0
     deadband: 5.0
     f: 1900.0
-    i: 280.0
-    imax: 1700.0
+    i: 180.0
+    imax: 800.0
     max_pwm: 1023.0
-    p: 4800.0
+    p: 2800.0
     sg_left: 0
     sg_right: 0
     sgleftref: 0.0
