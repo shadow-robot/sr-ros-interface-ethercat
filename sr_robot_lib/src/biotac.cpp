@@ -30,8 +30,8 @@
 
 namespace tactiles
 {
-  Biotac::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector)
-    : GenericTactiles(update_configs_vector)
+  Biotac::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+    : GenericTactiles(update_configs_vector, update_state)
   {
     // Tactile sensor real time publisher
     tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(nodehandle_ , "tactile", 4));

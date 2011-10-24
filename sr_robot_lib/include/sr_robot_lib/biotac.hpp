@@ -42,7 +42,7 @@ namespace tactiles
     public GenericTactiles
   {
   public:
-    Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector);
+    Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
     ~Biotac() {};
 
     /**

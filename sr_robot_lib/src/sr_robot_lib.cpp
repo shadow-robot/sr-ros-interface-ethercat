@@ -33,6 +33,7 @@
 #include <ros/ros.h>
 
 #include "sr_robot_lib/shadow_PSTs.hpp"
+#include "sr_robot_lib/biotac.hpp"
 
 namespace shadow_robot
 {
@@ -142,7 +143,14 @@ namespace shadow_robot
       joint_tmp->motor->msg_motor_id = index_motor_in_msg;
 
       //then we read the tactile sensors information
-      tactiles->update(status_data);
+      if(tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
+      {
+        tactiles_init->update(status_data);
+      }
+      else
+      {
+        tactiles->update(status_data);
+      }
 
       //ok now we read the info and add it to the actuator state
       if(read_motor_info)
@@ -169,7 +177,7 @@ namespace shadow_robot
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
-            //tactiles = boost::shared_ptr<tactiles::ShadowPSTs>( new tactiles::ShadowPSTs(sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION) );
+            tactiles = boost::shared_ptr<tactiles::Biotac>( new tactiles::Biotac(sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION) );
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:
@@ -182,15 +190,6 @@ namespace shadow_robot
       }
     }
     else
-      tactiles->sensor_updater->build_command(command);
-
-//    //update the command with the tactile command:
-//    if(TACTILE_CURRENT_STATE == INITIALIZATION)
-//    {
-//      if( tactiles_init->sensor_updater->build_init_command(command) )
-//         tactiles = ...;
-//    }
-//    else
       tactiles->sensor_updater->build_command(command);
 
     ///////
@@ -524,7 +523,7 @@ namespace shadow_robot
           if( debug_pair != NULL )
           {
             //check if we want to publish some data for the current motor
-            if( debug_pair->first == joint_tmp->motor->motor_id )
+            if( debug_pair->first == joint_tmp->motor->motor_id )read_additional_data
             {
               //if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
               if( debug_pair->second > 0 )
