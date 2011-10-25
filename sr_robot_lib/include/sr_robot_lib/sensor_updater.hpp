@@ -78,8 +78,9 @@ namespace generic_updater
      * important data.
      *
      * @param command The command which will be sent to the palm.
+     * @return current update state
      */
-    void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+    operation_mode::device_update_state::DeviceUpdateState build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback

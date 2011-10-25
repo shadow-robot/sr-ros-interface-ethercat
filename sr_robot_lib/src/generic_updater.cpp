@@ -34,41 +34,30 @@
 namespace generic_updater
 {
   GenericUpdater::GenericUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
-    : nh_tilde("~"), which_data_to_request(0), update_state(update_state)
+    : nh_tilde("~"), which_data_to_request(0), update_state(update_state), update_configs_vector(update_configs_vector)
   {
     mutex = boost::shared_ptr<boost::mutex>(new boost::mutex());
 
-    if (update_state == operation_mode::device_update_state::INITIALIZATION)
+    BOOST_FOREACH(UpdateConfig config, update_configs_vector)
     {
-      BOOST_FOREACH(UpdateConfig config, update_configs_vector)
+      if (config.when_to_update == -2.0)
       {
-        if(config.when_to_update == -2.0)
-        {
-          initialization_configs_vector.push_back(config);
-        }
+        initialization_configs_vector.push_back(config);
       }
-
-      //If there isn't any command defined as initializingcommand (-2), state switches to operation
-      if (initialization_configs_vector.size() == 0)
-        update_state = operation_mode::device_update_state::OPERATION;
-    }
-    else
-    {
-      BOOST_FOREACH(UpdateConfig config, update_configs_vector)
+      else if(config.when_to_update != -1.0)
       {
-        if (config.when_to_update == -2.0)
-        {}
-        else if(config.when_to_update != -1.0)
-        {
-          double tmp_dur = config.when_to_update;
-          ros::Duration duration(tmp_dur);
+        double tmp_dur = config.when_to_update;
+        ros::Duration duration(tmp_dur);
 
-          timers.push_back(nh_tilde.createTimer(duration, boost::bind(&GenericUpdater::timer_callback,
-                                                                      this, _1, static_cast<FROM_MOTOR_DATA_TYPE>(config.what_to_update)) ));
-        }
-        else important_update_configs_vector.push_back(config);
+        timers.push_back(nh_tilde.createTimer(duration, boost::bind(&GenericUpdater::timer_callback,
+                                                                    this, _1, static_cast<FROM_MOTOR_DATA_TYPE>(config.what_to_update)) ));
       }
+      else important_update_configs_vector.push_back(config);
     }
+
+    //If there isn't any command defined as initializingcommand (-2), state switches to operation
+    if (initialization_configs_vector.size() == 0)
+      update_state = operation_mode::device_update_state::OPERATION;
   }
 
   GenericUpdater::~GenericUpdater()

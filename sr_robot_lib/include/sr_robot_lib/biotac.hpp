@@ -43,7 +43,13 @@ namespace tactiles
   {
   public:
     Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
+    Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector);
     ~Biotac() {};
+
+    /**
+     * This function is called in the constructors, to initialize the necessary objects
+     */
+    void init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
 
     /**
      * This function is called each time a new etherCAT message

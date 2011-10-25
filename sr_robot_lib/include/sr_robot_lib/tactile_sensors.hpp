@@ -71,9 +71,18 @@ namespace tactiles
     int dac_value;
   };
 
-  struct BiotacData
+  class BiotacData
     : public GenericTactileData
   {
+  public:
+    BiotacData() {};
+
+    BiotacData(const BiotacData& btac);
+
+    BiotacData(const GenericTactileData& gtd);
+
+    ~BiotacData() {};
+
     int pac0; //always there, in word[0] and 1; int16u (2kHz)
     int pac1; //int16u
 

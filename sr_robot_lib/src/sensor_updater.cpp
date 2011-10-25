@@ -62,15 +62,23 @@ namespace generic_updater
           ROS_DEBUG_STREAM("Updating sensor initialization data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<initialization_configs_vector.size()<<"] ");
       }
     }
+    else
+    {
+      //For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
+      //we use the first important message
+      //This is to avoid sending a random command (initialization_configs_vector is empty at this time)
+      command->tactile_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(important_update_configs_vector[0].what_to_update);
+      ROS_DEBUG_STREAM("Updating sensor important data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
+    }
     mutex->unlock();
 
     return update_state;
   }
 
-  void SensorUpdater::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
+  operation_mode::device_update_state::DeviceUpdateState SensorUpdater::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
     if(!mutex->try_lock())
-      return;
+      return update_state;
 
     ///////
     // First we ask for the next data we want to receive
@@ -96,6 +104,8 @@ namespace generic_updater
     }
 
     mutex->unlock();
+
+    return update_state;
   }
 
   bool SensorUpdater::reset()

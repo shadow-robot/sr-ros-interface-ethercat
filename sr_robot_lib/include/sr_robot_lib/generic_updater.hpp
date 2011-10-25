@@ -84,7 +84,7 @@ namespace generic_updater
      *
      * @param command The command which will be sent to the motor.
      */
-    virtual void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)=0;
+    virtual operation_mode::device_update_state::DeviceUpdateState build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)=0;
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback
@@ -111,6 +111,8 @@ namespace generic_updater
     std::vector<ros::Timer> timers;
     ///A queue containing the unimportant data types we want to ask for next time (empty most of the time).
     std::queue<int32u, std::list<int32u> > unimportant_data_queue;
+    ///Contains the vector with the update configs for every command. We store it to be able to reinitialize.
+    std::vector<UpdateConfig> update_configs_vector;
 
     boost::shared_ptr<boost::mutex> mutex;
   };

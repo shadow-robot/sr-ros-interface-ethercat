@@ -154,6 +154,13 @@ namespace tactiles
 
       } //end switch
     } //end for tactile
+
+    if(sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      process_received_data_type(static_cast<int32u>(status_data->tactile_data_type));
+      if(sensor_updater->initialization_configs_vector.size() == 0)
+        sensor_updater->update_state = operation_mode::device_update_state::OPERATION;
+    }
   }
 
   void ShadowPSTs::publish()

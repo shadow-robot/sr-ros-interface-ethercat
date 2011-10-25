@@ -204,7 +204,6 @@ namespace shadow_robot
      */
     boost::shared_ptr<tactiles::GenericTactiles> tactiles;
     boost::shared_ptr<tactiles::GenericTactiles> tactiles_init;
-    operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
     /**
      * Contains the idle time of the PIC communicating
@@ -288,6 +287,13 @@ namespace shadow_robot
      * is called.
      */
     boost::shared_ptr<generic_updater::MotorUpdater> motor_updater_;
+
+    ///Current update state of the motor (initialization, operation..)
+    operation_mode::device_update_state::DeviceUpdateState motor_current_state;
+
+    ///Current update state of the sensors (initialization, operation..)
+    operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
+
 
     /**
      * The ForceConfig type consists of an int representing the motor index for this config

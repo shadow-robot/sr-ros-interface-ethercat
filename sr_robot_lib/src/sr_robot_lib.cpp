@@ -142,27 +142,33 @@ namespace shadow_robot
       // we'll print that in the diagnostics.
       joint_tmp->motor->msg_motor_id = index_motor_in_msg;
 
-      //then we read the tactile sensors information
-      if(tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
-      {
-        tactiles_init->update(status_data);
-      }
-      else
-      {
-        tactiles->update(status_data);
-      }
-
       //ok now we read the info and add it to the actuator state
       if(read_motor_info)
         read_additional_data(joint_tmp);
     } //end for joint
+
+    //then we read the tactile sensors information
+    if(tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      tactiles_init->update(status_data);
+    }
+    else
+    {
+      tactiles->update(status_data);
+    }
   } //end update()
 
   void SrRobotLib::build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
-    //build the motor command
-    motor_updater_->build_command(command);
-
+    if(motor_current_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      motor_current_state = motor_updater_->build_init_command(command);
+    }
+    else
+    {
+      //build the motor command
+      motor_current_state = motor_updater_->build_command(command);
+    }
 
     if(tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
@@ -177,7 +183,7 @@ namespace shadow_robot
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
-            tactiles = boost::shared_ptr<tactiles::Biotac>( new tactiles::Biotac(sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION) );
+            tactiles = boost::shared_ptr<tactiles::Biotac>( new tactiles::Biotac(sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION, tactiles_init->tactiles_vector) );
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:
@@ -190,7 +196,7 @@ namespace shadow_robot
       }
     }
     else
-      tactiles->sensor_updater->build_command(command);
+      tactile_current_state = tactiles->sensor_updater->build_command(command);
 
     ///////
     // Now we chose the command to send to the motor
