@@ -35,6 +35,8 @@
 #include "sr_robot_lib/shadow_PSTs.hpp"
 #include "sr_robot_lib/biotac.hpp"
 
+#include "sr_robot_lib/motor_data_checker.hpp"
+
 namespace shadow_robot
 {
 #ifdef DEBUG_PUBLISHER

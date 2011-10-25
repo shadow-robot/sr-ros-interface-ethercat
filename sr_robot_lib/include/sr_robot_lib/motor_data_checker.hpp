@@ -1,0 +1,115 @@
+/**
+ * @file   motor_data_checker.hpp
+ * @author toni <toni@shadowrobot.com>
+ * @date   25 Oct 2011
+ *
+ * Copyright 2011 Shadow Robot Company Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * @brief This is a generic robot library for Shadow Robot's Hardware.
+ *
+ *
+ */
+
+#ifndef MOTOR_DATA_CHECKER_HPP_
+#define MOTOR_DATA_CHECKER_HPP_
+
+#include <ros/ros.h>
+#include <vector>
+#include <boost/array.hpp>
+#include "sr_robot_lib.hpp"
+
+extern "C"
+{
+#include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+}
+
+namespace generic_updater
+{
+
+class MessageFromMotorChecker
+{
+public:
+  MessageFromMotorChecker(int id);
+  int motor_id_;
+  void set_received();
+  bool get_received();
+
+protected:
+  bool received_;
+};
+
+class SlowMessageFromMotorChecker : MessageFromMotorChecker
+{
+public:
+  SlowMessageFromMotorChecker(int id);
+  boost::array<bool, (MOTOR_SLOW_DATA_LAST + 1)> slow_data_received;
+
+  void set_received(FROM_MOTOR_SLOW_DATA_TYPE slow_data_type);
+};
+
+class MessageChecker
+{
+public:
+  FROM_MOTOR_DATA_TYPE msg_type;
+  std::vector<MessageFromMotorChecker> msg_from_motor_checkers;
+
+  std::vector<MessageFromMotorChecker>::iterator find(int motor_id);
+};
+
+/**
+ * MotorDataChecker checks if all expected messages from the motors
+ * have been received
+ */
+class MotorDataChecker
+{
+public:
+  MotorDataChecker(boost::ptr_vector<shadow_joints::Joint> joints_vector, std::vector<UpdateConfig> initialization_configs_vector);
+  ~MotorDataChecker()
+  {
+  }
+  ;
+
+  /**
+   * Checks the message as received.
+   * Checks a certain message coming from a certain joint (motor)
+   * Joints without a motor are not expected to provide any information
+   *
+   * @joint_tmp joint iterator containing the data of the joint
+   * @motor_data_type the type of the received data
+   * @motor_slow_data_type the type of the received sub-data (used if the motor_data_type is MOTOR_DATA_SLOW_MISC)
+   * @return true if all expected messages have already been received
+   */
+  bool check_message(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, FROM_MOTOR_DATA_TYPE motor_data_type,
+                     FROM_MOTOR_SLOW_DATA_TYPE motor_slow_data_type);
+
+protected:
+  bool is_everything_checked();
+  std::vector<MessageChecker>::iterator find(FROM_MOTOR_DATA_TYPE motor_data_type);
+
+  std::vector<MessageChecker> msg_checkers_;
+
+};
+
+}
+
+/* For the emacs weenies in the crowd.
+ Local Variables:
+ c-basic-offset: 2
+ End:
+ */
+
+#endif /* MOTOR_DATA_CHECKER_HPP_ */
