@@ -49,8 +49,10 @@
 #include <sr_utilities/sr_math_utils.hpp>
 #include <sr_utilities/calibration.hpp>
 
+#include "sr_robot_lib/sr_joint_motor.hpp"
 #include "sr_robot_lib/motor_updater.hpp"
 #include "sr_robot_lib/generic_tactiles.hpp"
+#include "sr_robot_lib/motor_data_checker.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
@@ -79,86 +81,6 @@ namespace crc_unions
     int16u word;
     int8u byte[2];
   } union16;
-}
-
-namespace shadow_joints
-{
-  struct PartialJointToSensor
-  {
-    int sensor_id;
-    double coeff;
-  };
-
-  struct JointToSensor
-  {
-    std::vector<std::string> sensor_names;
-    std::vector<PartialJointToSensor> joint_to_sensor_vector;
-    bool calibrate_after_combining_sensors;
-  };
-
-  class Motor
-  {
-  public:
-    Motor() :
-      motor_id(0), msg_motor_id(0), actuator(NULL), motor_ok(false),
-      bad_data(false)
-    {};
-
-    ~Motor(){};
-
-    //the position of the motor in the motor array
-    // coming from the hardware
-    int motor_id;
-
-    //the position of the motor in the message array
-    int msg_motor_id;
-
-    //actuator
-    sr_actuator::SrActuator* actuator;
-
-    /**
-     * this boolean is set to true as long as we receive the
-     * data from the motor.
-     */
-    bool motor_ok;
-    /**
-     * this boolean is set to true if the data coming from the motor
-     * through the CAN bus are messed up.
-     */
-    bool bad_data;
-
-    /**
-     * A service used to set the force PID settings on the
-     * motor.
-     */
-    ros::ServiceServer force_pid_service;
-
-    /**
-     * A service used to reset the
-     * motors.
-     */
-    ros::ServiceServer reset_motor_service;
-  };
-
-  struct Joint
-  {
-    std::string joint_name;
-
-    //the indexes of the joints in the joint array
-    // coming from the hardware which are used to
-    // compute the joint data.
-    JointToSensor joint_to_sensor;
-
-    //used to filter the position and the velocity
-    sr_math_utils::filters::AlphaBetaFilter pos_filter;
-    //used to filter the effort
-    sr_math_utils::filters::AlphaBetaFilter effort_filter;
-
-    bool has_motor;
-    boost::shared_ptr<Motor> motor;
-  };
-
-  typedef threadsafe::Map<boost::shared_ptr<shadow_robot::JointCalibration> > CalibrationMap;
 }
 
 namespace shadow_robot
@@ -204,7 +126,6 @@ namespace shadow_robot
      */
     boost::shared_ptr<tactiles::GenericTactiles> tactiles;
     boost::shared_ptr<tactiles::GenericTactiles> tactiles_init;
-    operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
     /**
      * Contains the idle time of the PIC communicating
@@ -289,6 +210,13 @@ namespace shadow_robot
      */
     boost::shared_ptr<generic_updater::MotorUpdater> motor_updater_;
 
+    ///Current update state of the motor (initialization, operation..)
+    operation_mode::device_update_state::DeviceUpdateState motor_current_state;
+
+    ///Current update state of the sensors (initialization, operation..)
+    operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
+
+
     /**
      * The ForceConfig type consists of an int representing the motor index for this config
      * followed by a vector of config: the index in the vector of config corresponds to the
@@ -354,6 +282,8 @@ namespace shadow_robot
     std::vector<generic_updater::UpdateConfig> update_rate_configs_vector;
     ///The update rate for each sensor information type
     std::vector<generic_updater::UpdateConfig> sensor_update_rate_configs_vector;
+
+    boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
 
   };//end class
 }//end namespace

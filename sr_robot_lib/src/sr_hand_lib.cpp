@@ -162,6 +162,9 @@ namespace shadow_robot
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect, actuators);
 
+    //Initialize the motor data checker
+    motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(joints_vector, motor_updater_->initialization_configs_vector));
+
     //initialize the calibration map
     this->calibration_map = read_joint_calibration();
 

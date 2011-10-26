@@ -30,8 +30,25 @@
 
 namespace tactiles
 {
-  Biotac::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector)
-    : GenericTactiles(update_configs_vector)
+  Biotac::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+    : GenericTactiles(update_configs_vector, update_state)
+  {
+    init(update_configs_vector, update_state);
+  }
+
+  Biotac::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector)
+    : GenericTactiles(update_configs_vector, update_state)
+  {
+    init(update_configs_vector, update_state);
+    tactiles_vector->clear();
+    for(unsigned int i=0;i<nb_tactiles;i++)
+    {
+      BiotacData tmp_pst(init_tactiles_vector->at(i));
+      tactiles_vector->push_back( tmp_pst );
+    }
+  }
+
+  void Biotac::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
     // Tactile sensor real time publisher
     tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(nodehandle_ , "tactile", 4));
@@ -209,6 +226,13 @@ namespace tactiles
 
       } //end switch
     } //end for tactile
+
+    if(sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      process_received_data_type(static_cast<int32u>(status_data->tactile_data_type));
+      if(sensor_updater->initialization_configs_vector.size() == 0)
+        sensor_updater->update_state = operation_mode::device_update_state::OPERATION;
+    }
   }
 
   void Biotac::publish()

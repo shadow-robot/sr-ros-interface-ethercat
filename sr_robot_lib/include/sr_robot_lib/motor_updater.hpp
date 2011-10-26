@@ -63,13 +63,23 @@ namespace generic_updater
     ~MotorUpdater();
 
     /**
+     * Building the motor initialization command. This function is called at each packCommand() call.
+     * It builds initialization commands if the update state is operation_mode::device_update_state::INITIALIZATION.
+     *
+     * @param command The command which will be sent to the motor.
+     * @return the current update state of the motor update
+     */
+    operation_mode::device_update_state::DeviceUpdateState build_init_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+
+    /**
      * Building the motor command. This function is called at each packCommand() call.
      * If an unimportant data is waiting then we send it, otherwise, we send the next
      * important data.
      *
      * @param command The command which will be sent to the motor.
+     * @return the current update state of the motor update
      */
-    void build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+    operation_mode::device_update_state::DeviceUpdateState build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback

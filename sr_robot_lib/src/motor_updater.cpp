@@ -41,10 +41,51 @@ namespace generic_updater
   {
   }
 
-  void MotorUpdater::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
+  operation_mode::device_update_state::DeviceUpdateState MotorUpdater::build_init_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
     if(!mutex->try_lock())
-      return;
+      return update_state;
+
+    if (update_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      ///////
+      // First we ask for the next data we want to receive
+      if(even_motors)
+        even_motors = 0;
+      else
+      {
+        even_motors = 1;
+        which_data_to_request ++;
+
+        if( which_data_to_request >= initialization_configs_vector.size() )
+          which_data_to_request = 0;
+      }
+
+      command->which_motors = even_motors;
+
+      //initialization data
+      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(initialization_configs_vector[which_data_to_request].what_to_update);
+      ROS_DEBUG_STREAM("Updating initialization data type: "<<command->from_motor_data_type << " | ["<<which_data_to_request<<"/"<<initialization_configs_vector.size()<<"] ");
+    }
+    else
+    {
+      //For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
+      //we use the first important message and ask it to the even motors (0)
+      //This is to avoid sending a random command
+      command->which_motors = 0;
+      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(important_update_configs_vector[0].what_to_update);
+      ROS_DEBUG_STREAM("Updating important data type: "<<command->from_motor_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
+    }
+
+    mutex->unlock();
+
+    return update_state;
+  }
+
+  operation_mode::device_update_state::DeviceUpdateState MotorUpdater::build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
+  {
+    if(!mutex->try_lock())
+      return update_state;
 
     ///////
     // First we ask for the next data we want to receive
@@ -77,8 +118,11 @@ namespace generic_updater
     }
 
     mutex->unlock();
+
+    return update_state;
   }
 }
+
 
 
 /* For the emacs weenies in the crowd.
