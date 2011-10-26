@@ -533,7 +533,7 @@ namespace shadow_robot
           if( debug_pair != NULL )
           {
             //check if we want to publish some data for the current motor
-            if( debug_pair->first == joint_tmp->motor->motor_id )read_additional_data
+            if( debug_pair->first == joint_tmp->motor->motor_id )
             {
               //if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
               if( debug_pair->second > 0 )
