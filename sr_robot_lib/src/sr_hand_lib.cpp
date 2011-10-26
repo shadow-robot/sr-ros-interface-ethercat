@@ -83,7 +83,7 @@ namespace shadow_robot
                                                                              "TACTILE_SENSOR_TYPE_SERIAL_NUMBER",
                                                                              "TACTILE_SENSOR_TYPE_SOFTWARE_VERSION",
                                                                              "TACTILE_SENSOR_TYPE_PCB_VERSION",
-                                                                             "TACTILE_SENSOR_TYPE_RESET_COMMAND"};
+                                                                             "TACTILE_SENSOR_TYPE_WHICH_SENSORS"};
 
   const int32u SrHandLib::sensor_data_types[nb_sensor_data] = {TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE,
                                                                TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1,
@@ -113,7 +113,7 @@ namespace shadow_robot
                                                                TACTILE_SENSOR_TYPE_SERIAL_NUMBER,
                                                                TACTILE_SENSOR_TYPE_SOFTWARE_VERSION,
                                                                TACTILE_SENSOR_TYPE_PCB_VERSION,
-                                                               TACTILE_SENSOR_TYPE_RESET_COMMAND
+                                                               TACTILE_SENSOR_TYPE_WHICH_SENSORS
 
   };
 
@@ -121,8 +121,8 @@ namespace shadow_robot
     SrRobotLib(hw)
   {
     //read the motor polling frequency from the parameter server
-    update_rate_configs_vector = read_update_rate_configs();
-    motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater>(new generic_updater::MotorUpdater(update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
+    motor_update_rate_configs_vector = read_update_rate_configs();
+    motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater>(new generic_updater::MotorUpdater(motor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
 
 
     //read the motor polling frequency from the parameter server
@@ -567,10 +567,10 @@ namespace shadow_robot
     {
       ConfPair tmp;
 
-      ROS_DEBUG_STREAM(" read sensor update rate config [" << i<< "] = "  << human_readable_sensor_data_types[i]);
+      ROS_ERROR_STREAM(" read sensor update rate config [" << i<< "] = "  << human_readable_sensor_data_types[i]);
 
       tmp.first = base_param + human_readable_sensor_data_types[i];
-      tmp.second = motor_data_types[i];
+      tmp.second = sensor_data_types[i];
       config.push_back(tmp);
     }
 
@@ -583,6 +583,7 @@ namespace shadow_robot
       config_tmp.when_to_update = rate;
       config_tmp.what_to_update = config[i].second;
       update_rate_configs_vector.push_back(config_tmp);
+      ROS_ERROR_STREAM(" read sensor update rate config [" << i<< "] = "  << "what: "<< config_tmp.what_to_update << " when: " << config_tmp.when_to_update);
     }
 
     return update_rate_configs_vector;

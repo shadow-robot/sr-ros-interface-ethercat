@@ -67,6 +67,8 @@ namespace generic_updater
       //For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
       //we use the first important message
       //This is to avoid sending a random command (initialization_configs_vector is empty at this time)
+     ROS_ERROR_STREAM("Important data size: "<<important_update_configs_vector.size()<<"] ");
+
       command->tactile_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(important_update_configs_vector[0].what_to_update);
       ROS_DEBUG_STREAM("Updating sensor important data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
     }

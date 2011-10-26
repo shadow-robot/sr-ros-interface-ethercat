@@ -27,6 +27,13 @@
 #ifndef SR_JOINT_MOTOR_HPP_
 #define SR_JOINT_MOTOR_HPP_
 
+#include <sr_hardware_interface/sr_actuator.hpp>
+
+#include <sr_utilities/sr_math_utils.hpp>
+#include <sr_utilities/calibration.hpp>
+#include <sr_utilities/thread_safe_map.hpp>
+
+
 namespace shadow_joints
 {
   struct PartialJointToSensor

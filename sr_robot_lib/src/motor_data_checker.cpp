@@ -42,7 +42,7 @@ namespace generic_updater
   {
     //Create a one-shot timer
     check_timeout_timer = nh_tilde.createTimer(init_max_duration,
-                                               boost::bind(&GenericUpdater::timer_callback, this, _1), true);
+                                               boost::bind(&MotorDataChecker::timer_callback, this, _1), true);
     update_state = operation_mode::device_update_state::INITIALIZATION;
     msg_checkers_.clear();
 
@@ -50,7 +50,7 @@ namespace generic_updater
 
     for (msg_it = initialization_configs_vector.begin(); msg_it < initialization_configs_vector.end(); msg_it++)
     {
-      MessageChecker tmp_msg_checker(msg_it->what_to_update);
+      MessageChecker tmp_msg_checker( static_cast<FROM_MOTOR_DATA_TYPE>(msg_it->what_to_update) );
       boost::ptr_vector<shadow_joints::Joint>::iterator joint;
       for (joint = joints_vector.begin(); joint < joints_vector.end(); joint++)
       {
@@ -78,16 +78,16 @@ namespace generic_updater
     std::vector<MessageChecker>::iterator it;
 
     it = find(motor_data_type);
-    if (it != NULL)
+    if (it != msg_checkers_.end())
     {
       std::vector<MessageFromMotorChecker>::iterator it2;
       it2 = it->find(joint_tmp->motor->motor_id);
-      if (it2 != NULL)
+      if (it2 != it->msg_from_motor_checkers.end())
       {
         if (motor_data_type == MOTOR_DATA_SLOW_MISC)
         {
           //we assume that the type of it2 is SlowMessageFromMotorChecker
-          static_cast<SlowMessageFromMotorChecker*>(it2)->set_received(
+          static_cast<SlowMessageFromMotorChecker*>( &(*it2) )->set_received(
               static_cast<FROM_MOTOR_SLOW_DATA_TYPE>(motor_slow_data_type));
         }
         else
@@ -127,7 +127,7 @@ namespace generic_updater
       if (it->msg_type == motor_data_type)
         return it;
     }
-    return NULL;
+    return msg_checkers_.end();
   }
 
   void MotorDataChecker::timer_callback(const ros::TimerEvent& event)
@@ -148,7 +148,7 @@ namespace generic_updater
       if (it->motor_id_ == motor_id)
         return it;
     }
-    return NULL;
+    return msg_from_motor_checkers.end();
   }
 
   SlowMessageFromMotorChecker::SlowMessageFromMotorChecker(int id)

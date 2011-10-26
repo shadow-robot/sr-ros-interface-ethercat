@@ -29,29 +29,33 @@
 namespace tactiles
 {
 
-      PST3Data::PST3Data() {};
+      PST3Data::PST3Data()
+       : GenericTactileData()
+      {};
 
       PST3Data::PST3Data(const PST3Data& pst3)
-      : tactile_data_valid(pst3.sample_frequency), sample_frequency(pst3.sample_frequency),
-        manufacturer(pst3.manufacturer), serial_number(pst3.serial_number),
-        software_version(pst3.software_version), pcb_version(pst3.pcb_version),
+      : GenericTactileData(pst3.tactile_data_valid, pst3.sample_frequency,
+                           pst3.manufacturer, pst3.serial_number,
+                           pst3.software_version, pst3.pcb_version),
         pressure(pst3.pressure), temperature(pst3.temperature),
         debug_1(pst3.debug_1), debug_2(pst3.debug_2),
         pressure_raw(pst3.pressure_raw), zero_tracking(pst3.zero_tracking), dac_value(pst3.dac_value)
       {};
 
       PST3Data::PST3Data(const GenericTactileData& gtd)
-        : tactile_data_valid(gtd.sample_frequency), sample_frequency(gtd.sample_frequency),
-          manufacturer(gtd.manufacturer), serial_number(gtd.serial_number),
-          software_version(gtd.software_version), pcb_version(gtd.pcb_version)
+        : GenericTactileData(gtd.tactile_data_valid, gtd.sample_frequency,
+                             gtd.manufacturer, gtd.serial_number,
+                             gtd.software_version, gtd.pcb_version)
         {};
 
-      BiotacData::BiotacData() {};
+      BiotacData::BiotacData() 
+       : GenericTactileData()
+      {};
 
       BiotacData::BiotacData(const BiotacData& btac)
-      : tactile_data_valid(btac.sample_frequency), sample_frequency(btac.sample_frequency),
-        manufacturer(btac.manufacturer), serial_number(btac.serial_number),
-        software_version(btac.software_version), pcb_version(btac.pcb_version),
+      : GenericTactileData(btac.tactile_data_valid, btac.sample_frequency,
+                           btac.manufacturer, btac.serial_number,
+                           btac.software_version, btac.pcb_version),
         pac0(btac.pac0), pac1(btac.pac1),
         pdc(btac.pdc), tac(btac.tac),
         tdc(btac.tdc)
@@ -63,9 +67,9 @@ namespace tactiles
       };
 
       BiotacData::BiotacData(const GenericTactileData& gtd)
-        : tactile_data_valid(gtd.sample_frequency), sample_frequency(gtd.sample_frequency),
-          manufacturer(gtd.manufacturer), serial_number(gtd.serial_number),
-          software_version(gtd.software_version), pcb_version(gtd.pcb_version)
+        : GenericTactileData(gtd.tactile_data_valid, gtd.sample_frequency,
+                             gtd.manufacturer, gtd.serial_number,
+                             gtd.software_version, gtd.pcb_version)
         {};
 }
 

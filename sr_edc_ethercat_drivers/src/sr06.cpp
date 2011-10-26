@@ -871,7 +871,8 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
   sr_hand_lib->add_diagnostics(vec, d);
 
   //Add the diagnostics from the tactiles
-  sr_hand_lib->tactiles->add_diagnostics(vec, d);
+  if( sr_hand_lib->tactiles != NULL )
+    sr_hand_lib->tactiles->add_diagnostics(vec, d);
 }
 
 
@@ -912,6 +913,9 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
   //alternate between even and uneven motors
   // and ask for the different informations.
   sr_hand_lib->build_motor_command(command);
+
+  if( command->tactile_data_type == TACTILE_SENSOR_TYPE_WHICH_SENSORS)
+     ROS_ERROR("asking for which senosr");
 
   if (flashing && !can_packet_acked && !can_message_sent)
   {
@@ -1081,7 +1085,8 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   //Now publish the tactile sensor data at 100Hz (every 10 cycles)
   if( cycle_count >= 9)
   {
-    sr_hand_lib->tactiles->publish();
+    if( sr_hand_lib->tactiles != NULL )
+      sr_hand_lib->tactiles->publish();
     cycle_count = 0;
   }
   ++cycle_count;
