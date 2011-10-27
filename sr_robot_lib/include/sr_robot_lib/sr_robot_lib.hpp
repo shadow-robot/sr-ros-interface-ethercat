@@ -260,7 +260,9 @@ namespace shadow_robot
      *  - associate a motor index
      *  - to a MOTOR_DATA
      *
-     * This vector has the same size as the debug_publishers vector.
+     * This vector has the same size as the debug_pu   //std::vector<generic_updater::UpdateConfig> read_update_rate_configs();
+    //static const std::vector<const std::string> human_readable_data_types;
+     * blishers vector.
      */
     std::vector<boost::shared_ptr<std::pair<int, int> > > debug_motor_indexes_and_data;
     static const int debug_mutex_lock_wait_time;
@@ -280,7 +282,11 @@ namespace shadow_robot
     ///The update rate for each motor information
     std::vector<generic_updater::UpdateConfig> motor_update_rate_configs_vector;
     ///The update rate for each sensor information type
-    std::vector<generic_updater::UpdateConfig> sensor_update_rate_configs_vector;
+    std::vector<generic_updater::UpdateConfig> generic_sensor_update_rate_configs_vector;
+    ///The update rate for each sensor information type
+    std::vector<generic_updater::UpdateConfig> pst3_sensor_update_rate_configs_vector;
+    ///The update rate for each sensor information type
+    std::vector<generic_updater::UpdateConfig> biotac_sensor_update_rate_configs_vector;
 
     boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
 

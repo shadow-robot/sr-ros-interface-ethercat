@@ -34,6 +34,7 @@
 //to be able to load the configuration from the
 //parameter server
 #include <ros/ros.h>
+#include <string>
 
 namespace shadow_robot
 {
@@ -132,18 +133,15 @@ namespace shadow_robot
     /**
      * Simply reads the config from the parameter server.
      *
+     * @base_param string with the base name of the set of parameters to apply (found in the yaml file)
+     * @nb_data_defined number of data defined in the typedef
+     * @human_readable_data_types names of the types of messages (must match with those in the yaml file)
+     * @data_types the command values corresponding to every one of the names
      * @return A vector of UpdateConfig containing the type of data and the frequency
      *         at which we want to poll this data
      */
-    std::vector<generic_updater::UpdateConfig> read_update_rate_configs();
+    std::vector<generic_updater::UpdateConfig> read_update_rate_configs(std::string base_param, int nb_data_defined, const char* human_readable_data_types[], const int32u data_types[]);
 
-    /**
-         * Simply reads the config from the parameter server.
-         *
-         * @return A vector of UpdateConfig containing the type of data and the frequency
-         *         at which we want to poll this data
-         */
-    std::vector<generic_updater::UpdateConfig> read_sensors_update_rate_configs();
 
     static const int nb_motor_data;
     static const char* human_readable_motor_data_types[];
