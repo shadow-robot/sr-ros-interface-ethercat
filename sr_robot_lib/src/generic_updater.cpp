@@ -59,13 +59,13 @@ namespace generic_updater
       else
         important_update_configs_vector.push_back(config);
     }
-    ROS_ERROR_STREAM("Init config size"<<initialization_configs_vector.size());
-    ROS_ERROR_STREAM("Important config size"<<important_update_configs_vector.size());
+    ROS_DEBUG_STREAM("Init config size"<<initialization_configs_vector.size());
+    ROS_DEBUG_STREAM("Important config size"<<important_update_configs_vector.size());
 
     //If there isn't any command defined as initializingcommand (-2), state switches to operation
     if (initialization_configs_vector.size() == 0)
     {
-      ROS_ERROR_STREAM("No init command. Switching to operation");
+      ROS_INFO_STREAM("No init command. Switching to operation");
       update_state = operation_mode::device_update_state::OPERATION;
     }
   }

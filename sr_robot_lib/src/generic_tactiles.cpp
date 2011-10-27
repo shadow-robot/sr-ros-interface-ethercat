@@ -53,7 +53,7 @@ namespace tactiles
     //TODO: use memcopy instead?
     for( unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
     {
-      ROS_ERROR_STREAM(" received: " << static_cast<int32u>(status_data->tactile_data_type));
+      ROS_DEBUG_STREAM(" received: " << static_cast<int32u>(status_data->tactile_data_type));
 
       switch( static_cast<int32u>(status_data->tactile_data_type) )
       {

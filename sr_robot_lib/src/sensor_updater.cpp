@@ -59,7 +59,7 @@ namespace generic_updater
 
         //initialization data
         command->tactile_data_type = initialization_configs_vector[which_data_to_request].what_to_update;
-        ROS_ERROR_STREAM("Updating sensor initialization data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<initialization_configs_vector.size()<<"] ");
+        ROS_DEBUG_STREAM("Updating sensor initialization data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<initialization_configs_vector.size()<<"] ");
       }
     }
     else
@@ -67,11 +67,11 @@ namespace generic_updater
       //For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
       //we use the TACTILE_SENSOR_TYPE_WHICH_SENSORS message, which is supposed to be always implemented
       //This is to avoid sending a random command (initialization_configs_vector is empty at this time)
-      ROS_ERROR_STREAM("Important data size: "<<important_update_configs_vector.size());
+      ROS_DEBUG_STREAM("Important data size: "<<important_update_configs_vector.size());
 
-      
+
       command->tactile_data_type = TACTILE_SENSOR_TYPE_WHICH_SENSORS;
-      ROS_ERROR_STREAM("Updating sensor initialization data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
+      ROS_DEBUG_STREAM("Updating sensor initialization data type: "<<command->tactile_data_type << " | ["<<which_data_to_request<<"/"<<important_update_configs_vector.size()<<"] ");
     }
     mutex->unlock();
 
