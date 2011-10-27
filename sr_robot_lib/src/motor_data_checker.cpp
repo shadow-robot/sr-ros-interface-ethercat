@@ -87,8 +87,7 @@ namespace generic_updater
         if (motor_data_type == MOTOR_DATA_SLOW_MISC)
         {
           //we assume that the type of it2 is SlowMessageFromMotorChecker
-          static_cast<SlowMessageFromMotorChecker*>( &(*it2) )->set_received(
-              static_cast<FROM_MOTOR_SLOW_DATA_TYPE>(motor_slow_data_type));
+          static_cast<SlowMessageFromMotorChecker*>( &(*it2) )->set_received( static_cast<FROM_MOTOR_SLOW_DATA_TYPE>(motor_slow_data_type) );
         }
         else
         {
@@ -154,9 +153,9 @@ namespace generic_updater
   SlowMessageFromMotorChecker::SlowMessageFromMotorChecker(int id)
       : MessageFromMotorChecker(id)
   {
-    for (int i = 0; i < MOTOR_SLOW_DATA_LAST + 1; i++)
+    for (int i = 0; i <= MOTOR_SLOW_DATA_LAST; i++)
     {
-      slow_data_received[i] = false;
+      slow_data_received.at(i) = false;
     }
   }
 
@@ -165,15 +164,23 @@ namespace generic_updater
     if (received_ == false)
     {
       //Check the slow data type as received
-      slow_data_received[slow_data_type] = true;
+      if ( slow_data_type > MOTOR_SLOW_DATA_LAST )
+      {
+        ROS_ERROR_STREAM("Received bad slow_data_type: " << slow_data_type << " > " << slow_data_received.size() );
+        return;
+      }
+      slow_data_received.at(slow_data_type) = true;
 
       //look if every type is received, then change FROM_MOTOR_SLOW_DATA_TYPE general received state accordingly
       bool checked = true;
       for (int i = MOTOR_SLOW_DATA_SVN_REVISION; i <= MOTOR_SLOW_DATA_LAST; i++)
       {
-        checked &= slow_data_received[i];
+        checked &= slow_data_received.at(i);
         if (!checked)
+        {
+          ROS_INFO_STREAM(" still waiting for: " << i);
           break;
+        }
       }
       if (checked)
         received_ = true;

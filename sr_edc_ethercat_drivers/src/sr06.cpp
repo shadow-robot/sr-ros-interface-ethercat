@@ -914,9 +914,6 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
   // and ask for the different informations.
   sr_hand_lib->build_motor_command(command);
 
-  if( command->tactile_data_type == TACTILE_SENSOR_TYPE_WHICH_SENSORS)
-     ROS_ERROR("asking for which senosr");
-
   if (flashing && !can_packet_acked && !can_message_sent)
   {
     if ( !(res = pthread_mutex_trylock(&producing)) )

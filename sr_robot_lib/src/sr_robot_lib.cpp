@@ -149,11 +149,13 @@ namespace shadow_robot
     //then we read the tactile sensors information
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
-      tactiles_init->update(status_data);
+      if( tactiles_init != NULL )
+        tactiles_init->update(status_data);
     }
     else
     {
-      tactiles->update(status_data);
+      if( tactiles != NULL )
+        tactiles->update(status_data);
     }
   } //end update()
 

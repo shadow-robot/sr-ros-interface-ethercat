@@ -68,7 +68,7 @@ namespace generic_updater
     ~SlowMessageFromMotorChecker()
     {};
 
-    boost::array<bool, (MOTOR_SLOW_DATA_LAST + 1)> slow_data_received;
+    boost::array<bool, MOTOR_SLOW_DATA_LAST + 1> slow_data_received;
 
     void set_received(FROM_MOTOR_SLOW_DATA_TYPE slow_data_type);
   };
