@@ -178,13 +178,9 @@ namespace shadow_robot
       {
         tactile_current_state = operation_mode::device_update_state::OPERATION;
 
-       for(unsigned int i =0 ; i<5; ++i)
-          ROS_ERROR_STREAM(" tact["<<i<<"] = " << tactiles_init->tactiles_vector->at(i).which_sensor);
-
         switch (tactiles_init->tactiles_vector->at(0).which_sensor)
         {
           case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
-            ROS_ERROR("PST");
             tactiles = boost::shared_ptr<tactiles::ShadowPSTs>(
                 new tactiles::ShadowPSTs(sensor_update_rate_configs_vector,
                                          operation_mode::device_update_state::OPERATION,
@@ -192,7 +188,6 @@ namespace shadow_robot
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
-            ROS_ERROR("BIOTAC");
             tactiles = boost::shared_ptr<tactiles::Biotac>(
                 new tactiles::Biotac(sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
                                      tactiles_init->tactiles_vector));
