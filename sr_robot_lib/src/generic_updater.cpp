@@ -34,8 +34,8 @@ namespace generic_updater
 {
   GenericUpdater::GenericUpdater(std::vector<UpdateConfig> update_configs_vector,
                                  operation_mode::device_update_state::DeviceUpdateState update_state)
-      : nh_tilde("~"), which_data_to_request(0), update_state(update_state), update_configs_vector(
-          update_configs_vector)
+    : nh_tilde("~"), which_data_to_request(0), update_state(update_state), update_configs_vector(
+      update_configs_vector)
   {
     mutex = boost::shared_ptr<boost::mutex>(new boost::mutex());
 
@@ -51,18 +51,23 @@ namespace generic_updater
         ros::Duration duration(tmp_dur);
 
         timers.push_back(
-            nh_tilde.createTimer(
-                duration,
-                boost::bind(&GenericUpdater::timer_callback, this, _1,
-                            static_cast<FROM_MOTOR_DATA_TYPE>(config.what_to_update))));
+          nh_tilde.createTimer(
+            duration,
+            boost::bind(&GenericUpdater::timer_callback, this, _1,
+                        static_cast<FROM_MOTOR_DATA_TYPE>(config.what_to_update))));
       }
       else
         important_update_configs_vector.push_back(config);
     }
+    ROS_ERROR_STREAM("Init config size"<<initialization_configs_vector.size());
+    ROS_ERROR_STREAM("Important config size"<<important_update_configs_vector.size());
 
     //If there isn't any command defined as initializingcommand (-2), state switches to operation
     if (initialization_configs_vector.size() == 0)
+    {
+      ROS_ERROR_STREAM("No init command. Switching to operation");
       update_state = operation_mode::device_update_state::OPERATION;
+    }
   }
 
   GenericUpdater::~GenericUpdater()

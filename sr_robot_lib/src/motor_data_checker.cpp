@@ -28,7 +28,7 @@
 
 namespace generic_updater
 {
-  const double MotorDataChecker::timeout = 30.0;
+  const double MotorDataChecker::timeout = 1.0;
 
   MotorDataChecker::MotorDataChecker(boost::ptr_vector<shadow_joints::Joint> joints_vector,
                                      std::vector<UpdateConfig> initialization_configs_vector)
@@ -42,7 +42,7 @@ namespace generic_updater
   {
     //Create a one-shot timer
     check_timeout_timer = nh_tilde.createTimer(init_max_duration,
-                                               boost::bind(&GenericUpdater::timer_callback, this, _1), true);
+                                               boost::bind(&MotorDataChecker::timer_callback, this, _1), true);
     update_state = operation_mode::device_update_state::INITIALIZATION;
     msg_checkers_.clear();
 
@@ -50,7 +50,7 @@ namespace generic_updater
 
     for (msg_it = initialization_configs_vector.begin(); msg_it < initialization_configs_vector.end(); msg_it++)
     {
-      MessageChecker tmp_msg_checker(msg_it->what_to_update);
+      MessageChecker tmp_msg_checker( static_cast<FROM_MOTOR_DATA_TYPE>(msg_it->what_to_update) );
       boost::ptr_vector<shadow_joints::Joint>::iterator joint;
       for (joint = joints_vector.begin(); joint < joints_vector.end(); joint++)
       {
@@ -78,17 +78,16 @@ namespace generic_updater
     std::vector<MessageChecker>::iterator it;
 
     it = find(motor_data_type);
-    if (it != NULL)
+    if (it != msg_checkers_.end())
     {
       std::vector<MessageFromMotorChecker>::iterator it2;
       it2 = it->find(joint_tmp->motor->motor_id);
-      if (it2 != NULL)
+      if (it2 != it->msg_from_motor_checkers.end())
       {
         if (motor_data_type == MOTOR_DATA_SLOW_MISC)
         {
           //we assume that the type of it2 is SlowMessageFromMotorChecker
-          static_cast<SlowMessageFromMotorChecker*>(it2)->set_received(
-              static_cast<FROM_MOTOR_SLOW_DATA_TYPE>(motor_slow_data_type));
+          static_cast<SlowMessageFromMotorChecker*>( &(*it2) )->set_received( static_cast<FROM_MOTOR_SLOW_DATA_TYPE>(motor_slow_data_type) );
         }
         else
         {
@@ -127,7 +126,7 @@ namespace generic_updater
       if (it->msg_type == motor_data_type)
         return it;
     }
-    return NULL;
+    return msg_checkers_.end();
   }
 
   void MotorDataChecker::timer_callback(const ros::TimerEvent& event)
@@ -148,15 +147,15 @@ namespace generic_updater
       if (it->motor_id_ == motor_id)
         return it;
     }
-    return NULL;
+    return msg_from_motor_checkers.end();
   }
 
   SlowMessageFromMotorChecker::SlowMessageFromMotorChecker(int id)
       : MessageFromMotorChecker(id)
   {
-    for (int i = 0; i < MOTOR_SLOW_DATA_LAST + 1; i++)
+    for (int i = 0; i <= MOTOR_SLOW_DATA_LAST; i++)
     {
-      slow_data_received[i] = false;
+      slow_data_received.at(i) = false;
     }
   }
 
@@ -165,15 +164,23 @@ namespace generic_updater
     if (received_ == false)
     {
       //Check the slow data type as received
-      slow_data_received[slow_data_type] = true;
+      if ( slow_data_type > MOTOR_SLOW_DATA_LAST )
+      {
+        ROS_ERROR_STREAM("Received bad slow_data_type: " << slow_data_type << " > " << slow_data_received.size() );
+        return;
+      }
+      slow_data_received.at(slow_data_type) = true;
 
       //look if every type is received, then change FROM_MOTOR_SLOW_DATA_TYPE general received state accordingly
       bool checked = true;
       for (int i = MOTOR_SLOW_DATA_SVN_REVISION; i <= MOTOR_SLOW_DATA_LAST; i++)
       {
-        checked &= slow_data_received[i];
+        checked &= slow_data_received.at(i);
         if (!checked)
+        {
+          ROS_INFO_STREAM(" still waiting for: " << i);
           break;
+        }
       }
       if (checked)
         received_ = true;

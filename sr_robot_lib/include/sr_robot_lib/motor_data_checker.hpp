@@ -31,6 +31,7 @@
 #include <vector>
 #include <boost/array.hpp>
 #include <boost/smart_ptr.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include "sr_robot_lib/sr_joint_motor.hpp"
 #include "sr_robot_lib/generic_updater.hpp"
 
@@ -60,14 +61,14 @@ namespace generic_updater
     bool received_;
   };
 
-  class SlowMessageFromMotorChecker : MessageFromMotorChecker
+  class SlowMessageFromMotorChecker : public MessageFromMotorChecker
   {
   public:
     SlowMessageFromMotorChecker(int id);
     ~SlowMessageFromMotorChecker()
     {};
 
-    boost::array<bool, (MOTOR_SLOW_DATA_LAST + 1)> slow_data_received;
+    boost::array<bool, MOTOR_SLOW_DATA_LAST + 1> slow_data_received;
 
     void set_received(FROM_MOTOR_SLOW_DATA_TYPE slow_data_type);
   };

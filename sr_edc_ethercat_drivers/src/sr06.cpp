@@ -871,7 +871,8 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
   sr_hand_lib->add_diagnostics(vec, d);
 
   //Add the diagnostics from the tactiles
-  sr_hand_lib->tactiles->add_diagnostics(vec, d);
+  if( sr_hand_lib->tactiles != NULL )
+    sr_hand_lib->tactiles->add_diagnostics(vec, d);
 }
 
 
@@ -1028,15 +1029,7 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   static unsigned int num_rxed_packets = 0;
 
   ++num_rxed_packets;
-  if (status_data->EDC_command == EDC_COMMAND_INVALID)
-  {
-    //received empty message: the pic is not writing to its mailbox.
-    ++zero_buffer_read;
-    float percentage_packet_loss = 100.f * ((float)zero_buffer_read / (float)num_rxed_packets);
 
-    ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus", zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
-    return true;
-  }
 
 #ifdef DEBUG_PUBLISHER
   // publishes the debug information (a slightly formatted version of the incoming ethercat packet):
@@ -1073,6 +1066,17 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   }
 #endif
 
+
+  if (status_data->EDC_command == EDC_COMMAND_INVALID)
+  {
+    //received empty message: the pic is not writing to its mailbox.
+    ++zero_buffer_read;
+    float percentage_packet_loss = 100.f * ((float)zero_buffer_read / (float)num_rxed_packets);
+
+    ROS_WARN("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus", zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
+    return true;
+  }
+
   //We received a coherent message.
   //Update the library (positions, diagnostics values, actuators, etc...)
   //with the received information
@@ -1081,7 +1085,8 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   //Now publish the tactile sensor data at 100Hz (every 10 cycles)
   if( cycle_count >= 9)
   {
-    sr_hand_lib->tactiles->publish();
+    if( sr_hand_lib->tactiles != NULL )
+      sr_hand_lib->tactiles->publish();
     cycle_count = 0;
   }
   ++cycle_count;

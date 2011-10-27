@@ -36,8 +36,6 @@
 //used to publish debug values
 #include <std_msgs/Int16.h>
 
-#include <sr_utilities/thread_safe_map.hpp>
-
 #include <sr_hardware_interface/sr_actuator.hpp>
 
 #include <diagnostic_msgs/DiagnosticStatus.h>
@@ -48,6 +46,7 @@
 
 #include <sr_utilities/sr_math_utils.hpp>
 #include <sr_utilities/calibration.hpp>
+#include <sr_utilities/thread_safe_map.hpp>
 
 #include "sr_robot_lib/sr_joint_motor.hpp"
 #include "sr_robot_lib/motor_updater.hpp"
@@ -140,6 +139,12 @@ namespace shadow_robot
      */
     int main_pic_idle_time_min;
 
+    ///Current update state of the motor (initialization, operation..)
+    operation_mode::device_update_state::DeviceUpdateState motor_current_state;
+
+    ///Current update state of the sensors (initialization, operation..)
+    operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
+
   protected:
     /// The vector containing all the robot joints.
     boost::ptr_vector<shadow_joints::Joint> joints_vector;
@@ -210,12 +215,6 @@ namespace shadow_robot
      */
     boost::shared_ptr<generic_updater::MotorUpdater> motor_updater_;
 
-    ///Current update state of the motor (initialization, operation..)
-    operation_mode::device_update_state::DeviceUpdateState motor_current_state;
-
-    ///Current update state of the sensors (initialization, operation..)
-    operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
-
 
     /**
      * The ForceConfig type consists of an int representing the motor index for this config
@@ -279,9 +278,13 @@ namespace shadow_robot
     int last_can_msgs_transmitted;
 
     ///The update rate for each motor information
-    std::vector<generic_updater::UpdateConfig> update_rate_configs_vector;
+    std::vector<generic_updater::UpdateConfig> motor_update_rate_configs_vector;
     ///The update rate for each sensor information type
-    std::vector<generic_updater::UpdateConfig> sensor_update_rate_configs_vector;
+    std::vector<generic_updater::UpdateConfig> generic_sensor_update_rate_configs_vector;
+    ///The update rate for each sensor information type
+    std::vector<generic_updater::UpdateConfig> pst3_sensor_update_rate_configs_vector;
+    ///The update rate for each sensor information type
+    std::vector<generic_updater::UpdateConfig> biotac_sensor_update_rate_configs_vector;
 
     boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
 

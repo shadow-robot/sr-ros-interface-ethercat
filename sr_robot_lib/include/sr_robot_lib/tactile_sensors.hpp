@@ -37,6 +37,18 @@ namespace tactiles
   class GenericTactileData
   {
   public:
+    GenericTactileData() {};
+
+    GenericTactileData(bool tactile_data_valid, int sample_frequency,
+                       std::string manufacturer, std::string serial_number,
+                       int software_version, int pcb_version)
+      : tactile_data_valid(tactile_data_valid), sample_frequency(sample_frequency),
+        manufacturer(manufacturer), serial_number(serial_number), 
+        software_version(software_version), pcb_version(pcb_version) 
+      {};
+
+    ~GenericTactileData() {};
+
     bool tactile_data_valid;
 
     int which_sensor;
@@ -52,13 +64,13 @@ namespace tactiles
     : public GenericTactileData
   {
   public:
-      PST3Data() {};
+    PST3Data();
 
-      PST3Data(const PST3Data& pst3);
+    PST3Data(const PST3Data& pst3);
 
-      PST3Data(const GenericTactileData& gtd);
+    PST3Data(const GenericTactileData& gtd);
 
-      ~PST3Data() {};
+    ~PST3Data() {};
     int pressure;
     int temperature;
 
@@ -75,7 +87,7 @@ namespace tactiles
     : public GenericTactileData
   {
   public:
-    BiotacData() {};
+    BiotacData();
 
     BiotacData(const BiotacData& btac);
 

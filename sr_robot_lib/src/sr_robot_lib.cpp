@@ -149,11 +149,13 @@ namespace shadow_robot
     //then we read the tactile sensors information
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
-      tactiles_init->update(status_data);
+      if( tactiles_init != NULL )
+        tactiles_init->update(status_data);
     }
     else
     {
-      tactiles->update(status_data);
+      if( tactiles != NULL )
+        tactiles->update(status_data);
     }
   } //end update()
 
@@ -180,14 +182,14 @@ namespace shadow_robot
         {
           case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
             tactiles = boost::shared_ptr<tactiles::ShadowPSTs>(
-                new tactiles::ShadowPSTs(sensor_update_rate_configs_vector,
+                new tactiles::ShadowPSTs(pst3_sensor_update_rate_configs_vector,
                                          operation_mode::device_update_state::OPERATION,
                                          tactiles_init->tactiles_vector));
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
             tactiles = boost::shared_ptr<tactiles::Biotac>(
-                new tactiles::Biotac(sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+                new tactiles::Biotac(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
                                      tactiles_init->tactiles_vector));
             break;
 
