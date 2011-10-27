@@ -50,11 +50,11 @@ namespace tactiles
 
   void ShadowPSTs::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
-      // Tactile sensor real time publisher
-      tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nodehandle_ , "tactile", 4));
+    // Tactile sensor real time publisher
+    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nodehandle_ , "tactile", 4));
 
-      //initialize the vector of tactiles
-      tactiles_vector = boost::shared_ptr< std::vector<GenericTactileData> >( new std::vector<GenericTactileData>(nb_tactiles) );
+    //initialize the vector of tactiles
+    tactiles_vector = boost::shared_ptr< std::vector<PST3Data> >( new std::vector<PST3Data>(nb_tactiles) );
   }
 
   void ShadowPSTs::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
@@ -69,25 +69,25 @@ namespace tactiles
       case TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE:
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          static_cast<PST3Data>(tactiles_vector->at(id_sensor)).pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          static_cast<PST3Data>(tactiles_vector->at(id_sensor)).temperature = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
-          static_cast<PST3Data>(tactiles_vector->at(id_sensor)).debug_1 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-          static_cast<PST3Data>(tactiles_vector->at(id_sensor)).debug_2 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[3]) );
+          tactiles_vector->at(id_sensor).pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          tactiles_vector->at(id_sensor).temperature = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
+          tactiles_vector->at(id_sensor).debug_1 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+          tactiles_vector->at(id_sensor).debug_2 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[3]) );
         }
         break;
 
       case TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING:
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          static_cast<PST3Data>(tactiles_vector->at(id_sensor)).pressure_raw = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          static_cast<PST3Data>(tactiles_vector->at(id_sensor)).zero_tracking = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
+          tactiles_vector->at(id_sensor).pressure_raw = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          tactiles_vector->at(id_sensor).zero_tracking = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]) );
         }
         break;
 
       case TACTILE_SENSOR_TYPE_PST3_DAC_VALUE:
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          static_cast<PST3Data>(tactiles_vector->at(id_sensor)).dac_value = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          tactiles_vector->at(id_sensor).dac_value = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
         }
         break;
 
@@ -175,16 +175,10 @@ namespace tactiles
 
       for(unsigned int id_tact = 0; id_tact < nb_tactiles; ++id_tact)
       {
-        if( tactiles_vector->at(id_tact).tactile_data_valid )
-        {
-          tactiles.pressure.push_back( static_cast<int16u>(static_cast<PST3Data>(tactiles_vector->at(id_tact)).pressure) );
-          tactiles.temperature.push_back( static_cast<int16u>(static_cast<PST3Data>(tactiles_vector->at(id_tact)).temperature) );
-        }
-        else
-        {
-          tactiles.pressure.push_back( -1 );
-          tactiles.temperature.push_back( -1 );
-        }
+        //Always publish the last valid data: the data are updated
+        // only if they are valid
+        tactiles.pressure.push_back( tactiles_vector->at(id_tact).pressure );
+        tactiles.temperature.push_back( tactiles_vector->at(id_tact).temperature );
       }
 
 
@@ -214,9 +208,9 @@ namespace tactiles
       d.addf("Software Version", "%d", tactiles_vector->at(id_tact).software_version);
       d.addf("PCB Version", "%d", tactiles_vector->at(id_tact).pcb_version);
 
-      d.addf("Pressure Raw", "%d", static_cast<PST3Data>(tactiles_vector->at(id_tact)).pressure_raw);
-      d.addf("Zero Tracking", "%d", static_cast<PST3Data>(tactiles_vector->at(id_tact)).zero_tracking);
-      d.addf("DAC Value", "%d", static_cast<PST3Data>(tactiles_vector->at(id_tact)).dac_value);
+      d.addf("Pressure Raw", "%d", tactiles_vector->at(id_tact).pressure_raw);
+      d.addf("Zero Tracking", "%d", tactiles_vector->at(id_tact).zero_tracking);
+      d.addf("DAC Value", "%d", tactiles_vector->at(id_tact).dac_value);
 
       vec.push_back(d);
     }

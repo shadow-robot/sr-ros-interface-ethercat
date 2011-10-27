@@ -71,6 +71,9 @@ namespace tactiles
     virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                  diagnostic_updater::DiagnosticStatusWrapper &d);
 
+    /// the vector containing the data for the tactiles.
+    boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;
+
   protected:
 
     // Tactile sensor real time publisher
