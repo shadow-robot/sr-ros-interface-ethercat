@@ -1029,15 +1029,7 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   static unsigned int num_rxed_packets = 0;
 
   ++num_rxed_packets;
-  if (status_data->EDC_command == EDC_COMMAND_INVALID)
-  {
-    //received empty message: the pic is not writing to its mailbox.
-    ++zero_buffer_read;
-    float percentage_packet_loss = 100.f * ((float)zero_buffer_read / (float)num_rxed_packets);
 
-    ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus", zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
-    return true;
-  }
 
 #ifdef DEBUG_PUBLISHER
   // publishes the debug information (a slightly formatted version of the incoming ethercat packet):
@@ -1073,6 +1065,17 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     debug_publisher->unlockAndPublish();
   }
 #endif
+
+
+  if (status_data->EDC_command == EDC_COMMAND_INVALID)
+  {
+    //received empty message: the pic is not writing to its mailbox.
+    ++zero_buffer_read;
+    float percentage_packet_loss = 100.f * ((float)zero_buffer_read / (float)num_rxed_packets);
+
+    ROS_WARN("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus", zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
+    return true;
+  }
 
   //We received a coherent message.
   //Update the library (positions, diagnostics values, actuators, etc...)
