@@ -28,7 +28,7 @@
 
 namespace generic_updater
 {
-  const double MotorDataChecker::timeout = 30.0;
+  const double MotorDataChecker::timeout = 5.0;
 
   MotorDataChecker::MotorDataChecker(boost::ptr_vector<shadow_joints::Joint> joints_vector,
                                      std::vector<UpdateConfig> initialization_configs_vector)
@@ -97,7 +97,7 @@ namespace generic_updater
       }
     }
 
-    return ((update_state == operation_mode::device_update_state::OPERATION) && is_everything_checked());
+    return (is_everything_checked());
   }
 
   bool MotorDataChecker::is_everything_checked()
@@ -111,9 +111,14 @@ namespace generic_updater
       for (it2 = it->msg_from_motor_checkers.begin(); it2 < it->msg_from_motor_checkers.end(); it2++)
       {
         if (!it2->get_received())
+        {
           return false;
+        }
       }
     }
+
+    //all the motors are initialized -> we stop the timeout timer
+    check_timeout_timer.stop();
     return true;
   }
 
@@ -134,7 +139,7 @@ namespace generic_updater
     if( update_state == operation_mode::device_update_state::INITIALIZATION )
     {
       update_state = operation_mode::device_update_state::OPERATION;
-      ROS_WARN_STREAM("Motor Initialization Timeout!!!!");
+      ROS_WARN_STREAM("Motor Initialization Timeout: the static information in the diagnostics may not be uptodate.");
     }
   }
 

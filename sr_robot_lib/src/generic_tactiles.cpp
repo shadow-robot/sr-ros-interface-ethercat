@@ -59,12 +59,11 @@ namespace tactiles
       {
       //COMMON DATA
       case TACTILE_SENSOR_TYPE_WHICH_SENSORS:
-        ROS_ERROR("received which sensor");
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
           if( tactiles_vector != NULL )
             tactiles_vector->at(id_sensor).which_sensor = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          ROS_ERROR_STREAM(" tact["<<id_sensor<<"] = " << tactiles_vector->at(id_sensor).which_sensor);
+          ROS_DEBUG_STREAM(" tact["<<id_sensor<<"] = " << tactiles_vector->at(id_sensor).which_sensor);
 
         }
         break;
