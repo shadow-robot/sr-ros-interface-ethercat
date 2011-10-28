@@ -87,6 +87,7 @@ namespace generic_updater
         if (motor_data_type == MOTOR_DATA_SLOW_MISC)
         {
           //we assume that the type of it2 is SlowMessageFromMotorChecker
+          //TODO: check it works
           static_cast<SlowMessageFromMotorChecker*>( &(*it2) )->set_received( static_cast<FROM_MOTOR_SLOW_DATA_TYPE>(motor_slow_data_type) );
         }
         else
