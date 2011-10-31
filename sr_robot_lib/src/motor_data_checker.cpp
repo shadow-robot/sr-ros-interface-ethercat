@@ -80,20 +80,6 @@ namespace generic_updater
       }
       msg_checkers_.push_back(tmp_msg_checker);
     }
-
-    //TODO remove
-    ROS_WARN_STREAM("Msg checkers size: " << msg_checkers_.size() );
-    int i,j;
-    for(i=0; i<msg_checkers_.size();i++)
-    {
-      ROS_WARN_STREAM("  Msg checker type: " << msg_checkers_.at(i).msg_type );
-      ROS_WARN_STREAM("  Motor checker size: " << msg_checkers_.at(i).msg_from_motor_checkers.size() );
-      for(j=0; j<msg_checkers_.at(i).msg_from_motor_checkers.size();j++)
-      {
-        ROS_WARN_STREAM("    Motor checker id: " << msg_checkers_.at(i).msg_from_motor_checkers.at(j)->motor_id_ );
-      }
-
-    }
   }
 
   bool MotorDataChecker::check_message(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp,
@@ -114,42 +100,22 @@ namespace generic_updater
 
           if(ptr_tmp_checker != NULL)
           {
-            ROS_ERROR_STREAM("Slow iter ptr: " << ptr_tmp_checker);
             ptr_tmp_checker->set_received( static_cast<FROM_MOTOR_SLOW_DATA_TYPE>(motor_slow_data_type) );
           }
           else
           {
-            ROS_ERROR_STREAM("CONVERSION FAILED");
+            ROS_ERROR_STREAM("Checker conversion failed");
           }
         }
         else
         {
-          //we assume that the type of it2 is MessageFromMotorChecker
           msg_checkers_.at(i).msg_from_motor_checkers.at(j)->set_received();
         }
       }
       else
       {
         ROS_ERROR_STREAM("Motor id not found: " << joint_tmp->motor->motor_id );
-
-        //TODO remove
-            ROS_WARN_STREAM("Msg checkers size: " << msg_checkers_.size() );
-            int i,j;
-            for(i=0; i<msg_checkers_.size();i++)
-            {
-              ROS_WARN_STREAM("  Msg checker type: " << msg_checkers_.at(i).msg_type );
-              ROS_WARN_STREAM("  Motor checker size: " << msg_checkers_.at(i).msg_from_motor_checkers.size() );
-              for(j=0; j<msg_checkers_.at(i).msg_from_motor_checkers.size();j++)
-              {
-                ROS_WARN_STREAM("    Motor checker id: " << msg_checkers_.at(i).msg_from_motor_checkers.at(j)->motor_id_ );
-              }
-
-            }
       }
-    }
-    else
-    {
-      ROS_ERROR_STREAM("Data type not found: " << motor_data_type );
     }
     return ((update_state == operation_mode::device_update_state::OPERATION) || is_everything_checked());
   }
@@ -220,7 +186,6 @@ namespace generic_updater
 
   void SlowMessageFromMotorChecker::set_received(FROM_MOTOR_SLOW_DATA_TYPE slow_data_type)
   {
-    ROS_WARN_STREAM("actual. motor: " << motor_id_ << "  slow type received: " << slow_data_type);
     if (received_ == false)
     {
       //Check the slow data type as received
@@ -231,8 +196,6 @@ namespace generic_updater
       }
       slow_data_received.at(slow_data_type) = true;
 
-      ROS_ERROR_STREAM("motor: " << motor_id_ << "  slow type received: " << slow_data_type);
-
       //look if every type is received, then change FROM_MOTOR_SLOW_DATA_TYPE general received state accordingly
       bool checked = true;
       for (int i = MOTOR_SLOW_DATA_SVN_REVISION; i <= MOTOR_SLOW_DATA_LAST; i++)
@@ -240,16 +203,11 @@ namespace generic_updater
         checked = checked && slow_data_received.at(i);
         if (!checked)
         {
-          ROS_INFO_STREAM(" still waiting for: " << i);
           break;
         }
       }
       if (checked)
         received_ = true;
-    }
-    else
-    {
-      ROS_WARN_STREAM("Already. motor: " << motor_id_ << "  slow type received: " << slow_data_type);
     }
   }
 

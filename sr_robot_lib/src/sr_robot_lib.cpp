@@ -164,14 +164,11 @@ namespace shadow_robot
     if (motor_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
       motor_current_state = motor_updater_->build_init_command(command);
-//      if(command->from_motor_data_type==MOTOR_DATA_SLOW_MISC)
-//      ROS_INFO_STREAM("Build INIT: " << command->from_motor_data_type);
     }
     else
     {
       //build the motor command
       motor_current_state = motor_updater_->build_command(command);
-//      ROS_INFO_STREAM("Build CMD: " << command->from_motor_data_type);
     }
 
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
@@ -732,13 +729,6 @@ namespace shadow_robot
 
           ROS_INFO("All motors were initialized.");
         }
-      }
-    }
-    else
-    {
-      if(status_data->motor_data_type == MOTOR_DATA_SLOW_MISC)
-      {
-        ROS_ERROR_STREAM("Bad slow. ID: " << joint_tmp->motor->motor_id << " MotorOK:  " << joint_tmp->motor->motor_ok << " MotorBadData: " << joint_tmp->motor->bad_data);
       }
     }
   }
