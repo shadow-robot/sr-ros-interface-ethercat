@@ -28,7 +28,7 @@
 
 namespace generic_updater
 {
-  const double MotorDataChecker::timeout = 15.0;
+  const double MotorDataChecker::timeout = 5.0;
 
   MotorDataChecker::MotorDataChecker(boost::ptr_vector<shadow_joints::Joint> joints_vector,
                                      std::vector<UpdateConfig> initialization_configs_vector)

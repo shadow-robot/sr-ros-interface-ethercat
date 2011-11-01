@@ -288,6 +288,12 @@ namespace shadow_robot
           command->motor_data[motor_id] = to_send.word;
         }
 
+        for(unsigned int i = 0; i<20;i++)
+        {
+          ROS_ERROR("Reset command[%d]: %X", i, command->motor_data[i]);
+        }
+
+
       } // end if reset queue not empty
       else
       {
@@ -317,6 +323,11 @@ namespace shadow_robot
           // config values
           if (config_index == static_cast<int>(MOTOR_CONFIG_CRC))
           {
+            for( unsigned int i=MOTOR_CONFIG_FIRST_VALUE ; i <= MOTOR_CONFIG_CRC;++i)
+            {
+              ROS_ERROR_STREAM("sending config["<<i<<"] (for motor "<< motor_index <<") "<< reconfig_queue.front().second[i].word);
+            }
+
             //loop on all the motors and send a CRC of 0
             // except for the motor we're reconfiguring
             for (int i = 0; i < NUM_MOTORS; ++i)
