@@ -89,7 +89,7 @@ namespace generic_updater
     index_motor_data_type = find(motor_data_type);
     if (index_motor_data_type != (-1))
     {
-      int index_motor_i = 0;
+      int index_motor_id = 0;
       index_motor_id = msg_checkers_.at(index_motor_data_type).find(joint_tmp->motor->motor_id);
       if (index_motor_id != (-1))
       {
