@@ -35,7 +35,10 @@ namespace tactiles
   GenericTactiles::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
     sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater>(new generic_updater::SensorUpdater(update_configs_vector, update_state));
-    reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
+    if(update_state != operation_mode::device_update_state::INITIALIZATION)
+    {
+      reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
+    }
 
     //initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr< std::vector<GenericTactileData> >( new std::vector<GenericTactileData>(nb_tactiles) );
@@ -59,12 +62,11 @@ namespace tactiles
       {
       //COMMON DATA
       case TACTILE_SENSOR_TYPE_WHICH_SENSORS:
-        ROS_ERROR("received which sensor");
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
           if( tactiles_vector != NULL )
             tactiles_vector->at(id_sensor).which_sensor = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
-          ROS_ERROR_STREAM(" tact["<<id_sensor<<"] = " << tactiles_vector->at(id_sensor).which_sensor);
+          ROS_DEBUG_STREAM(" tact["<<id_sensor<<"] = " << tactiles_vector->at(id_sensor).which_sensor);
 
         }
         break;

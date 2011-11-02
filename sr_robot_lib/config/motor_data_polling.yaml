@@ -8,9 +8,9 @@ motor_data_update_rate: {
   temperature: 1.,
   can_num_received: 0.1,
   can_num_transmitted: 0.1,
-  slow_data: -2.,
+  slow_data: .01,
   can_error_counters: 0.1,
-  pterm: -1.,
-  iterm: -1.,
-  dterm: -1.
+  pterm: -2.,
+  iterm: -2.,
+  dterm: -2.
   }

@@ -185,12 +185,16 @@ namespace shadow_robot
                 new tactiles::ShadowPSTs(pst3_sensor_update_rate_configs_vector,
                                          operation_mode::device_update_state::OPERATION,
                                          tactiles_init->tactiles_vector));
+
+            ROS_INFO("PST3 tactiles initialized");
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
             tactiles = boost::shared_ptr<tactiles::Biotac>(
                 new tactiles::Biotac(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
                                      tactiles_init->tactiles_vector));
+
+            ROS_INFO("Biotac tactiles initialized");
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:
@@ -283,7 +287,6 @@ namespace shadow_robot
 
           command->motor_data[motor_id] = to_send.word;
         }
-
       } // end if reset queue not empty
       else
       {
@@ -721,6 +724,9 @@ namespace shadow_robot
             static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].torque)))
         {
           motor_updater_->update_state = operation_mode::device_update_state::OPERATION;
+          motor_current_state = operation_mode::device_update_state::OPERATION;
+
+          ROS_INFO("All motors were initialized.");
         }
       }
     }

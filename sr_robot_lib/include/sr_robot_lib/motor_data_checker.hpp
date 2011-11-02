@@ -54,7 +54,7 @@ namespace generic_updater
     {};
 
     int motor_id_;
-    void set_received();
+    virtual void set_received();
     bool get_received();
 
   protected:
@@ -70,7 +70,7 @@ namespace generic_updater
 
     boost::array<bool, MOTOR_SLOW_DATA_LAST + 1> slow_data_received;
 
-    void set_received(FROM_MOTOR_SLOW_DATA_TYPE slow_data_type);
+    virtual void set_received(FROM_MOTOR_SLOW_DATA_TYPE slow_data_type);
   };
 
   class MessageChecker
@@ -84,9 +84,9 @@ namespace generic_updater
     {};
 
     FROM_MOTOR_DATA_TYPE msg_type;
-    std::vector<MessageFromMotorChecker> msg_from_motor_checkers;
+    std::vector<MessageFromMotorChecker*> msg_from_motor_checkers;
 
-    std::vector<MessageFromMotorChecker>::iterator find(int motor_id);
+    int find(int motor_id);
   };
 
   /**
@@ -98,8 +98,7 @@ namespace generic_updater
   public:
     MotorDataChecker(boost::ptr_vector<shadow_joints::Joint> joints_vector,
                      std::vector<UpdateConfig> initialization_configs_vector);
-    ~MotorDataChecker()
-    {};
+    ~MotorDataChecker();
 
     /**
      * Checks the message as received. Checking if we received the specified motor_data_type
@@ -134,7 +133,7 @@ namespace generic_updater
 
     void timer_callback(const ros::TimerEvent& event);
     bool is_everything_checked();
-    std::vector<MessageChecker>::iterator find(FROM_MOTOR_DATA_TYPE motor_data_type);
+    int find(FROM_MOTOR_DATA_TYPE motor_data_type);
 
     std::vector<MessageChecker> msg_checkers_;
   };
