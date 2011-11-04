@@ -1,6 +1,6 @@
 motor_data_update_rate: {
-  sgl: -2.,
-  sgr: -2.,
+  sgl: -1.,
+  sgr: -1.,
   pwm: -1.,
   flags: 0.5,
   current: -1.,
