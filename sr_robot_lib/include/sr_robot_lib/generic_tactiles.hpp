@@ -107,7 +107,17 @@ namespace tactiles
     ///Contains the received data types.
     std::vector<int32u> initialization_received_data_vector;
 
-
+    /**
+     * Sanitise a string coming from the palm. Make sure we're not
+     * outputting garbage in the diagnostics topic.
+     * The acceptable range for the char is [0x20 .. 0x7E]
+     *
+     * @param raw_string The incoming raw string
+     * @param str_size The max size of the string
+     *
+     * @return The sanitised string.
+     */
+    std::string sanitise_string( const char* raw_string, const unsigned int str_size );
 
   };//end class
 }//end namespace

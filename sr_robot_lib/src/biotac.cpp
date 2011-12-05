@@ -163,7 +163,7 @@ namespace tactiles
         tactiles_vector->at(id_sensor).electrodes[18] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
         break;
 
-      //COMMON DATA
+        //COMMON DATA
       case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
@@ -175,16 +175,7 @@ namespace tactiles
       {
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          std::string manufacturer = "";
-          for (int i = 0; i < 16; ++i)
-          {
-            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != '0' )
-              manufacturer += static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            else
-              break;
-          }
-          tactiles_vector->at(id_sensor).manufacturer = manufacturer;
+          tactiles_vector->at(id_sensor).manufacturer = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
       }
       break;
@@ -193,16 +184,7 @@ namespace tactiles
       {
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          std::string serial = "";
-          for (int i = 0; i < 16; ++i)
-          {
-            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != 0 )
-              serial += static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            else
-              break;
-          }
-          tactiles_vector->at(id_sensor).serial_number = serial;
+          tactiles_vector->at(id_sensor).serial_number = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
       }
       break;

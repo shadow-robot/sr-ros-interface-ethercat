@@ -29,48 +29,48 @@
 namespace tactiles
 {
 
-      PST3Data::PST3Data()
-       : GenericTactileData()
-      {};
+  PST3Data::PST3Data()
+    : GenericTactileData()
+  {};
 
-      PST3Data::PST3Data(const PST3Data& pst3)
-      : GenericTactileData(pst3.tactile_data_valid, pst3.sample_frequency,
-                           pst3.manufacturer, pst3.serial_number,
-                           pst3.software_version, pst3.pcb_version),
-        pressure(pst3.pressure), temperature(pst3.temperature),
-        debug_1(pst3.debug_1), debug_2(pst3.debug_2),
-        pressure_raw(pst3.pressure_raw), zero_tracking(pst3.zero_tracking), dac_value(pst3.dac_value)
-      {};
+  PST3Data::PST3Data(const PST3Data& pst3)
+    : GenericTactileData(pst3.tactile_data_valid, pst3.sample_frequency,
+                         pst3.manufacturer, pst3.serial_number,
+                         pst3.software_version, pst3.pcb_version),
+      pressure(pst3.pressure), temperature(pst3.temperature),
+      debug_1(pst3.debug_1), debug_2(pst3.debug_2),
+      pressure_raw(pst3.pressure_raw), zero_tracking(pst3.zero_tracking), dac_value(pst3.dac_value)
+  {};
 
-      PST3Data::PST3Data(const GenericTactileData& gtd)
-        : GenericTactileData(gtd.tactile_data_valid, gtd.sample_frequency,
-                             gtd.manufacturer, gtd.serial_number,
-                             gtd.software_version, gtd.pcb_version)
-        {};
+  PST3Data::PST3Data(const GenericTactileData& gtd)
+    : GenericTactileData(gtd.tactile_data_valid, gtd.sample_frequency,
+                         gtd.manufacturer, gtd.serial_number,
+                         gtd.software_version, gtd.pcb_version)
+  {};
 
-      BiotacData::BiotacData() 
-       : GenericTactileData()
-      {};
+  BiotacData::BiotacData()
+    : GenericTactileData()
+  {};
 
-      BiotacData::BiotacData(const BiotacData& btac)
-      : GenericTactileData(btac.tactile_data_valid, btac.sample_frequency,
-                           btac.manufacturer, btac.serial_number,
-                           btac.software_version, btac.pcb_version),
-        pac0(btac.pac0), pac1(btac.pac1),
-        pdc(btac.pdc), tac(btac.tac),
-        tdc(btac.tdc)
-      {
-        for(unsigned int i;i<btac.electrodes.size();i++)
-        {
-          electrodes[i] = btac.electrodes[i];
-        }
-      };
+  BiotacData::BiotacData(const BiotacData& btac)
+    : GenericTactileData(btac.tactile_data_valid, btac.sample_frequency,
+                         btac.manufacturer, btac.serial_number,
+                         btac.software_version, btac.pcb_version),
+      pac0(btac.pac0), pac1(btac.pac1),
+      pdc(btac.pdc), tac(btac.tac),
+      tdc(btac.tdc)
+  {
+    for(unsigned int i =0; i<btac.electrodes.size() ;i++)
+    {
+      electrodes[i] = btac.electrodes[i];
+    }
+  };
 
-      BiotacData::BiotacData(const GenericTactileData& gtd)
-        : GenericTactileData(gtd.tactile_data_valid, gtd.sample_frequency,
-                             gtd.manufacturer, gtd.serial_number,
-                             gtd.software_version, gtd.pcb_version)
-        {};
+  BiotacData::BiotacData(const GenericTactileData& gtd)
+    : GenericTactileData(gtd.tactile_data_valid, gtd.sample_frequency,
+                         gtd.manufacturer, gtd.serial_number,
+                         gtd.software_version, gtd.pcb_version)
+  {};
 }
 
 

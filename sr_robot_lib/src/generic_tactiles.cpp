@@ -27,6 +27,7 @@
 
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
+#include <cctype>
 
 namespace tactiles
 {
@@ -83,18 +84,7 @@ namespace tactiles
       {
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          std::string manufacturer = "";
-          for (int i = 0; i < 16; ++i)
-          {
-            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != '0' )
-              manufacturer += static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            else
-              break;
-          }
-
-          if( tactiles_vector != NULL )
-            tactiles_vector->at(id_sensor).manufacturer = manufacturer;
+          tactiles_vector->at(id_sensor).manufacturer = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
       }
       break;
@@ -103,18 +93,7 @@ namespace tactiles
       {
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          std::string serial = "";
-          for (int i = 0; i < 16; ++i)
-          {
-            char tmp = static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            if( tmp != 0 )
-              serial += static_cast<char>(status_data->tactile[id_sensor].string[i]);
-            else
-              break;
-          }
-
-          if( tactiles_vector != NULL )
-            tactiles_vector->at(id_sensor).serial_number = serial;
+          tactiles_vector->at(id_sensor).serial_number = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
       }
       break;
@@ -185,6 +164,28 @@ namespace tactiles
     ROS_INFO_STREAM("Resetting tactiles");
 
     return sensor_updater->reset();
+  }
+
+
+  std::string GenericTactiles::sanitise_string( const char* raw_string, const unsigned int str_size )
+  {
+    std::string sanitised_string = "";
+    for (unsigned int i = 0; i < str_size; ++i)
+    {
+      char tmp = static_cast<char>( raw_string[i] );
+      if( tmp != 0 )
+      {
+        if( tmp >= '\x20' && tmp <= '\x7E')
+        {
+          sanitised_string += static_cast<char>( raw_string[i] ) ;
+        }
+        else
+          sanitised_string += '?';
+      }
+      else
+        break;
+    }
+    return sanitised_string;
   }
 }
 
