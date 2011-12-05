@@ -286,27 +286,6 @@ namespace tactiles
       vec.push_back(d);
     }
   }
-
-  std::string sanitise_string( const char raw_string[16] )
-  {
-    std::string sanitised_string = "";
-    for (int i = 0; i < 16; ++i)
-    {
-      char tmp = static_cast<char>( raw_string[i] );
-      if( tmp != 0 )
-      {
-        if( tmp >= '\x20' && tmp <= '\x7E')
-        {
-          sanitised_string += static_cast<char>( raw_string[i] ) ;
-        }
-        else
-          sanitised_string += '?';
-      }
-      else
-        break;
-    }
-    return sanitised_string;
-  }
 }
 
 /* For the emacs weenies in the crowd.
