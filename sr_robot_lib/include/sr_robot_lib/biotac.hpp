@@ -79,6 +79,17 @@ namespace tactiles
 
     // Tactile sensor real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> > tactile_publisher;
+
+    /**
+     * Sanitise a string coming from the palm. Make sure we're not
+     * outputting garbage in the diagnostics topic.
+     * The acceptable range for the char is [0x20 .. 0x7E]
+     *
+     * @param raw_string The incoming raw string
+     *
+     * @return The sanitised string.
+     */
+    std::string sanitise_string( const char raw_string[16] );
   };//end class
 }//end namespace
 
