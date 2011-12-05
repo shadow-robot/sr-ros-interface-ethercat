@@ -295,7 +295,7 @@ namespace tactiles
       char tmp = static_cast<char>( raw_string[i] );
       if( tmp != 0 )
       {
-        if( tmp > '\x20' && tmp < '\x7E')
+        if( tmp >= '\x20' && tmp <= '\x7E')
         {
           sanitised_string += static_cast<char>( raw_string[i] ) ;
         }
