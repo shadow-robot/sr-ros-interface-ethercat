@@ -367,6 +367,9 @@ namespace shadow_robot
             d.clear();
             d.addf("Motor ID", "%d", joint->motor->motor_id);
             d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
+            d.addf("Serial Number Low / high", "%d / %d", state->serial_number_low, state->serial_number_high );
+            d.addf("Assembly date", "%d / %d / %d", state->assembly_data_day, state->assembly_data_month, state->assembly_data_year );
+
             d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
             d.addf("Strain Gauge Right", "%d", state->strain_gauge_right_);
 
@@ -392,9 +395,14 @@ namespace shadow_robot
               ss << " None";
             d.addf("Motor Flags", "%s", ss.str().c_str());
 
+            d.addf("Measured PWM", "%f", state->pwm_);
             d.addf("Measured Current", "%f", state->last_measured_current_);
             d.addf("Measured Voltage", "%f", state->motor_voltage_);
+            d.addf("Measured Effort", "%f", state->last_measured_effort_);
             d.addf("Temperature", "%f", state->temperature_);
+
+            d.addf("Gear Ratio", "%d", state->motor_gear_ratio);
+
             d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
             d.addf("Number of CAN messages transmitted", "%lld", state->can_msgs_transmitted_);
 
@@ -408,6 +416,7 @@ namespace shadow_robot
             d.addf("Force control D", "%d", state->force_control_d_);
             d.addf("Force control Imax", "%d", state->force_control_imax_);
             d.addf("Force control Deadband", "%d", state->force_control_deadband_);
+            d.addf("Force control Frequency", "%d", state->force_control_frequency_);
 
             if (state->force_control_sign_ == 0)
               d.addf("Force control Sign", "+");
