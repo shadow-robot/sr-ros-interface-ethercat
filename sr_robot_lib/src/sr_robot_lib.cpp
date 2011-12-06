@@ -80,7 +80,22 @@ namespace shadow_robot
     {
       timestamp = double(tv.tv_sec) + double(tv.tv_usec) / 1.0e+6;
     }
-    //First we read the joints informations
+
+    //First we read the tactile sensors information:
+    // we need this to be able to fill in the tactiles
+    // for the actuators.
+    if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      if( tactiles_init != NULL )
+        tactiles_init->update(status_data);
+    }
+    else
+    {
+      if( tactiles != NULL )
+        tactiles->update(status_data);
+    }
+
+    //Then we read the joints informations
     boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
     for (; joint_tmp != joints_vector.end(); ++joint_tmp)
     {
@@ -90,6 +105,11 @@ namespace shadow_robot
       actuator->state_.is_enabled_ = 1;
       actuator->state_.device_id_ = motor_index_full;
       actuator->state_.halted_ = false;
+
+      //Fill in the tactiles.
+      if( tactiles != NULL )
+        actuator->state_.tactiles_ = tactiles->tactiles_vector;
+
 
       //calibrate the joint and update the position.
       calibrate_joint(joint_tmp);
@@ -145,18 +165,6 @@ namespace shadow_robot
       if (read_motor_info)
         read_additional_data(joint_tmp);
     } //end for joint
-
-    //then we read the tactile sensors information
-    if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
-    {
-      if( tactiles_init != NULL )
-        tactiles_init->update(status_data);
-    }
-    else
-    {
-      if( tactiles != NULL )
-        tactiles->update(status_data);
-    }
   } //end update()
 
   void SrRobotLib::build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
