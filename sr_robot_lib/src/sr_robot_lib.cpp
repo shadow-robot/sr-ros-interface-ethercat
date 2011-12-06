@@ -369,7 +369,6 @@ namespace shadow_robot
             d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
             d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
             d.addf("Strain Gauge Right", "%d", state->strain_gauge_right_);
-            d.addf("Executed Effort", "%f", state->last_executed_effort_);
 
             //if some flags are set
             std::stringstream ss;
@@ -416,7 +415,7 @@ namespace shadow_robot
               d.addf("Force control Sign", "-");
 
             d.addf("Last Measured Effort", "%f", state->last_measured_effort_);
-            d.addf("Last Commanded Effort", "%f", state->last_commanded_effort_);
+
             d.addf("Encoder Position", "%f", state->position_);
 
             if (state->firmware_modified_)
@@ -425,8 +424,6 @@ namespace shadow_robot
             else
               d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False",
                      state->server_firmware_svn_revision_, state->pic_firmware_svn_revision_);
-
-            d.addf("Tests", "%d", state->tests_);
           }
         }
         else
