@@ -108,7 +108,7 @@ namespace shadow_robot
 
       //Fill in the tactiles.
       if( tactiles != NULL )
-        actuator->state_.tactiles_ = tactiles->tactiles_vector.get();
+        actuator->state_.tactiles_ = tactiles->get_tactile_data();
 
       //calibrate the joint and update the position.
       calibrate_joint(joint_tmp);

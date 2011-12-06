@@ -43,8 +43,8 @@ namespace tactiles
                        std::string manufacturer, std::string serial_number,
                        int software_version, int pcb_version)
       : tactile_data_valid(tactile_data_valid), sample_frequency(sample_frequency),
-        manufacturer(manufacturer), serial_number(serial_number), 
-        software_version(software_version), pcb_version(pcb_version) 
+        manufacturer(manufacturer), serial_number(serial_number),
+        software_version(software_version), pcb_version(pcb_version)
       {};
 
     ~GenericTactileData() {};
@@ -103,6 +103,12 @@ namespace tactiles
     int tac; //int16u in word[2]
     int tdc; //int16u in word[2]
     boost::array<short int, 19ul> electrodes; //int16u in word[2]
+  };
+
+  struct AllTactileData
+  {
+    BiotacData biotac;
+    PST3Data pst;
   };
 }
 

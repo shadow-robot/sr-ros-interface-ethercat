@@ -74,10 +74,14 @@ namespace tactiles
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;
 
+    virtual std::vector<AllTactileData>* get_tactile_data();
+
   protected:
 
     // Tactile sensor real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> > tactile_publisher;
+
+    boost::shared_ptr<std::vector<AllTactileData> > all_tactile_data;
   };//end class
 }//end namespace
 

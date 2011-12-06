@@ -55,6 +55,7 @@ namespace tactiles
 
     //initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr< std::vector<BiotacData> >( new std::vector<BiotacData>(nb_tactiles) );
+    all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >( new std::vector<AllTactileData>(nb_tactiles) );
   }
 
   void Biotac::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
@@ -285,6 +286,14 @@ namespace tactiles
 
       vec.push_back(d);
     }
+  }
+
+  std::vector<AllTactileData>* Biotac::get_tactile_data()
+  {
+    for( unsigned int i=0; i < tactiles_vector->size(); ++i)
+      all_tactile_data->at(i).biotac = tactiles_vector->at(i);
+
+    return all_tactile_data.get();
   }
 }
 

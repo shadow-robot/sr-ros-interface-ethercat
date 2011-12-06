@@ -96,6 +96,8 @@ namespace tactiles
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<GenericTactileData> > tactiles_vector;
 
+    virtual std::vector<AllTactileData>* get_tactile_data();
+
   protected:
 
     void process_received_data_type(int32u data);

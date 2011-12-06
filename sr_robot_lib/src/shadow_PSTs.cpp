@@ -55,6 +55,7 @@ namespace tactiles
 
     //initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr< std::vector<PST3Data> >( new std::vector<PST3Data>(nb_tactiles) );
+    all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >( new std::vector<AllTactileData>(nb_tactiles) );
   }
 
   void ShadowPSTs::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
@@ -197,6 +198,15 @@ namespace tactiles
       vec.push_back(d);
     }
   }
+
+  std::vector<AllTactileData>* ShadowPSTs::get_tactile_data()
+  {
+    for( unsigned int i=0; i < tactiles_vector->size(); ++i)
+      all_tactile_data->at(i).pst = tactiles_vector->at(i);
+
+    return all_tactile_data.get();
+  }
+
 }
 
 /* For the emacs weenies in the crowd.
