@@ -21,3 +21,4 @@ sr_robot_lib/src/generic_tactiles.cpp
 sr_external_dependencies/include/sr_external_dependencies/external/0220_palm_edc
 ￼
 sr_external_dependencies/include/sr_external_dependencies/external/simplemotor-bootloader
+sr_external_dependencies/ROS_NOBUILD
