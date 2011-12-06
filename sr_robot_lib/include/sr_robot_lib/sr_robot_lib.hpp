@@ -272,11 +272,6 @@ namespace shadow_robot
     ///The current state of the robot.
     operation_mode::robot_state::RobotState current_state;
 
-    ///We need to know if we're overflowing or not.
-    int last_can_msgs_received;
-    ///We need to know if we're overflowing or not.
-    int last_can_msgs_transmitted;
-
     ///The update rate for each motor information
     std::vector<generic_updater::UpdateConfig> motor_update_rate_configs_vector;
     ///The update rate for each sensor information type

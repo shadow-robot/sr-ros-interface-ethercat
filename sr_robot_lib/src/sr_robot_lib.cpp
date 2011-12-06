@@ -45,8 +45,7 @@ namespace shadow_robot
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
       : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"), current_state(
-          operation_mode::robot_state::INITIALIZATION), last_can_msgs_received(0), last_can_msgs_transmitted(0), tactile_current_state(
-          operation_mode::device_update_state::INITIALIZATION)
+          operation_mode::robot_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION)
   {
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
@@ -573,10 +572,28 @@ namespace shadow_robot
         case MOTOR_DATA_SGL:
           actuator->state_.strain_gauge_left_ =
               static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
+
+#ifdef DEBUG_PUBLISHER
+	  if( joint_tmp->motor->motor_id == 8 )
+	    {
+	      //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
+	      msg_debug.data = actuator->state_.strain_gauge_left_;
+	      debug_publishers[0].publish(msg_debug);
+	    }
+#endif
           break;
         case MOTOR_DATA_SGR:
           actuator->state_.strain_gauge_right_ =
               static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
+
+#ifdef DEBUG_PUBLISHER
+	  if( joint_tmp->motor->motor_id == 8 )
+	    {
+	      //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
+	      msg_debug.data = actuator->state_.strain_gauge_right_;
+	      debug_publishers[1].publish(msg_debug);
+	    }
+#endif
           break;
         case MOTOR_DATA_PWM:
           actuator->state_.pwm_ =
@@ -590,10 +607,28 @@ namespace shadow_robot
           actuator->state_.last_measured_current_ =
               static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc))
                   / 1000.0;
+
+#ifdef DEBUG_PUBLISHER
+	  if( joint_tmp->motor->motor_id == 8 )
+	    {
+	      //ROS_ERROR_STREAM("Current " <<actuator->state_.last_measured_current_);
+	      msg_debug.data = actuator->state_.last_measured_current_;
+	      debug_publishers[2].publish(msg_debug);
+	    }
+#endif
           break;
         case MOTOR_DATA_VOLTAGE:
           actuator->state_.motor_voltage_ =
               static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) / 256.0;
+
+#ifdef DEBUG_PUBLISHER
+	  if( joint_tmp->motor->motor_id == 8 )
+	    {
+	      //ROS_ERROR_STREAM("Voltage " <<actuator->state_.motor_voltage_);
+	      msg_debug.data = actuator->state_.motor_voltage_;
+	      debug_publishers[3].publish(msg_debug);
+	    }
+#endif
           break;
         case MOTOR_DATA_TEMPERATURE:
           actuator->state_.temperature_ =
@@ -603,19 +638,15 @@ namespace shadow_robot
           // those are 16 bits values and will overflow -> we compute the real value.
           // This needs to be updated faster than the overflowing period (which should be roughly every 30s)
           actuator->state_.can_msgs_received_ = sr_math_utils::counter_with_overflow(
-              actuator->state_.can_msgs_received_, last_can_msgs_received,
+              actuator->state_.can_msgs_received_,
               static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-          last_can_msgs_received =
-              static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
           break;
         case MOTOR_DATA_CAN_NUM_TRANSMITTED:
           // those are 16 bits values and will overflow -> we compute the real value.
           // This needs to be updated faster than the overflowing period (which should be roughly every 30s)
           actuator->state_.can_msgs_transmitted_ = sr_math_utils::counter_with_overflow(
-              actuator->state_.can_msgs_received_, last_can_msgs_received,
+              actuator->state_.can_msgs_received_, 
               static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-          last_can_msgs_transmitted =
-              static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
           break;
 
         case MOTOR_DATA_SLOW_MISC:
