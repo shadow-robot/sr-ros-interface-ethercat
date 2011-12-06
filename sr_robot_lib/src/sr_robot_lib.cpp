@@ -367,7 +367,7 @@ namespace shadow_robot
             d.clear();
             d.addf("Motor ID", "%d", joint->motor->motor_id);
             d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
-            d.addf("Serial Number Low / high", "%d / %d", state->serial_number_low, state->serial_number_high );
+            d.addf("Serial Number", "%d", state->serial_number_low + (state->serial_number_high * 65536) );
             d.addf("Assembly date", "%d / %d / %d", state->assembly_data_day, state->assembly_data_month, state->assembly_data_year );
 
             d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
