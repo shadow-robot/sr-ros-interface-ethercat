@@ -82,8 +82,6 @@ namespace tactiles
 
     // Tactile sensor real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> > tactile_publisher;
-
-    boost::shared_ptr<std::vector<AllTactileData> > all_tactile_data;
   };//end class
 }//end namespace
 
