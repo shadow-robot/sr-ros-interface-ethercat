@@ -120,7 +120,7 @@ namespace tactiles
       case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          tactiles_vector->at(id_sensor).software_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+          tactiles_vector->at(id_sensor).set_software_version( status_data->tactile[id_sensor].string );
         }
         break;
 
@@ -187,7 +187,7 @@ namespace tactiles
       d.addf("Manufacturer", "%s", tactiles_vector->at(id_tact).manufacturer.c_str());
       d.addf("Serial Number", "%s", tactiles_vector->at(id_tact).serial_number.c_str());
 
-      d.addf("Software Version", "%d", tactiles_vector->at(id_tact).software_version);
+      d.addf("Software Version", "%d", tactiles_vector->at(id_tact).get_software_version().c_str());
       d.addf("PCB Version", "%d", tactiles_vector->at(id_tact).pcb_version);
 
       d.addf("Pressure Raw", "%d", tactiles_vector->at(id_tact).pressure_raw);

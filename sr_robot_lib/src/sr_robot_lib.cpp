@@ -44,8 +44,8 @@ namespace shadow_robot
 #endif
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
-      : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"), current_state(
-          operation_mode::robot_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION)
+    : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"), current_state(
+      operation_mode::robot_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION)
   {
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
@@ -99,7 +99,7 @@ namespace shadow_robot
 
       //filter the position and velocity
       std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(
-          joint_tmp->motor->actuator->state_.position_, timestamp);
+        joint_tmp->motor->actuator->state_.position_, timestamp);
       //reset the position to the filtered value
       joint_tmp->motor->actuator->state_.position_ = pos_and_velocity.first;
       //set the velocity to the filtered velocity
@@ -107,7 +107,7 @@ namespace shadow_robot
 
       //filter the effort
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
-          joint_tmp->motor->actuator->state_.last_measured_effort_, timestamp);
+        joint_tmp->motor->actuator->state_.last_measured_effort_, timestamp);
       joint_tmp->motor->actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
 
       //if no motor is associated to this joint, then continue
@@ -180,29 +180,29 @@ namespace shadow_robot
 
         switch (tactiles_init->tactiles_vector->at(0).which_sensor)
         {
-          case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
-            tactiles = boost::shared_ptr<tactiles::ShadowPSTs>(
-                new tactiles::ShadowPSTs(pst3_sensor_update_rate_configs_vector,
-                                         operation_mode::device_update_state::OPERATION,
-                                         tactiles_init->tactiles_vector));
-
-            ROS_INFO("PST3 tactiles initialized");
-            break;
-
-          case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
-            tactiles = boost::shared_ptr<tactiles::Biotac>(
-                new tactiles::Biotac(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+        case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
+          tactiles = boost::shared_ptr<tactiles::ShadowPSTs>(
+            new tactiles::ShadowPSTs(pst3_sensor_update_rate_configs_vector,
+                                     operation_mode::device_update_state::OPERATION,
                                      tactiles_init->tactiles_vector));
 
-            ROS_INFO("Biotac tactiles initialized");
-            break;
+          ROS_INFO("PST3 tactiles initialized");
+          break;
 
-          case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:
-            ROS_WARN_STREAM("TACTILE_SENSOR_PROTOCOL_TYPE_INVALID!!");
-            break;
-          case TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING:
-            ROS_WARN_STREAM("TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING!!");
-            break;
+        case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
+          tactiles = boost::shared_ptr<tactiles::Biotac>(
+            new tactiles::Biotac(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+                                 tactiles_init->tactiles_vector));
+
+          ROS_INFO("Biotac tactiles initialized");
+          break;
+
+        case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:
+          ROS_WARN_STREAM("TACTILE_SENSOR_PROTOCOL_TYPE_INVALID!!");
+          break;
+        case TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING:
+          ROS_WARN_STREAM("TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING!!");
+          break;
         }
       }
     }
@@ -488,7 +488,7 @@ namespace shadow_robot
       ROS_DEBUG_STREAM("Combining actuator " << joint_tmp->joint_name);
 
       for (unsigned int index_joint_to_sensor = 0;
-          index_joint_to_sensor < joint_tmp->joint_to_sensor.joint_to_sensor_vector.size(); ++index_joint_to_sensor)
+           index_joint_to_sensor < joint_tmp->joint_to_sensor.joint_to_sensor_vector.size(); ++index_joint_to_sensor)
       {
         joint_to_sensor = joint_tmp->joint_to_sensor.joint_to_sensor_vector[index_joint_to_sensor];
         sensor_name = joint_tmp->joint_to_sensor.sensor_names[index_joint_to_sensor];
@@ -569,197 +569,208 @@ namespace shadow_robot
       bool read_torque = true;
       switch (status_data->motor_data_type)
       {
-        case MOTOR_DATA_SGL:
-          actuator->state_.strain_gauge_left_ =
-              static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
+      case MOTOR_DATA_SGL:
+        actuator->state_.strain_gauge_left_ =
+          static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
 
 #ifdef DEBUG_PUBLISHER
-	  if( joint_tmp->motor->motor_id == 8 )
-	    {
-	      //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
-	      msg_debug.data = actuator->state_.strain_gauge_left_;
-	      debug_publishers[0].publish(msg_debug);
-	    }
+        if( joint_tmp->motor->motor_id == 8 )
+        {
+          //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
+          msg_debug.data = actuator->state_.strain_gauge_left_;
+          debug_publishers[0].publish(msg_debug);
+        }
 #endif
-          break;
-        case MOTOR_DATA_SGR:
-          actuator->state_.strain_gauge_right_ =
-              static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        break;
+      case MOTOR_DATA_SGR:
+        actuator->state_.strain_gauge_right_ =
+          static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
 
 #ifdef DEBUG_PUBLISHER
-	  if( joint_tmp->motor->motor_id == 8 )
-	    {
-	      //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
-	      msg_debug.data = actuator->state_.strain_gauge_right_;
-	      debug_publishers[1].publish(msg_debug);
-	    }
+        if( joint_tmp->motor->motor_id == 8 )
+        {
+          //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
+          msg_debug.data = actuator->state_.strain_gauge_right_;
+          debug_publishers[1].publish(msg_debug);
+        }
 #endif
-          break;
-        case MOTOR_DATA_PWM:
-          actuator->state_.pwm_ =
-              static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
-          break;
-        case MOTOR_DATA_FLAGS:
-          actuator->state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
-          break;
-        case MOTOR_DATA_CURRENT:
-          //we're receiving the current in milli amps
-          actuator->state_.last_measured_current_ =
-              static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc))
-                  / 1000.0;
+        break;
+      case MOTOR_DATA_PWM:
+        actuator->state_.pwm_ =
+          static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
+        break;
+      case MOTOR_DATA_FLAGS:
+        actuator->state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
+        break;
+      case MOTOR_DATA_CURRENT:
+        //we're receiving the current in milli amps
+        actuator->state_.last_measured_current_ =
+          static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc))
+          / 1000.0;
 
 #ifdef DEBUG_PUBLISHER
-	  if( joint_tmp->motor->motor_id == 8 )
-	    {
-	      //ROS_ERROR_STREAM("Current " <<actuator->state_.last_measured_current_);
-	      msg_debug.data = actuator->state_.last_measured_current_;
-	      debug_publishers[2].publish(msg_debug);
-	    }
+        if( joint_tmp->motor->motor_id == 8 )
+        {
+          //ROS_ERROR_STREAM("Current " <<actuator->state_.last_measured_current_);
+          msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+          debug_publishers[2].publish(msg_debug);
+        }
 #endif
-          break;
-        case MOTOR_DATA_VOLTAGE:
-          actuator->state_.motor_voltage_ =
-              static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) / 256.0;
+        break;
+      case MOTOR_DATA_VOLTAGE:
+        actuator->state_.motor_voltage_ =
+          static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) / 256.0;
 
 #ifdef DEBUG_PUBLISHER
-	  if( joint_tmp->motor->motor_id == 8 )
-	    {
-	      //ROS_ERROR_STREAM("Voltage " <<actuator->state_.motor_voltage_);
-	      msg_debug.data = actuator->state_.motor_voltage_;
-	      debug_publishers[3].publish(msg_debug);
-	    }
+        if( joint_tmp->motor->motor_id == 8 )
+        {
+          //ROS_ERROR_STREAM("Voltage " <<actuator->state_.motor_voltage_);
+          msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+          debug_publishers[3].publish(msg_debug);
+        }
 #endif
-          break;
-        case MOTOR_DATA_TEMPERATURE:
-          actuator->state_.temperature_ =
-              static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) / 256.0;
-          break;
-        case MOTOR_DATA_CAN_NUM_RECEIVED:
-          // those are 16 bits values and will overflow -> we compute the real value.
-          // This needs to be updated faster than the overflowing period (which should be roughly every 30s)
-          actuator->state_.can_msgs_received_ = sr_math_utils::counter_with_overflow(
-              actuator->state_.can_msgs_received_,
-              static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-          break;
-        case MOTOR_DATA_CAN_NUM_TRANSMITTED:
-          // those are 16 bits values and will overflow -> we compute the real value.
-          // This needs to be updated faster than the overflowing period (which should be roughly every 30s)
-          actuator->state_.can_msgs_transmitted_ = sr_math_utils::counter_with_overflow(
-              actuator->state_.can_msgs_received_, 
-              static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-          break;
+        break;
+      case MOTOR_DATA_TEMPERATURE:
+        actuator->state_.temperature_ =
+          static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) / 256.0;
+        break;
+      case MOTOR_DATA_CAN_NUM_RECEIVED:
+        // those are 16 bits values and will overflow -> we compute the real value.
+        // This needs to be updated faster than the overflowing period (which should be roughly every 30s)
+        actuator->state_.can_msgs_received_ = sr_math_utils::counter_with_overflow(
+          actuator->state_.can_msgs_received_,
+          static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+        break;
+      case MOTOR_DATA_CAN_NUM_TRANSMITTED:
+        // those are 16 bits values and will overflow -> we compute the real value.
+        // This needs to be updated faster than the overflowing period (which should be roughly every 30s)
+        actuator->state_.can_msgs_transmitted_ = sr_math_utils::counter_with_overflow(
+          actuator->state_.can_msgs_received_,
+          static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+        break;
 
-        case MOTOR_DATA_SLOW_MISC:
-          //We received a slow data:
-          // the slow data type is contained in .torque, while
-          // the actual data is in .misc.
-          switch (static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].torque))
-          {
-            case MOTOR_SLOW_DATA_SVN_REVISION:
-              actuator->state_.pic_firmware_svn_revision_ =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_SVN_SERVER_REVISION:
-              actuator->state_.server_firmware_svn_revision_ =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_SVN_MODIFIED:
-              actuator->state_.firmware_modified_ =
-                  static_cast<bool>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW:
-              actuator->state_.set_serial_number_low (
-                static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) );
-              break;
-            case MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH:
-              actuator->state_.set_serial_number_high (
-                static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) );
-              break;
-            case MOTOR_SLOW_DATA_GEAR_RATIO:
-              actuator->state_.motor_gear_ratio =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_ASSEMBLY_DATE_YYYY:
-              actuator->state_.assembly_data_year =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_ASSEMBLY_DATE_MMDD:
-              actuator->state_.assembly_data_month =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)
-                      / 100);
-              actuator->state_.assembly_data_day =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc))
-                      - actuator->state_.assembly_data_month;
-              break;
-            case MOTOR_SLOW_DATA_CONTROLLER_F:
-              actuator->state_.force_control_f_ =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_CONTROLLER_P:
-              actuator->state_.force_control_p_ =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_CONTROLLER_I:
-              actuator->state_.force_control_i_ =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_CONTROLLER_D:
-              actuator->state_.force_control_d_ =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_CONTROLLER_IMAX:
-              actuator->state_.force_control_imax_ =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-            case MOTOR_SLOW_DATA_CONTROLLER_DEADSIGN:
-              tmp_value.word = status_data->motor_data_packet[index_motor_in_msg].misc;
-              actuator->state_.force_control_deadband_ = static_cast<int>(tmp_value.byte[0]);
-              actuator->state_.force_control_sign_ = static_cast<int>(tmp_value.byte[1]);
-              break;
-            case MOTOR_SLOW_DATA_CONTROLLER_FREQUENCY:
-              actuator->state_.force_control_frequency_ =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
-              break;
-
-            default:
-              break;
-          }
+      case MOTOR_DATA_SLOW_MISC:
+        //We received a slow data:
+        // the slow data type is contained in .torque, while
+        // the actual data is in .misc.
+        switch (static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].torque))
+        {
+        case MOTOR_SLOW_DATA_SVN_REVISION:
+          actuator->state_.pic_firmware_svn_revision_ =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
           break;
-
-        case MOTOR_DATA_CAN_ERROR_COUNTERS:
-          actuator->state_.can_error_counters =
-              static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        case MOTOR_SLOW_DATA_SVN_SERVER_REVISION:
+          actuator->state_.server_firmware_svn_revision_ =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
           break;
-        case MOTOR_DATA_PTERM:
-          read_torque = false;
-          actuator->state_.force_control_pterm =
-              static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        case MOTOR_SLOW_DATA_SVN_MODIFIED:
+          actuator->state_.firmware_modified_ =
+            static_cast<bool>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
           break;
-        case MOTOR_DATA_ITERM:
-          read_torque = false;
-          actuator->state_.force_control_iterm =
-              static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        case MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW:
+          actuator->state_.set_serial_number_low (
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) );
           break;
-        case MOTOR_DATA_DTERM:
-          read_torque = false;
-          actuator->state_.force_control_dterm =
-              static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        case MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH:
+          actuator->state_.set_serial_number_high (
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) );
+          break;
+        case MOTOR_SLOW_DATA_GEAR_RATIO:
+          actuator->state_.motor_gear_ratio =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+          break;
+        case MOTOR_SLOW_DATA_ASSEMBLY_DATE_YYYY:
+          actuator->state_.assembly_data_year =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+          break;
+        case MOTOR_SLOW_DATA_ASSEMBLY_DATE_MMDD:
+          actuator->state_.assembly_data_month =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)
+                                      / 100);
+          actuator->state_.assembly_data_day =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc))
+            - actuator->state_.assembly_data_month;
+          break;
+        case MOTOR_SLOW_DATA_CONTROLLER_F:
+          actuator->state_.force_control_f_ =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+          break;
+        case MOTOR_SLOW_DATA_CONTROLLER_P:
+          actuator->state_.force_control_p_ =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+          break;
+        case MOTOR_SLOW_DATA_CONTROLLER_I:
+          actuator->state_.force_control_i_ =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+          break;
+        case MOTOR_SLOW_DATA_CONTROLLER_D:
+          actuator->state_.force_control_d_ =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+          break;
+        case MOTOR_SLOW_DATA_CONTROLLER_IMAX:
+          actuator->state_.force_control_imax_ =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+          break;
+        case MOTOR_SLOW_DATA_CONTROLLER_DEADSIGN:
+          tmp_value.word = status_data->motor_data_packet[index_motor_in_msg].misc;
+          actuator->state_.force_control_deadband_ = static_cast<int>(tmp_value.byte[0]);
+          actuator->state_.force_control_sign_ = static_cast<int>(tmp_value.byte[1]);
+          break;
+        case MOTOR_SLOW_DATA_CONTROLLER_FREQUENCY:
+          actuator->state_.force_control_frequency_ =
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
           break;
 
         default:
           break;
+        }
+        break;
+
+      case MOTOR_DATA_CAN_ERROR_COUNTERS:
+        actuator->state_.can_error_counters =
+          static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        break;
+      case MOTOR_DATA_PTERM:
+        read_torque = false;
+        actuator->state_.force_control_pterm =
+          static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        break;
+      case MOTOR_DATA_ITERM:
+        read_torque = false;
+        actuator->state_.force_control_iterm =
+          static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        break;
+      case MOTOR_DATA_DTERM:
+        read_torque = false;
+        actuator->state_.force_control_dterm =
+          static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+        break;
+
+      default:
+        break;
       }
 
       if (read_torque)
+      {
         actuator->state_.last_measured_effort_ =
-            static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
+          static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
+
+#ifdef DEBUG_PUBLISHER
+	if( joint_tmp->motor->motor_id == 8 )
+        {
+          //ROS_ERROR_STREAM("Torque " << static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
+          msg_debug.data = static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque);
+          debug_publishers[4].publish(msg_debug);
+        }
+#endif
+      }
 
       //Check the message to see if everything has already been received
       if (motor_current_state == operation_mode::device_update_state::INITIALIZATION)
       {
         if (motor_data_checker->check_message(
-            joint_tmp, status_data->motor_data_type,
-            static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].torque)))
+              joint_tmp, status_data->motor_data_type,
+              static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].torque)))
         {
           motor_updater_->update_state = operation_mode::device_update_state::OPERATION;
           motor_current_state = operation_mode::device_update_state::OPERATION;
@@ -797,7 +808,7 @@ namespace shadow_robot
                                                  int i, int d, int imax, int deadband, int sign)
   {
     ROS_INFO_STREAM(
-        "Setting new pid values for motor" << motor_index << ": max_pwm="<< max_pwm <<" sg_left=" << sg_left << " sg_right=" << sg_right << " f=" << f << " p=" << p << " i=" << i << " d="<< d << " imax=" << imax << " deadband="<< deadband << " sign=" << sign);
+      "Setting new pid values for motor" << motor_index << ": max_pwm="<< max_pwm <<" sg_left=" << sg_left << " sg_right=" << sg_right << " f=" << f << " p=" << p << " i=" << i << " d="<< d << " imax=" << imax << " deadband="<< deadband << " sign=" << sign);
 
     //the vector is of the size of the TO_MOTOR_DATA_TYPE enum.
     //the value of the element at a given index is the value
@@ -831,7 +842,7 @@ namespace shadow_robot
     value.byte[1] = sign;
     full_config.at(MOTOR_CONFIG_DEADBAND_SIGN) = value;
     ROS_DEBUG_STREAM(
-        "deadband: " << static_cast<int>(static_cast<int8u>(value.byte[0]) ) << " value: " << static_cast<int16u>(value.word));
+      "deadband: " << static_cast<int>(static_cast<int8u>(value.byte[0]) ) << " value: " << static_cast<int16u>(value.word));
 
     //compute crc
     crc_result = 0;
