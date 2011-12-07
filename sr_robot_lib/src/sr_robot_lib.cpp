@@ -367,7 +367,7 @@ namespace shadow_robot
             d.clear();
             d.addf("Motor ID", "%d", joint->motor->motor_id);
             d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
-            d.addf("Serial Number", "%d", state->serial_number_low + (state->serial_number_high * 65536) );
+            d.addf("Serial Number", "%d", state->serial_number );
             d.addf("Assembly date", "%d / %d / %d", state->assembly_data_day, state->assembly_data_month, state->assembly_data_year );
 
             d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
@@ -636,12 +636,12 @@ namespace shadow_robot
                   static_cast<bool>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW:
-              actuator->state_.serial_number_low =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+              actuator->state_.set_serial_number_low (
+                static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) );
               break;
             case MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH:
-              actuator->state_.serial_number_high =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+              actuator->state_.set_serial_number_high (
+                static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) );
               break;
             case MOTOR_SLOW_DATA_GEAR_RATIO:
               actuator->state_.motor_gear_ratio =
