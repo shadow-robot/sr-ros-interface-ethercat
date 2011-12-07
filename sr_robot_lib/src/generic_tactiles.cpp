@@ -102,7 +102,7 @@ namespace tactiles
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
           if( tactiles_vector != NULL )
-            tactiles_vector->at(id_sensor).software_version = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]) );
+            tactiles_vector->at(id_sensor).set_software_version( status_data->tactile[id_sensor].string );
         }
         break;
 

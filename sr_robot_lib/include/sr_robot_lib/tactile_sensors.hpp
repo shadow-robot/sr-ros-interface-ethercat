@@ -27,6 +27,9 @@
 #ifndef _TACTILE_SENSORS_HPP_
 #define _TACTILE_SENSORS_HPP_
 
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <string>
 #include <vector>
 
@@ -41,11 +44,15 @@ namespace tactiles
 
     GenericTactileData(bool tactile_data_valid, int sample_frequency,
                        std::string manufacturer, std::string serial_number,
-                       int software_version, int pcb_version)
+                       int software_version_current, int software_version_server,
+                       bool software_version_modified, int pcb_version)
       : tactile_data_valid(tactile_data_valid), sample_frequency(sample_frequency),
-        manufacturer(manufacturer), serial_number(serial_number), 
-        software_version(software_version), pcb_version(pcb_version) 
-      {};
+        manufacturer(manufacturer), serial_number(serial_number),
+        software_version_current(software_version_current),
+        software_version_server(software_version_server),
+        software_version_modified(software_version_modified),
+        pcb_version(pcb_version)
+    {};
 
     ~GenericTactileData() {};
 
@@ -56,8 +63,23 @@ namespace tactiles
     std::string manufacturer;
     std::string serial_number;
 
-    int software_version;
+    int software_version_current;
+    int software_version_server;
+    bool software_version_modified;
+
+    void set_software_version( std::string version );
+    std::string get_software_version();
+
     int pcb_version;
+
+    inline double convertToInt(std::string const& s)
+    {
+      std::istringstream i(s);
+      int x;
+      if (!(i >> x))
+        x = -1;
+      return x;
+    }
   };
 
   class PST3Data
