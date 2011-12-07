@@ -606,7 +606,7 @@ namespace shadow_robot
 	  if( joint_tmp->motor->motor_id == 8 )
 	    {
 	      //ROS_ERROR_STREAM("Current " <<actuator->state_.last_measured_current_);
-	      msg_debug.data = actuator->state_.last_measured_current_;
+	      msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
 	      debug_publishers[2].publish(msg_debug);
 	    }
 #endif
@@ -619,7 +619,7 @@ namespace shadow_robot
 	  if( joint_tmp->motor->motor_id == 8 )
 	    {
 	      //ROS_ERROR_STREAM("Voltage " <<actuator->state_.motor_voltage_);
-	      msg_debug.data = actuator->state_.motor_voltage_;
+	      msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
 	      debug_publishers[3].publish(msg_debug);
 	    }
 #endif
@@ -745,8 +745,19 @@ namespace shadow_robot
       }
 
       if (read_torque)
+      {
         actuator->state_.last_measured_effort_ =
             static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
+
+#ifdef DEBUG_PUBLISHER
+	if( joint_tmp->motor->motor_id == 8 )
+	  {
+	    //ROS_ERROR_STREAM("Torque " << static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
+	    msg_debug.data = static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque);
+	    debug_publishers[4].publish(msg_debug);
+	  }
+#endif
+      }
 
       //Check the message to see if everything has already been received
       if (motor_current_state == operation_mode::device_update_state::INITIALIZATION)

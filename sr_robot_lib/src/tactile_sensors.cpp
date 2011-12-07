@@ -29,6 +29,7 @@
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <sstream>
 
+#include <ros/ros.h>
 namespace tactiles
 {
 
@@ -36,9 +37,9 @@ namespace tactiles
   {
     //split the string to fill the different versions
     std::vector<std::string> splitted_string;
-    boost::split(splitted_string, version, boost::is_any_of("\n "));
+    boost::split(splitted_string, version, boost::is_any_of("\n"));
 
-    BOOST_ASSERT(splitted_string.size() == 3);
+    BOOST_ASSERT(splitted_string.size() >= 3);
     software_version_current = convertToInt(splitted_string[0]);
     software_version_server = convertToInt(splitted_string[1]);
 
@@ -118,6 +119,20 @@ namespace tactiles
                          gtd.software_version_modified,
                          gtd.pcb_version)
   {};
+
+  std::string BiotacData::get_software_version()
+  {
+    //concatenate versions in a string.
+    std::string full_version;
+
+    std::stringstream ss;
+    ss << "current: " << software_version_current;
+
+    full_version = ss.str();
+
+    return full_version;
+  }
+
 }
 
 

@@ -67,8 +67,21 @@ namespace tactiles
     int software_version_server;
     bool software_version_modified;
 
+    /**
+     * Parses the version string received
+     *  from the tactiles and fill in the 
+     *  variables.
+     *
+     * @version The raw version string.
+     */
     void set_software_version( std::string version );
-    std::string get_software_version();
+    /**
+     * Formats the software version for the 
+     *  diagnostics.
+     *
+     * @return the formatted string
+     */
+    virtual std::string get_software_version();
 
     int pcb_version;
 
@@ -125,6 +138,14 @@ namespace tactiles
     int tac; //int16u in word[2]
     int tdc; //int16u in word[2]
     boost::array<short int, 19ul> electrodes; //int16u in word[2]
+
+    /**
+     * Formats the software version for the 
+     *  diagnostics.
+     *
+     * @return the formatted string
+     */
+    virtual std::string get_software_version();
   };
 }
 
