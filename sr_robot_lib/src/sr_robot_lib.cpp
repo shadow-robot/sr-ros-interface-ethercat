@@ -367,9 +367,11 @@ namespace shadow_robot
             d.clear();
             d.addf("Motor ID", "%d", joint->motor->motor_id);
             d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
+            d.addf("Serial Number", "%d", state->serial_number );
+            d.addf("Assembly date", "%d / %d / %d", state->assembly_data_day, state->assembly_data_month, state->assembly_data_year );
+
             d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
             d.addf("Strain Gauge Right", "%d", state->strain_gauge_right_);
-            d.addf("Executed Effort", "%f", state->last_executed_effort_);
 
             //if some flags are set
             std::stringstream ss;
@@ -393,9 +395,14 @@ namespace shadow_robot
               ss << " None";
             d.addf("Motor Flags", "%s", ss.str().c_str());
 
+            d.addf("Measured PWM", "%f", state->pwm_);
             d.addf("Measured Current", "%f", state->last_measured_current_);
             d.addf("Measured Voltage", "%f", state->motor_voltage_);
+            d.addf("Measured Effort", "%f", state->last_measured_effort_);
             d.addf("Temperature", "%f", state->temperature_);
+
+            d.addf("Gear Ratio", "%d", state->motor_gear_ratio);
+
             d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
             d.addf("Number of CAN messages transmitted", "%lld", state->can_msgs_transmitted_);
 
@@ -409,6 +416,7 @@ namespace shadow_robot
             d.addf("Force control D", "%d", state->force_control_d_);
             d.addf("Force control Imax", "%d", state->force_control_imax_);
             d.addf("Force control Deadband", "%d", state->force_control_deadband_);
+            d.addf("Force control Frequency", "%d", state->force_control_frequency_);
 
             if (state->force_control_sign_ == 0)
               d.addf("Force control Sign", "+");
@@ -416,7 +424,7 @@ namespace shadow_robot
               d.addf("Force control Sign", "-");
 
             d.addf("Last Measured Effort", "%f", state->last_measured_effort_);
-            d.addf("Last Commanded Effort", "%f", state->last_commanded_effort_);
+
             d.addf("Encoder Position", "%f", state->position_);
 
             if (state->firmware_modified_)
@@ -425,8 +433,6 @@ namespace shadow_robot
             else
               d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False",
                      state->server_firmware_svn_revision_, state->pic_firmware_svn_revision_);
-
-            d.addf("Tests", "%d", state->tests_);
           }
         }
         else
@@ -662,12 +668,12 @@ namespace shadow_robot
                   static_cast<bool>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW:
-              actuator->state_.serial_number_low =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+              actuator->state_.set_serial_number_low (
+                static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) );
               break;
             case MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH:
-              actuator->state_.serial_number_high =
-                  static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc));
+              actuator->state_.set_serial_number_high (
+                static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) );
               break;
             case MOTOR_SLOW_DATA_GEAR_RATIO:
               actuator->state_.motor_gear_ratio =
