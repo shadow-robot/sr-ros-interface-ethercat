@@ -43,6 +43,8 @@ namespace tactiles
 
     //initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr< std::vector<GenericTactileData> >( new std::vector<GenericTactileData>(nb_tactiles) );
+    all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >( new std::vector<AllTactileData>(nb_tactiles) );
+
     for(unsigned int i=0;i<nb_tactiles;i++)
     {
       GenericTactileData tmp_pst;
@@ -187,6 +189,12 @@ namespace tactiles
     }
     return sanitised_string;
   }
+
+  std::vector<AllTactileData>* GenericTactiles::get_tactile_data()
+  {
+    return all_tactile_data.get();
+  }
+
 }
 
 /* For the emacs weenies in the crowd.

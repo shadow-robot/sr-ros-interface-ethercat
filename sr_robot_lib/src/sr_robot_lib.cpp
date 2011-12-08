@@ -91,6 +91,10 @@ namespace shadow_robot
       actuator->state_.device_id_ = motor_index_full;
       actuator->state_.halted_ = false;
 
+      //Fill in the tactiles.
+      if( tactiles != NULL )
+        actuator->state_.tactiles_ = tactiles->get_tactile_data();
+
       //calibrate the joint and update the position.
       calibrate_joint(joint_tmp);
 

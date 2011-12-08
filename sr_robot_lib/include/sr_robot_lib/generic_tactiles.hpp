@@ -44,7 +44,7 @@ extern "C"
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
-#include "sr_robot_lib/tactile_sensors.hpp"
+#include <sr_hardware_interface/tactile_sensors.hpp>
 #include "sr_robot_lib/generic_updater.hpp"
 #include "sr_robot_lib/sensor_updater.hpp"
 
@@ -96,6 +96,8 @@ namespace tactiles
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<GenericTactileData> > tactiles_vector;
 
+    virtual std::vector<AllTactileData>* get_tactile_data();
+
   protected:
 
     void process_received_data_type(int32u data);
@@ -119,6 +121,7 @@ namespace tactiles
      */
     std::string sanitise_string( const char* raw_string, const unsigned int str_size );
 
+    boost::shared_ptr<std::vector<AllTactileData> > all_tactile_data;
   };//end class
 }//end namespace
 

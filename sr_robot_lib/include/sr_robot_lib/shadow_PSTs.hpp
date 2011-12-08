@@ -32,9 +32,9 @@
 #include <sr_robot_msgs/ShadowPST.h>
 #include <realtime_tools/realtime_publisher.h>
 
+#include <sr_hardware_interface/tactile_sensors.hpp>
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include "sr_robot_lib/generic_updater.hpp"
-#include "sr_robot_lib/tactile_sensors.hpp"
 
 namespace tactiles
 {
@@ -73,6 +73,8 @@ namespace tactiles
 
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;
+
+    virtual std::vector<AllTactileData>* get_tactile_data();
 
   protected:
 

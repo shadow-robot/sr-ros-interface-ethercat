@@ -73,6 +73,9 @@ namespace tactiles
     virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                  diagnostic_updater::DiagnosticStatusWrapper &d);
 
+
+    virtual std::vector<AllTactileData>* get_tactile_data();
+
   protected:
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<BiotacData> > tactiles_vector;
