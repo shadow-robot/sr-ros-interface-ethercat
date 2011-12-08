@@ -129,8 +129,8 @@ SR06::SR06()
     can_message_sent(true),
     can_packet_acked(true),
     zero_buffer_read(0),
-    can_bus_(0),
-    cycle_count(0)
+    cycle_count(0),
+    can_bus_(0)
 {
   int res = 0;
   check_for_pthread_mutex_init_error(res);
@@ -495,7 +495,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   fd = bfd_openr(req.firmware.c_str(), NULL);
   if (fd == NULL)
   {
-    ROS_FATAL("error opening the file %s", req.firmware.c_str());
+    ROS_FATAL("error opening the file %s", get_filename(req.firmware).c_str());
   }
   if (!bfd_check_format (fd, bfd_object))
   {
@@ -505,7 +505,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     }
   }
 
-  ROS_INFO("firmware %s's format is : %s.", req.firmware.c_str(), fd->xvec->name);
+  ROS_INFO("firmware %s's format is : %s.", get_filename(req.firmware).c_str(), fd->xvec->name);
 
   ROS_DEBUG("Sending dummy packet");
   cmd_sent = 0;
@@ -670,12 +670,12 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
       }
       else
       {
-        ROS_FATAL("something went wrong while parsing %s.", req.firmware.c_str());
+        ROS_FATAL("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
       }
     }
     else
     {
-      ROS_FATAL("something went wrong while parsing %s.", req.firmware.c_str());
+      ROS_FATAL("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
     }
   }
   addrl = smallest_start_address & 0xff;

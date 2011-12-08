@@ -37,6 +37,8 @@
 #include <boost/smart_ptr.hpp>
 #include <map>
 #include <boost/assign.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/find_iterator.hpp>
 
 #include <sr_robot_lib/sr_hand_lib.hpp>
 
@@ -112,6 +114,21 @@ private:
 
   ///We're using 2 can busses, so can_bus_ is 1 for motors 0 to 9 and 2 for motors 10 to 19
   int can_bus_;
+
+  /**
+   * Extract the filename from the full path.
+   *
+   * @param full_path The full path.
+   *
+   * @return the filename.
+   */
+  static inline std::string get_filename( std::string full_path )
+  {
+    std::vector<std::string> splitted_string;
+    boost::split(splitted_string, full_path, boost::is_any_of("/"));
+    return splitted_string.back();
+  }
+
 };
 
 
