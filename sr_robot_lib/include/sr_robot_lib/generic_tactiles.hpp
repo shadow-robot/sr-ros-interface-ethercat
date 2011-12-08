@@ -44,7 +44,7 @@ extern "C"
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
-#include "sr_robot_lib/tactile_sensors.hpp"
+#include <sr_hardware_interface/tactile_sensors.hpp>
 #include "sr_robot_lib/generic_updater.hpp"
 #include "sr_robot_lib/sensor_updater.hpp"
 
