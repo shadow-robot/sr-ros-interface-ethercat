@@ -830,6 +830,11 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   ROS_INFO("Flashing done");
 
   res.value = res.SUCCESS;
+
+  //Reinitialize motor and sensor information
+  sr_hand_lib->reinitialize_motors();
+  sr_hand_lib->reinitialize_sensors();
+
   return true;
 }
 

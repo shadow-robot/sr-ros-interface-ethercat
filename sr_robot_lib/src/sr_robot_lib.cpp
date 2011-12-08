@@ -44,8 +44,8 @@ namespace shadow_robot
 #endif
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
-    : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"), current_state(
-      operation_mode::robot_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION)
+    : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"), motor_current_state(
+        operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION)
   {
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
@@ -872,6 +872,22 @@ namespace shadow_robot
     config.second = full_config;
     //push the new config to the configuration queue
     reconfig_queue.push(config);
+  }
+
+  void SrRobotLib::reinitialize_motors()
+  {
+    //Create a new MototrUpdater object
+    motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater>(new generic_updater::MotorUpdater(motor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
+    motor_current_state = operation_mode::device_update_state::INITIALIZATION;
+    //Initialize the motor data checker
+    motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(joints_vector, motor_updater_->initialization_configs_vector));
+  }
+
+  void SrRobotLib::reinitialize_sensors()
+  {
+    //Create a new GenericTactiles object
+    tactiles_init = boost::shared_ptr<tactiles::GenericTactiles>( new tactiles::GenericTactiles(generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
+    tactile_current_state = operation_mode::device_update_state::INITIALIZATION;
   }
 } //end namespace
 

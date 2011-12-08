@@ -115,6 +115,17 @@ namespace shadow_robot
     void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                          diagnostic_updater::DiagnosticStatusWrapper &d);
 
+    /**
+     * Initiates the process to retrieve the initialization information from the motors
+     */
+    void reinitialize_motors();
+
+    /**
+     * Initiates the process to retrieve the initialization information from the sensors
+     */
+    void reinitialize_sensors();
+
+
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
 
@@ -268,9 +279,6 @@ namespace shadow_robot
     ros::NodeHandle node_handle;
     std_msgs::Int16 msg_debug;
 #endif
-
-    ///The current state of the robot.
-    operation_mode::robot_state::RobotState current_state;
 
     ///The update rate for each motor information
     std::vector<generic_updater::UpdateConfig> motor_update_rate_configs_vector;
