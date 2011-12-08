@@ -495,13 +495,17 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   fd = bfd_openr(req.firmware.c_str(), NULL);
   if (fd == NULL)
   {
-    ROS_FATAL("error opening the file %s", get_filename(req.firmware).c_str());
+    ROS_ERROR("error opening the file %s", get_filename(req.firmware).c_str());
+    res.value = res.FAIL;
+    return false;
   }
   if (!bfd_check_format (fd, bfd_object))
   {
     if (bfd_get_error () != bfd_error_file_ambiguously_recognized)
     {
       ROS_FATAL("Incompatible format");
+      res.value = res.FAIL;
+      return false;
     }
   }
 
@@ -623,10 +627,10 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     }
     if (timedout)
     {
-      ROS_FATAL("None of the magic packets were ACKed");
-      ROS_BREAK();
+      ROS_ERROR("None of the magic packets were ACKed, didn't bootload the motor.");
+      res.value = res.FAIL;
+      return false;
     }
-
   }
 
   erase_flash();
@@ -652,7 +656,12 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   total_size = biggest_end_address - smallest_start_address;
   binary_content = (bfd_byte *)malloc(total_size+8);
   if (binary_content == NULL)
-    ROS_FATAL("Error allocating memory for binary_content");
+  {
+    ROS_ERROR("Error allocating memory for binary_content");
+    res.value = res.FAIL;
+    return false;
+
+  }
 
   memset(binary_content, 0xFF, total_size+8);
 
@@ -670,12 +679,16 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
       }
       else
       {
-        ROS_FATAL("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
+        ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
+        res.value = res.FAIL;
+        return false;
       }
     }
     else
     {
-      ROS_FATAL("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
+      ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
+      res.value = res.FAIL;
+      return false;
     }
   }
   addrl = smallest_start_address & 0xff;
@@ -728,7 +741,11 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
           wait_time++;
         }
         if (timedout)
+        {
           ROS_ERROR("WRITE ADDRESS timedout ");
+          res.value = res.FAIL;
+          return false;
+        }
       } while ( timedout );
     }
     cmd_sent = 0;
@@ -795,8 +812,9 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
       retry++;
       if (retry > max_retry)
       {
-        ROS_FATAL("Too much retry for READ back, try flashing again");
-        return true;
+        ROS_ERROR("Too much retry for READ back, try flashing again");
+        res.value = res.FAIL;
+        return false;
       }
     } while ( timedout );
   }
