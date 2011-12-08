@@ -399,7 +399,7 @@ namespace shadow_robot
               ss << " None";
             d.addf("Motor Flags", "%s", ss.str().c_str());
 
-            d.addf("Measured PWM", "%f", state->pwm_);
+            d.addf("Measured PWM", "%d", state->pwm_);
             d.addf("Measured Current", "%f", state->last_measured_current_);
             d.addf("Measured Voltage", "%f", state->motor_voltage_);
             d.addf("Measured Effort", "%f", state->last_measured_effort_);
@@ -601,7 +601,7 @@ namespace shadow_robot
         break;
       case MOTOR_DATA_PWM:
         actuator->state_.pwm_ =
-          static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
+          static_cast<int>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
         break;
       case MOTOR_DATA_FLAGS:
         actuator->state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
@@ -762,7 +762,7 @@ namespace shadow_robot
 #ifdef DEBUG_PUBLISHER
 	if( joint_tmp->motor->motor_id == 8 )
         {
-          //ROS_ERROR_STREAM("Torque " << static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
+          ROS_ERROR_STREAM("Torque " << static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
           msg_debug.data = static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque);
           debug_publishers[4].publish(msg_debug);
         }
