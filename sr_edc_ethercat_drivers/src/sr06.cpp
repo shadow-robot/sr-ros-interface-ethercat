@@ -70,7 +70,7 @@ const unsigned short int SR06::ros_pub_freq_const         = 1000;
 const unsigned short int SR06::max_iter_const             = device_pub_freq_const / ros_pub_freq_const;
 const unsigned int       SR06::nb_sensors_const           = ETHERCAT_STATUS_DATA_SIZE/2; //36;
 const unsigned char      SR06::nb_publish_by_unpack_const = (nb_sensors_const % max_iter_const) ? (nb_sensors_const / max_iter_const) + 1 : (nb_sensors_const / max_iter_const);
-const unsigned int       SR06::max_retry                  = 10;
+const unsigned int       SR06::max_retry                  = 20;
 
 #define ETHERCAT_CAN_BRIDGE_DATA_SIZE sizeof(ETHERCAT_CAN_BRIDGE_DATA)
 
@@ -316,7 +316,7 @@ void SR06::erase_flash(void)
   int err;
 
   do {
-    ROS_INFO("Sending the ERASE FLASH command");
+    ROS_INFO("Erasing FLASH");
     // First we send the erase command
     cmd_sent = 0;
     while (! cmd_sent )
@@ -387,7 +387,7 @@ bool SR06::read_flash(unsigned int offset, unsigned char baddrl, unsigned char b
   {
     if ( !(err = pthread_mutex_trylock(&producing)) )
     {
-      ROS_INFO("Sending READ data ... position : %d", pos);
+      ROS_DEBUG("Sending READ data ... position : %03x", pos);
       can_message_.can_bus = can_bus_;
       can_message_.message_length = 3;
       can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | READ_FLASH_COMMAND;
@@ -488,7 +488,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   binary_content = NULL;
   flashing = true;
 
-  ROS_WARN("Flashing the motor\n");
+  ROS_INFO("Flashing the motor");
 
   bfd_init();
 
@@ -539,7 +539,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     }
   }
 
-  ROS_INFO_STREAM("Sending magic CAN packet to put the motor "<< motor_being_flashed << " in bootloading mode on bus: "<<can_bus_);
+  ROS_INFO_STREAM("Switching motor "<< motor_being_flashed << " on CAN bus " << can_bus_ << " into bootloader mode");
   cmd_sent = 0;
   while ( !cmd_sent )
   {
@@ -650,11 +650,11 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     }
   }
   total_size = biggest_end_address - smallest_start_address;
-  binary_content = (bfd_byte *)malloc(total_size);
+  binary_content = (bfd_byte *)malloc(total_size+8);
   if (binary_content == NULL)
     ROS_FATAL("Error allocating memory for binary_content");
-  memset(binary_content, 0xFF, total_size);
 
+  memset(binary_content, 0xFF, total_size+8);
 
   for (s = fd->sections ; s ; s = s->next)
   {
@@ -684,7 +684,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
 
   pos = 0;
   unsigned int packet = 0;
-  ROS_INFO("Sending the firmware data\n");
+  ROS_INFO("Sending the firmware data");
   while ( pos < ((total_size % 32) == 0 ? total_size : (total_size + 32 - (total_size % 32))) )
   {
     if ((pos % 32) == 0)
@@ -743,7 +743,8 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
         bzero(can_message_.message_data, 8);
         for (unsigned char j = 0 ; j < 8 ; ++j)
           can_message_.message_data[j] = (pos > total_size) ? 0xFF : *(binary_content + pos + j);
-        pos += 8;
+
+	pos += 8;
         cmd_sent = 1;
         unlock(&producing);
       }
@@ -779,6 +780,8 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   // We do not need the file anymore
   bfd_close(fd);
 
+  ROS_INFO("Verifying");
+
   // Now we have to read back the flash content
   pos = 0;
   unsigned int retry;
@@ -799,7 +802,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   }
 
   free(binary_content);
-  ROS_INFO("Sending the RESET command to PIC18F");
+  ROS_INFO("Resetting microcontroller.");
   // Then we send the RESET command to PIC18F
   cmd_sent = 0;
   while (! cmd_sent )
@@ -924,6 +927,7 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
       ROS_DEBUG("We're sending a CAN message for flashing.");
       memcpy(message, &can_message_, sizeof(can_message_));
       can_message_sent = true;
+
       ROS_DEBUG("Sending : SID : 0x%04X ; bus : 0x%02X ; length : 0x%02X ; data : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
 		message->message_id,
                 message->can_bus,
@@ -967,15 +971,51 @@ bool SR06::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
   int i;
 
   if (packet->message_id == 0)
+  {
+    ROS_DEBUG("ID is zero");
     return false;
+  }
 
   ROS_DEBUG("ack sid : %04X", packet->message_id);
 
+  // Is this a reply to a READ request?
   if ( (packet->message_id & 0b0000011111111111) == (0x0600 | (motor_being_flashed << 5) | 0x10 | READ_FLASH_COMMAND))
-    return ( !memcmp(packet->message_data, binary_content + pos, 8) );
+  {
+    ROS_DEBUG("READ reply  %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", packet->message_data[0],
+              packet->message_data[1],
+              packet->message_data[2],
+              packet->message_data[3],
+              packet->message_data[4],
+              packet->message_data[5],
+              packet->message_data[6],
+              packet->message_data[7]  );
+    ROS_DEBUG("Should be   %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", binary_content[pos+0],
+              binary_content[pos+1],
+              binary_content[pos+2],
+              binary_content[pos+3],
+              binary_content[pos+4],
+              binary_content[pos+5],
+              binary_content[pos+6],
+              binary_content[pos+7]  );
+
+      if ( !memcmp(packet->message_data, binary_content + pos, 8) )
+      {
+        ROS_DEBUG("data is good");
+        return true;
+      }
+      else
+      {
+        ROS_DEBUG("data is bad");
+        return false;
+      }
+  }
 
   if (packet->message_length != can_message_.message_length)
+  {
+    ROS_DEBUG("Length is bad: %d", packet->message_length);
     return false;
+  }
+
   ROS_DEBUG("Length is OK");
 
   for (i = 0 ; i < packet->message_length ; ++i)
@@ -993,7 +1033,7 @@ bool SR06::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
 
   if ( (packet->message_id & 0b0000000111101111) != (can_message_.message_id & 0b0000000111101111) )
   {
-    ROS_ERROR_STREAM("Bad packet id: " << packet->message_id);
+    ROS_WARN_STREAM("Bad packet id: " << packet->message_id);
     return false;
   }
 
