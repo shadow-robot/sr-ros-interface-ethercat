@@ -703,7 +703,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
             can_message_.message_data[2] = addru + ((pos + addrl + (addrh << 8)) >> 16);
             can_message_.message_data[1] = addrh + ((pos + addrl) >> 8); // User application start address is 0x4C0
             can_message_.message_data[0] = addrl + pos;
-            //ROS_INFO("Sending write address to motor %d : 0x%02X%02X%02X", motor_being_flashed, can_message_.message_data[2], can_message_.message_data[1], can_message_.message_data[0]);
+            ROS_DEBUG("Sending write address to motor %d : 0x%02X%02X%02X", motor_being_flashed, can_message_.message_data[2], can_message_.message_data[1], can_message_.message_data[0]);
             cmd_sent = 1;
             unlock(&producing);
           }
@@ -736,7 +736,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     {
       if ( !(err = pthread_mutex_trylock(&producing)) )
       {
-        //ROS_INFO("Sending data ... position == %d", pos);
+        ROS_DEBUG("Sending data ... position == %d", pos);
         can_message_.message_length = 8;
         can_message_.can_bus = can_bus_;
         can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_DATA_COMMAND;
@@ -925,7 +925,7 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
       ROS_DEBUG("We're sending a CAN message for flashing.");
       memcpy(message, &can_message_, sizeof(can_message_));
       can_message_sent = true;
-      /*
+
       ROS_DEBUG("Sending : SID : 0x%04X ; bus : 0x%02X ; length : 0x%02X ; data : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
 		message->message_id,
                 message->can_bus,
@@ -938,7 +938,7 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
                 message->message_data[5],
                 message->message_data[6],
                 message->message_data[7]);
-       */
+
       unlock(&producing);
     }
     else
@@ -968,56 +968,53 @@ bool SR06::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
 {
   int i;
 
-  //ROS_INFO("SR06::can_data_is_ack");
-  
   if (packet->message_id == 0)
   {
-    //ROS_INFO("ID is zero");
+    ROS_DEBUG("ID is zero");
     return false;
   }
 
-  //ROS_INFO("ack sid : %04X", packet->message_id);
+  ROS_DEBUG("ack sid : %04X", packet->message_id);
 
   // Is this a reply to a READ request?
   if ( (packet->message_id & 0b0000011111111111) == (0x0600 | (motor_being_flashed << 5) | 0x10 | READ_FLASH_COMMAND))
   {
-    /*
-    ROS_INFO("READ reply  %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", packet->message_data[0],
-                                                                    packet->message_data[1],
-                                                                    packet->message_data[2],
-                                                                    packet->message_data[3],
-                                                                    packet->message_data[4],
-                                                                    packet->message_data[5],
-                                                                    packet->message_data[6],
-                                                                    packet->message_data[7]  );
-    ROS_INFO("Should be   %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", binary_content[pos+0],
-                                                                    binary_content[pos+1],
-                                                                    binary_content[pos+2],
-                                                                    binary_content[pos+3],
-                                                                    binary_content[pos+4],
-                                                                    binary_content[pos+5],
-                                                                    binary_content[pos+6],
-                                                                    binary_content[pos+7]  );
-    */
-    if ( !memcmp(packet->message_data, binary_content + pos, 8) )
-    {
-      //ROS_INFO("data is good");
-      return true;
-    }
-    else
-    {
-      ROS_INFO("data is bad");
-      return false;
-    }
+    ROS_DEBUG("READ reply  %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", packet->message_data[0],
+              packet->message_data[1],
+              packet->message_data[2],
+              packet->message_data[3],
+              packet->message_data[4],
+              packet->message_data[5],
+              packet->message_data[6],
+              packet->message_data[7]  );
+    ROS_DEBUG("Should be   %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", binary_content[pos+0],
+              binary_content[pos+1],
+              binary_content[pos+2],
+              binary_content[pos+3],
+              binary_content[pos+4],
+              binary_content[pos+5],
+              binary_content[pos+6],
+              binary_content[pos+7]  );
+
+      if ( !memcmp(packet->message_data, binary_content + pos, 8) )
+      {
+        ROS_DEBUG("data is good");
+        return true;
+      }
+      else
+      {
+        ROS_DEBUG("data is bad");
+        return false;
+      }
   }
-  
+
   if (packet->message_length != can_message_.message_length)
   {
-    ROS_INFO("Length is bad: %d", packet->message_length);
+    ROS_DEBUG("Length is bad: %d", packet->message_length);
     return false;
   }
-  
-  //ROS_INFO("Length is OK");
+
+  ROS_DEBUG("Length is OK");
 
   for (i = 0 ; i < packet->message_length ; ++i)
   {
@@ -1025,22 +1022,22 @@ bool SR06::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
     if (packet->message_data[i] != can_message_.message_data[i])
       return false;
   }
-  //ROS_INFO("Data is OK");
+  ROS_DEBUG("Data is OK");
 
   if ( !(0x0010 & packet->message_id))
     return false;
 
-  //ROS_INFO("This is an ACK");
+  ROS_DEBUG("This is an ACK");
 
   if ( (packet->message_id & 0b0000000111101111) != (can_message_.message_id & 0b0000000111101111) )
   {
-    ROS_INFO_STREAM("Bad packet id: " << packet->message_id);
+    ROS_WARN_STREAM("Bad packet id: " << packet->message_id);
     return false;
   }
 
-  //ROS_INFO("SID is OK");
+  ROS_DEBUG("SID is OK");
 
-  //ROS_INFO("Everything is OK, this is our ACK !");
+  ROS_DEBUG("Everything is OK, this is our ACK !");
   return true;
 }
 
@@ -1136,7 +1133,6 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   //If we're flashing, check is the packet has been acked
   if (flashing & !can_packet_acked)
   {
-    //ROS_ERROR("Flashing");
     if (can_data_is_ack(can_data))
     {
       can_packet_acked = true;
