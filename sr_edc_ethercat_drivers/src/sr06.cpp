@@ -503,7 +503,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   {
     if (bfd_get_error () != bfd_error_file_ambiguously_recognized)
     {
-      ROS_FATAL("Incompatible format");
+      ROS_ERROR("Incompatible format");
       res.value = res.FAIL;
       return false;
     }
