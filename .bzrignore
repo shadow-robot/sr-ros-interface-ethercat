@@ -22,3 +22,4 @@ sr_external_dependencies/include/sr_external_dependencies/external/0220_palm_edc
 ￼
 sr_external_dependencies/include/sr_external_dependencies/external/simplemotor-bootloader
 sr_external_dependencies/ROS_NOBUILD
+sr_edc_ethercat_drivers/bin/test_clock

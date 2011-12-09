@@ -42,3 +42,11 @@ rosbuild_add_link_flags(sr_edc_ethercat_drivers -lbfd)
 #   EXAMPLES  #
 ###############
 rosbuild_add_executable(examples/send_targets examples/send_targets.cpp)
+
+###############
+#    TESTS    #
+###############
+rosbuild_add_executable(test_clock test/test_clock_resolution.cpp)
+rosbuild_link_boost (test_clock thread system)
+target_link_libraries (test_clock rt)
+
