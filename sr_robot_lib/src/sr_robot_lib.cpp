@@ -690,10 +690,10 @@ namespace shadow_robot
         case MOTOR_SLOW_DATA_ASSEMBLY_DATE_MMDD:
           actuator->state_.assembly_data_month =
             static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)
-                                      / 100);
+                                      >> 8);
           actuator->state_.assembly_data_day =
-            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc))
-            - actuator->state_.assembly_data_month;
+            static_cast<unsigned int>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)
+                                      && 0x00FF);
           break;
         case MOTOR_SLOW_DATA_CONTROLLER_F:
           actuator->state_.force_control_f_ =
