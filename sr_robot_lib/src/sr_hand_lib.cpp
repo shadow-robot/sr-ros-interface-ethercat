@@ -408,6 +408,10 @@ namespace shadow_robot
                                    request.sgrightref, request.f, request.p, request.i,
                                    request.d, request.imax, request.deadband, request.sign );
     response.configured = true;
+
+    //Reinitialize motors information
+    reinitialize_motors();
+
     return true;
   }
 

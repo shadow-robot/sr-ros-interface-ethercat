@@ -17,9 +17,11 @@ sr_robot_lib/.pydevproject
 sr_robot_lib/cmake_install.cmake
 sr_robot_lib/include/sr_robot_lib/generic_tactiles.hpp
 sr_robot_lib/src/generic_tactiles.cpp
-￼
 sr_external_dependencies/include/sr_external_dependencies/external/0220_palm_edc
-￼
 sr_external_dependencies/include/sr_external_dependencies/external/simplemotor-bootloader
 sr_external_dependencies/ROS_NOBUILD
 sr_edc_ethercat_drivers/bin/test_clock
+sr_edc_ethercat_drivers/.cproject
+sr_edc_ethercat_drivers/.project
+sr_edc_ethercat_drivers/.pydevproject
+sr_edc_ethercat_drivers/cmake_install.cmake
