@@ -44,8 +44,10 @@ namespace shadow_robot
 #endif
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
-    : main_pic_idle_time(0), main_pic_idle_time_min(1000), config_index(MOTOR_CONFIG_FIRST_VALUE), nh_tilde("~"), motor_current_state(
-      operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION)
+    : main_pic_idle_time(0), main_pic_idle_time_min(1000), motor_current_state(
+      operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
+      config_index(MOTOR_CONFIG_FIRST_VALUE),
+      nh_tilde("~")
   {
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
@@ -271,13 +273,25 @@ namespace shadow_robot
     {
       if (!reset_motors_queue.empty())
       {
+        //reset the CAN messages counters for the motor we're going to reset.
+        short motor_id = reset_motors_queue.front();
+        boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
+        for (; joint_tmp != joints_vector.end(); ++joint_tmp)
+        {
+          if( joint_tmp->motor->motor_id == motor_id )
+          {
+            joint_tmp->motor->actuator->state_.can_msgs_transmitted_ = 0;
+            joint_tmp->motor->actuator->state_.can_msgs_received_ = 0;
+          }
+        }
+
         //we have some reset command waiting.
         // We'll send all of them
         command->to_motor_data_type = MOTOR_SYSTEM_RESET;
 
         while (!reset_motors_queue.empty())
         {
-          short motor_id = reset_motors_queue.front();
+          motor_id = reset_motors_queue.front();
           reset_motors_queue.pop();
 
           // we send the MOTOR_RESET_SYSTEM_KEY
