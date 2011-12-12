@@ -869,9 +869,7 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
   diagnostic_updater::DiagnosticStatusWrapper &d(diagnostic_status_);
 
   stringstream name;
-  name << "EtherCAT Device #" << setw(2) << setfill('0')
-       << sh_->get_ring_position() << " (Product SIX)";
-  d.name = name.str();
+  d.name = "EtherCAT Dual CAN Palm";
   d.summary(d.OK, "OK");
   stringstream hwid;
   hwid << sh_->get_product_code() << "-" << sh_->get_serial();
