@@ -116,6 +116,19 @@ private:
   int can_bus_;
 
   /**
+   * Contains the common procedure to send a CAN message (i.e. write it in the global struct from which it is read, added to the
+   * next ethercat frame, and sent) and wait for the can_packet_acked flag to be set
+   *
+   * @param can_bus which of the 2 CAN buses (0 or 1) wil be used
+   * @param msg_id id of the CAN message
+   * @param msg_length the length in bytes of msg_data
+   * @param msg_data data of the CAN message
+   * @param timeout time max (in ms) to wait for the can_packet_acked flag to be set
+   * @param timedout if true, the can_packet_acked flag wasn't set before the timeout
+   */
+  void send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], unsigned int timeout, bool *timedout);
+
+  /**
    * Extract the filename from the full path.
    *
    * @param full_path The full path.

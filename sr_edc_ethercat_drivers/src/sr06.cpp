@@ -511,120 +511,23 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
 
   ROS_INFO("firmware %s's format is : %s.", get_filename(req.firmware).c_str(), fd->xvec->name);
 
+  //TODO Check if it's necessary to send this dummy packet before the magic packet
   ROS_DEBUG("Sending dummy packet");
-  cmd_sent = 0;
-  while ( !cmd_sent )
-  {
-    if ( !(err = pthread_mutex_trylock(&producing)) )
-    {
-      can_message_.message_length = 0;
-      can_message_.can_bus = can_bus_;
-      can_message_.message_id = 0;
-      cmd_sent = 1;
-      unlock(&producing);
-    }
-    else
-    {
-      check_for_trylock_error(err);
-    }
-  }
-  wait_time = 0;
-  timeout = 1;
-  timedout = false;
-  can_message_sent = false;
-  can_packet_acked = false;
-  while ( !can_packet_acked )
-  {
-    usleep(1000); // 1 ms
-    wait_time++;
-    if (wait_time > timeout) {
-      timedout = true;
-      break;
-    }
-  }
+  //The dummy packet really is of length 0, but the array must be at least of dimension 1 for the compiler to accept it, even if the value is not used
+  int8u dummy_packet[] = {0};
+  send_CAN_msg(can_bus_, 0, 0, dummy_packet, 1, &timedout);
+
 
   ROS_INFO_STREAM("Switching motor "<< motor_being_flashed << " on CAN bus " << can_bus_ << " into bootloader mode");
-  cmd_sent = 0;
-  while ( !cmd_sent )
-  {
-    if ( !(err = pthread_mutex_trylock(&producing)) )
-    {
-      can_message_.message_length = 8;
-      can_message_.can_bus = can_bus_;
-      can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | 0b1010;
 
-      can_message_.message_data[0] = 0x55;
-      can_message_.message_data[1] = 0xAA;
-      can_message_.message_data[2] = 0x55;
-      can_message_.message_data[3] = 0xAA;
-      can_message_.message_data[4] = 0x55;
-      can_message_.message_data[5] = 0xAA;
-      can_message_.message_data[6] = 0x55;
-      can_message_.message_data[7] = 0xAA;
-      cmd_sent = 1;
-      unlock(&producing);
-    }
-    else
-    {
-      check_for_trylock_error(err);
-    }
-  }
-  wait_time = 0;
-  timeout = 100;
-  timedout = false;
-  can_message_sent = false;
-  can_packet_acked = false;
-  while ( !can_packet_acked )
-  {
-    usleep(1000); // 1 ms
-    wait_time++;
-    if (wait_time > timeout) {
-      timedout = true;
-      break;
-    }
-  }
+  int8u magic_packet[] = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA};
+  send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | 0b1010, 8, magic_packet, 100, &timedout);
 
   if ( timedout ) {
     ROS_WARN("First magic CAN packet timedout");
     ROS_WARN("Sending another magic CAN packet to put the motor in bootloading mode");
-    cmd_sent = 0;
-    while ( !cmd_sent )
-    {
-      if ( !(err = pthread_mutex_trylock(&producing)) )
-      {
-        can_message_.message_length = 8;
-        can_message_.can_bus = can_bus_;
-        can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | 0b1010;
-        can_message_.message_data[0] = 0x55;
-        can_message_.message_data[1] = 0xAA;
-        can_message_.message_data[2] = 0x55;
-        can_message_.message_data[3] = 0xAA;
-        can_message_.message_data[4] = 0x55;
-        can_message_.message_data[5] = 0xAA;
-        can_message_.message_data[6] = 0x55;
-        can_message_.message_data[7] = 0xAA;
-        cmd_sent = 1;
-        unlock(&producing);
-      }
-      else
-      {
-        check_for_trylock_error(err);
-      }
-    }
-    wait_time = 0;
-    timeout = 100;
-    timedout = false;
-    can_message_sent = false;
-    can_packet_acked = false;
-    while ( !can_packet_acked )
-    {
-      usleep(1000); // 1 ms
-      wait_time++;
-      if (wait_time > timeout) {
-        timedout = true;
-        break;
-      }
-    }
+    send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | 0b1010, 8, magic_packet, 100, &timedout);
+
     if (timedout)
     {
       ROS_ERROR("None of the magic packets were ACKed, didn't bootload the motor.");
@@ -818,6 +721,8 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
       }
     } while ( timedout );
   }
+
+  //TODO the read back content is not being compared with the original content we wanted to write
 
   free(binary_content);
   ROS_INFO("Resetting microcontroller.");
@@ -1165,6 +1070,50 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
   return true;
 }
+
+void SR06::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], unsigned int timeout, bool *timedout)
+{
+  int err;
+  unsigned char cmd_sent;
+  int wait_time;
+
+  cmd_sent = 0;
+  while ( !cmd_sent )
+  {
+    if ( !(err = pthread_mutex_trylock(&producing)) )
+    {
+      can_message_.message_length = msg_length;
+      can_message_.can_bus = can_bus;
+      can_message_.message_id = msg_id;
+
+      for(unsigned int i = 0; i<msg_length; i++)
+      {
+        can_message_.message_data[i] = msg_data[i];
+      }
+
+      cmd_sent = 1;
+      unlock(&producing);
+    }
+    else
+    {
+      check_for_trylock_error(err);
+    }
+  }
+  wait_time = 0;
+  *timedout = false;
+  can_message_sent = false;
+  can_packet_acked = false;
+  while ( !can_packet_acked )
+  {
+    usleep(1000); // 1 ms
+    wait_time++;
+    if (wait_time > timeout) {
+      *timedout = true;
+      break;
+    }
+  }
+}
+
 
 /* For the emacs weenies in the crowd.
    Local Variables:
