@@ -66,7 +66,8 @@ public:
   bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
   bool can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet);
   void erase_flash();
-  bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
+  //bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
+  bool read_flash(unsigned int offset, unsigned int baddr);
 
 protected:
   int                                                                  counter_;
@@ -127,6 +128,26 @@ private:
    * @param timedout if true, the can_packet_acked flag wasn't set before the timeout
    */
   void send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], unsigned int timeout, bool *timedout);
+
+
+  bool read_back_and_check_flash(unsigned int baddr, unsigned int total_size);
+
+  /**
+   * Look for the start and end address of every section in the hex file,
+   * to detect the lowest and highest address of the data we need to write in the PIC's flash.
+   * The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
+   * (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
+   * To understand the structure (sections) of the object file containing the firmware (usually a .hex) the following commands can be useful:
+   *   \code objdump -x simplemotor.hex \endcode
+   *   \code objdump -s simplemotor.hex \endcode
+   *
+   * @param fd pointer to a bfd file structure
+   * @param smallest_start_address the lowest address found is returned through this pointer
+   * @param biggest_end_address the highest address found is returned through this pointer
+   */
+  void find_address_range(bfd *fd, unsigned int *smallest_start_address, unsigned int *biggest_end_address);
+
+  bool read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned int base_addr);
 
   /**
    * Extract the filename from the full path.

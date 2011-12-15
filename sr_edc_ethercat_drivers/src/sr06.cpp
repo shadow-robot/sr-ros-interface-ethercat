@@ -363,19 +363,17 @@ void SR06::erase_flash(void)
  *  This function is here to read back what we flashed into the PIC18F
  *  To check that there was no flashing transmission or writting error
  *  during the Flashing process.
- *  8 bytes will be read, from address (baddru << 16) + (baddrh << 8) + baddrl + offset
+ *  8 bytes will be read, from address baddr + offset
  *  This function will fill the can_message_ structure with the correct value
  *  to allow the packCommand() function to send the correct etherCAT message
  *  to the PIC32 which will then send the correct CAN message to the PIC18F
  *
  * @param offset The position of the 8 bytes we want to read, relative to the base address
- * @param baddrl least significant byte of the base address
- * @param baddrh middle byte of the base address
- * @param baddru upper byte of the base address
+ * @param baddr the base address
  *
  * @return Returns true if the command has timed out, false if the command was properly acknowledged
  */
-bool SR06::read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru)
+bool SR06::read_flash(unsigned int offset, unsigned int baddr)
 {
   unsigned int cmd_sent;
   int err;
@@ -391,9 +389,9 @@ bool SR06::read_flash(unsigned int offset, unsigned char baddrl, unsigned char b
       can_message_.can_bus = can_bus_;
       can_message_.message_length = 3;
       can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | READ_FLASH_COMMAND;
-      can_message_.message_data[2] = baddru + ((offset + baddrl + (baddrh << 8)) >> 16);
-      can_message_.message_data[1] = baddrh + ((offset + baddrl) >> 8); // User application start address is 0x4C0
-      can_message_.message_data[0] = baddrl + offset;
+      can_message_.message_data[2] = (offset + baddr) >> 16;
+      can_message_.message_data[1] = (offset + baddr) >> 8; // User application start address is 0x4C0
+      can_message_.message_data[0] = offset + baddr;
       cmd_sent = 1;
       unlock(&producing);
     }
@@ -433,6 +431,12 @@ bool SR06::read_flash(unsigned int offset, unsigned char baddrl, unsigned char b
  *
  *  This service will first read all the sections of the firmware using libbfd and find out the lowest and highest addresses containing code.
  *  Then it will allocate an array to contain the firmware's code. The size is (highest_addr - lowest_addr).
+ *  The bfd library provides functions to manage object files more easily. To better understand some of the concepts used below,
+ *  the following link can be useful:
+ *  http://www.delorie.com/gnu/docs/binutils/ld_7.html
+ *  The use of the following commands can also help to understand the structure of the object file containing the firmware
+ *  \code objdump -x simplemotor.hex \endcode
+ *  \code objdump -s simplemotor.hex \endcode
  *
  *  - Then it will send a MAGIC PACKET command to the PIC18F which will make it reboot in bootloader mode (regardless of whether it was already in
  *  bootloader mode or whether it was running the SimpleMotor code)
@@ -458,14 +462,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   int err;
   unsigned char cmd_sent;
   bfd *fd;
-  asection *s;
-  //const char *section_name;
-  unsigned int section_size = 0;
-  unsigned int section_addr = 0;
-  unsigned char addrl;
-  unsigned char addrh;
-  unsigned char addru;
-  int nb_sections;
+  unsigned int base_addr;
   unsigned int smallest_start_address = 0x7fff;
   unsigned int biggest_end_address = 0;
   unsigned int total_size = 0;
@@ -482,7 +479,9 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     can_bus_ = 2;
   }
   else
+  {
     can_bus_ = 1;
+  }
 
   motor_being_flashed = motor_id_tmp;
   binary_content = NULL;
@@ -490,8 +489,10 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
 
   ROS_INFO("Flashing the motor");
 
+  //Initialize the bfd library: "This routine must be called before any other BFD function to initialize magical internal data structures."
   bfd_init();
 
+  //Open the requested firmware object file
   fd = bfd_openr(req.firmware.c_str(), NULL);
   if (fd == NULL)
   {
@@ -499,6 +500,8 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     res.value = res.FAIL;
     return false;
   }
+
+  //Check that bfd recognises the file as a correctly formatted object file
   if (!bfd_check_format (fd, bfd_object))
   {
     if (bfd_get_error () != bfd_error_file_ambiguously_recognized)
@@ -517,12 +520,12 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   int8u dummy_packet[] = {0};
   send_CAN_msg(can_bus_, 0, 0, dummy_packet, 1, &timedout);
 
-
   ROS_INFO_STREAM("Switching motor "<< motor_being_flashed << " on CAN bus " << can_bus_ << " into bootloader mode");
-
+  //Send the magic packet that will force the microcontroller to go into bootloader mode
   int8u magic_packet[] = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA};
   send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | 0b1010, 8, magic_packet, 100, &timedout);
 
+  //Send a second magic packet if the first one wasn't acknowledged
   if ( timedout ) {
     ROS_WARN("First magic CAN packet timedout");
     ROS_WARN("Sending another magic CAN packet to put the motor in bootloading mode");
@@ -536,27 +539,21 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     }
   }
 
+  //Erase the PIC18 microcontroller flash memory
   erase_flash();
 
   sleep(1);
 
-  for (s = fd->sections ; s ; s = s->next)
-  {
-    if (bfd_get_section_flags (fd, s) & (SEC_LOAD))
-    {
-      if (bfd_section_lma (fd, s) == bfd_section_vma (fd, s))
-      {
-        section_addr = (unsigned int) bfd_section_lma (fd, s);
-        if (section_addr >= 0x7fff)
-          continue;
-        nb_sections++;
-        section_size = (unsigned int) bfd_section_size (fd, s);
-        smallest_start_address = min(section_addr, smallest_start_address);
-        biggest_end_address = max(biggest_end_address, section_addr + section_size);
-      }
-    }
-  }
+  //Look for the start and end address of every section in the hex file,
+  //to detect the lowest and highest address of the data we need to write in the PIC's flash.
+  find_address_range(fd, &smallest_start_address, &biggest_end_address);
+
+  //Calculate the size of the chunk of data to be flashed
   total_size = biggest_end_address - smallest_start_address;
+  base_addr = smallest_start_address;
+
+  //Allocate the memory space to store the data to be flashed
+  //This could be done with new bfd_byte[total_size+8] and delete() instead of malloc() and free() but will stay this way for the moment
   binary_content = (bfd_byte *)malloc(total_size+8);
   if (binary_content == NULL)
   {
@@ -566,37 +563,22 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
 
   }
 
+  //Set all the bytes in the binary_content to 0xFF initially (i.e. before reading the content from the hex file)
+  //This way we make sure that any byte in the region between smallest_start_address and biggest_end_address
+  //that is not included in any section of the hex file, will be written with a 0xFF value, which is the default in the PIC
   memset(binary_content, 0xFF, total_size+8);
 
-  for (s = fd->sections ; s ; s = s->next)
+  //The content of the firmware is read from the .hex file pointed by fd, to a memory region pointed by binary_content
+  if(!read_content_from_object_file(fd, binary_content, base_addr))
   {
-    if (bfd_get_section_flags (fd, s) & (SEC_LOAD))
-    {
-      if (bfd_section_lma (fd, s) == bfd_section_vma (fd, s))
-      {
-        section_addr = (unsigned int) bfd_section_lma (fd, s);
-        if (section_addr >= 0x7fff)
-          continue;
-        section_size = (unsigned int) bfd_section_size (fd, s);
-        bfd_get_section_contents(fd, s, binary_content + (section_addr - smallest_start_address), 0, section_size);
-      }
-      else
-      {
-        ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
-        res.value = res.FAIL;
-        return false;
-      }
-    }
-    else
-    {
-      ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
-      res.value = res.FAIL;
-      return false;
-    }
+    ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
+    res.value = res.FAIL;
+    return false;
   }
-  addrl = smallest_start_address & 0xff;
-  addrh = (smallest_start_address & 0xff00) >> 8;
-  addru = smallest_start_address >> 16;
+
+  // We do not need the file anymore
+  bfd_close(fd);
+
 
   pos = 0;
   unsigned int packet = 0;
@@ -616,9 +598,9 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
             can_message_.message_length = 3;
             can_message_.can_bus = can_bus_;
             can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_ADDRESS_COMMAND;
-            can_message_.message_data[2] = addru + ((pos + addrl + (addrh << 8)) >> 16);
-            can_message_.message_data[1] = addrh + ((pos + addrl) >> 8); // User application start address is 0x4C0
-            can_message_.message_data[0] = addrl + pos;
+            can_message_.message_data[2] = (base_addr + pos) >> 16;
+            can_message_.message_data[1] = (base_addr + pos) >> 8; // User application start address is 0x4C0
+            can_message_.message_data[0] = base_addr + pos;
             ROS_DEBUG("Sending write address to motor %d : 0x%02X%02X%02X", motor_being_flashed, can_message_.message_data[2], can_message_.message_data[1], can_message_.message_data[0]);
             cmd_sent = 1;
             unlock(&producing);
@@ -697,59 +679,25 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     }
   }
 
-  // We do not need the file anymore
-  bfd_close(fd);
-
   ROS_INFO("Verifying");
-
   // Now we have to read back the flash content
-  pos = 0;
-  unsigned int retry;
-  while (pos < total_size)
+  if( !read_back_and_check_flash(base_addr, total_size))
   {
-    retry = 0;
-    do {
-      timedout = read_flash(pos, addrl, addrh, addru);
-      if ( ! timedout )
-        pos += 8;
-      retry++;
-      if (retry > max_retry)
-      {
-        ROS_ERROR("Too much retry for READ back, try flashing again");
-        res.value = res.FAIL;
-        return false;
-      }
-    } while ( timedout );
+    res.value = res.FAIL;
+    return false;
   }
 
-  //TODO the read back content is not being compared with the original content we wanted to write
 
   free(binary_content);
+
   ROS_INFO("Resetting microcontroller.");
   // Then we send the RESET command to PIC18F
-  cmd_sent = 0;
-  while (! cmd_sent )
-  {
-    if ( !(err = pthread_mutex_trylock(&producing)) )
-    {
-      can_message_.message_length = 0;
-      can_message_.can_bus = can_bus_;
-      can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | RESET_COMMAND;
-      cmd_sent = 1;
-      unlock(&producing);
-    }
-    else
-    {
-      check_for_trylock_error(err);
-    }
-  }
+  do {
+    //The reset packet really has length 0, but the array must be at least of dimension 1 for the compiler to accept it, even if the value is not used
+    int8u reset_packet[] = {0x00};
+    send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | RESET_COMMAND, 0, reset_packet, 1000, &timedout);
+  } while ( timedout );
 
-  can_message_sent = false;
-  can_packet_acked = false;
-  while ( !can_packet_acked )
-  {
-    usleep(1);
-  }
 
   flashing = false;
 
@@ -1112,6 +1060,103 @@ void SR06::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u ms
       break;
     }
   }
+}
+
+bool SR06::read_back_and_check_flash(unsigned int baddr, unsigned int total_size)
+{
+  bool timedout;
+  // The actual comparison between the content read from the flash and the content read from the hex file is carried out
+  // in the can_data_is_ack() function.
+  // read_flash(...) will return timedout = true if the 8 byte content read from the flash doesn't match the 8 bytes from the hex file
+  //BE CAREFUL with the pos "global" field, because it's being used inside can_data_is_ack() function to check if the response
+  //of the READ_FLASH_COMMAND is correct
+  pos = 0;
+  unsigned int retry;
+  while (pos < total_size)
+  {
+    retry = 0;
+    do {
+      timedout = read_flash(pos, baddr);
+      if ( ! timedout )
+        pos += 8;
+      retry++;
+      if (retry > max_retry)
+      {
+        ROS_ERROR("Too much retry for READ back, try flashing again");
+        return false;
+      }
+    } while ( timedout );
+  }
+  return true;
+}
+
+void SR06::find_address_range(bfd *fd, unsigned int *smallest_start_address, unsigned int *biggest_end_address)
+{
+  asection *s;
+  unsigned int section_size = 0;
+  unsigned int section_addr = 0;
+
+  //Look for the start and end address of every section in the hex file,
+  //to detect the lowest and highest address of the data we need to write in the PIC's flash.
+  //The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
+  //(they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
+  //To understand the structure (sections) of the object file containing the firmware (usually a .hex) the following commands can be useful:
+  //  \code objdump -x simplemotor.hex \endcode
+  //  \code objdump -s simplemotor.hex \endcode
+  for (s = fd->sections ; s ; s = s->next)
+  {
+    //Only the sections with the LOAD flag on will be considered
+    if (bfd_get_section_flags (fd, s) & (SEC_LOAD))
+    {
+      //Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
+      //http://www.delorie.com/gnu/docs/binutils/ld_7.html
+      if (bfd_section_lma (fd, s) == bfd_section_vma (fd, s))
+      {
+        section_addr = (unsigned int) bfd_section_lma (fd, s);
+        if (section_addr >= 0x7fff)
+          continue;
+        section_size = (unsigned int) bfd_section_size (fd, s);
+        *smallest_start_address = min(section_addr, *smallest_start_address);
+        *biggest_end_address = max(*biggest_end_address, section_addr + section_size);
+      }
+    }
+  }
+}
+
+bool SR06::read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned int base_addr)
+{
+  asection *s;
+  unsigned int section_size = 0;
+  unsigned int section_addr = 0;
+
+  for (s = fd->sections ; s ; s = s->next)
+  {
+    //Only the sections with the LOAD flag on will be considered
+    if (bfd_get_section_flags (fd, s) & (SEC_LOAD))
+    {
+      //Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
+      //http://www.delorie.com/gnu/docs/binutils/ld_7.html
+      if (bfd_section_lma (fd, s) == bfd_section_vma (fd, s))
+      {
+        section_addr = (unsigned int) bfd_section_lma (fd, s);
+        //The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
+        //(they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
+        if (section_addr >= 0x7fff)
+          continue;
+        section_size = (unsigned int) bfd_section_size (fd, s);
+        bfd_get_section_contents(fd, s, content + (section_addr - base_addr), 0, section_size);
+      }
+      else
+      {
+        return false;
+      }
+    }
+    else
+    {
+      return false;
+    }
+  }
+  return true;
 }
 
 
