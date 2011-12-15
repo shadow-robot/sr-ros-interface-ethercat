@@ -127,7 +127,7 @@ private:
    * @param timeout time max (in ms) to wait for the can_packet_acked flag to be set
    * @param timedout if true, the can_packet_acked flag wasn't set before the timeout
    */
-  void send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], unsigned int timeout, bool *timedout);
+  void send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], int timeout, bool *timedout);
 
 
   bool read_back_and_check_flash(unsigned int baddr, unsigned int total_size);
@@ -148,6 +148,8 @@ private:
   void find_address_range(bfd *fd, unsigned int *smallest_start_address, unsigned int *biggest_end_address);
 
   bool read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned int base_addr);
+
+  bool write_flash_data(unsigned int base_addr, unsigned int total_size);
 
   /**
    * Extract the filename from the full path.

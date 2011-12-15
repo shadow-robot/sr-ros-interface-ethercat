@@ -459,14 +459,11 @@ bool SR06::read_flash(unsigned int offset, unsigned int baddr)
  */
 bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req, sr_robot_msgs::SimpleMotorFlasher::Response &res)
 {
-  int err;
-  unsigned char cmd_sent;
   bfd *fd;
   unsigned int base_addr;
   unsigned int smallest_start_address = 0x7fff;
   unsigned int biggest_end_address = 0;
   unsigned int total_size = 0;
-  int timeout, wait_time;
   bool timedout;
 
   // We're using 2 can busses,
@@ -485,6 +482,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
 
   motor_being_flashed = motor_id_tmp;
   binary_content = NULL;
+  //TODO the flashing variable should be set to false at any return point from this function
   flashing = true;
 
   ROS_INFO("Flashing the motor");
@@ -526,7 +524,8 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | 0b1010, 8, magic_packet, 100, &timedout);
 
   //Send a second magic packet if the first one wasn't acknowledged
-  if ( timedout ) {
+  if ( timedout )
+  {
     ROS_WARN("First magic CAN packet timedout");
     ROS_WARN("Sending another magic CAN packet to put the motor in bootloading mode");
     send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | 0b1010, 8, magic_packet, 100, &timedout);
@@ -560,7 +559,6 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     ROS_ERROR("Error allocating memory for binary_content");
     res.value = res.FAIL;
     return false;
-
   }
 
   //Set all the bytes in the binary_content to 0xFF initially (i.e. before reading the content from the hex file)
@@ -579,105 +577,13 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   // We do not need the file anymore
   bfd_close(fd);
 
-
-  pos = 0;
-  unsigned int packet = 0;
-  ROS_INFO("Sending the firmware data");
-  while ( pos < ((total_size % 32) == 0 ? total_size : (total_size + 32 - (total_size % 32))) )
+  //The firmware is actually written to the flash memory of the PIC18
+  if(!write_flash_data(base_addr, total_size))
   {
-    if ((pos % 32) == 0)
-    {
-    send_address:
-      packet = 0;
-      do {
-        cmd_sent = 0;
-        while (! cmd_sent )
-        {
-          if ( !(err = pthread_mutex_trylock(&producing)) )
-          {
-            can_message_.message_length = 3;
-            can_message_.can_bus = can_bus_;
-            can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_ADDRESS_COMMAND;
-            can_message_.message_data[2] = (base_addr + pos) >> 16;
-            can_message_.message_data[1] = (base_addr + pos) >> 8; // User application start address is 0x4C0
-            can_message_.message_data[0] = base_addr + pos;
-            ROS_DEBUG("Sending write address to motor %d : 0x%02X%02X%02X", motor_being_flashed, can_message_.message_data[2], can_message_.message_data[1], can_message_.message_data[0]);
-            cmd_sent = 1;
-            unlock(&producing);
-          }
-          else
-          {
-            check_for_trylock_error(err);
-          }
-        }
-        wait_time = 0;
-        timedout = false;
-        timeout = 100;
-        can_message_sent = false;
-        can_packet_acked = false;
-        while ( !can_packet_acked )
-        {
-          usleep(1000);
-          if (wait_time > timeout)
-          {
-            timedout = true;
-            break;
-          }
-          wait_time++;
-        }
-        if (timedout)
-        {
-          ROS_ERROR("WRITE ADDRESS timedout ");
-          res.value = res.FAIL;
-          return false;
-        }
-      } while ( timedout );
-    }
-    cmd_sent = 0;
-    while (! cmd_sent )
-    {
-      if ( !(err = pthread_mutex_trylock(&producing)) )
-      {
-        ROS_DEBUG("Sending data ... position == %d", pos);
-        can_message_.message_length = 8;
-        can_message_.can_bus = can_bus_;
-        can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_DATA_COMMAND;
-        bzero(can_message_.message_data, 8);
-        for (unsigned char j = 0 ; j < 8 ; ++j)
-          can_message_.message_data[j] = (pos > total_size) ? 0xFF : *(binary_content + pos + j);
-
-	pos += 8;
-        cmd_sent = 1;
-        unlock(&producing);
-      }
-      else
-      {
-        check_for_trylock_error(err);
-      }
-    }
-    packet++;
-    timedout = false;
-    wait_time = 0;
-    timeout = 100;
-    can_message_sent = false;
-    can_packet_acked = false;
-    while ( !can_packet_acked )
-    {
-      usleep(1000);
-      if (wait_time > timeout)
-      {
-        timedout = true;
-        break;
-      }
-      wait_time++;
-    }
-    if ( timedout )
-    {
-      ROS_ERROR("A WRITE data packet has been lost, resending the 32 bytes block !");
-      pos -= packet*8;
-      goto send_address;
-    }
+    res.value = res.FAIL;
+    return false;
   }
+
 
   ROS_INFO("Verifying");
   // Now we have to read back the flash content
@@ -1019,7 +925,7 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   return true;
 }
 
-void SR06::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], unsigned int timeout, bool *timedout)
+void SR06::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], int timeout, bool *timedout)
 {
   int err;
   unsigned char cmd_sent;
@@ -1157,6 +1063,112 @@ bool SR06::read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned in
     }
   }
   return true;
+}
+
+bool SR06::write_flash_data(unsigned int base_addr, unsigned int total_size)
+{
+  int err;
+  unsigned char cmd_sent;
+  int wait_time, timeout;
+  bool timedout;
+
+  pos = 0;
+  unsigned int packet = 0;
+  ROS_INFO("Sending the firmware data");
+  while ( pos < ((total_size % 32) == 0 ? total_size : (total_size + 32 - (total_size % 32))) )
+  {
+    //For every WRITE_FLASH_ADDRESS_COMMAND we write 32 bytes of data to flash
+    //and this is done by sending 4 WRITE_FLASH_DATA_COMMAND packets, every one containing 8 bytes of data to be written
+    if ((pos % 32) == 0)
+    {
+      packet = 0;
+      do {
+        cmd_sent = 0;
+        while (! cmd_sent )
+        {
+          if ( !(err = pthread_mutex_trylock(&producing)) )
+          {
+            can_message_.message_length = 3;
+            can_message_.can_bus = can_bus_;
+            can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_ADDRESS_COMMAND;
+            can_message_.message_data[2] = (base_addr + pos) >> 16;
+            can_message_.message_data[1] = (base_addr + pos) >> 8; // User application start address is 0x4C0
+            can_message_.message_data[0] = base_addr + pos;
+            ROS_DEBUG("Sending write address to motor %d : 0x%02X%02X%02X", motor_being_flashed, can_message_.message_data[2], can_message_.message_data[1], can_message_.message_data[0]);
+            cmd_sent = 1;
+            unlock(&producing);
+          }
+          else
+          {
+            check_for_trylock_error(err);
+          }
+        }
+        wait_time = 0;
+        timedout = false;
+        timeout = 100;
+        can_message_sent = false;
+        can_packet_acked = false;
+        while ( !can_packet_acked )
+        {
+          usleep(1000);
+          if (wait_time > timeout)
+          {
+            timedout = true;
+            break;
+          }
+          wait_time++;
+        }
+        if (timedout)
+        {
+          ROS_ERROR("WRITE ADDRESS timedout ");
+          return false;
+        }
+      } while ( timedout );
+    }
+    cmd_sent = 0;
+    while (! cmd_sent )
+    {
+      if ( !(err = pthread_mutex_trylock(&producing)) )
+      {
+        ROS_DEBUG("Sending data ... position == %d", pos);
+        can_message_.message_length = 8;
+        can_message_.can_bus = can_bus_;
+        can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_DATA_COMMAND;
+        bzero(can_message_.message_data, 8);
+        for (unsigned char j = 0 ; j < 8 ; ++j)
+          can_message_.message_data[j] = (pos > total_size) ? 0xFF : *(binary_content + pos + j);
+
+        pos += 8;
+        cmd_sent = 1;
+        unlock(&producing);
+      }
+      else
+      {
+        check_for_trylock_error(err);
+      }
+    }
+    packet++;
+    timedout = false;
+    wait_time = 0;
+    timeout = 100;
+    can_message_sent = false;
+    can_packet_acked = false;
+    while ( !can_packet_acked )
+    {
+      usleep(1000);
+      if (wait_time > timeout)
+      {
+        timedout = true;
+        break;
+      }
+      wait_time++;
+    }
+    if ( timedout )
+    {
+      ROS_ERROR("A WRITE data packet has been lost, resending the 32 bytes block !");
+      pos -= packet*8;
+    }
+  }
 }
 
 
