@@ -129,7 +129,14 @@ private:
    */
   void send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], int timeout, bool *timedout);
 
-
+  /**
+   * Read back the firmware from the flash of the PIC, and checks it against the data read from the object (.hex) file
+   *
+   * @param base_addr the base address of the code (the lowest address to be written on the flash)
+   * @param total_size the size in bytes of the code to write
+   *
+   * @return true if both are identical
+   */
   bool read_back_and_check_flash(unsigned int baddr, unsigned int total_size);
 
   /**
@@ -147,8 +154,25 @@ private:
    */
   void find_address_range(bfd *fd, unsigned int *smallest_start_address, unsigned int *biggest_end_address);
 
+  /**
+   * Reads the content from the object (.hex) file and stores it in a previously reserved memory space
+   *
+   * @param fd pointer to a bfd file structure
+   * @param content a pointer to the memory space where we want to store the firmware
+   * @param base_addr the base address of the code (the lowest address to be written on the flash)
+   *
+   * @return true if the reading succeeds
+   */
   bool read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned int base_addr);
 
+  /**
+   * Writes the code previously read from the hex file to the flash memory of the PIC
+   *
+   * @param base_addr the base address of the code (the lowest address to be written on the flash)
+   * @param total_size the size in bytes of the code to write
+   *
+   * @return true if the writing process succeeds
+   */
   bool write_flash_data(unsigned int base_addr, unsigned int total_size);
 
   /**

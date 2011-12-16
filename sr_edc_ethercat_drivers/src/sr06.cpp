@@ -920,8 +920,6 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     }
   }
 
-  ROS_DEBUG("Leaving UnpackState");
-
   return true;
 }
 
