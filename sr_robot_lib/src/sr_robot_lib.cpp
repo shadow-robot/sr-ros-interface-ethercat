@@ -441,7 +441,7 @@ namespace shadow_robot
             else
               d.addf("Force control Sign", "-");
 
-            d.addf("Last Measured Effort", "%f", state->last_measured_effort_);
+            d.addf("Last Commanded Effort", "%f", state->last_commanded_effort_);
 
             d.addf("Encoder Position", "%f", state->position_);
 
@@ -776,7 +776,6 @@ namespace shadow_robot
 #ifdef DEBUG_PUBLISHER
 	if( joint_tmp->motor->motor_id == 8 )
         {
-          ROS_ERROR_STREAM("Torque " << static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
           msg_debug.data = static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque);
           debug_publishers[4].publish(msg_debug);
         }
