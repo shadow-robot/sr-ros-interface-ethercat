@@ -31,5 +31,5 @@ checkout_or_update simplemotor-bootloader svn://pericles/EDC/simplemotor-bootloa
 
 cd ${START_PATH}
 cd "../compiled_firmware"
-checkout_or_update compiled_firmware svn://pericles/EDC/simplemotor/released_firmware/
+checkout_or_update released_firmware svn://pericles/EDC/simplemotor/released_firmware/
 cd ${START_PATH}

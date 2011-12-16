@@ -1169,6 +1169,7 @@ bool SR06::write_flash_data(unsigned int base_addr, unsigned int total_size)
       pos -= packet*8;
     }
   }
+  return true;
 }
 
 
