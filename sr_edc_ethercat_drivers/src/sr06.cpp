@@ -571,6 +571,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   {
     ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
     res.value = res.FAIL;
+    free(binary_content);
     return false;
   }
 
@@ -581,6 +582,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   if(!write_flash_data(base_addr, total_size))
   {
     res.value = res.FAIL;
+    free(binary_content);
     return false;
   }
 
@@ -590,6 +592,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   if( !read_back_and_check_flash(base_addr, total_size))
   {
     res.value = res.FAIL;
+    free(binary_content);
     return false;
   }
 
