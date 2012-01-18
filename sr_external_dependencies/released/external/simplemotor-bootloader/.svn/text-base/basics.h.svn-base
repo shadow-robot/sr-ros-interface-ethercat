@@ -216,34 +216,5 @@ extern const int8u basic_lshift[];
 #endif /* SDCC */
 
 
-#define FLASH(Led_State, n)    while (1)                                \
-                               {                                        \
-                                    int8u i;                             \
-                                    for (i=0; i<n; i++)                 \
-                                    {                                   \
-                                        LED_set_state(Led_State);       \
-                                        Delay10KTCYx(100);              \
-                                        LED_set_state(0);               \
-                                        Delay10KTCYx(100);              \
-                                    }                                   \
-                                    Delay10KTCYx(250);                  \
-                               }
-
-
-#define FLASH12(Led_State,a,b)  while (1)                           \
-                                {                                   \
-                                    LED_set_state(Led_State);       \
-                                }
-
-enum reset_flags
-{
-    reset_unknown     = 0,
-    reset_brownout    = 1<<1,
-    reset_poweron     = 1<<2,
-    reset_watchdog    = 1<<3,
-    reset_instruction = 1<<4
-};
-//extern int8u last_reset;
-
 
 #endif

@@ -25,3 +25,9 @@ sr_edc_ethercat_drivers/.cproject
 sr_edc_ethercat_drivers/.project
 sr_edc_ethercat_drivers/.pydevproject
 sr_edc_ethercat_drivers/cmake_install.cmake
+sr_external_dependencies/released/released_firmware/changes.txt
+sr_external_dependencies/released/released_firmware/readme.txt
+sr_external_dependencies/released/released_firmware/simplemotor (copy).hex
+sr_external_dependencies/released/released_firmware/simplemotor_no_bc.hex
+sr_external_dependencies/released/released_firmware/thesimple01
+sr_external_dependencies/released/released_firmware/thesimple02

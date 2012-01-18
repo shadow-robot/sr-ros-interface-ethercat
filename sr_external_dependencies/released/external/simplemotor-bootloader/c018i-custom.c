@@ -1,7 +1,11 @@
-/* $Id: c018i.c,v 1.7 2006/11/15 22:53:12 moshtaa Exp $ */
-/* Copyright (c)1999 Microchip Technology */
-/* MPLAB-C18 startup code, including initialized data */
-/* external reference to __init() function */
+// $Id: c018i.c,v 1.7 2006/11/15 22:53:12 moshtaa Exp $
+// Copyright (c)1999 Microchip Technology
+// MPLAB-C18 startup code, including initialized data
+// external reference to __init() function
+//
+//
+// Modified by Hugo Elias, Shadow Robot Co Ltd 2011.
+// 
 
 #warning We are using our own startup code
 

@@ -128,7 +128,7 @@ typedef enum
 typedef enum
 {
     MOTOR_SLOW_DATA_INVALID              = 0x0000,
-   MOTOR_SLOW_DATA_SVN_REVISION         = 0x0001,
+    MOTOR_SLOW_DATA_SVN_REVISION         = 0x0001,
     MOTOR_SLOW_DATA_SVN_SERVER_REVISION  = 0x0002,
     MOTOR_SLOW_DATA_SVN_MODIFIED         = 0x0003,
     MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW    = 0x0004,
@@ -409,21 +409,23 @@ typedef enum
 //      ---------------
 //      TACTILE SENSORS
 //      ---------------
+#define TACTILE_DATA_LENGTH_BYTES   16
+#define TACTILE_DATA_LENGTH_WORDS   (TACTILE_DATA_LENGTH_BYTES/2)
 
 typedef union
 {
-    int16u  word[8];                                                    //!< As yet unspecified
-    char    string[16];
+    int16u  word[TACTILE_DATA_LENGTH_WORDS];                            //!< As yet unspecified
+    char    string[TACTILE_DATA_LENGTH_BYTES];
 }TACTILE_SENSOR_STATUS;
 
 typedef enum                                                            //! Data you can request from tactile sensors in general
 {
     TACTILE_SENSOR_TYPE_WHICH_SENSORS           = 0xFFF9,               //!< Is this a PST, a BioTac, or what? Returns a TACTILE_SENSOR_PROTOCOL_TYPE
-    TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ     = 0xFFFA,               //!< currently only used by BioTacs
+    TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ     = 0xFFFA,               //!< word[0] = frequency in Hz. currently only used by BioTacs
     TACTILE_SENSOR_TYPE_MANUFACTURER            = 0xFFFB,               //!< e.g. "Shadow" or "Syntouch"
     TACTILE_SENSOR_TYPE_SERIAL_NUMBER           = 0xFFFC,               //!< e.g. "PST3200110190001"
     TACTILE_SENSOR_TYPE_SOFTWARE_VERSION        = 0xFFFD,               //!< e.g. "1825"
-    TACTILE_SENSOR_TYPE_PCB_VERSION             = 0xFFFE,               //!< currently only used by BioTacs
+    TACTILE_SENSOR_TYPE_PCB_VERSION             = 0xFFFE,               //!< e.g. "FB". Currently only used by BioTacs
     TACTILE_SENSOR_TYPE_RESET_COMMAND           = 0xFFFF                //!< Requesting this causes the tactile sensors to reset if they support it.
 }FROM_TACTILE_SENSOR_TYPE;
 
@@ -475,15 +477,23 @@ typedef enum                                                            // Data 
     FROM_TACTILE_SENSOR_TYPE_BIOTAC_NUM_VALUES = 0x0017
 }FROM_TACTILE_SENSOR_TYPE_BIOTAC;
 
-/*
+
 typedef struct
 {
-    int16u  pac;
-    int16u  hall;
-    int16u  misc[6];
-}TACTILE_SENSOR_SYNTOUCH_DATA_CONTENTS;
-*/
+    int16u  Pac[2];
+    int16u  other_sensor;
+    struct
+    {
+        int8u Pac0         : 1;
+        int8u Pac1         : 1;
+        int8u other_sensor : 1;
+    }data_valid;
+    
+    int16u  nothing[4];
+}TACTILE_SENSOR_BIOTAC_DATA_CONTENTS;
 
+
+/*
 #ifndef NO_STRINGS
 
     static const char* tactile_sensor_shadow_type_strings[4]  = {   "None",
@@ -509,7 +519,7 @@ typedef struct
                                                                     "Part serial number high"};
 
 #endif
-
+*/
 
 
 //#if (int)IGNORE > SENSORS_NUM

@@ -111,6 +111,7 @@ void initialise_this_node(void);                            // ALL setup for thi
 
 void handle_configuration_message(CAN_message* message);
 void Service_EtherCAT_Packet(void);
+void Check_For_EtherCAT_Packet(void);
 
 
 // application defines
@@ -118,7 +119,7 @@ void Service_EtherCAT_Packet(void);
 #define THIS_NODE_SERIAL_NUMBER     0x0015
 
 //#define THIS_NODE_PRODUCT_CODE      0x0000
-//#define THIS_NODE_SERIAL_NUMBER     0x0002
+//#define THIS_NODE_SERIAL_NUMBER     0x0004
 
 #define SYSTEM_FREQ_HZ            80000000
 #define PERIPHERAL_BUS_CLOCK_HZ   40000000
@@ -160,6 +161,8 @@ void Send_All_CAN_Messages(void);
 void Translate_SOMI_Bits(void);
 void Read_All_Sensors(void);
 void Collect_All_CAN_Messages(void);
+int32u get_frame_time_us(void);
+void Wait_For_Until_Frame_Time(int32u frame_time_us);
 inline void write_status_data_To_ET1200(void);
 
 void delay_us(int32u microseconds) ;
@@ -184,7 +187,7 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     //#define USE_SMALL_EEPROM
 
     #define USE_SIMPLE_PST_CS
-    #define AUTO_TRIGGER         1                      //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
+    #define AUTO_TRIGGER         0                      //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
 
     #define ET1200_CHIP_SELECT_PIN      'C', 14
     #define ET1200_RESET_PIN            'F',  3

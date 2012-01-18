@@ -51,6 +51,7 @@ typedef enum
     RESET_COMMAND                 = 0x03,
     READ_VERSION_COMMAND          = 0x04,
     WRITE_FLASH_ADDRESS_COMMAND   = 0x05,
+    START_FLASH_WRITE_COMMAND     = 0x06,
     MAGIC_PACKET                  = 0x0A
 }BOOTLOADER_COMMAND;
 
