@@ -482,7 +482,6 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
 
   motor_being_flashed = motor_id_tmp;
   binary_content = NULL;
-  //TODO the flashing variable should be set to false at any return point from this function
   flashing = true;
 
   ROS_INFO("Flashing the motor");
@@ -496,6 +495,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   {
     ROS_ERROR("error opening the file %s", get_filename(req.firmware).c_str());
     res.value = res.FAIL;
+    flashing = false;
     return false;
   }
 
@@ -506,6 +506,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     {
       ROS_ERROR("Incompatible format");
       res.value = res.FAIL;
+      flashing = false;
       return false;
     }
   }
@@ -514,9 +515,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
 
   //TODO Check if it's necessary to send this dummy packet before the magic packet
   ROS_DEBUG("Sending dummy packet");
-  //The dummy packet really is of length 0, but the array must be at least of dimension 1 for the compiler to accept it, even if the value is not used
-  int8u dummy_packet[] = {0};
-  send_CAN_msg(can_bus_, 0, 0, dummy_packet, 1, &timedout);
+  send_CAN_msg(can_bus_, 0, 0, NULL, 1, &timedout);
 
   ROS_INFO_STREAM("Switching motor "<< motor_being_flashed << " on CAN bus " << can_bus_ << " into bootloader mode");
   //Send the magic packet that will force the microcontroller to go into bootloader mode
@@ -534,6 +533,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     {
       ROS_ERROR("None of the magic packets were ACKed, didn't bootload the motor.");
       res.value = res.FAIL;
+      flashing = false;
       return false;
     }
   }
@@ -558,6 +558,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   {
     ROS_ERROR("Error allocating memory for binary_content");
     res.value = res.FAIL;
+    flashing = false;
     return false;
   }
 
@@ -572,6 +573,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
     ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
     res.value = res.FAIL;
     free(binary_content);
+    flashing = false;
     return false;
   }
 
@@ -583,6 +585,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   {
     res.value = res.FAIL;
     free(binary_content);
+    flashing = false;
     return false;
   }
 
@@ -593,6 +596,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   {
     res.value = res.FAIL;
     free(binary_content);
+    flashing = false;
     return false;
   }
 
@@ -602,9 +606,7 @@ bool SR06::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
   ROS_INFO("Resetting microcontroller.");
   // Then we send the RESET command to PIC18F
   do {
-    //The reset packet really has length 0, but the array must be at least of dimension 1 for the compiler to accept it, even if the value is not used
-    int8u reset_packet[] = {0x00};
-    send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | RESET_COMMAND, 0, reset_packet, 1000, &timedout);
+    send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | RESET_COMMAND, 0, NULL, 1000, &timedout);
   } while ( timedout );
 
 
@@ -941,9 +943,12 @@ void SR06::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u ms
       can_message_.can_bus = can_bus;
       can_message_.message_id = msg_id;
 
-      for(unsigned int i = 0; i<msg_length; i++)
+      if (msg_data != NULL)
       {
-        can_message_.message_data[i] = msg_data[i];
+        for(unsigned int i = 0; i<msg_length; i++)
+        {
+          can_message_.message_data[i] = msg_data[i];
+        }
       }
 
       cmd_sent = 1;
