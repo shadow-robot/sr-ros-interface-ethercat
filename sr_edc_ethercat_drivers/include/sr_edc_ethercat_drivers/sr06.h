@@ -66,7 +66,8 @@ public:
   bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
   bool can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet);
   void erase_flash();
-  bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
+  //bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
+  bool read_flash(unsigned int offset, unsigned int baddr);
 
 protected:
   int                                                                  counter_;
@@ -114,6 +115,65 @@ private:
 
   ///We're using 2 can busses, so can_bus_ is 1 for motors 0 to 9 and 2 for motors 10 to 19
   int can_bus_;
+
+  /**
+   * Contains the common procedure to send a CAN message (i.e. write it in the global struct from which it is read, added to the
+   * next ethercat frame, and sent) and wait for the can_packet_acked flag to be set
+   *
+   * @param can_bus which of the 2 CAN buses (0 or 1) wil be used
+   * @param msg_id id of the CAN message
+   * @param msg_length the length in bytes of msg_data
+   * @param msg_data data of the CAN message
+   * @param timeout time max (in ms) to wait for the can_packet_acked flag to be set
+   * @param timedout if true, the can_packet_acked flag wasn't set before the timeout
+   */
+  void send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], int timeout, bool *timedout);
+
+  /**
+   * Read back the firmware from the flash of the PIC, and checks it against the data read from the object (.hex) file
+   *
+   * @param base_addr the base address of the code (the lowest address to be written on the flash)
+   * @param total_size the size in bytes of the code to write
+   *
+   * @return true if both are identical
+   */
+  bool read_back_and_check_flash(unsigned int baddr, unsigned int total_size);
+
+  /**
+   * Look for the start and end address of every section in the hex file,
+   * to detect the lowest and highest address of the data we need to write in the PIC's flash.
+   * The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
+   * (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
+   * To understand the structure (sections) of the object file containing the firmware (usually a .hex) the following commands can be useful:
+   *   \code objdump -x simplemotor.hex \endcode
+   *   \code objdump -s simplemotor.hex \endcode
+   *
+   * @param fd pointer to a bfd file structure
+   * @param smallest_start_address the lowest address found is returned through this pointer
+   * @param biggest_end_address the highest address found is returned through this pointer
+   */
+  void find_address_range(bfd *fd, unsigned int *smallest_start_address, unsigned int *biggest_end_address);
+
+  /**
+   * Reads the content from the object (.hex) file and stores it in a previously reserved memory space
+   *
+   * @param fd pointer to a bfd file structure
+   * @param content a pointer to the memory space where we want to store the firmware
+   * @param base_addr the base address of the code (the lowest address to be written on the flash)
+   *
+   * @return true if the reading succeeds
+   */
+  bool read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned int base_addr);
+
+  /**
+   * Writes the code previously read from the hex file to the flash memory of the PIC
+   *
+   * @param base_addr the base address of the code (the lowest address to be written on the flash)
+   * @param total_size the size in bytes of the code to write
+   *
+   * @return true if the writing process succeeds
+   */
+  bool write_flash_data(unsigned int base_addr, unsigned int total_size);
 
   /**
    * Extract the filename from the full path.

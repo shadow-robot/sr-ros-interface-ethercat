@@ -1,3 +1,39 @@
+//
+// © 2010 Shadow Robot Company Limited.
+//
+// FileName:        bootloader.lkr
+// Dependencies:    
+// Processor:       PIC18
+// Compiler:        MPLAB® C18 
+//
+//  +-------------------------------------------------------------------------------+
+//  | This file is part of The Shadow Robot PIC18 firmware code base.               |
+//  |                                                                               |
+//  | It is free software: you can redistribute it and/or modify                    |
+//  | it under the terms of the GNU General Public License as published by          |
+//  | the Free Software Foundation, either version 3 of the License, or             |
+//  | (at your option) any later version.                                           |
+//  |                                                                               |
+//  | It is distributed in the hope that it will be useful,                         |
+//  | but WITHOUT ANY WARRANTY; without even the implied warranty of                |
+//  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 |
+//  | GNU General Public License for more details.                                  |
+//  |                                                                               |
+//  | You should have received a copy of the GNU General Public License (gpl.txt)   |
+//  | along with this code repository. The text of the license can be found         |
+//  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.         |
+//  +-------------------------------------------------------------------------------+
+// 
+// 
+// 
+// This is the linker script for the Shadow CAN Bootloader.
+// Both the bootloader, and the user application need to
+// add the linker script into the "Linker Script" folder
+// of their project.
+// 
+
+
+
 #DEFINE _CODEEND _DEBUGCODESTART - 1
 #DEFINE _CEND _CODEEND + _DEBUGCODELEN
 #DEFINE _DATAEND _DEBUGDATASTART - 1
