@@ -159,8 +159,17 @@ class EtherCAT_Hand_Lib(object):
 
 
     def activate(self):
+        #check if something is being published to those topics, otherwise
+        # return false (the library is not activated)
+        try:
+            rospy.wait_for_message("/debug_etherCAT_data", EthercatDebug, timeout = 0.2)
+            rospy.wait_for_message("/joint_states", EthercatDebug, timeout = 0.2)
+        except:
+            return False
+
         self.debug_subscriber = rospy.Subscriber("/debug_etherCAT_data", EthercatDebug, self.debug_callback)
         self.joint_state_subscriber = rospy.Subscriber("/joint_states", JointState, self.joint_state_callback)
+        return True
 
     def on_close(self):
         if self.debug_subscriber is not None:
