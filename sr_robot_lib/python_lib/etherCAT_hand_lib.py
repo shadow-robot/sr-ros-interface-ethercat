@@ -51,6 +51,7 @@ class EtherCAT_Hand_Lib(object):
         self.pid_services = {}
         self.publishers = {}
         self.positions = {}
+        self.velocities = {}
         self.efforts = {}
 
         self.msg_to_send = Float64()
@@ -87,6 +88,9 @@ class EtherCAT_Hand_Lib(object):
         """
         return self.positions[joint_name]
 
+    def get_velocity(self, joint_name):
+        return self.velocities[joint_name]
+
     def get_effort(self, joint_name):
         return self.efforts[joint_name]
 
@@ -119,8 +123,9 @@ class EtherCAT_Hand_Lib(object):
         self.raw_values = msg.sensors
 
     def joint_state_callback(self, msg):
-        for name,pos,effort in zip( msg.name, msg.position, msg.effort ):
+        for name,pos,vel,effort in zip( msg.name, msg.position, msg.velocity, msg.effort ):
             self.positions[name] = pos
+            self.velocities[name] = vel
             self.efforts[name] = effort
 
         if self.record_js_callback is not None:
@@ -159,8 +164,28 @@ class EtherCAT_Hand_Lib(object):
 
 
     def activate(self):
+        #check if something is being published to those topics, otherwise
+        # return false (the library is not activated)
+        try:
+            rospy.wait_for_message("/debug_etherCAT_data", EthercatDebug, timeout = 0.2)
+            rospy.wait_for_message("/joint_states", JointState, timeout = 0.2)
+        except:
+            return False
+
         self.debug_subscriber = rospy.Subscriber("/debug_etherCAT_data", EthercatDebug, self.debug_callback)
         self.joint_state_subscriber = rospy.Subscriber("/joint_states", JointState, self.joint_state_callback)
+        return True
+
+    def activate_joint_states(self):
+        #check if something is being published to this topic, otherwise
+        # return false (the library is not activated)
+        try:
+            rospy.wait_for_message("/gazebo/joint_states", JointState, timeout = 0.2)
+        except:
+            return False
+
+        self.joint_state_subscriber = rospy.Subscriber("/gazebo/joint_states", JointState, self.joint_state_callback)
+        return True
 
     def on_close(self):
         if self.debug_subscriber is not None:
