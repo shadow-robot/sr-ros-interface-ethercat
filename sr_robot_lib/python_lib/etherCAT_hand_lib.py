@@ -20,6 +20,7 @@ import roslib; roslib.load_manifest('sr_robot_lib')
 import rospy
 
 import time, math
+import re
 
 from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState
@@ -84,15 +85,45 @@ class EtherCAT_Hand_Lib(object):
         self.publishers[joint_name].publish(self.msg_to_send)
 
     def get_position(self, joint_name):
-        """
-        """
-        return self.positions[joint_name]
+        value = None
+        try:
+            value = self.positions[joint_name]
+        except:
+            #We check if the reason to except is that we are trying to access the joint 0
+            #Position of the J0 is the addition of the positions of J1 and J2
+            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            if m is not None:
+                value = self.positions[m.group("finger") + "J1"] + self.positions[m.group("finger") + "J2"]
+            else:
+                raise
+        return value
 
     def get_velocity(self, joint_name):
-        return self.velocities[joint_name]
+        value = None
+        try:
+            value = self.velocities[joint_name]
+        except:
+            #We check if the reason to except is that we are trying to access the joint 0
+            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            if m is not None:
+                value = self.velocities[m.group("finger") + "J1"] + self.velocities[m.group("finger") + "J2"]
+            else:
+                raise
+        return value
 
     def get_effort(self, joint_name):
-        return self.efforts[joint_name]
+        value = None
+        try:
+            value = self.efforts[joint_name]
+        except:
+            #We check if the reason to except is that we are trying to access the joint 0
+            #Effort of the J0 is the same as the effort of J1 and J2, so we pick J1
+            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            if m is not None:
+                value = self.efforts[m.group("finger") + "J1"]
+            else:
+                raise
+        return value
 
     def start_record(self, joint_name, callback):
         self.record_js_callback = callback
