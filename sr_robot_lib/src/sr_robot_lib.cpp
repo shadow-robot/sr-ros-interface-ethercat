@@ -671,6 +671,9 @@ namespace shadow_robot
         //We received a slow data:
         // the slow data type is contained in .torque, while
         // the actual data is in .misc.
+        // so we won't read torque information from .torque
+        read_torque = false;
+
         switch (static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].torque))
         {
         case MOTOR_SLOW_DATA_SVN_REVISION:
@@ -749,17 +752,14 @@ namespace shadow_robot
           static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
         break;
       case MOTOR_DATA_PTERM:
-        read_torque = false;
         actuator->state_.force_control_pterm =
           static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
         break;
       case MOTOR_DATA_ITERM:
-        read_torque = false;
         actuator->state_.force_control_iterm =
           static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
         break;
       case MOTOR_DATA_DTERM:
-        read_torque = false;
         actuator->state_.force_control_dterm =
           static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
         break;

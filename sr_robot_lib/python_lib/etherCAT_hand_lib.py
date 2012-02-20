@@ -211,11 +211,11 @@ class EtherCAT_Hand_Lib(object):
         #check if something is being published to this topic, otherwise
         # return false (the library is not activated)
         try:
-            rospy.wait_for_message("/gazebo/joint_states", JointState, timeout = 0.2)
+            rospy.wait_for_message("/joint_states", JointState, timeout = 0.2)
         except:
             return False
 
-        self.joint_state_subscriber = rospy.Subscriber("/gazebo/joint_states", JointState, self.joint_state_callback)
+        self.joint_state_subscriber = rospy.Subscriber("/joint_states", JointState, self.joint_state_callback)
         return True
 
     def on_close(self):
