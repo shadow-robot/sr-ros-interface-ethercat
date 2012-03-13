@@ -49,6 +49,11 @@ namespace shadow_robot
       config_index(MOTOR_CONFIG_FIRST_VALUE),
       nh_tilde("~")
   {
+    //using FORCE control by default
+    control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
+    //initialising the change control type service
+    change_control_type_ = nh_tilde.advertiseService( "change_control_type", &SrRobotLib::change_control_type_callback_, this);
+
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
     for( int i = 0; i < nb_debug_publishers_const; ++i )
@@ -225,7 +230,19 @@ namespace shadow_robot
     {
       //no config to send
 
-      command->to_motor_data_type = MOTOR_DEMAND_TORQUE;
+      switch( control_type_.control_type )
+      {
+      case sr_robot_msgs::ControlType::FORCE:
+        command->to_motor_data_type = MOTOR_DEMAND_TORQUE;
+        break;
+      case sr_robot_msgs::ControlType::PWM:
+        command->to_motor_data_type = MOTOR_DEMAND_PWM;
+        break;
+
+      default:
+        command->to_motor_data_type = MOTOR_DEMAND_TORQUE;
+        break;
+      }
 
       //loop on all the joints and update their motor: we're sending commands to all the motors.
       boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
@@ -902,6 +919,28 @@ namespace shadow_robot
     tactiles_init = boost::shared_ptr<tactiles::GenericTactiles>( new tactiles::GenericTactiles(generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
     tactile_current_state = operation_mode::device_update_state::INITIALIZATION;
   }
+
+  bool SrRobotLib::change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
+                                                  sr_robot_msgs::ChangeControlType::Response& response )
+  {
+    if( (request.control_type.control_type != sr_robot_msgs::ControlType::PWM) |
+        (request.control_type.control_type != sr_robot_msgs::ControlType::FORCE) )
+    {
+      ROS_ERROR_STREAM(" The value you specified for the control type (" << request.control_type
+                       << ") is incorrect. Using FORCE control.");
+
+      control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
+
+      response.result = control_type_;
+      return false;
+    }
+    else
+      control_type_ = request.control_type;
+
+    response.result = control_type_;
+    return true;
+  }
+
 } //end namespace
 
 /* For the emacs weenies in the crowd.

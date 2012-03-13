@@ -43,6 +43,8 @@
 
 #include <sr_robot_msgs/ForceController.h>
 #include <sr_robot_msgs/SetDebugData.h>
+#include <sr_robot_msgs/ControlType.h>
+#include <sr_robot_msgs/ChangeControlType.h>
 
 #include <sr_utilities/sr_math_utils.hpp>
 #include <sr_utilities/calibration.hpp>
@@ -290,6 +292,23 @@ namespace shadow_robot
     std::vector<generic_updater::UpdateConfig> biotac_sensor_update_rate_configs_vector;
 
     boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
+
+    ///The current type of control (FORCE demand or PWM demand sent to the motors)
+    sr_robot_msgs::ControlType control_type_;
+    ///A service server used to change the control type on the fly.
+    ros::ServiceServer change_control_type_;
+
+    /**
+     * The callback to the change_control_type_ service. Updates
+     *  the current control_type_ with the requested control_type.
+     *
+     * @param request Requested control_type_
+     * @param response The new control_type we'll use
+     *
+     * @return true if success, false if bad control type requested
+     */
+    bool change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
+                                        sr_robot_msgs::ChangeControlType::Response& response );
 
   };//end class
 }//end namespace
