@@ -49,6 +49,10 @@ namespace shadow_robot
       config_index(MOTOR_CONFIG_FIRST_VALUE),
       nh_tilde("~")
   {
+    //advertise the service to nullify the demand sent to the motor
+    // this makes it possible to easily stop the controllers.
+    nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
+
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
     for( int i = 0; i < nb_debug_publishers_const; ++i )
@@ -224,7 +228,6 @@ namespace shadow_robot
     if (reconfig_queue.empty() && reset_motors_queue.empty())
     {
       //no config to send
-
       command->to_motor_data_type = MOTOR_DEMAND_TORQUE;
 
       //loop on all the joints and update their motor: we're sending commands to all the motors.
@@ -233,7 +236,16 @@ namespace shadow_robot
       {
         if (joint_tmp->has_motor)
         {
-          command->motor_data[joint_tmp->motor->motor_id] = joint_tmp->motor->actuator->command_.effort_;
+          if( !nullify_demand_ )
+          {
+            //We send the computed demand
+            command->motor_data[joint_tmp->motor->motor_id] = joint_tmp->motor->actuator->command_.effort_;
+          }
+          else
+          {
+            //We want to send a demand of 0
+            command->motor_data[joint_tmp->motor->motor_id] = 0;
+          }
 
 #ifdef DEBUG_PUBLISHER
           //publish the debug values for the given motors.
@@ -902,6 +914,21 @@ namespace shadow_robot
     tactiles_init = boost::shared_ptr<tactiles::GenericTactiles>( new tactiles::GenericTactiles(generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
     tactile_current_state = operation_mode::device_update_state::INITIALIZATION;
   }
+
+
+  bool SrRobotLib::nullify_demand_callback( sr_robot_msgs::NullifyDemand::Request& request,
+                                            sr_robot_msgs::NullifyDemand::Response& response )
+  {
+    if( request.nullify_demand )
+      ROS_INFO_STREAM("Nullifying the demand sent to the motor. Will ignore the values computed by the controllers and send 0.");
+    else
+      ROS_INFO_STREAM("Using the value computed by the controllers to send the demands to the motors.");
+
+    nullify_demand_ = request.nullify_demand;
+
+    return true;
+  }
+
 } //end namespace
 
 /* For the emacs weenies in the crowd.
