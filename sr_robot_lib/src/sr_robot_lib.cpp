@@ -419,6 +419,9 @@ namespace shadow_robot
             d.addf("Measured Effort", "%f", state->last_measured_effort_);
             d.addf("Temperature", "%f", state->temperature_);
 
+            d.addf("Unfiltered position", "%f", state->position_unfiltered_);
+            d.addf("Unfiltered force", "%f", state->force_unfiltered_);
+
             d.addf("Gear Ratio", "%d", state->motor_gear_ratio);
 
             d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
