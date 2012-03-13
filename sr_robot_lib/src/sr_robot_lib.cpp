@@ -105,7 +105,7 @@ namespace shadow_robot
 
       //filter the position and velocity
       std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(
-        joint_tmp->motor->actuator->state_.position_, timestamp);
+        joint_tmp->motor->actuator->state_.position_unfiltered_, timestamp);
       //reset the position to the filtered value
       joint_tmp->motor->actuator->state_.position_ = pos_and_velocity.first;
       //set the velocity to the filtered velocity
@@ -113,7 +113,7 @@ namespace shadow_robot
 
       //filter the effort
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
-        joint_tmp->motor->actuator->state_.last_measured_effort_, timestamp);
+        joint_tmp->motor->actuator->state_.force_unfiltered_, timestamp);
       joint_tmp->motor->actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
 
       //if no motor is associated to this joint, then continue
@@ -419,6 +419,9 @@ namespace shadow_robot
             d.addf("Measured Effort", "%f", state->last_measured_effort_);
             d.addf("Temperature", "%f", state->temperature_);
 
+            d.addf("Unfiltered position", "%f", state->position_unfiltered_);
+            d.addf("Unfiltered force", "%f", state->force_unfiltered_);
+
             d.addf("Gear Ratio", "%d", state->motor_gear_ratio);
 
             d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
@@ -493,7 +496,7 @@ namespace shadow_robot
 
       //and now we calibrate
       calibration_tmp = calibration_map.find(joint_tmp->joint_name);
-      actuator->state_.position_ = calibration_tmp->compute(static_cast<double>(raw_position));
+      actuator->state_.position_unfiltered_ = calibration_tmp->compute(static_cast<double>(raw_position));
     }
     else
     {
@@ -527,8 +530,8 @@ namespace shadow_robot
 
         ROS_DEBUG_STREAM("      -> "<< sensor_name<< " raw = " << raw_pos << " calibrated = " << calibrated_position);
       }
-      actuator->state_.position_ = calibrated_position;
-      ROS_DEBUG_STREAM("          => "<< actuator->state_.position_);
+      actuator->state_.position_unfiltered_ = calibrated_position;
+      ROS_DEBUG_STREAM("          => "<< actuator->state_.position_unfiltered_);
     }
   } //end calibrate_joint()
 
@@ -770,7 +773,7 @@ namespace shadow_robot
 
       if (read_torque)
       {
-        actuator->state_.last_measured_effort_ =
+        actuator->state_.force_unfiltered_ =
           static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
 
 #ifdef DEBUG_PUBLISHER
