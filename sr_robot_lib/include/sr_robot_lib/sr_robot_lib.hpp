@@ -42,6 +42,7 @@
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
 #include <sr_robot_msgs/ForceController.h>
+#include <sr_robot_msgs/NullifyDemand.h>
 #include <sr_robot_msgs/SetDebugData.h>
 
 #include <sr_utilities/sr_math_utils.hpp>
@@ -125,6 +126,20 @@ namespace shadow_robot
      */
     void reinitialize_sensors();
 
+    /**
+     * This service is used to nullify the demand of the etherCAT
+     *  hand. If the nullify_demand parameter is set to True,
+     *  the demand sent to the robot will be 0, regardless of the
+     *  computed effort demanded by the controller. If set to False,
+     *  then the demand computed by the controllers will be sent to the motors.
+     *
+     * @param request contains the nullify_demand parameter
+     * @param response empty
+     *
+     * @return always true as it can't fail
+     */
+    bool nullify_demand_callback( sr_robot_msgs::NullifyDemand::Request& request,
+                                  sr_robot_msgs::NullifyDemand::Response& response );
 
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
@@ -291,6 +306,10 @@ namespace shadow_robot
 
     boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
 
+    ///True if we want to set the demand to 0 (stop the controllers)
+    bool nullify_demand_;
+    ///The ROS service handler for nullifying the demand
+    ros::ServiceServer nullify_demand_server_;
   };//end class
 }//end namespace
 
