@@ -131,7 +131,7 @@ namespace shadow_robot
      *  hand. If the nullify_demand parameter is set to True,
      *  the demand sent to the robot will be 0, regardless of the
      *  computed effort demanded by the controller. If set to False,
-     *  then the
+     *  then the demand computed by the controllers will be sent to the motors.
      *
      * @param request contains the nullify_demand parameter
      * @param response empty
