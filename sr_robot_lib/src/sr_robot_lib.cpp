@@ -58,6 +58,10 @@ namespace shadow_robot
     //initialising the change control type service
     change_control_type_ = nh_tilde.advertiseService( "change_control_type", &SrRobotLib::change_control_type_callback_, this);
 
+    ///Initialising service
+    motor_system_control_server_ = nh_tilde.advertiseService( "change_motor_system_controls", &SrRobotLib::motor_system_controls_callback_, this);
+
+
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
     for( int i = 0; i < nb_debug_publishers_const; ++i )
@@ -966,6 +970,13 @@ namespace shadow_robot
 
     response.result = control_type_;
     return true;
+  }
+
+  bool SrRobotLib::motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
+                                                    sr_robot_msgs::ChangeMotorSystemControls::Response& response )
+  {
+    //add the request to the queue
+    motor_system_control_flags_.push( request.motor_system_controls );
   }
 
 } //end namespace
