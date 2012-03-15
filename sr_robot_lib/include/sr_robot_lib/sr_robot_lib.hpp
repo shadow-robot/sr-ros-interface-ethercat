@@ -46,6 +46,8 @@
 #include <sr_robot_msgs/SetDebugData.h>
 #include <sr_robot_msgs/ControlType.h>
 #include <sr_robot_msgs/ChangeControlType.h>
+#include <sr_robot_msgs/MotorSystemControls.h>
+#include <sr_robot_msgs/ChangeMotorSystemControls.h>
 
 #include <sr_utilities/sr_math_utils.hpp>
 #include <sr_utilities/calibration.hpp>
@@ -329,6 +331,24 @@ namespace shadow_robot
      */
     bool change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
                                         sr_robot_msgs::ChangeControlType::Response& response );
+
+    ///The Flag which will be sent to change the motor controls
+    std::queue<std::vector<sr_robot_msgs::MotorSystemControls>, std::list<std::vector<sr_robot_msgs::MotorSystemControls> > > motor_system_control_flags_;
+    ///A service server used to call the different motor system controls "buttons"
+    ros::ServiceServer motor_system_control_server_;
+
+    /**
+     * The callback to the control_motor_ service. Sets the correct flags to 1 or 0
+     *  for the MOTOR_SYSTEM_CONTROLS, to control the motors (backlash compensation
+     *  on/off, increase sg tracking, jiggling, write config to EEprom)
+     *
+     * @param request Contains the different flags the user wants to set
+     * @param response SUCCESS if success, MOTOR_ID_OUT_OF_RANGE if bad motor_id given
+     *
+     * @return false if motor_id is out of range
+     */
+    bool motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
+                                          sr_robot_msgs::ChangeMotorSystemControls::Response& response );
   };//end class
 }//end namespace
 
