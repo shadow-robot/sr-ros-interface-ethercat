@@ -343,9 +343,9 @@ namespace shadow_robot
      *  on/off, increase sg tracking, jiggling, write config to EEprom)
      *
      * @param request Contains the different flags the user wants to set
-     * @param response empty
+     * @param response SUCCESS if success, MOTOR_ID_OUT_OF_RANGE if bad motor_id given
      *
-     * @return true
+     * @return false if motor_id is out of range
      */
     bool motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
                                           sr_robot_msgs::ChangeMotorSystemControls::Response& response );

@@ -232,9 +232,11 @@ namespace shadow_robot
     // Now we chose the command to send to the motor
     // by default we send a torque demand (we're running
     // the force control on the motors), but if we have a waiting
-    // configuration or a reset command, then we send the configuration
+    // configuration, a reset command, or a motor system control
+    // request then we send the configuration
     // or the reset.
-    if (reconfig_queue.empty() && reset_motors_queue.empty())
+    if ( reconfig_queue.empty() && reset_motors_queue.empty()
+         && motor_system_control_flags_.empty() )
     {
       //no config to send
       switch( control_type_.control_type )
@@ -304,86 +306,127 @@ namespace shadow_robot
     } //endif reconfig_queue.empty()
     else
     {
-      if (!reset_motors_queue.empty())
+      if ( !motor_system_control_flags_.empty() )
       {
-        //reset the CAN messages counters for the motor we're going to reset.
-        short motor_id = reset_motors_queue.front();
-        boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
-        for (; joint_tmp != joints_vector.end(); ++joint_tmp)
+        //treat the first waiting system control and remove it from the queue
+        std::vector<sr_robot_msgs::MotorSystemControls> system_controls_to_send;
+        system_controls_to_send = motor_system_control_flags_.front();
+        motor_system_control_flags_.pop();
+
+        //set the correct type of command to send to the hand.
+        command->to_motor_data_type = MOTOR_SYSTEM_CONTROLS;
+
+        std::vector<sr_robot_msgs::MotorSystemControls>::iterator it;
+        for( it = system_controls_to_send.begin(); it != system_controls_to_send.end(); ++it)
         {
-          if( joint_tmp->motor->motor_id == motor_id )
-          {
-            joint_tmp->motor->actuator->state_.can_msgs_transmitted_ = 0;
-            joint_tmp->motor->actuator->state_.can_msgs_received_ = 0;
-          }
-        }
-
-        //we have some reset command waiting.
-        // We'll send all of them
-        command->to_motor_data_type = MOTOR_SYSTEM_RESET;
-
-        while (!reset_motors_queue.empty())
-        {
-          motor_id = reset_motors_queue.front();
-          reset_motors_queue.pop();
-
-          // we send the MOTOR_RESET_SYSTEM_KEY
-          // and the motor id (on the bus)
-          crc_unions::union16 to_send;
-          to_send.byte[1] = MOTOR_SYSTEM_RESET_KEY >> 8;
-          if (motor_id > 9)
-            to_send.byte[0] = motor_id - 10;
+          short combined_flags = 0;
+          if( it->enable_backlash_compensation )
+            combined_flags |= MOTOR_SYSTEM_CONTROL_BACKLASH_COMPENSATION_ENABLE;
           else
-            to_send.byte[0] = motor_id;
+            combined_flags |= MOTOR_SYSTEM_CONTROL_BACKLASH_COMPENSATION_DISABLE;
 
-          command->motor_data[motor_id] = to_send.word;
+          if( it->increase_sgl_tracking )
+            combined_flags |= MOTOR_SYSTEM_CONTROL_SGL_TRACKING_INC;
+          if( it->decrease_sgl_tracking )
+            combined_flags |= MOTOR_SYSTEM_CONTROL_SGL_TRACKING_DEC;
+
+          if( it->increase_sgr_tracking )
+            combined_flags |= MOTOR_SYSTEM_CONTROL_SGR_TRACKING_INC;
+          if( it->decrease_sgr_tracking )
+            combined_flags |= MOTOR_SYSTEM_CONTROL_SGR_TRACKING_DEC;
+
+          if( it->initiate_jiggling )
+            combined_flags |= MOTOR_SYSTEM_CONTROL_INITIATE_JIGGLING;
+
+          if( it->write_config_to_eeprom )
+            combined_flags |= MOTOR_SYSTEM_CONTROL_EEPROM_WRITE;
+
+          command->motor_data[ it->motor_id ] = combined_flags;
         }
-      } // end if reset queue not empty
+      } //end if motor_system_control_flags_.empty
       else
       {
-        if (!reconfig_queue.empty())
+        if (!reset_motors_queue.empty())
         {
-          //we have a waiting config:
-          // we need to send all the config, finishing by the
-          // CRC. We'll remove the config from the queue only
-          // when the whole config has been sent
-
-          // the motor data type correspond to the index
-          // in the config array.
-          command->to_motor_data_type = static_cast<TO_MOTOR_DATA_TYPE>(config_index);
-
-          //convert the motor index to the index of the motor in the message
-          int motor_index = reconfig_queue.front().first;
-
-          //set the data we want to send to the given motor
-          command->motor_data[motor_index] = reconfig_queue.front().second[config_index].word;
-
-          //We're now sending the CRC. We need to send the correct CRC to
-          // the motor we updated, and CRC=0 to all the other motors in its
-          // group (odd/even) to tell them to ignore the new
-          // configuration.
-          // Once the config has been transmitted, pop the element
-          // and reset the config_index to the beginning of the
-          // config values
-          if (config_index == static_cast<int>(MOTOR_CONFIG_CRC))
+          //reset the CAN messages counters for the motor we're going to reset.
+          short motor_id = reset_motors_queue.front();
+          boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
+          for (; joint_tmp != joints_vector.end(); ++joint_tmp)
           {
-            //loop on all the motors and send a CRC of 0
-            // except for the motor we're reconfiguring
-            for (int i = 0; i < NUM_MOTORS; ++i)
+            if( joint_tmp->motor->motor_id == motor_id )
             {
-              if (i != motor_index)
-                command->motor_data[i] = 0;
+              joint_tmp->motor->actuator->state_.can_msgs_transmitted_ = 0;
+              joint_tmp->motor->actuator->state_.can_msgs_received_ = 0;
             }
-
-            //reset the config_index and remove the configuration
-            // we just sent from the configurations queue
-            reconfig_queue.pop();
-            config_index = MOTOR_CONFIG_FIRST_VALUE;
           }
-          else
-            ++config_index;
-        } //end if reconfig queue not empty
-      } // end else reset_queue.empty
+
+          //we have some reset command waiting.
+          // We'll send all of them
+          command->to_motor_data_type = MOTOR_SYSTEM_RESET;
+
+          while (!reset_motors_queue.empty())
+          {
+            motor_id = reset_motors_queue.front();
+            reset_motors_queue.pop();
+
+            // we send the MOTOR_RESET_SYSTEM_KEY
+            // and the motor id (on the bus)
+            crc_unions::union16 to_send;
+            to_send.byte[1] = MOTOR_SYSTEM_RESET_KEY >> 8;
+            if (motor_id > 9)
+              to_send.byte[0] = motor_id - 10;
+            else
+              to_send.byte[0] = motor_id;
+
+            command->motor_data[motor_id] = to_send.word;
+          }
+        } // end if reset queue not empty
+        else
+        {
+          if (!reconfig_queue.empty())
+          {
+            //we have a waiting config:
+            // we need to send all the config, finishing by the
+            // CRC. We'll remove the config from the queue only
+            // when the whole config has been sent
+
+            // the motor data type correspond to the index
+            // in the config array.
+            command->to_motor_data_type = static_cast<TO_MOTOR_DATA_TYPE>(config_index);
+
+            //convert the motor index to the index of the motor in the message
+            int motor_index = reconfig_queue.front().first;
+
+            //set the data we want to send to the given motor
+            command->motor_data[motor_index] = reconfig_queue.front().second[config_index].word;
+
+            //We're now sending the CRC. We need to send the correct CRC to
+            // the motor we updated, and CRC=0 to all the other motors in its
+            // group (odd/even) to tell them to ignore the new
+            // configuration.
+            // Once the config has been transmitted, pop the element
+            // and reset the config_index to the beginning of the
+            // config values
+            if (config_index == static_cast<int>(MOTOR_CONFIG_CRC))
+            {
+              //loop on all the motors and send a CRC of 0
+              // except for the motor we're reconfiguring
+              for (int i = 0; i < NUM_MOTORS; ++i)
+              {
+                if (i != motor_index)
+                  command->motor_data[i] = 0;
+              }
+
+              //reset the config_index and remove the configuration
+              // we just sent from the configurations queue
+              reconfig_queue.pop();
+              config_index = MOTOR_CONFIG_FIRST_VALUE;
+            }
+            else
+              ++config_index;
+          } //end if reconfig queue not empty
+        } // end else reset_queue.empty
+      } // end else motor_system_control_flags_.empty
     } //endelse reconfig_queue.empty() && reset_queue.empty()
   }
 
@@ -975,8 +1018,31 @@ namespace shadow_robot
   bool SrRobotLib::motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
                                                     sr_robot_msgs::ChangeMotorSystemControls::Response& response )
   {
-    //add the request to the queue
-    motor_system_control_flags_.push( request.motor_system_controls );
+    std::vector<sr_robot_msgs::MotorSystemControls> tmp_motor_controls;
+
+    response.result = sr_robot_msgs::ChangeMotorSystemControls::Response::SUCCESS;
+    bool no_motor_id_out_of_range = true;
+
+    for( unsigned int i=0; i < request.motor_system_controls.size(); ++i)
+    {
+      if( request.motor_system_controls[i].motor_id >= NUM_MOTORS ||
+          request.motor_system_controls[i].motor_id < 0)
+      {
+        response.result = sr_robot_msgs::ChangeMotorSystemControls::Response::MOTOR_ID_OUT_OF_RANGE;
+        no_motor_id_out_of_range = false;
+      }
+      else
+      {
+        //only pushes the demands with a correct motor_id
+        tmp_motor_controls.push_back( request.motor_system_controls[i] );
+      }
+    }
+
+    //add the request to the queue if it's not empty
+    if( tmp_motor_controls.size() > 0 )
+      motor_system_control_flags_.push( tmp_motor_controls );
+
+    return no_motor_id_out_of_range;
   }
 
 } //end namespace
