@@ -10,7 +10,7 @@
   <url>http://ros.org/wiki/sr_edc_controller_configuration</url>
   <depend package="pr2_controller_manager"/>
   <depend package="robot_mechanism_controllers"/>
-
+  <depend package="sr_ethercat_hand_config"/>
 </package>
 
 

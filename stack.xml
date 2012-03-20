@@ -15,6 +15,7 @@
   <depend stack="ros" /> <!-- roslib -->
   <depend stack="ros_comm" /> <!-- std_srvs, std_msgs, roscpp, rospy -->
   <depend stack="shadow_robot" /> <!-- sr_robot_msgs, sr_hardware_interface, sr_utilities -->
+  <depend stack="sr_config" /> <!-- sr_ethercat_hand_config -->
   <depend stack="xacro" /> <!-- xacro -->
 
 </stack>

@@ -14,6 +14,7 @@
   <depend package="sr_hardware_interface"/>
   <depend package="sr_external_dependencies"/>
   <depend package="sr_robot_msgs"/>
+  <depend package="sr_ethercat_hand_config"/>
   <depend package="std_srvs"/>
   <depend package="diagnostic_updater"/>
   <depend package="realtime_tools"/>
