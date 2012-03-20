@@ -1,5 +1,12 @@
 <launch>
-  <rosparam command="load" file="$(find sr_robot_lib)/config/sensor_to_joint.yaml" />
-  <rosparam command="load" file="$(find sr_robot_lib)/config/calibration.yaml" />
-  <rosparam command="load" file="$(find sr_robot_lib)/config/joint_to_motor_mapping.yaml" />
+  <group if="$(optenv SHADOW_ROS_CONFIG_INSTALLED 0)">
+    <rosparam command="load" ns="srh" file="$(env SHADOW_ROS_CONFIG_PATH)/ethercat_hand/mappings/sensor_to_joint.yaml" />
+    <rosparam command="load" ns="srh" file="$(env SHADOW_ROS_CONFIG_PATH)/ethercat_hand/mappings/joint_to_motor_mapping.yaml" />
+    <rosparam command="load" ns="srh" file="$(env SHADOW_ROS_CONFIG_PATH)/ethercat_hand/calibrations/calibration.yaml" />
+  </group>
+  <group unless="$(optenv SHADOW_ROS_CONFIG_INSTALLED 0)">
+    <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/mappings/sensor_to_joint.yaml" />
+    <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/mappings/joint_to_motor_mapping.yaml" />
+    <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/calibrations/calibration.yaml" />
+  </group>
 </launch>

@@ -1,7 +1,5 @@
 <launch>
-
-  <rosparam command="load" file="$(find sr_robot_lib)/config/friction_compensation.yaml" />
-  <rosparam command="load" file="$(find sr_edc_controller_configuration)/sr_edc_mixed_position_velocity_joint_controllers.yaml" />
+  <include file="$(find sr_edc_controller_configuration)/sr_edc_default_controllers.launch"/>
 
 <!-- - -wait-for=/calibrated -->
   <node name="default_loaded_controllers_spawner"
