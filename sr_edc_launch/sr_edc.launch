@@ -53,7 +53,7 @@
   <include file="$(find sr_hand)/launch/fingertip_static_transform.launch"/>
 
   <!-- pr2_etherCAT -->
-  <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x /robot_description" output="screen"  launch-prefix="nice -n -20"/> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+  <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i $(env ETHERCAT_PORT) -x /robot_description" output="screen"  launch-prefix="nice -n -20"/> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
 
   <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
 
