@@ -9,6 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/sr_edc_launch</url>
 
+  <depend package="sr_ethercat_hand_config"/>
   <depend package="roscpp" />
   <depend package="diagnostic_aggregator" />
   <depend package="diagnostic_updater" />
