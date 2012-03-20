@@ -11,6 +11,7 @@
   <depend stack="pr2_controllers" /> <!-- robot_mechanism_controllers -->
   <depend stack="pr2_ethercat_drivers" /> <!-- ethercat_hardware -->
   <depend stack="pr2_mechanism" /> <!-- pr2_controller_manager, realtime_tools -->
+  <depend stack="pr2_robot" /> <!-- pr2_bringup, pr2_etherCAT -->
   <depend stack="robot_model" /> <!-- convex_decomposition, ivcon, urdf -->
   <depend stack="ros" /> <!-- roslib -->
   <depend stack="ros_comm" /> <!-- std_srvs, std_msgs, roscpp, rospy -->

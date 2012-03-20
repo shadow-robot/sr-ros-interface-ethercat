@@ -19,46 +19,78 @@
   <!-- publishes joint 0s joint states on separate topic for debug/tuning -->
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
 
-  <!-- Loads the robot description -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'" />
+  <group if="$(optenv THREE_FINGER 0)">
+    <!-- Loads the robot description -->
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/sr_three_finger_motor.urdf.xacro'" />
 
-  <node pkg="sr_kinematics" name="ff_kinematics" type="sr_kinematics">
-    <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
-    <param name="root_name" type="string" value="palm"/>
-    <param name="tip_name" type="string" value="ffdistal"/>
-    <param name="maxIterations" type="int" value="1000"/>
-    <param name="epsilon" type="double" value="0.001"/>
-  </node>
-  <node pkg="sr_kinematics" name="mf_kinematics" type="sr_kinematics">
-    <param name="urdf_description"  command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
-    <param name="root_name" type="string" value="palm"/>
-    <param name="tip_name" type="string" value="mfdistal"/>
-    <param name="maxIterations" type="int" value="1000"/>
-    <param name="epsilon" type="double" value="0.001"/>
-  </node>
-  <node pkg="sr_kinematics" name="rf_kinematics" type="sr_kinematics">
-    <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
-    <param name="root_name" type="string" value="palm"/>
-    <param name="tip_name" type="string" value="rfdistal"/>
-    <param name="maxIterations" type="int" value="1000"/>
-    <param name="epsilon" type="double" value="0.001"/>
-  </node>
-  <node pkg="sr_kinematics" name="lf_kinematics" type="sr_kinematics">
-    <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
-    <param name="root_name" type="string" value="palm"/>
-    <param name="tip_name" type="string" value="lfdistal"/>
-    <param name="maxIterations" type="int" value="1000"/>
-    <param name="epsilon" type="double" value="0.001"/>
-  </node>
-  <include file="$(find sr_hand)/launch/fingertip_static_transform.launch"/>
+    <node pkg="sr_kinematics" name="ff_kinematics" type="sr_kinematics">
+      <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/sr_three_finger_motor.urdf.xacro'"/>
+      <param name="root_name" type="string" value="palm"/>
+      <param name="tip_name" type="string" value="ffdistal"/>
+      <param name="maxIterations" type="int" value="1000"/>
+      <param name="epsilon" type="double" value="0.001"/>
+    </node>
+    <node pkg="sr_kinematics" name="rf_kinematics" type="sr_kinematics">
+      <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/sr_three_finger_motor.urdf.xacro'"/>
+      <param name="root_name" type="string" value="palm"/>
+      <param name="tip_name" type="string" value="rfdistal"/>
+      <param name="maxIterations" type="int" value="1000"/>
+      <param name="epsilon" type="double" value="0.001"/>
+    </node>
+    <include file="$(find sr_hand)/launch/fingertip_static_transform.launch"/>
 
-  <!-- pr2_etherCAT -->
-  <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x /robot_description" output="screen"  launch-prefix="nice -n -20"/> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+    <!-- pr2_etherCAT -->
+    <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x /robot_description" output="screen"  launch-prefix="nice -n -20"/> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
 
-  <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
+    <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
 
-  <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
-	args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_mfj0 cal_sh_mfj3 cal_sh_mfj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_lfj0 cal_sh_lfj3 cal_sh_lfj4 cal_sh_lfj5 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
+    <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
+	  args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
+
+  </group>
+  <group unless="$(optenv THREE_FINGER 0)">
+    <!-- Loads the robot description -->
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'" />
+
+    <node pkg="sr_kinematics" name="ff_kinematics" type="sr_kinematics">
+      <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
+      <param name="root_name" type="string" value="palm"/>
+      <param name="tip_name" type="string" value="ffdistal"/>
+      <param name="maxIterations" type="int" value="1000"/>
+      <param name="epsilon" type="double" value="0.001"/>
+    </node>
+    <node pkg="sr_kinematics" name="mf_kinematics" type="sr_kinematics">
+      <param name="urdf_description"  command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
+      <param name="root_name" type="string" value="palm"/>
+      <param name="tip_name" type="string" value="mfdistal"/>
+      <param name="maxIterations" type="int" value="1000"/>
+      <param name="epsilon" type="double" value="0.001"/>
+    </node>
+    <node pkg="sr_kinematics" name="rf_kinematics" type="sr_kinematics">
+      <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
+      <param name="root_name" type="string" value="palm"/>
+      <param name="tip_name" type="string" value="rfdistal"/>
+      <param name="maxIterations" type="int" value="1000"/>
+      <param name="epsilon" type="double" value="0.001"/>
+    </node>
+    <node pkg="sr_kinematics" name="lf_kinematics" type="sr_kinematics">
+      <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
+      <param name="root_name" type="string" value="palm"/>
+      <param name="tip_name" type="string" value="lfdistal"/>
+      <param name="maxIterations" type="int" value="1000"/>
+      <param name="epsilon" type="double" value="0.001"/>
+    </node>
+    <include file="$(find sr_hand)/launch/fingertip_static_transform.launch"/>
+
+    <!-- pr2_etherCAT -->
+    <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x /robot_description" output="screen"  launch-prefix="nice -n -20"/> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+
+    <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
+
+    <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
+	  args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_mfj0 cal_sh_mfj3 cal_sh_mfj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_lfj0 cal_sh_lfj3 cal_sh_lfj4 cal_sh_lfj5 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
+
+  </group>
 
   <!-- diagnostic aggregator for being able to see the results in the robot_monitor -->
   <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
@@ -67,11 +99,9 @@
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
   <node pkg="robot_state_publisher" type="state_publisher"
-	name="srh_robot_state_publisher_pos_etherCAT">
+  name="srh_robot_state_publisher_pos_etherCAT">
     <param name="publish_frequency" type="double" value="100.0" />
   </node>
-
-
 
 </launch>
 
