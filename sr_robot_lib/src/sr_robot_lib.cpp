@@ -997,7 +997,7 @@ namespace shadow_robot
   bool SrRobotLib::change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
                                                   sr_robot_msgs::ChangeControlType::Response& response )
   {
-    if( (request.control_type.control_type != sr_robot_msgs::ControlType::PWM) ||
+    if( (request.control_type.control_type != sr_robot_msgs::ControlType::PWM) &&
         (request.control_type.control_type != sr_robot_msgs::ControlType::FORCE) )
     {
       ROS_ERROR_STREAM(" The value you specified for the control type (" << request.control_type
