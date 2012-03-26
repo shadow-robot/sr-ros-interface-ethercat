@@ -53,8 +53,21 @@ namespace shadow_robot
     // this makes it possible to easily stop the controllers.
     nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
 
-    //using FORCE control by default
+    //reading the parameters to check for a specified default control type
+    // using FORCE control if no parameters are set
     control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
+    std::string default_control_mode;
+    nh_tilde.param<std::string>("default_control_mode", default_control_mode, "force");
+    if( default_control_mode.compare("PWM") )
+    {
+      ROS_INFO("Using PWM control.");
+      control_type_.control_type = sr_robot_msgs::ControlType::PWM;
+    }
+    else
+    {
+      ROS_INFO("Using TORQUE control.");
+    }
+
     //initialising the change control type service
     change_control_type_ = nh_tilde.advertiseService( "change_control_type", &SrRobotLib::change_control_type_callback_, this);
 
