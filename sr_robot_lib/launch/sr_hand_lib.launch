@@ -1,5 +1,5 @@
 <launch>
-  <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/mappings/sensor_to_joint.yaml" />
-  <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/mappings/joint_to_motor_mapping.yaml" />
-  <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/calibrations/calibration.yaml" />
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/sensor_to_joint.yaml" />
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/joint_to_motor_mapping.yaml" />
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/calibration.yaml" />
 </launch>

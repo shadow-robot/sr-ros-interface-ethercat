@@ -701,6 +701,29 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
   // and ask for the different informations.
   sr_hand_lib->build_motor_command(command);
 
+  ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
+		command->to_motor_data_type,
+                command->motor_data[0],
+                command->motor_data[1],
+                command->motor_data[2],
+                command->motor_data[3],
+                command->motor_data[4],
+                command->motor_data[5],
+                command->motor_data[6],
+                command->motor_data[7],
+                command->motor_data[8],
+                command->motor_data[9],
+                command->motor_data[10],
+                command->motor_data[11],
+                command->motor_data[12],
+                command->motor_data[13],
+                command->motor_data[14],
+                command->motor_data[15],
+                command->motor_data[16],
+                command->motor_data[17],
+                command->motor_data[18],
+                command->motor_data[19]);
+
   if (flashing && !can_packet_acked && !can_message_sent)
   {
     if ( !(res = pthread_mutex_trylock(&producing)) )

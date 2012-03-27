@@ -27,3 +27,5 @@ sr_edc_ethercat_drivers/.pydevproject
 sr_edc_ethercat_drivers/cmake_install.cmake
 sr_edc_launch/bin
 sr_edc_launch/build
+sr_edc_controller_configuration/bin
+sr_edc_controller_configuration/build
