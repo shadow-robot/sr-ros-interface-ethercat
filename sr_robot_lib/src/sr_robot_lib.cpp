@@ -44,14 +44,14 @@ namespace shadow_robot
 #endif
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
-    : main_pic_idle_time(0), main_pic_idle_time_min(1000), motor_current_state(
+    : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false), motor_current_state(
       operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),
       nh_tilde("~")
   {
     //advertise the service to nullify the demand sent to the motor
     // this makes it possible to easily stop the controllers.
-    nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
+    nullify_demand_server_ = nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
 
     //using FORCE control by default
     control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
