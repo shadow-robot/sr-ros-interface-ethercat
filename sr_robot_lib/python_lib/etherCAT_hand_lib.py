@@ -170,14 +170,17 @@ class EtherCAT_Hand_Lib(object):
             rospy.logwarn("No values received from the etherCAT hand.")
             return -1.0
 
-        if sensor_name in self.compounds.keys():
-            for sub_compound in self.compounds[sensor_name]:
-                index = self.sensors.index( sub_compound[0] )
-                value = value + ( self.raw_values[index] * sub_compound[1] )
-        else:
-            index = self.sensors.index( sensor_name )
-            value = self.raw_values[index]
-
+        try:
+            if sensor_name in self.compounds.keys():
+                for sub_compound in self.compounds[sensor_name]:
+                    index = self.sensors.index( sub_compound[0] )
+                    value = value + ( self.raw_values[index] * sub_compound[1] )
+            else:
+                index = self.sensors.index( sensor_name )
+                value = self.raw_values[index]
+        except:
+            #if the value is not found we're returning 4095
+            value = 4095
         return value
 
     def get_average_raw_value(self, sensor_name, number_of_samples=10):

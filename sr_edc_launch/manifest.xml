@@ -19,7 +19,8 @@
   <depend package="xacro"/>
   <depend package="convex_decomposition"/>
   <depend package="ivcon"/>
-
+  <depend package="pr2_etherCAT"/>
+  <depend package="pr2_bringup"/>
   <depend package="robot_mechanism_controllers"/>
 </package>
 
