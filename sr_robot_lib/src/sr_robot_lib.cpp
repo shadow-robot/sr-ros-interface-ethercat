@@ -58,7 +58,7 @@ namespace shadow_robot
     control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
     std::string default_control_mode;
     nh_tilde.param<std::string>("default_control_mode", default_control_mode, "force");
-    if( default_control_mode.compare("PWM") )
+    if( default_control_mode.compare("PWM") == 0 )
     {
       ROS_INFO("Using PWM control.");
       control_type_.control_type = sr_robot_msgs::ControlType::PWM;
