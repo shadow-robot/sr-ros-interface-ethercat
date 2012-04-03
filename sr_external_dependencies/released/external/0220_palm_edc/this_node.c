@@ -187,6 +187,8 @@ void initialise_this_node(void)
 
     Output_Pin_Class *LED_pin_AL_ERR        = Get_Output_Pin(LED_AL_ERR_PIN);
 
+    Output_Pin_Class *accel_CS              = Get_Output_Pin(ACCEL_CS_PIN);
+    Pin_Set(accel_CS);
     
     LED_CAN1_TX                             = Get_LED(LED_pin_CAN1_TX);
     LED_CAN1_RX                             = Get_LED(LED_pin_CAN1_RX);

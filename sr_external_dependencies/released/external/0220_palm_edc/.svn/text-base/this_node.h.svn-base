@@ -52,6 +52,11 @@
 #include "misc/typedefs_shadow.h"
 #include "tests/assert_shadow.h"
 
+#include "this_node_serial_number.h"        // contains E.G.      #define THIS_NODE_SERIAL_NUMBER  0x0016
+                                            // This file is not in the SVN so that we can alter the serial 
+                                            // number without having to modify the SVN contents.
+
+
 #define NO_STRINGS
 #include "0220_palm_edc_ethercat_protocol.h"
 #include "simple_can/simple_can.h"
@@ -116,7 +121,7 @@ void Check_For_EtherCAT_Packet(void);
 
 // application defines
 #define THIS_NODE_PRODUCT_CODE      0x0006
-#define THIS_NODE_SERIAL_NUMBER     0x0015
+
 
 //#define THIS_NODE_PRODUCT_CODE      0x0000
 //#define THIS_NODE_SERIAL_NUMBER     0x0004
@@ -261,6 +266,7 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define SPI_CLOCK_PIN               'D',  6
     #define SPI_MOSI_PIN                'D',  5
     #define ET1200_SOMI_PIN             'G',  7
+    #define ACCEL_CS_PIN                'G',  9
     #define LED_CAN1_TX_PIN             'D',  0
     #define LED_CAN1_RX_PIN             'D',  4
     #define LED_CAN1_ERR_PIN            'D',  8

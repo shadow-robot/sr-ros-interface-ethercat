@@ -61,6 +61,14 @@ typedef enum
 
 
 
+
+// ========================================================
+// 
+//       F R O M    M O T O R    D A T A    T Y P E
+// 
+// ========================================================
+
+
 //! The host can request different types of data from the motors.
 //! These values are inserted into bits [3..0] of the message ID
 //! in the Data Request (Start Of Frame) message.
@@ -81,7 +89,7 @@ typedef enum
 //!  <tr> <td>MOTOR_DATA_CAN_NUM_RECEIVED</td>        <td colspan=2>Torque</td>             <td colspan=2>Num Rx</td>                   </tr>
 //!  <tr> <td>MOTOR_DATA_CAN_NUM_TRANSMITTED</td>     <td colspan=2>Torque</td>             <td colspan=2>Num Tx</td>                   </tr>
 //!  <tr> <td>MOTOR_DATA_SVN_REVISION</td>            <td colspan=2>Server revision</td>    <td colspan=2>This revision (top bit = modified)</td> </tr>
-//!  <tr> <td>MOTOR_DATA_READBACK_LAST_CONFIG</td>    <td colspan=2>TO_MOTOR_DATA_TYPE</td> <td colspan=2>Config value</td>             </tr>
+//!  <tr> <td>MOTOR_DATA_READBACK_LAST_CONFIG</td>    <td colspan=2>FROM_MOTOR_SLOW_DATA_TYPE</td> <td colspan=2>Config value</td>             </tr>
 //!  <tr> <td>MOTOR_DATA_CAN_ERROR_COUNTERS</td>      <td colspan=2>Torque</td>             <td          >Tx Err</td> <td>Rx Err</td>   </tr>
 //!</table>
 //! \endhtmlonly
@@ -109,72 +117,99 @@ typedef enum
 }FROM_MOTOR_DATA_TYPE;
 
 
-                                                                // Non serious flags
-#define MOTOR_FLAG_BITS_CURRENT_CHOKE               0x000F
-#define MOTOR_FLAG_BITS_EEPROM_WRITING              0x0010      //!< 1=EEPROM write currently in progress, don't update configuration.
-#define MOTOR_FLAG_BITS_LAST_CONFIG_CRC_FAILED      0x0020
-#define MOTOR_FLAG_BITS_LAST_CONFIG_OUT_OF_RANGE    0x0040
-
-                                                                // Serious flags cause the motor to be switched off
-#define MOTOR_FLAG_BITS_MOTOR_ID_IS_INVALID         0x0200
-#define MOTOR_FLAG_BITS_NO_DEMAND_SEEN              0x0400
-#define MOTOR_FLAG_BITS_SGL_FAULT                   0x0800
-#define MOTOR_FLAG_BITS_SGR_FAULT                   0x1000
-#define MOTOR_FLAG_BITS_A3950_NFAULT                0x2000
-#define MOTOR_FLAG_BITS_EEPROM_CONFIG_BAD_CRC       0x4000
-#define MOTOR_FLAG_BITS_OVER_TEMP                   0x8000
+// ========================================================
+// 
+//                 S L O W    D A T A
+// 
+// ========================================================
 
 
 typedef enum
 {
-    MOTOR_SLOW_DATA_INVALID              = 0x0000,
-    MOTOR_SLOW_DATA_SVN_REVISION         = 0x0001,
-    MOTOR_SLOW_DATA_SVN_SERVER_REVISION  = 0x0002,
-    MOTOR_SLOW_DATA_SVN_MODIFIED         = 0x0003,
-    MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW    = 0x0004,
-    MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH   = 0x0005,
-    MOTOR_SLOW_DATA_GEAR_RATIO           = 0x0006,
-    MOTOR_SLOW_DATA_ASSEMBLY_DATE_YYYY   = 0x0007,
-    MOTOR_SLOW_DATA_ASSEMBLY_DATE_MMDD   = 0x0008,
+    MOTOR_SLOW_DATA_INVALID              = 0x0000,              //!< For safety, this is not a data type
+    MOTOR_SLOW_DATA_SVN_REVISION         = 0x0001,              //!< The revision of the code
+    MOTOR_SLOW_DATA_SVN_SERVER_REVISION  = 0x0002,              //!< The revision of the code on the SVN server at build time.
+                                                                //!  Should we have done an Update before building?
+    MOTOR_SLOW_DATA_SVN_MODIFIED         = 0x0003,              //!< Did the local code have any uncomitted modifications at build time?
+    MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW    = 0x0004,              //!< 
+    MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH   = 0x0005,              //!< 
+    MOTOR_SLOW_DATA_GEAR_RATIO           = 0x0006,              //!< The gear ratio of the motor. E.G. 131 or 128
+    MOTOR_SLOW_DATA_ASSEMBLY_DATE_YYYY   = 0x0007,              //!< Year of assembly, E.G. 2012
+    MOTOR_SLOW_DATA_ASSEMBLY_DATE_MMDD   = 0x0008,              //!< Day/Month of assembly. E.G. 0x0A1F means October 31st
 
-    MOTOR_SLOW_DATA_CONTROLLER_F         = 0x0009,
-    MOTOR_SLOW_DATA_CONTROLLER_P         = 0x000A,
-    MOTOR_SLOW_DATA_CONTROLLER_I         = 0x000B,
-    MOTOR_SLOW_DATA_CONTROLLER_IMAX      = 0x000C,
-    MOTOR_SLOW_DATA_CONTROLLER_D         = 0x000D,
-    MOTOR_SLOW_DATA_CONTROLLER_DEADSIGN  = 0x000E,
-    MOTOR_SLOW_DATA_CONTROLLER_FREQUENCY = 0x000F,
+    MOTOR_SLOW_DATA_CONTROLLER_F         = 0x0009,              //!< Feed forward gain of the FPID torque controller.
+    MOTOR_SLOW_DATA_CONTROLLER_P         = 0x000A,              //!< Proportional gain of the FPID torque controller.
+    MOTOR_SLOW_DATA_CONTROLLER_I         = 0x000B,              //!< Integral     gain of the FPID torque controller.
+    MOTOR_SLOW_DATA_CONTROLLER_IMAX      = 0x000C,              //!< Maximum wind up of the integral term
+    MOTOR_SLOW_DATA_CONTROLLER_D         = 0x000D,              //!< Derivative   gain of the FPID torque controller.
+    MOTOR_SLOW_DATA_CONTROLLER_DEADSIGN  = 0x000E,              //!< LSB = Dead band. Unsigned 8 bit. MSB = Sign. 0=+ve. 1=-ve.
+    MOTOR_SLOW_DATA_CONTROLLER_FREQUENCY = 0x000F,              //!< Typically 5000. I.E. Torque controller runs at 5kHz.
 
-    MOTOR_SLOW_DATA_STRAIN_GAUGE_TYPE    = 0x0010,
+    MOTOR_SLOW_DATA_STRAIN_GAUGE_TYPE    = 0x0010,              //!< 0x0C = coupled gauges. 0x0D = decoupled gauges.
 
-    MOTOR_SLOW_DATA_LAST                 = 0x0010
+    MOTOR_SLOW_DATA_LAST                 = 0x0010               //!< Important to know that this is the last one
 }FROM_MOTOR_SLOW_DATA_TYPE;
 
 #define STRAIN_GAUGE_TYPE_COUPLED       0x0C
 #define STRAIN_GAUGE_TYPE_DECOUPLED     0x0D
 
-#ifndef NO_STRINGS													                    // The PIC compiler doesn't deal well with strings.
+#ifndef NO_STRINGS													                        // The PIC compiler doesn't deal well with strings.
 
-    static const char* slow_data_types[17] = {  "Invalid",
-                                                "SVN revision",
-                                                "SVN revision on server at build time",
-                                                "Modified from SVN revision",
-                                                "Serial number low",
-                                                "Serial number high",
-                                                "Motor gear ratio",
-                                                "Assembly date year",
-                                                "Assembly date month, day",
-                                                "Controller F",
-                                                "Controller P",
-                                                "Controller I",
-                                                "Controller D",
-                                                "Controller Imax",
-                                                "Controller D",
-                                                "Controller deadband and sign",
-                                                "Controller loop frequency Hz"
+    static const char* slow_data_types[17] = {  "Invalid",                                  // 0x0000
+                                                "SVN revision",                             // 0x0001
+                                                "SVN revision on server at build time",     // 0x0002
+
+                                                "Modified from SVN revision",               // 0x0003
+                                                "Serial number low",                        // 0x0004
+                                                "Serial number high",                       // 0x0005
+                                                "Motor gear ratio",                         // 0x0006
+                                                "Assembly date year",                       // 0x0007
+                                                "Assembly date month, day",                 // 0x0008
+
+                                                "Controller F",                             // 0x0009
+                                                "Controller P",                             // 0x000A
+                                                "Controller I",                             // 0x000B
+                                                "Controller Imax",                          // 0x000D
+                                                "Controller D",                             // 0x000E
+                                                "Controller deadband and sign",             // 0x000F
+
+                                                "Controller loop frequency Hz"              // 0x0010
                                                };
 
 #endif
+
+
+
+
+// ========================================================
+// 
+//                       F L A G S
+// 
+// ========================================================
+
+
+                                                                // Non serious flags, Just for information. Control still works.
+                                                                // -------------------------------------------------------------
+#define MOTOR_FLAG_BITS_CURRENT_CHOKE               0x000F      //!< Top 4 bits of the current choke.
+
+#define MOTOR_FLAG_BITS_EEPROM_WRITING              0x0010      //!< 1=EEPROM write currently in progress, don't update configuration.
+#define MOTOR_FLAG_BITS_LAST_CONFIG_CRC_FAILED      0x0020      //!< 1=Last CRC message didn't patch the previously sent configs.
+#define MOTOR_FLAG_BITS_LAST_CONFIG_OUT_OF_RANGE    0x0040      //!< 1=Last config message contained a value which was out of range.
+#define MOTOR_FLAG_BITS_JIGGLING_IN_PROGRESS        0x0080      //!< Jiggling in progress to zreo gauge readings. Control unavailable at this time.
+
+
+                                                                // Serious flags cause the motor to be switched off
+                                                                // ------------------------------------------------
+//#define                                           0x0100
+#define MOTOR_FLAG_BITS_MOTOR_ID_IS_INVALID         0x0200      //!< Motor seems to have an out-of-range ID. You'll probably never see this flag. (Might get rid of it)
+#define MOTOR_FLAG_BITS_NO_DEMAND_SEEN              0x0400      //!< Haven't received any demand messages for longer than NO_DEMAND_TIMEOUT_MS. Motor halted
+#define MOTOR_FLAG_BITS_SGL_FAULT                   0x0800      //!< Fault seen with Left strain gauge. Not currently implemented.
+
+#define MOTOR_FLAG_BITS_SGR_FAULT                   0x1000      //!< Fault seen with Left strain gauge. Not currently implemented.
+#define MOTOR_FLAG_BITS_A3950_NFAULT                0x2000      //!< nFault output from A3950 H-Bridge
+#define MOTOR_FLAG_BITS_EEPROM_CONFIG_BAD_CRC       0x4000      //!< EEPROM contains a bad CRC. Configs not loaded.
+#define MOTOR_FLAG_BITS_OVER_TEMP                   0x8000      //!< Motor over-heated and halted.
+
 
 #define NO_TORQUE_CONTROL_ERROR_FLAGS  (  MOTOR_FLAG_BITS_SGL_FAULT              \
                                         | MOTOR_FLAG_BITS_SGR_FAULT )
@@ -185,33 +220,44 @@ typedef enum
                                         | MOTOR_FLAG_BITS_OVER_TEMP    )
 
 
-#define NO_DEMAND_TIMEOUT_MS    20                                                      //!< If a motor doesn't see any Torque or PWM demand values,
-                                                                                        //!  how long, in milliseconds, before it switches off the motor.
+#define NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a motor doesn't see any Torque or PWM demand values,
+                                                                                                //!  how long, in milliseconds, before it switches off the motor.
 
-#ifndef NO_STRINGS													                    // The PIC compiler doesn't deal well with strings.
+#ifndef NO_STRINGS													                            // The PIC compiler doesn't deal well with strings.
 
     //! These are the names of the bits in the MOTOR_DATA_FLAGS.
     //! error_flag_names[n] is the name of bit 'n' in MOTOR_DATA_FLAGS.
-    static const char* error_flag_names[16] = { "Current choke bit 6",
-                                                "Current choke bit 7",
-                                                "Current choke bit 8",
-                                                "Current choke bit 9",
-                                                "EEPROM write in progress",
-                                                "Last CRC didn't match configs",
-                                                "Last config received was out of range",
-                                                "undefined flag",
-                                                "Motor ID is invalid",
-                                                "No demand seen for more than 20ms",
-                                                "Last configuration sent failed its CRC. Please resend",
-                                                "Fault with strain gauge 0: left",
-                                                "Fault with strain gauge 1: right",
-                                                "A3950 H-bridge nFault asserted",
-                                                "EEPROM contains bad CRC. Motor off.",
-                                                "Motor over temperature"
+    static const char* error_flag_names[16] = { "Current choke bit 6",                          // 0x0001
+                                                "Current choke bit 7",                          // 0x0002
+                                                "Current choke bit 8",                          // 0x0004
+                                                "Current choke bit 9",                          // 0x0008
+
+                                                "EEPROM write in progress",                     // 0x0010
+                                                "Last CRC sent didn't match configs",           // 0x0020
+                                                "Last config received was out of range",        // 0x0040
+                                                "Jiggling in progress",                         // 0x0080
+
+                                                "Invalid flag",                                 // 0x0100
+                                                "Motor ID is invalid",                          // 0x0200
+                                                "No demand seen for more than 20ms",            // 0x0400
+                                                "Fault with strain gauge 0: left",              // 0x0800
+
+                                                "Fault with strain gauge 1: right",             // 0x1000
+                                                "A3950 H-bridge nFault asserted",               // 0x2000
+                                                "EEPROM contains bad CRC. Motor off.",          // 0x4000
+                                                "Motor over temperature"                        // 0x8000
                                                };
 #endif
 
 
+
+
+
+// ========================================================
+// 
+//         T O    M O T O R    D A T A    T Y P E
+// 
+// ========================================================
 
 //! The host can send different types of data from the motors.
 //! These can be either control demands, or configurations.
@@ -224,7 +270,8 @@ typedef enum
     MOTOR_DEMAND_PWM                    = 0x2,                  //!< Demanding PWM bypasses the Torque PID loop, and gives the exact PWM you asked for
                                                                 //!  except where
 
-    MOTOR_SYSTEM_RESET                  = 0x3,
+    MOTOR_SYSTEM_RESET                  = 0x3,                  //!< Send with a demand value of 0x520x to reset motor x
+    MOTOR_SYSTEM_CONTROLS               = 0x4,                  //!< Various bits to switch on / off misc things.
 
     MOTOR_CONFIG_FIRST_VALUE            = 0x7,                  //!< This is the first TO_MOTOR_DATA_TYPE which is actually a configuration and should be stored in EEPROM
     MOTOR_CONFIG_MAX_PWM                = 0x7,                  //!< Put an upper limit on the absolute value of the motor PWM. Range [0..0x03FF]
@@ -240,7 +287,18 @@ typedef enum
                                                                 //!  above, causes the configs to take effect.
 }TO_MOTOR_DATA_TYPE;
 
-#define MOTOR_SYSTEM_RESET_KEY               0x5200             //!< | Motor ID.
+#define MOTOR_SYSTEM_RESET_KEY                              0x5200              //!< | Motor ID.
+
+#define MOTOR_SYSTEM_CONTROL_BACKLASH_COMPENSATION_ENABLE   0x0001              //!< Turn on  Backlash Compensation
+#define MOTOR_SYSTEM_CONTROL_BACKLASH_COMPENSATION_DISABLE  0x0002              //!< Turn off Backlash Compensation
+#define MOTOR_SYSTEM_CONTROL_SGL_TRACKING_INC               0x0004              //!< Increment the tracking value for Left gauge
+#define MOTOR_SYSTEM_CONTROL_SGL_TRACKING_DEC               0x0008              //!< Decrement the tracking value for Left gauge
+#define MOTOR_SYSTEM_CONTROL_SGR_TRACKING_INC               0x0010              //!< Increment the tracking value for Right gauge
+#define MOTOR_SYSTEM_CONTROL_SGR_TRACKING_DEC               0x0020              //!< Decrement the tracking value for Right gauge
+#define MOTOR_SYSTEM_CONTROL_INITIATE_JIGGLING              0x0040              //!< Initiate the jiggling to re-zero the strain gauges. You'll
+                                                                                //!  see the MOTOR_FLAG_BITS_JIGGLING_IN_PROGRESS flag appear.
+#define MOTOR_SYSTEM_CONTROL_EEPROM_WRITE                   0x0080              //!< Write the configuration to the EEPROM.
+
 
 
 #define MOTOR_DEMAND_TORQUE_RANGE_MIN       -0x7FFF
