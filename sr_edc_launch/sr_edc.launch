@@ -40,7 +40,7 @@
 
     <!-- pr2_etherCAT -->
     <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i $(env ETHERCAT_PORT) -x /robot_description" output="screen"  launch-prefix="nice -n -20"> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
-      <param if="$(optenv PWM_CONTROL)" name="default_control_mode" value="PWM"/>
+      <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
     </node>
 
 
@@ -52,7 +52,8 @@
   </group>
   <group unless="$(optenv THREE_FINGER 0)">
     <!-- Loads the robot description -->
-    <param name="robot_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'" />
+    <param if="$(optenv BIOTAC_HAND 0)" name="robot_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor_biotac.urdf.xacro'" />
+    <param unless="$(optenv BIOTAC_HAND 0)" name="robot_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'" />
 
     <node pkg="sr_kinematics" name="ff_kinematics" type="sr_kinematics">
       <param name="urdf_description" command="$(find xacro)/xacro.py '$(find sr_hand)/model/robots/xacro/shadowhand_motor.urdf.xacro'"/>
