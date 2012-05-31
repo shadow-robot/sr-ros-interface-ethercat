@@ -6,7 +6,7 @@
      and prepare the messages to be send through etherCAT.
 
   </description>
-  <author>Ugo Cupcic / ugo@shadowrobot.com , contact@shadowrobot.com</author>
+  <author>Ugo Cupcic / ugo@shadowrobot.com , software@shadowrobot.com</author>
   <license>GPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/sr_robot_lib</url>

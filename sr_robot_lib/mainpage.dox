@@ -2,25 +2,13 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b sr_robot_lib is ... 
-
-<!-- 
-Provide an overview of your package.
--->
+\b sr_robot_lib contains the robot library used in the sr_edc_ethercat_drivers. The
+   library is used to store the incoming etherCAT messages in an easy to access format,
+   and prepare the messages to be send through etherCAT.
 
 
 \section codeapi Code API
-
-<!--
-Provide links to specific auto-generated API documentation within your
-package that is of particular interest to a reader. Doxygen will
-document pretty much every part of your code, so do your best here to
-point the reader to the actual API.
-
-If your codebase is fairly large or has different sets of APIs, you
-should use the doxygen 'group' tag to keep these APIs together. For
-example, the roscpp documentation has 'libros' group.
--->
+The robot lib class is then used in the sr_edc_ethercat_drivers which ensures the actual communication with the hardware.
 
 
 */
