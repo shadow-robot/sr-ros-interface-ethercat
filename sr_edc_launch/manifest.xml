@@ -22,6 +22,7 @@
   <depend package="pr2_etherCAT"/>
   <depend package="pr2_bringup"/>
   <depend package="robot_mechanism_controllers"/>
+  <depend package="sr_description"/>
 </package>
 
 
