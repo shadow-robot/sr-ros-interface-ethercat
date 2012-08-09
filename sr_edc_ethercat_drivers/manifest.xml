@@ -16,7 +16,7 @@
   <depend package="ethercat_hardware"/>
   <depend package="sr_external_dependencies"/>
 
-  <rosdep name="libbfd"/>
+  <rosdep name="binutils"/>
   <export>
     <ethercat_hardware plugin="${prefix}/ethercat_device_plugin.xml" />
   </export>
