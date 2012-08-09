@@ -1,4 +1,4 @@
-libbfd:
+binutils:
   debian: binutils-dev
   ubuntu: binutils-dev
 tinyxml:
