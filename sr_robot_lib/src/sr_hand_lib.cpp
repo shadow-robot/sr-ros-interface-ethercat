@@ -305,6 +305,23 @@ namespace shadow_robot
       return;
     }
 
+    //setting the backlash compensation (on or off)
+    bool backlash_compensation;
+    full_param << "/" << act_name << "/backlash_compensation";
+    nodehandle_.param<bool>(full_param.str(), backlash_compensation, true);
+    full_param.str("");
+    sr_robot_msgs::ChangeMotorSystemControls::Request backlash_request;
+    sr_robot_msgs::MotorSystemControls motor_sys_ctrl;
+    motor_sys_ctrl.motor_id = motor_index;
+    motor_sys_ctrl.enable_backlash_compensation = backlash_compensation;
+
+    backlash_request.motor_system_controls.push_back(motor_sys_ctrl);
+    sr_robot_msgs::ChangeMotorSystemControls::Response backlash_response;
+    if( motor_system_controls_callback_( backlash_request, backlash_response ) )
+    {
+      return;
+    }
+
     ROS_WARN_STREAM( "Didn't load the force pid settings for the motor in joint " << act_name );
   }
 
