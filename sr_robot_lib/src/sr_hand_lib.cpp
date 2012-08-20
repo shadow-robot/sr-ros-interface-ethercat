@@ -236,13 +236,21 @@ namespace shadow_robot
                                        std_srvs::Empty::Response& response,
                                        std::pair<int,std::string> joint)
   {
+    ROS_INFO_STREAM(" resetting " << joint.second << " ("<< joint.first <<")");
+
     reset_motors_queue.push(joint.first);
 
-    //wait for the reset to be sent
-    sleep(2.0);
+    //wait a few secs for the reset to be sent then resend the pids
+    std::string joint_name = joint.second;
+/*
+    ros::Duration(5.0).sleep();
+    resend_pids(joint_name, joint.first);
+*/
 
-    //then reset the pids
-    resend_pids(joint.second, joint.first);
+    pid_timers[ joint_name ] = nh_tilde.createTimer( ros::Duration(3.0),
+                                                     boost::bind(&SrHandLib::resend_pids, this, joint_name, joint.first),
+                                                     true );
+
 
     return true;
   }
@@ -300,10 +308,7 @@ namespace shadow_robot
     pid_request.deadband = deadband;
     pid_request.sign = sign;
     sr_robot_msgs::ForceController::Response pid_response;
-    if( force_pid_callback(pid_request, pid_response, motor_index ) )
-    {
-      return;
-    }
+    bool pid_success = force_pid_callback(pid_request, pid_response, motor_index );
 
     //setting the backlash compensation (on or off)
     bool backlash_compensation;
@@ -315,14 +320,17 @@ namespace shadow_robot
     motor_sys_ctrl.motor_id = motor_index;
     motor_sys_ctrl.enable_backlash_compensation = backlash_compensation;
 
+    if( !backlash_compensation)
+      ROS_INFO_STREAM( "Setting backlash compensation to OFF for joint " << act_name );
+
     backlash_request.motor_system_controls.push_back(motor_sys_ctrl);
     sr_robot_msgs::ChangeMotorSystemControls::Response backlash_response;
-    if( motor_system_controls_callback_( backlash_request, backlash_response ) )
-    {
-      return;
-    }
+    bool backlash_success = motor_system_controls_callback_( backlash_request, backlash_response );
 
-    ROS_WARN_STREAM( "Didn't load the force pid settings for the motor in joint " << act_name );
+    if( !pid_success )
+      ROS_WARN_STREAM( "Didn't load the force pid settings for the motor in joint " << act_name );
+    if( !backlash_success )
+      ROS_WARN_STREAM( "Didn't set the backlash compensation correctly for the motor in joint " << act_name );
   }
 
 

@@ -162,6 +162,12 @@ namespace shadow_robot
      * @param motor_index the index of the motor for this joint
      */
     void resend_pids(std::string joint_name, int motor_index);
+
+    /**
+     * A map used to keep the timers created in reset_motor_callback alive.
+     * We're using a map to keep only one timer per joint.
+     */
+    std::map<std::string, ros::Timer> pid_timers;
   };
 
 }
