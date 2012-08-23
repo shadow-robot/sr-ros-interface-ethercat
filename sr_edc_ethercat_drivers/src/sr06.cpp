@@ -295,6 +295,10 @@ int SR06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int>(ETHERCAT_COMMAND_DATA_SIZE) );
   ROS_INFO("ETHERCAT_CAN_BRIDGE_DATA_SIZE  = %4d bytes", static_cast<int>(ETHERCAT_CAN_BRIDGE_DATA_SIZE) );
 
+  //initialise the publisher for the extra analog inputs, gyroscope and accelerometer on the palm
+  extra_analog_inputs_publisher.reset(new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_ , "palm_extras", 10));
+
+
 #ifdef DEBUG_PUBLISHER
   // Debug real time publisher: publishes the raw ethercat data
   debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_ , "debug_etherCAT_data", 4));
@@ -929,11 +933,44 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   //with the received information
   sr_hand_lib->update(status_data);
 
-  //Now publish the tactile sensor data at 100Hz (every 10 cycles)
+  //Now publish the additional data at 100Hz (every 10 cycles)
   if( cycle_count >= 9)
   {
+    //publish tactiles if we have them
     if( sr_hand_lib->tactiles != NULL )
       sr_hand_lib->tactiles->publish();
+
+    //And we also publish the additional data (accelerometer / gyroscope / analog inputs)
+    std_msgs::Float64MultiArray extra_analog_msg;
+    extra_analog_msg.layout.dim.resize(3);
+    extra_analog_msg.data.resize(3+3+4);
+    std::vector<double> data;
+
+    extra_analog_msg.layout.dim[0].label = "accelerometer";
+    extra_analog_msg.layout.dim[0].size = 3;
+    extra_analog_msg.data[0] = status_data->sensors[ACCX];
+    extra_analog_msg.data[1] = status_data->sensors[ACCY];
+    extra_analog_msg.data[2] = status_data->sensors[ACCZ];
+
+    extra_analog_msg.layout.dim[1].label = "gyrometer";
+    extra_analog_msg.layout.dim[1].size = 3;
+    extra_analog_msg.data[3] = status_data->sensors[GYRX];
+    extra_analog_msg.data[4] = status_data->sensors[GYRY];
+    extra_analog_msg.data[5] = status_data->sensors[GYRZ];
+
+    extra_analog_msg.layout.dim[2].label = "analog_inputs";
+    extra_analog_msg.layout.dim[2].size = 4;
+    extra_analog_msg.data[6] = status_data->sensors[AN0];
+    extra_analog_msg.data[7] = status_data->sensors[AN1];
+    extra_analog_msg.data[8] = status_data->sensors[AN2];
+    extra_analog_msg.data[9] = status_data->sensors[AN3];
+
+    if( extra_analog_inputs_publisher->trylock() )
+    {
+      extra_analog_inputs_publisher->msg_ = extra_analog_msg;
+      extra_analog_inputs_publisher->unlockAndPublish();
+    }
+
     cycle_count = 0;
   }
   ++cycle_count;
