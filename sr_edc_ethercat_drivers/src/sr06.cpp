@@ -965,6 +965,12 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     extra_analog_msg.data[8] = status_data->sensors[AN2];
     extra_analog_msg.data[9] = status_data->sensors[AN3];
 
+    if( extra_analog_inputs_publisher->trylock() )
+    {
+      extra_analog_inputs_publisher->msg_ = extra_analog_msg;
+      extra_analog_inputs_publisher->unlockAndPublish();
+    }
+
     cycle_count = 0;
   }
   ++cycle_count;
