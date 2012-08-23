@@ -31,6 +31,7 @@
 #include <sr_edc_ethercat_drivers/sr0x.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <std_msgs/Int16.h>
+#include <std_msgs/Float64MultiArray.h>
 #include <sr_robot_msgs/SimpleMotorFlasher.h>
 #include <pthread.h>
 #include <bfd.h>
@@ -76,6 +77,9 @@ protected:
 
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
   std::vector< boost::shared_ptr<rt_pub_int16_t> >   realtime_pub_;
+
+  /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
+  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
 
 private:
 

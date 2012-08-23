@@ -74,7 +74,6 @@ namespace shadow_robot
     ///Initialising service
     motor_system_control_server_ = nh_tilde.advertiseService( "change_motor_system_controls", &SrRobotLib::motor_system_controls_callback_, this);
 
-
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
     for( int i = 0; i < nb_debug_publishers_const; ++i )
