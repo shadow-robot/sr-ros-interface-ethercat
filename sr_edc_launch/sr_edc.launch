@@ -20,10 +20,10 @@
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
 
   <!-- Loads the correct robot description depending on the environment variables -->
-  <include file="$(find sr_description)/loaders/load_hand_model_robot_description.launch" />
+  <include file="$(find sr_description)/loaders/load_hand_model.launch" />
 
   <!-- pr2_etherCAT -->
-  <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i $(env ETHERCAT_PORT) -x /robot_description" output="screen"  launch-prefix="nice -n -20"> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+  <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i $(env ETHERCAT_PORT) -x sh_description" output="screen"  launch-prefix="nice -n -20"> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
     <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
   </node>
 
