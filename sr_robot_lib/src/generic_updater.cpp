@@ -78,6 +78,7 @@ namespace generic_updater
   {
     if (update_state == operation_mode::device_update_state::OPERATION)
     {
+      boost::mutex::scoped_lock l(*mutex);
       unimportant_data_queue.push(data_type);
 
       ROS_DEBUG_STREAM("Timer: data type = "<<data_type << " | queue size: "<<unimportant_data_queue.size());
