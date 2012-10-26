@@ -299,10 +299,8 @@ int SR06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
   extra_analog_inputs_publisher.reset(new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_ , "palm_extras", 10));
 
 
-#ifdef DEBUG_PUBLISHER
   // Debug real time publisher: publishes the raw ethercat data
   debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_ , "debug_etherCAT_data", 4));
-#endif
   return retval;
 }
 
@@ -882,7 +880,6 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   ++num_rxed_packets;
 
 
-#ifdef DEBUG_PUBLISHER
   // publishes the debug information (a slightly formatted version of the incoming ethercat packet):
   if(debug_publisher->trylock())
   {
@@ -915,8 +912,6 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
     debug_publisher->unlockAndPublish();
   }
-#endif
-
 
   if (status_data->EDC_command == EDC_COMMAND_INVALID)
   {
