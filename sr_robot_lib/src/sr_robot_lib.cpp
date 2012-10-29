@@ -34,6 +34,7 @@
 
 #include "sr_robot_lib/shadow_PSTs.hpp"
 #include "sr_robot_lib/biotac.hpp"
+#include <pr2_mechanism_msgs/ListControllers.h>
 
 namespace shadow_robot
 {
@@ -47,8 +48,11 @@ namespace shadow_robot
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false), motor_current_state(
       operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),
+      control_type_changed_flag_(false),
       nh_tilde("~")
   {
+    lock_command_sending_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
+
     //advertise the service to nullify the demand sent to the motor
     // this makes it possible to easily stop the controllers.
     nullify_demand_server_ = nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
@@ -57,7 +61,7 @@ namespace shadow_robot
     // using FORCE control if no parameters are set
     control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
     std::string default_control_mode;
-    nh_tilde.param<std::string>("default_control_mode", default_control_mode, "force");
+    nh_tilde.param<std::string>("default_control_mode", default_control_mode, "FORCE");
     if( default_control_mode.compare("PWM") == 0 )
     {
       ROS_INFO("Using PWM control.");
@@ -192,6 +196,20 @@ namespace shadow_robot
 
   void SrRobotLib::build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
+    //Mutual exclusion with the change_control_type service. We have to wait until the control_type_ variable has been set.
+    boost::mutex::scoped_lock l(*lock_command_sending_);
+
+    if(control_type_changed_flag_)
+    {
+      if(!change_control_parameters(control_type_.control_type))
+      {
+        ROS_FATAL("Changing control parameters failed. Stopping real time loop to protect the robot.");
+        exit(EXIT_FAILURE);
+      }
+
+      control_type_changed_flag_ = false;
+    }
+
     if (motor_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
       motor_current_state = motor_updater_->build_init_command(command);
@@ -1012,19 +1030,92 @@ namespace shadow_robot
     if( (request.control_type.control_type != sr_robot_msgs::ControlType::PWM) &&
         (request.control_type.control_type != sr_robot_msgs::ControlType::FORCE) )
     {
-      ROS_ERROR_STREAM(" The value you specified for the control type (" << request.control_type
-                       << ") is incorrect. Using FORCE control.");
+      std::string ctrl_type_text = "";
+      if(control_type_.control_type == sr_robot_msgs::ControlType::FORCE)
+        ctrl_type_text = "FORCE";
+      else
+        ctrl_type_text = "PWM";
 
-      control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
+      ROS_ERROR_STREAM(" The value you specified for the control type (" << request.control_type
+                       << ") is incorrect. Using " << ctrl_type_text << " control.");
 
       response.result = control_type_;
       return false;
     }
 
-    control_type_ = request.control_type;
+    if(control_type_.control_type != request.control_type.control_type)
+    {
+      //Mutual exclusion with the build_motor_command() function. We have to wait until the current motor command has been built.
+      boost::mutex::scoped_lock l(*lock_command_sending_);
+
+      ROS_WARN("Changing control type");
+
+      control_type_ = request.control_type;
+      //Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
+      //The flag is set in the callback function of the change_control_type_ service.
+      //The flag is checked in build_motor_command() and the necessary actions are taken there.
+      //These actions involve calling services in the controller manager and all the active controllers. This is the
+      //reason why we don't do it directly in the callback function. As we use a single thread to serve the callbacks,
+      //doing so would cause a deadlock, thus we do it in the realtime loop thread instead.
+      control_type_changed_flag_ = true;
+    }
 
     response.result = control_type_;
     return true;
+  }
+
+  bool SrRobotLib::change_control_parameters(int16_t control_type)
+  {
+    bool success = true;
+    std::string env_variable;
+    std::string param_value;
+
+    if( control_type == sr_robot_msgs::ControlType::PWM)
+    {
+      env_variable = "PWM_CONTROL=1";
+      param_value = "PWM";
+    }
+    else
+    {
+      env_variable = "PWM_CONTROL=0";
+      param_value = "FORCE";
+    }
+
+    int result = system((env_variable + " roslaunch sr_ethercat_hand_config sr_edc_default_controllers.launch").c_str());
+
+    if(result == 0)
+    {
+      ROS_WARN("New parameters loaded successfully on Parameter Server");
+
+      nh_tilde.setParam("default_control_mode", param_value);
+
+      ros::ServiceClient list_ctrl_client = nh_tilde.serviceClient<pr2_mechanism_msgs::ListControllers>("/pr2_controller_manager/list_controllers");
+      pr2_mechanism_msgs::ListControllers controllers_list;
+
+      if (list_ctrl_client.call(controllers_list))
+      {
+        for(unsigned int i=0; i < controllers_list.response.controllers.size(); ++i)
+        {
+          ros::ServiceClient reset_gains_client = nh_tilde.serviceClient<std_srvs::Empty>("/" + controllers_list.response.controllers.at(i) + "/reset_gains");
+          std_srvs::Empty empty_message;
+          if (!reset_gains_client.call(empty_message))
+          {
+            ROS_ERROR_STREAM("Failed to reset gains for controller: " << controllers_list.response.controllers.at(i));
+            return false;
+          }
+        }
+      }
+      else
+      {
+        return false;
+      }
+    }
+    else
+    {
+      return false;
+    }
+
+    return success;
   }
 
   bool SrRobotLib::motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,

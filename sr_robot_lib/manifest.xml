@@ -18,6 +18,7 @@
   <depend package="std_srvs"/>
   <depend package="diagnostic_updater"/>
   <depend package="realtime_tools"/>
+  <depend package="pr2_mechanism_msgs"/>
 
   <depend package="roscpp"/>
   <depend package="rospy"/>
