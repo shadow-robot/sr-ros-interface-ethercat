@@ -7,7 +7,7 @@
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml" />
 
   <!-- Default controllers -->
-  <include file="$(find sr_edc_controller_configuration)/sr_edc_default_controllers.launch" />
+  <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch" />
 
   <!-- Should be loaded before starting/running pr2_etherCAT node -->
   <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/calibrations/sr_edc_sensor_gain_offset.yaml" />
