@@ -317,8 +317,19 @@ namespace shadow_robot
 
     ///The current type of control (FORCE demand or PWM demand sent to the motors)
     sr_robot_msgs::ControlType control_type_;
+    /**
+     * Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
+     * The flag is set in the callback function of the change_control_type_ service.
+     * The flag is checked in build_motor_command() and the necessary actions are taken there.
+     * These actions involve calling services in the controller manager and all the active controllers. This is the
+     * reason why we don't do it directly in the callback function. As we use a single thread to serve the callbacks,
+     * doing so would cause a deadlock, thus we do it in the realtime loop thread instead.
+     */
+    bool control_type_changed_flag_;
     ///A service server used to change the control type on the fly.
     ros::ServiceServer change_control_type_;
+    ///A mutual exclusion object to ensure that no command will be sent to the robot while a change in the control type (PWM or torque) is ongoing
+    boost::shared_ptr<boost::mutex> lock_command_sending_;
 
     /**
      * The callback to the change_control_type_ service. Updates
@@ -331,6 +342,17 @@ namespace shadow_robot
      */
     bool change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
                                         sr_robot_msgs::ChangeControlType::Response& response );
+
+    /**
+     * Load the necessary parameters in the Parameter Server and
+     * calls a service for every controller currently loaded in the controller manager to make it
+     * reload (resetGains()) its parameters from the Parameter Server
+     *
+     * @param control_type The new active control type (PWM or torque)
+     *
+     * @return true if all the steps successful
+     */
+    bool change_control_parameters(int16_t control_type);
 
     ///The Flag which will be sent to change the motor controls
     std::queue<std::vector<sr_robot_msgs::MotorSystemControls>, std::list<std::vector<sr_robot_msgs::MotorSystemControls> > > motor_system_control_flags_;
