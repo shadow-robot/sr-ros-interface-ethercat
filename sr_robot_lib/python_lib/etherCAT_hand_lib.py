@@ -215,10 +215,14 @@ class EtherCAT_Hand_Lib(object):
         # return false (the library is not activated)
         try:
             rospy.wait_for_message("/joint_states", JointState, timeout = 0.2)
+            self.joint_state_subscriber = rospy.Subscriber("/joint_states", JointState, self.joint_state_callback)
         except:
-            return False
+            try:
+                rospy.wait_for_message("/gazebo/joint_states", JointState, timeout = 0.2)
+                self.joint_state_subscriber = rospy.Subscriber("/gazebo/joint_states", JointState, self.joint_state_callback)
+            except:
+                return False
 
-        self.joint_state_subscriber = rospy.Subscriber("/joint_states", JointState, self.joint_state_callback)
         return True
 
     def on_close(self):
