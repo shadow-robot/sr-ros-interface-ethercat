@@ -934,7 +934,7 @@ namespace shadow_robot
                                                  int i, int d, int imax, int deadband, int sign)
   {
     ROS_INFO_STREAM(
-      "Setting new pid values for motor" << motor_index << ": max_pwm="<< max_pwm <<" sg_left=" << sg_left << " sg_right=" << sg_right << " f=" << f << " p=" << p << " i=" << i << " d="<< d << " imax=" << imax << " deadband="<< deadband << " sign=" << sign);
+      "Setting new pid values for motor" << motor_index << ": max_pwm="<< max_pwm <<" sgleftref=" << sg_left << " sgrightref=" << sg_right << " f=" << f << " p=" << p << " i=" << i << " d="<< d << " imax=" << imax << " deadband="<< deadband << " sign=" << sign);
 
     //the vector is of the size of the TO_MOTOR_DATA_TYPE enum.
     //the value of the element at a given index is the value
