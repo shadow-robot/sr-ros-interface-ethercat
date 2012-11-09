@@ -283,10 +283,10 @@ namespace shadow_robot
     full_param << "/" << act_name << "/pid/max_pwm";
     nodehandle_.param<int>(full_param.str(), max_pwm, 0);
     full_param.str("");
-    full_param << "/" << act_name << "/pid/sg_left";
+    full_param << "/" << act_name << "/pid/sgleftref";
     nodehandle_.param<int>(full_param.str(), sg_left, 0);
     full_param.str("");
-    full_param << "/" << act_name << "/pid/sg_right";
+    full_param << "/" << act_name << "/pid/sgrightref";
     nodehandle_.param<int>(full_param.str(), sg_right, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/deadband";
@@ -432,12 +432,71 @@ namespace shadow_robot
     generate_force_control_config( motor_index, request.maxpwm, request.sgleftref,
                                    request.sgrightref, request.f, request.p, request.i,
                                    request.d, request.imax, request.deadband, request.sign );
+
+    update_force_control_in_param_server( find_joint_name(motor_index), request.maxpwm, request.sgleftref,
+                                     request.sgrightref, request.f, request.p, request.i,
+                                     request.d, request.imax, request.deadband, request.sign);
     response.configured = true;
 
     //Reinitialize motors information
     reinitialize_motors();
 
     return true;
+  }
+
+  std::string SrHandLib::find_joint_name(int motor_index)
+  {
+    for( boost::ptr_vector<shadow_joints::Joint>::iterator joint = joints_vector.begin();
+        joint != joints_vector.end(); ++joint )
+    {
+      if( !boost::is_null(joint) ) // check for validity
+      {
+        if(joint->motor->motor_id == motor_index)
+          return joint->joint_name;
+      }
+    }
+    ROS_ERROR("Could not find joint name for motor index: %d", motor_index);
+    return "";
+  }
+
+  void SrHandLib::update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p,
+                                                     int i, int d, int imax, int deadband, int sign)
+  {
+    if(joint_name != "")
+    {
+      std::stringstream full_param;
+      std::string act_name = boost::to_lower_copy(joint_name);
+
+      full_param << "/" << act_name << "/pid/f";
+      nodehandle_.setParam(full_param.str(), f);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/p";
+      nodehandle_.setParam(full_param.str(), p);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/i";
+      nodehandle_.setParam(full_param.str(), i);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/d";
+      nodehandle_.setParam(full_param.str(), d);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/imax";
+      nodehandle_.setParam(full_param.str(), imax);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/max_pwm";
+      nodehandle_.setParam(full_param.str(), max_pwm);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/sgleftref";
+      nodehandle_.setParam(full_param.str(), sg_left);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/sgrightref";
+      nodehandle_.setParam(full_param.str(), sg_right);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/deadband";
+      nodehandle_.setParam(full_param.str(), deadband);
+      full_param.str("");
+      full_param << "/" << act_name << "/pid/sign";
+      nodehandle_.setParam(full_param.str(), sign);
+    }
   }
 
 

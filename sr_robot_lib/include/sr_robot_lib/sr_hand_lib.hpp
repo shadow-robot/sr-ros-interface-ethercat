@@ -100,6 +100,31 @@ namespace shadow_robot
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                             std::vector<sr_actuator::SrActuator*> actuators);
 
+    /**
+     * Updates the parameter values for the force control in the Parameter Server
+     *
+     * @param joint_name The name of the joint.
+     * @param max_pwm The max pwm the motor will apply
+     * @param sg_left Strain gauge left
+     * @param sg_right Strain gauge right
+     * @param f The feedforward term (directly adds f*error to the output of the PID)
+     * @param p The p value.
+     * @param i the i value.
+     * @param d the d value.
+     * @param imax the imax value.
+     * @param deadband the deadband on the force.
+     * @param sign can be 0 or 1 depending on the way the motor is plugged in.
+     */
+    void update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p,
+                                                       int i, int d, int imax, int deadband, int sign);
+
+    /**
+     * Finds the joint name for a certain motor index
+     *
+     * @param motor_index The integer motor index
+     */
+    std::string find_joint_name(int motor_index);
+
   private:
     ros::NodeHandle nodehandle_;
 
