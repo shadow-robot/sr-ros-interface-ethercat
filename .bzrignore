@@ -30,3 +30,4 @@ sr_edc_launch/build
 sr_edc_controller_configuration/bin
 sr_edc_controller_configuration/build
 sr_robot_lib/_gtest_from_src
+./auto
