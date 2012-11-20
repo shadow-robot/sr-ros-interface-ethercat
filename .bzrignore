@@ -31,3 +31,5 @@ sr_edc_controller_configuration/bin
 sr_edc_controller_configuration/build
 sr_robot_lib/_gtest_from_src
 ./auto
+./sr_robot_lib/bin/test/motor_updater_test
+./sr_robot_lib/bin/test/test_robot_lib
