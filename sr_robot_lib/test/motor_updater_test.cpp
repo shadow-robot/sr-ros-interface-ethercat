@@ -46,24 +46,24 @@ public:
 
   UpdaterResult check_updates(double tolerancy)
   {
-    std::vector<motor_updater::UpdateConfig> update_configs_vector;
+    std::vector<generic_updater::UpdateConfig> update_configs_vector;
 
-    motor_updater::UpdateConfig test;
+    generic_updater::UpdateConfig test;
     test.what_to_update = MOTOR_DATA_SGL;
     test.when_to_update = -1.0;
     update_configs_vector.push_back(test);
 
-    motor_updater::UpdateConfig test2;
-    test2.what_to_update = MOTOR_DATA_SVN_REVISION;
+    generic_updater::UpdateConfig test2;
+    test2.what_to_update = MOTOR_DATA_VOLTAGE;
     test2.when_to_update = 5.0;
     update_configs_vector.push_back(test2);
 
-    motor_updater::UpdateConfig test3;
+    generic_updater::UpdateConfig test3;
     test3.what_to_update = MOTOR_DATA_CAN_NUM_RECEIVED;
     test3.when_to_update = 1.0;
     update_configs_vector.push_back(test3);
 
-    motor_updater::MotorUpdater motor_updater = motor_updater::MotorUpdater(update_configs_vector);
+    generic_updater::MotorUpdater motor_updater = generic_updater::MotorUpdater(update_configs_vector);
 
     ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command = new ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND();
     motor_updater.build_update_motor_command(command);
@@ -85,7 +85,7 @@ public:
 
       if(fabs(time_spent.toSec() - 5.0) < tolerancy )
       {
-        if(command->from_motor_data_type == MOTOR_DATA_SVN_REVISION)
+        if(command->from_motor_data_type == MOTOR_DATA_VOLTAGE)
         {
           ROS_INFO_STREAM("Correct data received at time : "<<time_spent);
           svn_transmitted = true;
