@@ -1,3 +1,4 @@
+
 ##
 # This file contains the test calibration map for the hand.
 #
@@ -65,3 +66,4 @@ sr_calibrations: [
   ["WRJ2", [ [0.0, 0.],
              [1.0,  0.] ]]     #WRJ2
 ]
+
