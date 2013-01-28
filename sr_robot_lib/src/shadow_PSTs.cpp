@@ -188,7 +188,7 @@ namespace tactiles
       d.addf("Manufacturer", "%s", tactiles_vector->at(id_tact).manufacturer.c_str());
       d.addf("Serial Number", "%s", tactiles_vector->at(id_tact).serial_number.c_str());
 
-      d.addf("Software Version", "%d", tactiles_vector->at(id_tact).get_software_version().c_str());
+      d.addf("Software Version", "%s", tactiles_vector->at(id_tact).get_software_version().c_str());
       d.addf("PCB Version", "%s", tactiles_vector->at(id_tact).pcb_version.c_str());
 
       d.addf("Pressure Raw", "%d", tactiles_vector->at(id_tact).pressure_raw);
