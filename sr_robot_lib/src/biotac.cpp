@@ -173,22 +173,18 @@ namespace tactiles
         break;
 
       case TACTILE_SENSOR_TYPE_MANUFACTURER:
-      {
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
           tactiles_vector->at(id_sensor).manufacturer = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
-      }
-      break;
+        break;
 
       case TACTILE_SENSOR_TYPE_SERIAL_NUMBER:
-      {
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
           tactiles_vector->at(id_sensor).serial_number = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
-      }
-      break;
+        break;
 
       case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
@@ -226,37 +222,21 @@ namespace tactiles
       sr_robot_msgs::BiotacAll tactiles;
       tactiles.header.stamp = ros::Time::now();
 
-      //tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
-
       for(unsigned int id_tact = 0; id_tact < nb_tactiles; ++id_tact)
       {
         sr_robot_msgs::Biotac tactile_tmp;
-        if( tactiles_vector->at(id_tact).tactile_data_valid )
-        {
-          tactile_tmp.pac0 = static_cast<int16u>(tactiles_vector->at(id_tact).pac0);
-          tactile_tmp.pac1 = static_cast<int16u>(tactiles_vector->at(id_tact).pac1);
 
-          tactile_tmp.pdc = static_cast<int16u>(tactiles_vector->at(id_tact).pdc);
-          tactile_tmp.tac = static_cast<int16u>(tactiles_vector->at(id_tact).tac);
-          tactile_tmp.tdc = static_cast<int16u>(tactiles_vector->at(id_tact).tdc);
+        tactile_tmp.pac0 = static_cast<int16u>(tactiles_vector->at(id_tact).pac0);
+        tactile_tmp.pac1 = static_cast<int16u>(tactiles_vector->at(id_tact).pac1);
 
-          tactile_tmp.electrodes = tactiles_vector->at(id_tact).electrodes;
-        }
-        else
-        {
-          tactile_tmp.pac0 = -1;
-          tactile_tmp.pac1 = -1;
+        tactile_tmp.pdc = static_cast<int16u>(tactiles_vector->at(id_tact).pdc);
+        tactile_tmp.tac = static_cast<int16u>(tactiles_vector->at(id_tact).tac);
+        tactile_tmp.tdc = static_cast<int16u>(tactiles_vector->at(id_tact).tdc);
 
-          tactile_tmp.pdc = -1;
-          tactile_tmp.tac = -1;
-          tactile_tmp.tdc = -1;
-
-          //TODO: push vector of -1 in electrodes?
-        }
+        tactile_tmp.electrodes = tactiles_vector->at(id_tact).electrodes;
 
         tactiles.tactiles[id_tact] = tactile_tmp;
       }
-
 
       tactile_publisher->msg_ = tactiles;
       tactile_publisher->unlockAndPublish();
