@@ -2,6 +2,9 @@
 
 START_PATH=`pwd`
 
+#create the folder in case it doesn't exist
+mkdir -p ../include/sr_external_dependencies/external
+
 #We copy the released protocol files to the correct directory
 cd ${START_PATH}
 chmod -R a+w ../include/sr_external_dependencies/external/
