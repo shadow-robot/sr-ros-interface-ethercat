@@ -19,6 +19,7 @@
   <depend package="diagnostic_updater"/>
   <depend package="realtime_tools"/>
   <depend package="pr2_mechanism_msgs"/>
+  <depend package="self_test"/>
 
   <depend package="roscpp"/>
   <depend package="rospy"/>

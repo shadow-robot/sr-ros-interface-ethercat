@@ -57,6 +57,7 @@
 #include "sr_robot_lib/motor_updater.hpp"
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include "sr_robot_lib/motor_data_checker.hpp"
+#include "sr_robot_lib/self_test/sr_self_test.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
@@ -89,11 +90,14 @@ namespace crc_unions
 
 namespace shadow_robot
 {
+  //forward declaration of SrSelfTest
+  class SrSelfTest;
+
   class SrRobotLib
   {
   public:
     SrRobotLib(pr2_hardware_interface::HardwareInterface *hw);
-    ~SrRobotLib() {};
+    virtual ~SrRobotLib() {};
 
     /**
      * This function is called each time a new etherCAT message
@@ -371,6 +375,8 @@ namespace shadow_robot
      */
     bool motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
                                           sr_robot_msgs::ChangeMotorSystemControls::Response& response );
+
+    boost::shared_ptr<SrSelfTest> self_tests_;
   };//end class
 }//end namespace
 

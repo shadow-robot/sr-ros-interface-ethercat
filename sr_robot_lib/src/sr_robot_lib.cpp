@@ -88,6 +88,8 @@ namespace shadow_robot
     }
 #endif
 
+    //initialises self tests
+    self_tests_.reset( new SrSelfTest(this) );
   }
 
   void SrRobotLib::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
