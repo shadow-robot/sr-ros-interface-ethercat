@@ -27,9 +27,10 @@
 #ifndef SR_SELF_TEST_HPP_
 #define SR_SELF_TEST_HPP_
 
-#include "diagnostic_msgs/SelfTest.h"
-#include "self_test/self_test.h"
+#include <diagnostic_msgs/SelfTest.h>
+
 #include "sr_robot_lib/sr_robot_lib.hpp"
+#include "sr_robot_lib/self_test/sr_test_runner.hpp"
 
 namespace shadow_robot
 {
@@ -41,12 +42,11 @@ public:
   SrSelfTest(SrRobotLib* robot_lib);
   ~SrSelfTest();
 
-  void first_test(diagnostic_updater::DiagnosticStatusWrapper& status);
 private:
   SrRobotLib* robot_lib_;
 
   // self_test::TestRunner is the handles sequencing driver self-tests.
-  self_test::TestRunner test_runner_;
+  shadow_robot::SrTestRunner test_runner_;
 };
 }
 

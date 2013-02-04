@@ -1,5 +1,5 @@
 /**
- * @file   sr_self_test.cpp
+ * @file   sr_test_runner.hpp
  * @author Ugo Cupcic <ugo@shadowrobot.com>
  * @date   Feb 4, 2013
  *
@@ -19,26 +19,36 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @brief Class containing the self tests for the Shadow Robot EtherCAT hardware.
+ * @brief This class inherits from the default ROS Test Runner. It adds a set of useful
+ *        functionalities for testing topics and services more easily.
  *
  *
  */
 
-#include "sr_robot_lib/self_test/sr_self_test.hpp"
+#ifndef SR_TEST_RUNNER_HPP_
+#define SR_TEST_RUNNER_HPP_
 
-namespace shadow_robot {
+#include "self_test/self_test.h"
 
-SrSelfTest::SrSelfTest(SrRobotLib* robot_lib)
+namespace shadow_robot
 {
-  robot_lib_ = robot_lib;
+class SrTestRunner : public self_test::TestRunner
+{
+public:
+  SrTestRunner();
+  virtual ~SrTestRunner();
 
-  test_runner_.setID("12345");
-  test_runner_.addServiceTest("");
+  void addTopicTest(std::string topic_name, double frequency);
+  void addServiceTest(std::string service_name);
+
+private:
+  static const double SERVICE_TIMEOUT_CONST_;
+
+  void service_test_cb_(diagnostic_updater::DiagnosticStatusWrapper& status, std::string service_name);
+};
+
 }
 
-SrSelfTest::~SrSelfTest()
-{
-}
 
-}  // namespace shadow_robot
 
+#endif /* SR_TEST_RUNNER_HPP_ */
