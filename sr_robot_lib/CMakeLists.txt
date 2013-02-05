@@ -27,8 +27,8 @@ ELSE(DEFINED debug)
 ENDIF(DEFINED debug)
 MESSAGE(" ----- ")
 
-rosbuild_add_library(sr_hand_lib src/biotac.cpp src/generic_tactiles.cpp src/generic_updater.cpp src/motor_data_checker.cpp src/motor_updater.cpp src/sensor_updater.cpp src/shadow_PSTs.cpp src/sr_hand_lib.cpp src/sr_robot_lib.cpp src/self_test/sr_self_test.cpp)
-
+rosbuild_add_library(sr_hand_lib src/biotac.cpp src/generic_tactiles.cpp src/generic_updater.cpp src/motor_data_checker.cpp src/motor_updater.cpp src/sensor_updater.cpp src/shadow_PSTs.cpp src/sr_hand_lib.cpp src/sr_robot_lib.cpp)
+target_link_libraries(sr_hand_lib sr_self_test)
 ###############
 #     TESTS
 SET(jenkins $ENV{JENKINS})

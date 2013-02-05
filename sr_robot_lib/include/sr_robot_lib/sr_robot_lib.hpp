@@ -53,11 +53,12 @@
 #include <sr_utilities/calibration.hpp>
 #include <sr_utilities/thread_safe_map.hpp>
 
+#include <sr_self_test/sr_self_test.hpp>
+
 #include "sr_robot_lib/sr_joint_motor.hpp"
 #include "sr_robot_lib/motor_updater.hpp"
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include "sr_robot_lib/motor_data_checker.hpp"
-#include "sr_robot_lib/self_test/sr_self_test.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
