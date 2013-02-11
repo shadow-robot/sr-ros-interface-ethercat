@@ -91,9 +91,6 @@ namespace crc_unions
 
 namespace shadow_robot
 {
-  //forward declaration of SrSelfTest
-  class SrSelfTest;
-
   class SrRobotLib
   {
   public:
