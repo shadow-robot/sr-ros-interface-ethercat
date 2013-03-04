@@ -26,10 +26,11 @@ function checkout_or_update {
     fi
 }
 
-checkout_or_update 0220_palm_edc svn://Pericles/Pic32/trunk/nodes/0220_palm_edc
-checkout_or_update simplemotor-bootloader svn://pericles/EDC/simplemotor-bootloader/
+checkout_or_update 0220_palm_edc svn://thoth:9998/Pic32/trunk/nodes/0220_palm_edc
+checkout_or_update 0320_palm_edc_muscle svn://thoth:9998/Pic32/trunk/nodes/0320_palm_edc_muscle
+checkout_or_update simplemotor-bootloader svn://thoth:9998/EDC/simplemotor-bootloader/
 
 cd ${START_PATH}
 cd "../compiled_firmware"
-checkout_or_update released_firmware svn://pericles/EDC/simplemotor/released_firmware/
+checkout_or_update released_firmware svn://thoth:9998/EDC/simplemotor/released_firmware/
 cd ${START_PATH}
