@@ -90,6 +90,8 @@ int32u idle_time_start  = 0;                //!< Is set to the value of the MIPS
 
 
 
+//Output_Pin_Class *SPI2_cs = 0;
+
 
 LED_Class *LED_CAN1_TX;                     //!< The CAN 1 transmit LED
 LED_Class *LED_CAN1_RX;                     //!< The CAN 1 receive LED
@@ -121,6 +123,9 @@ int num_motor_CAN_messages_received_this_frame = 0;     //!< Count of the number
 
 void run_tests(void)
 {
+    assert_static( (ETHERCAT_STATUS_DATA_SIZE  + ETHERCAT_CAN_BRIDGE_DATA_SIZE) == 232);
+    assert_static( (ETHERCAT_COMMAND_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE) ==  70);
+
     typedef_tests();
     simple_CAN_tests();
 }
@@ -187,9 +192,13 @@ void initialise_this_node(void)
 
     Output_Pin_Class *LED_pin_AL_ERR        = Get_Output_Pin(LED_AL_ERR_PIN);
 
-    Output_Pin_Class *accel_CS              = Get_Output_Pin(ACCEL_CS_PIN);
-    Pin_Set(accel_CS);
+    //SPI2_cs                                 = Get_Output_Pin(SPI2_CS_PIN);
     
+    #ifdef ACCEL_CS_PIN
+        Output_Pin_Class *accel_CS          = Get_Output_Pin(ACCEL_CS_PIN);
+        Pin_Set(accel_CS);
+    #endif
+
     LED_CAN1_TX                             = Get_LED(LED_pin_CAN1_TX);
     LED_CAN1_RX                             = Get_LED(LED_pin_CAN1_RX);
     LED_CAN1_ERR                            = Get_LED(LED_pin_CAN1_ERR);
@@ -395,7 +404,7 @@ void Read_All_Sensors(void)
 {
     int8u adc_channel;
     int8u j=0;
-    int32u frame_time;
+    int32u frame_time=0;
 
     Nop();
     Nop();
@@ -416,6 +425,8 @@ void Read_All_Sensors(void)
         default:
             break;
     }
+
+    delay_us(10);
 
 
     j=0;
@@ -449,8 +460,10 @@ void Read_All_Sensors(void)
 
     #if AUTO_TRIGGER == 1
         etherCAT_command_data.tactile_data_type = TACTILE_SENSOR_TYPE_BIOTAC_PDC;
+        tactile_sensor_protocol                 = TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3;
     #endif
 
+    delay_us(10);
 
     switch (tactile_sensor_protocol)                                                // Read tactile sensors after joint sensors?
     {                                                                               // -----------------------------------------
@@ -460,7 +473,7 @@ void Read_All_Sensors(void)
             break;
 
         case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:                               // BioTac: Hall, Misc, and Pac again are read after joint sensors.
-            biotac_read_sensors(&etherCAT_command_data, &etherCAT_status_data);
+            biotac_read_sensors(&etherCAT_command_data, &etherCAT_status_data, 0);
 
             Wait_For_All_Motors_To_Send_Data(frame_time+490);                       // Use this delay time productively
             Wait_For_Until_Frame_Time(frame_time+500);                              // Now that we're close to the time, use a more accurate wait routine.
@@ -514,6 +527,11 @@ void zero_motor_data_packets(void)
 void Check_For_EtherCAT_Packet(void)
 {
     ET1200_Update();
+
+    collect_one_CAN_message();                                                              // Flush the CAN buses.
+                                                                                            // But save the last message in case this is
+                                                                                            // a bootloader message.
+
 
     #if AUTO_TRIGGER == 1                                                                   // This is just for debugging.
         if (get_frame_time_us() > 1150)                                                     // 
@@ -605,6 +623,19 @@ void Service_EtherCAT_Packet(void)
             collect_one_CAN_message();                                                      // From either CAN bus
 
             write_ET1200_register_N(ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
+
+            can_bridge_data_to_ROS.message_id      = 0;                                     // Clear the buffer just for Wireshark tidyness
+            can_bridge_data_to_ROS.message_length  = 0;
+            can_bridge_data_to_ROS.can_bus         = 0;
+            can_bridge_data_to_ROS.message_data[0] = 0;
+            can_bridge_data_to_ROS.message_data[1] = 0;
+            can_bridge_data_to_ROS.message_data[2] = 0;
+            can_bridge_data_to_ROS.message_data[3] = 0;
+            can_bridge_data_to_ROS.message_data[4] = 0;
+            can_bridge_data_to_ROS.message_data[5] = 0;
+            can_bridge_data_to_ROS.message_data[6] = 0;
+            can_bridge_data_to_ROS.message_data[7] = 0;
+
             idle_time_start = ReadCoreTimer();                                              // Idle time begins now
 
             break;
@@ -777,7 +808,9 @@ void Received_Motor_Data(FROM_MOTOR_DATA_TYPE data_type, int8u motor_number, int
 
     FROM_MOTOR_DATA_TYPE    expected_data_type   = etherCAT_command_data.from_motor_data_type;
 
+    //Pin_Set(SPI2_cs);
     num_motor_CAN_messages_received_this_frame++;
+    //Pin_Clr(SPI2_cs);
 
     if (data_type == expected_data_type)                                                                // This is good :)
     {

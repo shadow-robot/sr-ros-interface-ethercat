@@ -42,6 +42,8 @@
 #define THIS_NODE_H_INCLUDED
 
 #define DUAL_CAN_AVAILABLE
+#define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
+#define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS
 
 #include "GenericTypeDefs.h"
 
@@ -60,6 +62,10 @@
 #define NO_STRINGS
 #include "0220_palm_edc_ethercat_protocol.h"
 #include "simple_can/simple_can.h"
+
+#define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
+#define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS
+
 
 /**
  *  The INCLUDE_IMPLEMENTATION_DETAILS define exposes implementation details to this_node.h
@@ -122,23 +128,19 @@ void Check_For_EtherCAT_Packet(void);
 // application defines
 #define THIS_NODE_PRODUCT_CODE      0x0006
 
-
-//#define THIS_NODE_PRODUCT_CODE      0x0000
-//#define THIS_NODE_SERIAL_NUMBER     0x0004
-
 #define SYSTEM_FREQ_HZ            80000000
 #define PERIPHERAL_BUS_CLOCK_HZ   40000000
 #define CAN_BUS_SPEED_HZ           1000000
 
-#define NUM_PORTS            7
-#define NUM_PINS_PER_PORT   16
-#define NUM_LEDS             7
-#define NUM_SPI_PORTS        2
+#define NUM_PORTS                        7
+#define NUM_PINS_PER_PORT               16
+#define NUM_LEDS                         7
+#define NUM_SPI_PORTS                    2
 
-#define ET1200_SPI_CHANNEL      0
-#define CAN_BASE_ADR_MOTORS_TX  0x0200
-#define CAN_BASE_ADR_MOTORS_RX  0x0300
-#define FIND_FREE_CAN_BUFFER_MAX_TRIES 8
+#define ET1200_SPI_CHANNEL               0
+#define CAN_BASE_ADR_MOTORS_TX           0x0200
+#define CAN_BASE_ADR_MOTORS_RX           0x0300
+#define FIND_FREE_CAN_BUFFER_MAX_TRIES   8
 
 
 #include "internal_reporting/internal_reporting.h"
@@ -178,12 +180,14 @@ int8u get_from_motor_data_type(void);
 
 void bad_CAN_message_seen(void);
 
-//                                        FF      MF      RF      LF       KN     HEEL   TH       NOTHING
+
 extern int8u palm_EDC_0200_sensor_mapping[64];
 extern int64u node_id;
 
 extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_from_ROS;
 extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
+
+
 
 #define PALM_PCB_01                                     //!< Use PALM_PCB_00 for the old prototype board.
                                                         //!  Use PALM_PCB_00 for the real palm board
@@ -220,20 +224,22 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define ALL_LED_BITS_PORTE          0b0000000000000000
     #define ALL_LED_BITS_PORTF          0b0000000000000000
 
-    #define     SPIP_INPUT_BIT_0        (porte & 0x0001)
-    #define     SPIP_INPUT_BIT_1        (porte & 0x0002)
-    #define     SPIP_INPUT_BIT_2        (porte & 0x0004)
-    #define     SPIP_INPUT_BIT_3        (porte & 0x0008)
-    #define     SPIP_INPUT_BIT_4        (porte & 0x0010)
-    #define     SPIP_INPUT_BIT_5        (porte & 0x0020)
-    #define     SPIP_INPUT_BIT_6        (porte & 0x0040)
-    #define     SPIP_INPUT_BIT_7        (porte & 0x0080)
+    #define     SPIP_INPUT_BIT_0        (spi_somi_port & 0x0001)
+    #define     SPIP_INPUT_BIT_1        (spi_somi_port & 0x0002)
+    #define     SPIP_INPUT_BIT_2        (spi_somi_port & 0x0004)
+    #define     SPIP_INPUT_BIT_3        (spi_somi_port & 0x0008)
+    #define     SPIP_INPUT_BIT_4        (spi_somi_port & 0x0010)
+    #define     SPIP_INPUT_BIT_5        (spi_somi_port & 0x0020)
+    #define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
+    #define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
     
-    #define     FF_SOMI                 (porte & 0x0001)
-    #define     MF_SOMI                 (porte & 0x0002)
-    #define     RF_SOMI                 (porte & 0x0004)
-    #define     LF_SOMI                 (porte & 0x0008)
-    #define     TH_SOMI                 (porte & 0x0040)
+    #define     SPIP_INPUT_PORT         PORTE
+
+    #define     FF_SOMI                 (spi_somi_port & 0x0001)
+    #define     MF_SOMI                 (spi_somi_port & 0x0002)
+    #define     RF_SOMI                 (spi_somi_port & 0x0004)
+    #define     LF_SOMI                 (spi_somi_port & 0x0008)
+    #define     TH_SOMI                 (spi_somi_port & 0x0040)
 
     #define     PIN_BIT(x)              (1<<x)
     
@@ -285,20 +291,22 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define ALL_LED_BITS_PORTF          0b0000000000100000
 
     
-    #define     SPIP_INPUT_BIT_0        (porte & 0x0001)
-    #define     SPIP_INPUT_BIT_1        (porte & 0x0002)
-    #define     SPIP_INPUT_BIT_2        (porte & 0x0004)
-    #define     SPIP_INPUT_BIT_3        (porte & 0x0008)
-    #define     SPIP_INPUT_BIT_4        (porte & 0x0010)
-    #define     SPIP_INPUT_BIT_5        (porte & 0x0020)
-    #define     SPIP_INPUT_BIT_6        (porte & 0x0040)
-    #define     SPIP_INPUT_BIT_7        (porte & 0x0080)
+    #define     SPIP_INPUT_BIT_0        (spi_somi_port & 0x0001)
+    #define     SPIP_INPUT_BIT_1        (spi_somi_port & 0x0002)
+    #define     SPIP_INPUT_BIT_2        (spi_somi_port & 0x0004)
+    #define     SPIP_INPUT_BIT_3        (spi_somi_port & 0x0008)
+    #define     SPIP_INPUT_BIT_4        (spi_somi_port & 0x0010)
+    #define     SPIP_INPUT_BIT_5        (spi_somi_port & 0x0020)
+    #define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
+    #define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
 
-    #define     FF_SOMI                 (porte & 0x0004)
-    #define     MF_SOMI                 (porte & 0x0002)
-    #define     RF_SOMI                 (porte & 0x0001)
-    #define     LF_SOMI                 (porte & 0x0008)
-    #define     TH_SOMI                 (porte & 0x0040)
+    #define     SPIP_INPUT_PORT         PORTE
+
+    #define     FF_SOMI                 (spi_somi_port & 0x0004)
+    #define     MF_SOMI                 (spi_somi_port & 0x0002)
+    #define     RF_SOMI                 (spi_somi_port & 0x0001)
+    #define     LF_SOMI                 (spi_somi_port & 0x0008)
+    #define     TH_SOMI                 (spi_somi_port & 0x0040)
     
     #define     PIN_BIT(x)              (1<<x)
     

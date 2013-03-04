@@ -8,7 +8,7 @@ dir_src=
 dir_bin=C:\Code\Pic32\trunk\nodes\0220_palm_edc\output_files
 dir_tmp=
 dir_sin=
-dir_inc=C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include\proc;C:\Code\Pic32\trunk\shadow_libraries;C:\Code\Pic32\trunk\nodes\0220_palm_edc;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include
+dir_inc=D:\Program Files\Microchip\MPLAB C32 Suite\pic32-libs\include\proc;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include\proc;C:\Code\Pic32\trunk\shadow_libraries;C:\Code\Pic32\trunk\nodes\0220_palm_edc;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include
 dir_lib=C:\Program Files\Microchip\MPLAB C32 Suite\lib;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\lib
 dir_lkr=
 [CAT_FILTERS]
@@ -61,6 +61,7 @@ file_033=.
 file_034=SPI_parallel
 file_035=SPI_parallel
 file_036=SPI_parallel
+file_037=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -99,6 +100,7 @@ file_033=no
 file_034=no
 file_035=no
 file_036=no
+file_037=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -137,6 +139,7 @@ file_033=no
 file_034=no
 file_035=no
 file_036=no
+file_037=no
 [FILE_INFO]
 file_000=this_node.c
 file_001=C:\Code\Pic32\trunk\shadow_libraries\hardware\et1200\et1200.c
@@ -170,11 +173,12 @@ file_028=C:\Code\Pic32\trunk\support\svnversion.h
 file_029=C:\Code\Pic32\trunk\shadow_libraries\tests\assert_shadow.h
 file_030=C:\Code\Pic32\trunk\shadow_libraries\hardware\spi\spi_32.h
 file_031=C:\Code\Pic32\trunk\shadow_libraries\ITG3200\itg3200.h
-file_032=C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include\proc\p32mx775f512h.h
+file_032=D:\Program Files\Microchip\mplabc32\v2.02\pic32-libs\include\proc\p32mx775f512h.h
 file_033=C:\Code\Pic32\trunk\shadow_libraries\misc\typedefs_shadow.h
 file_034=C:\Code\Pic32\trunk\shadow_libraries\syntouch\biotac_2_3_parallel.h
 file_035=C:\Code\Pic32\trunk\shadow_libraries\hardware\spi\spi_parallel_32.h
 file_036=C:\Code\Pic32\trunk\shadow_libraries\pst\pst_parallel.h
+file_037=C:\Code\Pic32\trunk\nodes\0230_palm_edc_TS\this_node_serial_number.h
 [SUITE_INFO]
 suite_guid={14495C23-81F8-43F3-8A44-859C583D7760}
 suite_state=

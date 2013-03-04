@@ -14,7 +14,7 @@ extern void main (void);                        // User's main()
 
 void _entry (void);                             // Startup functions
 void _startup (void);
-
+void main(void);
 
 
 #pragma code _entry_scn=0x000000                // Create goto instruction at 0x000000

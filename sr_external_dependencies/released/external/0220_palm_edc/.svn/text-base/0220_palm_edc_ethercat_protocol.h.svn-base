@@ -644,6 +644,13 @@ typedef struct
 #define ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS)
 #define ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND)
 
+                                                //  Now we need to be *sure* that the Host and the Slave definitely
+                                                //  agree on the size of the EtherCAT packets, even if the host is a
+                                                //  64-bit machine or something. So we have these calculated sizes.
+                                                //  The host and slave can ASSERT that the sizeof() the packets
+                                                //  matches the agreed sizes.
+#define ETHERCAT_STATUS_AGREED_SIZE     232     //! This is the size of the Status  EtherCAT packet (Status + CAN packet)
+#define ETHERCAT_COMMAND_AGREED_SIZE    70      //! This is the size of the Command EtherCAT packet (Status + CAN packet)
 
 //! This packet allows the palm to transmit and receive CAN messages
 //! on either CAN bus. One CAN message per EtherCAT packet only.

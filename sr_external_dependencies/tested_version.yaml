@@ -1,1 +1,1 @@
-protocol:1958 ; bootloader:1958 ; firmware:1958 ; bzr_shadow:356 ; bzr_ethercat:544
+protocol_motor:2044 ; protocol_muscle:2044 ; bootloader:2044 ; firmware:2044 ; git_shadow:dd2fd00 ; git_ethercat:a2af915
