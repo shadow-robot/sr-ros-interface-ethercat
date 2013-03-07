@@ -44,22 +44,12 @@
 #ifndef PALM_EDC_0320_ETHERCAT_PROTOCOL_H_INCLUDED
 #define PALM_EDC_0320_ETHERCAT_PROTOCOL_H_INCLUDED
 
+#include "../common/tactile_edc_ethercat_protocol.h"
+#include "../common/ethercat_can_bridge_protocol.h"
+
+
 #define NUM_MUSCLES                         40
 #define NUM_PRESSURE_SENSORS_PER_MESSAGE     5
-
-//! The host can request different types of data from the palm.
-typedef enum
-{
-    EDC_COMMAND_INVALID = 0,                                    //!< Reading an empty mailbox on the ET1200 results in a zero.
-    EDC_COMMAND_SENSOR_DATA,                                    //!< Normal operating value. Palm transmits ADC readings.
-    EDC_COMMAND_SENSOR_CHANNEL_NUMBERS,                         //!< Instead of sending ADC readings, send the channel number, so the host can confirm the firmware is correct.
-    EDC_COMMAND_SENSOR_ADC_CHANNEL_CS,                          //!< Instead of sending ADC readings, send the chip select channel, so the host can confirm the firmware is correct.
-    EDC_COMMAND_CAN_DIRECT_MODE                                 //!< Might be used in the future for running automated tests inside the firmware.
-
-    //EDC_COMMAND_TEST_RESULTS,                                   //!< Might be used in the future for running automated tests inside the firmware.
-}EDC_COMMAND;
-
-
 
 
 // ========================================================
@@ -107,24 +97,6 @@ typedef enum
 
 
 
-#ifndef NO_STRINGS													                        // The PIC compiler doesn't deal well with strings.
-
-    static const char* slow_data_types[17] = {  "Invalid",                                  // 0x0000
-                                                "SVN revision",                             // 0x0001
-                                                "SVN revision on server at build time",     // 0x0002
-
-                                                "Modified from SVN revision",               // 0x0003
-                                                "Serial number low",                        // 0x0004
-                                                "Serial number high",                       // 0x0005
-                                                "Assembly date year",                       // 0x0006
-                                                "Assembly date month, day",                 // 0x0007
-                                               };
-
-#endif
-
-
-
-
 // ========================================================
 // 
 //                       F L A G S
@@ -141,16 +113,17 @@ typedef enum
 #define MUSCLE_FLAG_BITS_NO_DEMAND_SEEN              0x0400     //!< Haven't received any demand messages for longer than NO_DEMAND_TIMEOUT_MS. Valves switched off.
 
 
+#define 0300_PALM_EDC_SERIOUS_ERROR_FLAGS            (  MOTOR_FLAG_BITS_NO_DEMAND_SEEN )
 
-#define NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a muscle driver doesn't see any Torque or PWM demand values,
-                                                                                                //!  how long, in milliseconds, before it switches off the valves.
+#define 0300_PALM_EDC_NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a muscle driver doesn't see any Torque or PWM demand values,
+                                                                                                              //!  how long, in milliseconds, before it switches off the valves.
 
 #ifndef NO_STRINGS													                            // The PIC compiler doesn't deal well with strings.
 
     //! These are the names of the bits in the MUSCLE_DATA_FLAGS.
     //! error_flag_names[n] is the name of bit 'n' in MUSCLE_DATA_FLAGS.
-    static const char* error_flag_names[16] = { "No demand seen for more than 20ms",            // 0x0400
-                                               };
+    static const char* 0300_palm_edc_error_flag_names[16] = { "No demand seen for more than 20ms",            // 0x0400
+                                                            };
 #endif
 
 
@@ -273,24 +246,6 @@ typedef union
 
 
 
-
-//! This represents the top two bits [10..9] of the CAN message ID.
-//! These bits tell us the type of the message.
-typedef enum
-{
-    DIRECTION_DATA_REQUEST              = 0x0,                  //!< Requesting that muscle drivers send back status data (AKA Start of Frame)
-    DIRECTION_TO_MUSCLE                 = 0x1,                  //!< Message contains command data being sent to the muscle drivers
-    DIRECTION_FROM_MUSCLE               = 0x2,                  //!< Message contains status data from a muscle driver
-    DIRECTION_BOOTLOADER                = 0x3                   //!< Message has something to do with boot-loading.
-}MESSAGE_DIRECTION;
-
-
-#define MESSAGE_ID_DIRECTION_BITS       0b11000000000           //!< Bit mask specifying which bits of the CAN message ID are used for the MESSAGE_DIRECTION
-#define MESSAGE_ID_MUSCLE_ID_BITS       0b00111100000           //!< Bit mask specifying which bits of the CAN message ID are used for the muscle driver ID [0..1]
-#define MESSAGE_ID_ACK_BIT              0b00000010000           //!< Bit mask specifying which bits of the CAN message ID are used for the ACK bit (only for bootloading)
-#define MESSAGE_ID_TYPE_BITS            0b00000001111           //!< Bit mask specifying which bits of the CAN message ID are used for the TO_MUSCLE_DATA_TYPE or FROM_MUSCLE_DATA_TYPE
-
-#define MESSAGE_ID_DIRECTION_SHIFT_POS  9                       //!< Bit number of lowest bit of MESSAGE_ID_DIRECTION_BITS
 #define MESSAGE_ID_MUSCLE_DRIVER_ID_SHIFT_POS  5                       //!< Bit number of lowest bit of MESSAGE_ID_MUSCLE_ID_BITS
 
 
@@ -300,178 +255,6 @@ typedef enum
 
 #define JOINTS_NUM_0320   ((int)28)                             //!< The number of joints in the hand
                                                                 //!  This needs to be a #define for symmetry with SENSORS_NUM
-
-#ifndef NO_STRINGS                                              //   The PIC compiler doesn't deal well with strings.
-
-    static const char* joint_names[JOINTS_NUM_0320] = {  "FFJ0", "FFJ1", "FFJ2", "FFJ3", "FFJ4",
-                                                         "MFJ0", "MFJ1", "MFJ2", "MFJ3", "MFJ4",
-                                                         "RFJ0", "RFJ1", "RFJ2", "RFJ3", "RFJ4",
-                                                         "LFJ0", "LFJ1", "LFJ2", "LFJ3", "LFJ4","LFJ5",
-                                                         "THJ1", "THJ2", "THJ3", "THJ4", "THJ5",
-                                                         "WRJ1", "WRJ2"
-                                                      };
-
-
-    //! This array defines the names of the joints. The names and order should match the enum SENSOR_NAMES_ENUM.
-
-    static const char* sensor_names[SENSORS_NUM_0320] = {"FFJ1",  "FFJ2",  "FFJ3", "FFJ4",	                     //  [00..03] ADC readings from First finger
-                                                         "MFJ1",  "MFJ2",  "MFJ3", "MFJ4",                       //  [04..07] ADC readings from Middle finger
-                                                         "RFJ1",  "RFJ2",  "RFJ3", "RFJ4",                       //  [08..11] ADC readings from Ring finger
-                                                         "LFJ1",  "LFJ2",  "LFJ3", "LFJ4", "LFJ5",               //  [12..16] ADC readings from Little finger
-                                                         "THJ1",  "THJ2",  "THJ3", "THJ4", "THJ5A", "THJ5B",     //  [17..22] ADC readings from Thumb
-                                                         "WRJ1A", "WRJ1B", "WRJ2",                               //  [23..25] ADC readings from Wrist
-                                                         "ACCX",  "ACCY",  "ACCZ",                               //  [26..28] ADC readings from Accelerometer
-                                                         "GYRX",  "GYRY",  "GYRZ",                               //  [29..31] ADC readings from Gyroscope
-                                                         "AN0",   "AN1",   "AN2",  "AN3"                         //  [32..35] ADC readings from auxillary ADC port.
-                                                       };
-#endif
-
-
-//! This enum defines which ADC reading goes into which sensors[].
-typedef enum
-{
-	FFJ1=0, FFJ2,  FFJ3, FFJ4,                      // [ 0...3]
-	MFJ1,   MFJ2,  MFJ3, MFJ4,                      // [ 4...7]
-	RFJ1,   RFJ2,  RFJ3, RFJ4,                      // [ 8..11]
-	LFJ1,   LFJ2,  LFJ3, LFJ4, LFJ5,                // [12..16]
-    THJ1,   THJ2,  THJ3, THJ4, THJ5A, THJ5B,        // [17..22]
-    WRJ1A,  WRJ1B, WRJ2,                            // [23..25]
-
-	ACCX, ACCY, ACCZ,                               // [26..28]
-	GYRX, GYRY, GYRZ,                               // [29..32]
-
-	AN0, AN1, AN2, AN3,                             // [31..35]
-    IGNORE                                          // [36]
-}SENSOR_NAME_ENUM;
-
-
-
-
-typedef enum
-{
-      PALM_SVN_VERSION              =  0,
-    SERVER_SVN_VERSION              =  1
-}HARD_CONFIGURATION_INFORMATION;
-
-
-
-
-//      ---------------
-//      TACTILE SENSORS
-//      ---------------
-#define TACTILE_DATA_LENGTH_BYTES   16
-#define TACTILE_DATA_LENGTH_WORDS   (TACTILE_DATA_LENGTH_BYTES/2)
-
-typedef union
-{
-    int16u  word[TACTILE_DATA_LENGTH_WORDS];                            //!< As yet unspecified
-    char    string[TACTILE_DATA_LENGTH_BYTES];
-}TACTILE_SENSOR_STATUS;
-
-typedef enum                                                            //! Data you can request from tactile sensors in general
-{
-    TACTILE_SENSOR_TYPE_WHICH_SENSORS           = 0xFFF9,               //!< Is this a PST, a BioTac, or what? Returns a TACTILE_SENSOR_PROTOCOL_TYPE
-    TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ     = 0xFFFA,               //!< word[0] = frequency in Hz. currently only used by BioTacs
-    TACTILE_SENSOR_TYPE_MANUFACTURER            = 0xFFFB,               //!< e.g. "Shadow" or "Syntouch"
-    TACTILE_SENSOR_TYPE_SERIAL_NUMBER           = 0xFFFC,               //!< e.g. "PST3200110190001"
-    TACTILE_SENSOR_TYPE_SOFTWARE_VERSION        = 0xFFFD,               //!< e.g. "1825"
-    TACTILE_SENSOR_TYPE_PCB_VERSION             = 0xFFFE,               //!< e.g. "FB". Currently only used by BioTacs
-    TACTILE_SENSOR_TYPE_RESET_COMMAND           = 0xFFFF                //!< Requesting this causes the tactile sensors to reset if they support it.
-}FROM_TACTILE_SENSOR_TYPE;
-
-
-typedef enum                                                            //! This is the protocol that the palm is using for the tactile sensors.
-{
-    TACTILE_SENSOR_PROTOCOL_TYPE_INVALID        = 0x0000,               //!< No supported sensors were found.
-    TACTILE_SENSOR_PROTOCOL_TYPE_PST3           = 0x0001,
-    TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3     = 0x0002,
-
-    TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING    = 0xFFFF                //!< More than 1 type of sensor is connected to the hand! (Very unlikely to happen)
-}TACTILE_SENSOR_PROTOCOL_TYPE;
-
-
-typedef enum                                                            // Data you can request from PST3s
-{
-    TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE       = 0x0000,       //!< 0: Pressure.       1: Temperature
-    TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING = 0x0002,       //!< 0: Raw pressure    1: Zero tracking
-    TACTILE_SENSOR_TYPE_PST3_DAC_VALUE                  = 0x0004        //!< 0: DAC value       1: ----
-}FROM_TACTILE_SENSOR_TYPE_PST3;
-
-
-typedef enum                                                            // Data you can request from BioTacs
-{
-    TACTILE_SENSOR_TYPE_BIOTAC_INVALID         = 0x0000,
-    TACTILE_SENSOR_TYPE_BIOTAC_PDC             = 0x0001,
-    TACTILE_SENSOR_TYPE_BIOTAC_TAC             = 0x0002,
-    TACTILE_SENSOR_TYPE_BIOTAC_TDC             = 0x0003,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1     = 0x0004,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2     = 0x0005,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3     = 0x0006,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4     = 0x0007,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5     = 0x0008,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6     = 0x0009,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7     = 0x000A,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8     = 0x000B,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9     = 0x000C,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10    = 0x000D,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11    = 0x000E,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12    = 0x000F,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13    = 0x0010,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14    = 0x0011,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15    = 0x0012,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16    = 0x0013,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17    = 0x0014,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18    = 0x0015,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19    = 0x0016,
-
-    FROM_TACTILE_SENSOR_TYPE_BIOTAC_NUM_VALUES = 0x0017
-}FROM_TACTILE_SENSOR_TYPE_BIOTAC;
-
-
-typedef struct
-{
-    int16u  Pac[2];
-    int16u  other_sensor;
-
-    struct
-    {
-        int8u Pac0         : 1;
-        int8u Pac1         : 1;
-        int8u other_sensor : 1;
-    }data_valid;
-    
-    int16u  nothing[4];
-}TACTILE_SENSOR_BIOTAC_DATA_CONTENTS;
-
-
-/*
-#ifndef NO_STRINGS
-
-    static const char* tactile_sensor_shadow_type_strings[4]  = {   "None",
-                                                                    "Pressure Sensor Tactile",
-                                                                    "6 Axis"};
-
-    static const char* tactile_sensor_syntouch_type_strings[4] = {  "None",
-                                                                    "BioTac 2.3"};
-
-
-
-    static const char* tactile_sensor_manufacturer_strings[4] = {   "None",
-                                                                    "Shadow Robot Company Ltd.",
-                                                                    "Syntouch",
-                                                                    "Bielefeld University"};
-
-    static const char* tactile_sensor_generic_info_strings[7] = {   "Invalid",
-                                                                    "SVN revision",
-                                                                    "Revision is modified",
-                                                                    "SVN revision on server at build time",
-                                                                    "PCB version",
-                                                                    "Part serial number low",
-                                                                    "Part serial number high"};
-
-#endif
-*/
-
 
 
 
@@ -527,24 +310,11 @@ typedef struct
 
 
 
-#define ETHERCAT_COMMAND_HEADER_SIZE  (  sizeof(EDC_COMMAND) + sizeof(FROM_MUSCLE_DATA_TYPE) + sizeof(int16s)  )
+#define 0300_PALM_ETHERCAT_COMMAND_HEADER_SIZE  (  sizeof(EDC_COMMAND) + sizeof(FROM_MUSCLE_DATA_TYPE) + sizeof(int16s)  )
 
-#define ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS)
-#define ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND)
+#define 0300_PALM_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS)
+#define 0300_PALM_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND)
 
-
-//! This packet allows the palm to transmit and receive CAN messages
-//! on either CAN bus. One CAN message per EtherCAT packet only.
-//! The CAN messages can be used for bootloading new code onto the muscle drivers.
-typedef struct
-{
-    int8u   can_bus;
-    int8u   message_length;
-    int16u  message_id;
-    int8u   message_data[8];
-} __attribute__((packed)) ETHERCAT_CAN_BRIDGE_DATA;
-
-#define ETHERCAT_CAN_BRIDGE_DATA_SIZE   sizeof(ETHERCAT_CAN_BRIDGE_DATA)
 
 
 //! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |
@@ -559,24 +329,13 @@ typedef struct
 //!
 //!
 
-#define ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
-#define ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (ETHERCAT_COMMAND_DATA_ADDRESS            + ETHERCAT_COMMAND_DATA_SIZE)
+#define 0300_PALM_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
+#define 0300_PALM_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (0300_PALM_ETHERCAT_COMMAND_DATA_ADDRESS            + 0300_PALM_ETHERCAT_COMMAND_DATA_SIZE)
 
-#define ETHERCAT_STATUS_DATA_ADDRESS                (ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS + ETHERCAT_CAN_BRIDGE_DATA_SIZE)
-#define ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (ETHERCAT_STATUS_DATA_ADDRESS             + ETHERCAT_STATUS_DATA_SIZE)
+#define 0300_PALM_ETHERCAT_STATUS_DATA_ADDRESS                (0300_PALM_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS + ETHERCAT_CAN_BRIDGE_DATA_SIZE)
+#define 0300_PALM_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (0300_PALM_ETHERCAT_STATUS_DATA_ADDRESS             + 0300_PALM_ETHERCAT_STATUS_DATA_SIZE)
 
 //#define NUM_CONFIGS_REQUIRED 5
 
-#define INSERT_CRC_CALCULATION_HERE 	crc_i = (int8u) (crc_result&0xff);          \
-                                    	crc_i ^= crc_byte;                          \
-                                    	crc_result >>= 8;                           \
-                                    	if(crc_i & 0x01)	crc_result ^= 0x3096;   \
-                                    	if(crc_i & 0x02)	crc_result ^= 0x612c;   \
-                                    	if(crc_i & 0x04)	crc_result ^= 0xc419;   \
-                                    	if(crc_i & 0x08)	crc_result ^= 0x8832;   \
-                                    	if(crc_i & 0x10)	crc_result ^= 0x1064;   \
-                                    	if(crc_i & 0x20)	crc_result ^= 0x20c8;   \
-                                    	if(crc_i & 0x40)	crc_result ^= 0x4190;   \
-                                    	if(crc_i & 0x80)	crc_result ^= 0x8320;
 
 #endif

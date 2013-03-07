@@ -17,5 +17,7 @@ echo "copying (in directory: " $START_PATH " ), from: ../include/sr_external_dep
 cp -r ../include/sr_external_dependencies/provisional/common_edc_ethercat_protocol.h ../include/sr_external_dependencies/external/common/
 echo "copying (in directory: " $START_PATH " ), from: ../include/sr_external_dependencies/provisional/ethercat_can_bridge_protocol.h to ../include/sr_external_dependencies/external/common/"
 cp -r ../include/sr_external_dependencies/provisional/ethercat_can_bridge_protocol.h ../include/sr_external_dependencies/external/common/
+echo "copying (in directory: " $START_PATH " ), from: ../include/sr_external_dependencies/provisional/tactile_edc_ethercat_protocol.h to ../include/sr_external_dependencies/external/common/"
+cp -r ../include/sr_external_dependencies/provisional/tactile_edc_ethercat_protocol.h ../include/sr_external_dependencies/external/common/
 chmod -R a-w ../include/sr_external_dependencies/external/
 
