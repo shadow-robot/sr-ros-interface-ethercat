@@ -1,10 +1,10 @@
 /**
- * @file   sr06.h
+ * @file   sr_edc.h
  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
- *         Ugo Cupcic <ugo@shadowrobot.com>, contact <contact@shadowrobot.com>
- * @date   Mon May 23 13:33:30 2011
+ *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+ * @date   Fri Mar 8 13:33:30 2013
 *
-* Copyright 2011 Shadow Robot Company Ltd.
+* Copyright 2013 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -19,13 +19,18 @@
 * You should have received a copy of the GNU General Public License along
 * with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
- * @brief This is a ROS driver for Shadow Robot #6 EtherCAT Slave
+ * @brief This is a parent class for the ROS drivers for any
+ * Shadow Robot EtherCAT Dual CAN Slave.
+ * It provides the tools to reprogram the Firmware of the microcontrollers
+ * on the boards attached to the CAN busses of the Shadow EDC device
+ * (like e.g. the motor boards, or the valve control boards),
+ * assuming that they use the simplemotor-bootloader protocol implemented here.
  *
  *
  */
 
-#ifndef SR06_H
-#define SR06_H
+#ifndef SR_EDC_H
+#define SR_EDC_H
 
 #include <ethercat_hardware/ethercat_device.h>
 #include <sr_edc_ethercat_drivers/sr0x.h>
@@ -52,11 +57,11 @@ extern "C"
 }
 
 
-class SR06 : public SR0X
+class SrEdc : public SR0X
 {
 public:
-  SR06();
-  ~SR06();
+  SrEdc();
+  ~SrEdc();
 
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
   int  initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
@@ -201,5 +206,5 @@ End:
 */
 
 
-#endif /* SR06_H */
+#endif /* SR_EDC_H */
 
