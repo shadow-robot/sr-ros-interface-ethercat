@@ -46,14 +46,15 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 
-#include <sr_robot_lib/sr_hand_lib.hpp>
+//#include <sr_robot_lib/sr_hand_lib.hpp>
 
 #include <sr_robot_msgs/EthercatDebug.h>
 
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+  #include <sr_external_dependencies/external/common/ethercat_can_bridge_protocol.h>
+  #include <sr_external_dependencies/external/common/common_edc_ethercat_protocol.h>
 }
 
 
@@ -65,11 +66,9 @@ public:
 
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
   int  initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
-  void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
 
   bool simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req, sr_robot_msgs::SimpleMotorFlasher::Response &res);
-  void packCommand(unsigned char *buffer, bool halt, bool reset);
-  bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
+  void build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message);
   bool can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet);
   void erase_flash();
   //bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
@@ -77,7 +76,6 @@ public:
 
 protected:
   int                                                                  counter_;
-  //ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS                         data_;
   ros::NodeHandle                                                      nodehandle_;
 
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
@@ -86,39 +84,30 @@ protected:
   /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
 
+  bool                             flashing;
+  bool                             can_packet_acked;
+
+  /// This function will call the reinitialization function for the boards attached to the CAN bus
+  virtual void reinitialize_boards();
 private:
 
-  static const unsigned int        nb_sensors_const;
+  //static const unsigned int        nb_sensors_const;
   static const unsigned int        max_retry;
-  static const unsigned short int  max_iter_const;
-  static const unsigned short int  ros_pub_freq_const;
-  static const unsigned short int  device_pub_freq_const;
-  static const unsigned char       nb_publish_by_unpack_const;
-  std::string                      firmware_file_name;
+  //static const unsigned short int  max_iter_const;
+  //static const unsigned short int  ros_pub_freq_const;
+  //static const unsigned short int  device_pub_freq_const;
+  //static const unsigned char       nb_publish_by_unpack_const;
+  //std::string                      firmware_file_name;
   pthread_mutex_t                  producing;
   ros::ServiceServer               serviceServer;
 
-  bool                             flashing;
+
   ETHERCAT_CAN_BRIDGE_DATA         can_message_;
-  bool                             can_message_sent;
-  bool                             can_packet_acked;
+  bool                            can_message_sent;
   bfd_byte                        *binary_content; // buffer containing the binary content to be flashed
   unsigned int                     pos; // position in binary_content buffer
   unsigned int                     motor_being_flashed;
 
-  ///counter for the number of empty buffer we're reading.
-  unsigned int                     zero_buffer_read;
-
-  boost::shared_ptr<shadow_robot::SrHandLib> sr_hand_lib;
-
-  /**
-   *a counter used to publish the tactiles at 100Hz:
-   * count 10 cycles, then reset the cycle_count to 0.
-   */
-  short cycle_count;
-
-  /// Debug real time publisher: publishes the raw ethercat data
-  boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;
 
   ///We're using 2 can busses, so can_bus_ is 1 for motors 0 to 9 and 2 for motors 10 to 19
   int can_bus_;

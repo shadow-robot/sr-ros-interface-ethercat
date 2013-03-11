@@ -67,20 +67,16 @@ namespace is_edc_command_32_bits
   BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
 } // namespace is_edc_command_32_bits
 
-#define ETHERCAT_STATUS_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS)
-#define ETHERCAT_COMMAND_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND)
-
-const unsigned short int SrEdc::device_pub_freq_const      = 1000;
-const unsigned short int SrEdc::ros_pub_freq_const         = 1000;
-const unsigned short int SrEdc::max_iter_const             = device_pub_freq_const / ros_pub_freq_const;
-const unsigned int       SrEdc::nb_sensors_const           = ETHERCAT_STATUS_DATA_SIZE/2; //36;
-const unsigned char      SrEdc::nb_publish_by_unpack_const = (nb_sensors_const % max_iter_const) ? (nb_sensors_const / max_iter_const) + 1 : (nb_sensors_const / max_iter_const);
+//const unsigned short int SrEdc::device_pub_freq_const      = 1000;
+//const unsigned short int SrEdc::ros_pub_freq_const         = 1000;
+//const unsigned short int SrEdc::max_iter_const             = device_pub_freq_const / ros_pub_freq_const;
+//const unsigned int       SrEdc::nb_sensors_const           = ETHERCAT_STATUS_DATA_SIZE/2; //36;
+//const unsigned char      SrEdc::nb_publish_by_unpack_const = (nb_sensors_const % max_iter_const) ? (nb_sensors_const / max_iter_const) + 1 : (nb_sensors_const / max_iter_const);
 const unsigned int       SrEdc::max_retry                  = 20;
 
 #define ETHERCAT_CAN_BRIDGE_DATA_SIZE sizeof(ETHERCAT_CAN_BRIDGE_DATA)
 
 
-PLUGINLIB_REGISTER_CLASS(6, SR06, EthercatDevice);
 
 #define check_for_pthread_mutex_init_error(x)	switch(x)               \
   {                                                                     \
@@ -133,20 +129,11 @@ SrEdc::SrEdc()
     flashing(false),
     can_message_sent(true),
     can_packet_acked(true),
-    zero_buffer_read(0),
-    cycle_count(0),
     can_bus_(0)
 {
   int res = 0;
   check_for_pthread_mutex_init_error(res);
   counter_ = 0;
-
-  ROS_INFO("There are %d sensors", nb_sensors_const);
-  ROS_INFO(     "device_pub_freq_const = %d", device_pub_freq_const      );
-  ROS_INFO(        "ros_pub_freq_const = %d", ros_pub_freq_const         );
-  ROS_INFO(            "max_iter_const = %d", max_iter_const             );
-  ROS_INFO(          "nb_sensors_const = %d", nb_sensors_const           );
-  ROS_INFO("nb_publish_by_unpack_const = %d", nb_publish_by_unpack_const );
 
   res = pthread_mutex_init(&producing, NULL);
   check_for_pthread_mutex_init_error(res);
@@ -200,87 +187,6 @@ SrEdc::~SrEdc()
 void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 {
     SR0X::construct(sh, start_address);
-
-    command_base_ = start_address;
-    command_size_ = ETHERCAT_COMMAND_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE;
-
-    start_address += ETHERCAT_COMMAND_DATA_SIZE;
-    start_address += ETHERCAT_CAN_BRIDGE_DATA_SIZE;
-
-    status_base_ = start_address;
-    status_size_ = ETHERCAT_STATUS_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE;
-
-
-    // ETHERCAT_COMMAND_DATA
-    //
-    // This is for data going TO the palm
-    //
-    ROS_INFO("First FMMU (command) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", command_base_, command_size_,
-	     static_cast<int>(ETHERCAT_COMMAND_DATA_ADDRESS) );
-    EC_FMMU *commandFMMU = new EC_FMMU( command_base_,                                                  // Logical Start Address    (in ROS address space?)
-                                        command_size_,
-                                        0x00,                                                           // Logical Start Bit
-                                        0x07,                                                           // Logical End Bit
-                                        ETHERCAT_COMMAND_DATA_ADDRESS,                                  // Physical Start Address   (in ET1200 address space?)
-                                        0x00,                                                           // Physical Start Bit
-                                        false,                                                          // Read Enable
-                                        true,                                                           // Write Enable
-                                        true                                                            // Channel Enable
-                                       );
-
-
-
-
-    // ETHERCAT_STATUS_DATA
-    //
-    // This is for data coming FROM the palm
-    //
-    ROS_INFO("Second FMMU (status) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", status_base_, status_size_,
-	     static_cast<int>(ETHERCAT_STATUS_DATA_ADDRESS) );
-    EC_FMMU *statusFMMU = new EC_FMMU(  status_base_,
-                                        status_size_,
-                                        0x00,
-                                        0x07,
-                                        ETHERCAT_STATUS_DATA_ADDRESS,
-                                        0x00,
-                                        true,
-                                        false,
-                                        true);
-
-
-
-    EtherCAT_FMMU_Config *fmmu = new EtherCAT_FMMU_Config(2);
-
-    (*fmmu)[0] = *commandFMMU;
-    (*fmmu)[1] = *statusFMMU;
-
-    sh->set_fmmu_config(fmmu);
-
-    EtherCAT_PD_Config *pd = new EtherCAT_PD_Config(4);
-
-    (*pd)[0] = EC_SyncMan(ETHERCAT_COMMAND_DATA_ADDRESS,             ETHERCAT_COMMAND_DATA_SIZE,    EC_QUEUED, EC_WRITTEN_FROM_MASTER);
-    (*pd)[1] = EC_SyncMan(ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS,  ETHERCAT_CAN_BRIDGE_DATA_SIZE, EC_QUEUED, EC_WRITTEN_FROM_MASTER);
-    (*pd)[2] = EC_SyncMan(ETHERCAT_STATUS_DATA_ADDRESS,              ETHERCAT_STATUS_DATA_SIZE,     EC_QUEUED);
-    (*pd)[3] = EC_SyncMan(ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS,   ETHERCAT_CAN_BRIDGE_DATA_SIZE, EC_QUEUED);
-
-    status_size_ = ETHERCAT_STATUS_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE;
-
-    (*pd)[0].ChannelEnable = true;
-    (*pd)[0].ALEventEnable = true;
-    (*pd)[0].WriteEvent    = true;
-
-    (*pd)[1].ChannelEnable = true;
-    (*pd)[1].ALEventEnable = true;
-    (*pd)[1].WriteEvent    = true;
-
-    (*pd)[2].ChannelEnable = true;
-    (*pd)[3].ChannelEnable = true;
-
-    sh->set_pd_config(pd);
-
-    ROS_INFO("status_size_ : %d ; command_size_ : %d", status_size_, command_size_);
-
-    ROS_INFO("Finished constructing the SrEdc driver");
 }
 
 /**
@@ -291,21 +197,6 @@ int SrEdc::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_
 
   int retval = SR0X::initialize(hw, allow_unprogrammed);
 
-  if(retval != 0)
-    return retval;
-
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrHandLib>( new shadow_robot::SrHandLib(hw) );
-
-  ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int>(ETHERCAT_STATUS_DATA_SIZE) );
-  ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int>(ETHERCAT_COMMAND_DATA_SIZE) );
-  ROS_INFO("ETHERCAT_CAN_BRIDGE_DATA_SIZE  = %4d bytes", static_cast<int>(ETHERCAT_CAN_BRIDGE_DATA_SIZE) );
-
-  //initialise the publisher for the extra analog inputs, gyroscope and accelerometer on the palm
-  extra_analog_inputs_publisher.reset(new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_ , "palm_extras", 10));
-
-
-  // Debug real time publisher: publishes the raw ethercat data
-  debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_ , "debug_etherCAT_data", 4));
   return retval;
 }
 
@@ -623,119 +514,20 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   res.value = res.SUCCESS;
 
-  //Reinitialize motors information
-  sr_hand_lib->reinitialize_motors();
+  //Reinitialize motor boards or valve controller boards information
+  reinitialize_boards();
 
   return true;
 }
 
-/** \brief This function gives some diagnostics data
- *
- *  This function provides diagnostics data that can be displayed by
- *  the runtime_monitor node. We use the mutliDiagnostics as it publishes
- *  the diagnostics for each motors.
- */
-void SrEdc::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer)
-{
-  diagnostic_updater::DiagnosticStatusWrapper &d(diagnostic_status_);
-
-  stringstream name;
-  d.name = "EtherCAT Dual CAN Palm";
-  d.summary(d.OK, "OK");
-  stringstream hwid;
-  hwid << sh_->get_product_code() << "-" << sh_->get_serial();
-  d.hardware_id = hwid.str();
-
-  d.clear();
-  d.addf("Position", "%02d", sh_->get_ring_position());
-  d.addf("Product Code", "%d", sh_->get_product_code());
-  d.addf("Serial Number", "%d", sh_->get_serial());
-  d.addf("Revision", "%d", sh_->get_revision());
-  d.addf("Counter", "%d", ++counter_);
-
-  d.addf("PIC idle time (in microsecs)", "%d", sr_hand_lib->main_pic_idle_time);
-  d.addf("Min PIC idle time (since last diagnostics)", "%d", sr_hand_lib->main_pic_idle_time_min);
-  //reset the idle time min to a big number, to get a fresh number on next diagnostic
-  sr_hand_lib->main_pic_idle_time_min = 1000;
-
-  this->ethercatDiagnostics(d,2);
-  vec.push_back(d);
-
-  //Add the diagnostics from the hand
-  sr_hand_lib->add_diagnostics(vec, d);
-
-  //Add the diagnostics from the tactiles
-  if( sr_hand_lib->tactiles != NULL )
-    sr_hand_lib->tactiles->add_diagnostics(vec, d);
-}
-
-
-
-/** \brief packs the commands before sending them to the EtherCAT bus
- *
- *  This is one of the most important functions of this driver.
- *  This function is called each millisecond (1 kHz freq) by the EthercatHardware::update() function
- *  in the controlLoop() of the pr2_etherCAT node.
- *
- *  This function is called with a buffer as a parameter, the buffer provided is where we write the commands to send via EtherCAT.
- *
- *  We just cast the buffer to our structure type, fill the structure with our data, then add the structure size to the buffer address to shift into memory and access the second command.
- *  The buffer has been allocated with command_size_ bytes, which is the sum of the two command size, so we have to put the two commands one next to the other.
- *  In fact we access the buffer using this kind of code : \code
- *  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND  *command = (ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *)buffer;
- *  ETHERCAT_CAN_BRIDGE_DATA                       *message = (ETHERCAT_CAN_BRIDGE_DATA *)(buffer + ETHERCAT_COMMAND_DATA_SIZE);
- *  \endcode
- */
-void SrEdc::packCommand(unsigned char *buffer, bool halt, bool reset)
+void SrEdc::build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message)
 {
   int res;
-
-  SR0X::packCommand(buffer, halt, reset);
-
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND   *command = (ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *)(buffer                             );
-  ETHERCAT_CAN_BRIDGE_DATA	                  *message = (ETHERCAT_CAN_BRIDGE_DATA                      *)(buffer + ETHERCAT_COMMAND_DATA_SIZE);
-
-  if ( !flashing )
-  {
-    command->EDC_command = EDC_COMMAND_SENSOR_DATA;
-  }
-  else
-  {
-    command->EDC_command = EDC_COMMAND_CAN_DIRECT_MODE;
-  }
-
-  //alternate between even and uneven motors
-  // and ask for the different informations.
-  sr_hand_lib->build_motor_command(command);
-
-  ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
-		command->to_motor_data_type,
-                command->motor_data[0],
-                command->motor_data[1],
-                command->motor_data[2],
-                command->motor_data[3],
-                command->motor_data[4],
-                command->motor_data[5],
-                command->motor_data[6],
-                command->motor_data[7],
-                command->motor_data[8],
-                command->motor_data[9],
-                command->motor_data[10],
-                command->motor_data[11],
-                command->motor_data[12],
-                command->motor_data[13],
-                command->motor_data[14],
-                command->motor_data[15],
-                command->motor_data[16],
-                command->motor_data[17],
-                command->motor_data[18],
-                command->motor_data[19]);
 
   if (flashing && !can_packet_acked && !can_message_sent)
   {
     if ( !(res = pthread_mutex_trylock(&producing)) )
     {
-      ROS_DEBUG_STREAM("Ethercat Command data size: "<< ETHERCAT_COMMAND_DATA_SIZE);
       ROS_DEBUG_STREAM("Ethercat bridge data size: "<< ETHERCAT_CAN_BRIDGE_DATA_SIZE);
 
       ROS_DEBUG("We're sending a CAN message for flashing.");
@@ -743,7 +535,7 @@ void SrEdc::packCommand(unsigned char *buffer, bool halt, bool reset)
       can_message_sent = true;
 
       ROS_DEBUG("Sending : SID : 0x%04X ; bus : 0x%02X ; length : 0x%02X ; data : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
-		message->message_id,
+                message->message_id,
                 message->can_bus,
                 message->message_length,
                 message->message_data[0],
@@ -769,7 +561,6 @@ void SrEdc::packCommand(unsigned char *buffer, bool halt, bool reset)
     message->message_id     = 0x00;
     message->message_length = 0;
   }
-
 }
 
 /** \brief This function checks if the can packet in the unpackState() this_buffer is an ACK
@@ -857,136 +648,6 @@ bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
   return true;
 }
 
-/** \brief This functions receives data from the EtherCAT bus
- *
- *  This function allows the driver to get the data present on the EtherCAT bus and intended for us.
- *
- *  It gives us access to the logical memory registered during the construct().
- *
- *  In order to be able to do differentials two buffers are kept, this_buffer is the actual data that has just been received
- *  and prev_buffer is the previous buffer received from the EtherCAT bus.
- *
- *  We access the data sent by PIC32 here using the same tricks we used in packCommand().
- *  \code
- *  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *tbuffer = (ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *)(this_buffer + command_size_);
- *  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *)(this_buffer + command_size_ + ETHERCAT_STATUS_DATA_SIZE);
- *  \endcode
- *
- * @param this_buffer The data just being received by EtherCAT
- * @param prev_buffer The previous data received by EtherCAT
- */
-bool SrEdc::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
-{
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS  *status_data = (ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *)(this_buffer + command_size_                             );
-  ETHERCAT_CAN_BRIDGE_DATA                      *can_data    = (ETHERCAT_CAN_BRIDGE_DATA                     *)(this_buffer + command_size_ + ETHERCAT_STATUS_DATA_SIZE );
-  //  int16u                                        *status_buffer = (int16u*)status_data;
-  static unsigned int num_rxed_packets = 0;
-
-  ++num_rxed_packets;
-
-
-  // publishes the debug information (a slightly formatted version of the incoming ethercat packet):
-  if(debug_publisher->trylock())
-  {
-    debug_publisher->msg_.header.stamp = ros::Time::now();
-
-    debug_publisher->msg_.sensors.clear();
-    for(unsigned int i=0; i<SENSORS_NUM_0220 + 1; ++i)
-      debug_publisher->msg_.sensors.push_back( status_data->sensors[i] );
-
-    debug_publisher->msg_.motor_data_type.data = static_cast<int>(status_data->motor_data_type);
-    debug_publisher->msg_.which_motors = status_data->which_motors;
-    debug_publisher->msg_.which_motor_data_arrived = status_data->which_motor_data_arrived;
-    debug_publisher->msg_.which_motor_data_had_errors = status_data->which_motor_data_had_errors;
-
-    debug_publisher->msg_.motor_data_packet_torque.clear();
-    debug_publisher->msg_.motor_data_packet_misc.clear();
-    for(unsigned int i=0; i < 10; ++i)
-    {
-      debug_publisher->msg_.motor_data_packet_torque.push_back( status_data->motor_data_packet[i].torque );
-      debug_publisher->msg_.motor_data_packet_misc.push_back( status_data->motor_data_packet[i].misc );
-    }
-
-    debug_publisher->msg_.tactile_data_type = static_cast<unsigned int>(static_cast<int32u>(status_data->tactile_data_type));
-    debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile_data_valid));
-    debug_publisher->msg_.tactile.clear();
-    for(unsigned int i=0; i < 5; ++i)
-      debug_publisher->msg_.tactile.push_back( static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[i].word[0])) );
-
-    debug_publisher->msg_.idle_time_us = status_data->idle_time_us;
-
-    debug_publisher->unlockAndPublish();
-  }
-
-  if (status_data->EDC_command == EDC_COMMAND_INVALID)
-  {
-    //received empty message: the pic is not writing to its mailbox.
-    ++zero_buffer_read;
-    float percentage_packet_loss = 100.f * ((float)zero_buffer_read / (float)num_rxed_packets);
-
-    ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus", zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
-    return true;
-  }
-
-  //We received a coherent message.
-  //Update the library (positions, diagnostics values, actuators, etc...)
-  //with the received information
-  sr_hand_lib->update(status_data);
-
-  //Now publish the additional data at 100Hz (every 10 cycles)
-  if( cycle_count >= 9)
-  {
-    //publish tactiles if we have them
-    if( sr_hand_lib->tactiles != NULL )
-      sr_hand_lib->tactiles->publish();
-
-    //And we also publish the additional data (accelerometer / gyroscope / analog inputs)
-    std_msgs::Float64MultiArray extra_analog_msg;
-    extra_analog_msg.layout.dim.resize(3);
-    extra_analog_msg.data.resize(3+3+4);
-    std::vector<double> data;
-
-    extra_analog_msg.layout.dim[0].label = "accelerometer";
-    extra_analog_msg.layout.dim[0].size = 3;
-    extra_analog_msg.data[0] = status_data->sensors[ACCX];
-    extra_analog_msg.data[1] = status_data->sensors[ACCY];
-    extra_analog_msg.data[2] = status_data->sensors[ACCZ];
-
-    extra_analog_msg.layout.dim[1].label = "gyrometer";
-    extra_analog_msg.layout.dim[1].size = 3;
-    extra_analog_msg.data[3] = status_data->sensors[GYRX];
-    extra_analog_msg.data[4] = status_data->sensors[GYRY];
-    extra_analog_msg.data[5] = status_data->sensors[GYRZ];
-
-    extra_analog_msg.layout.dim[2].label = "analog_inputs";
-    extra_analog_msg.layout.dim[2].size = 4;
-    extra_analog_msg.data[6] = status_data->sensors[AN0];
-    extra_analog_msg.data[7] = status_data->sensors[AN1];
-    extra_analog_msg.data[8] = status_data->sensors[AN2];
-    extra_analog_msg.data[9] = status_data->sensors[AN3];
-
-    if( extra_analog_inputs_publisher->trylock() )
-    {
-      extra_analog_inputs_publisher->msg_ = extra_analog_msg;
-      extra_analog_inputs_publisher->unlockAndPublish();
-    }
-
-    cycle_count = 0;
-  }
-  ++cycle_count;
-
-
-  //If we're flashing, check is the packet has been acked
-  if (flashing & !can_packet_acked)
-  {
-    if (can_data_is_ack(can_data))
-    {
-      can_packet_acked = true;
-    }
-  }
-
-  return true;
-}
 
 void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], int timeout, bool *timedout)
 {

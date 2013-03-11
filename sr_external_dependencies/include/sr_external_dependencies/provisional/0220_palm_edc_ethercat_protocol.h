@@ -46,6 +46,7 @@
 
 #include "../common/tactile_edc_ethercat_protocol.h"
 #include "../common/ethercat_can_bridge_protocol.h"
+#include "../common/common_edc_ethercat_protocol.h"
 
 
 #define NUM_MOTORS 20
@@ -176,20 +177,20 @@ typedef enum
 #define NO_TORQUE_CONTROL_ERROR_FLAGS  (  MOTOR_FLAG_BITS_SGL_FAULT              \
                                         | MOTOR_FLAG_BITS_SGR_FAULT )
 
-#define 0200_PALM_EDC_SERIOUS_ERROR_FLAGS            (  MOTOR_FLAG_BITS_NO_DEMAND_SEEN         \
+#define PALM_0200_EDC_SERIOUS_ERROR_FLAGS            (  MOTOR_FLAG_BITS_NO_DEMAND_SEEN         \
                                                       | MOTOR_FLAG_BITS_A3950_NFAULT           \
                                                       | MOTOR_FLAG_BITS_EEPROM_CONFIG_BAD_CRC  \
                                                       | MOTOR_FLAG_BITS_OVER_TEMP    )
 
 
-#define 0200_PALM_EDC_NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a motor doesn't see any Torque or PWM demand values,
+#define PALM_0200_EDC_NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a motor doesn't see any Torque or PWM demand values,
                                                                                                               //!  how long, in milliseconds, before it switches off the motor.
 
 #ifndef NO_STRINGS													                            // The PIC compiler doesn't deal well with strings.
 
     //! These are the names of the bits in the MOTOR_DATA_FLAGS.
     //! error_flag_names[n] is the name of bit 'n' in MOTOR_DATA_FLAGS.
-    static const char* 0200_palm_edc_error_flag_names[16] = { "Current choke bit 6",                          // 0x0001
+    static const char* palm_0200_edc_error_flag_names[16] = { "Current choke bit 6",                          // 0x0001
                                                 "Current choke bit 7",                          // 0x0002
                                                 "Current choke bit 8",                          // 0x0004
                                                 "Current choke bit 9",                          // 0x0008
@@ -415,10 +416,10 @@ typedef struct
                                        + sizeof(int16s)  )
 */
 
-#define 0200_PALM_ETHERCAT_COMMAND_HEADER_SIZE  (  sizeof(EDC_COMMAND) + sizeof(FROM_MOTOR_DATA_TYPE) + sizeof(int16s)  )
+#define PALM_0200_ETHERCAT_COMMAND_HEADER_SIZE  (  sizeof(EDC_COMMAND) + sizeof(FROM_MOTOR_DATA_TYPE) + sizeof(int16s)  )
 
-#define 0200_PALM_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS)
-#define 0200_PALM_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND)
+#define PALM_0200_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS)
+#define PALM_0200_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND)
 
                                                 //  Now we need to be *sure* that the Host and the Slave definitely
                                                 //  agree on the size of the EtherCAT packets, even if the host is a
@@ -442,11 +443,11 @@ typedef struct
 //!
 //!
 
-#define 0200_PALM_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
-#define 0200_PALM_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (0200_PALM_ETHERCAT_COMMAND_DATA_ADDRESS            + 0200_PALM_ETHERCAT_COMMAND_DATA_SIZE)
+#define PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
+#define PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS            + PALM_0200_ETHERCAT_COMMAND_DATA_SIZE)
 
-#define 0200_PALM_ETHERCAT_STATUS_DATA_ADDRESS                (0200_PALM_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS + ETHERCAT_CAN_BRIDGE_DATA_SIZE)
-#define 0200_PALM_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (0200_PALM_ETHERCAT_STATUS_DATA_ADDRESS             + 0200_PALM_ETHERCAT_STATUS_DATA_SIZE)
+#define PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS                (PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS + ETHERCAT_CAN_BRIDGE_DATA_SIZE)
+#define PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS             + PALM_0200_ETHERCAT_STATUS_DATA_SIZE)
 
 //#define NUM_CONFIGS_REQUIRED 5
 

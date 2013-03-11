@@ -46,6 +46,7 @@
 
 #include "../common/tactile_edc_ethercat_protocol.h"
 #include "../common/ethercat_can_bridge_protocol.h"
+#include "../common/common_edc_ethercat_protocol.h"
 
 
 #define NUM_MUSCLES                         40
@@ -113,16 +114,16 @@ typedef enum
 #define MUSCLE_FLAG_BITS_NO_DEMAND_SEEN              0x0400     //!< Haven't received any demand messages for longer than NO_DEMAND_TIMEOUT_MS. Valves switched off.
 
 
-#define 0300_PALM_EDC_SERIOUS_ERROR_FLAGS            (  MOTOR_FLAG_BITS_NO_DEMAND_SEEN )
+#define PALM_0300_EDC_SERIOUS_ERROR_FLAGS            (  MOTOR_FLAG_BITS_NO_DEMAND_SEEN )
 
-#define 0300_PALM_EDC_NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a muscle driver doesn't see any Torque or PWM demand values,
+#define PALM_0300_EDC_NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a muscle driver doesn't see any Torque or PWM demand values,
                                                                                                               //!  how long, in milliseconds, before it switches off the valves.
 
 #ifndef NO_STRINGS													                            // The PIC compiler doesn't deal well with strings.
 
     //! These are the names of the bits in the MUSCLE_DATA_FLAGS.
     //! error_flag_names[n] is the name of bit 'n' in MUSCLE_DATA_FLAGS.
-    static const char* 0300_palm_edc_error_flag_names[16] = { "No demand seen for more than 20ms",            // 0x0400
+    static const char* palm_0300_edc_error_flag_names[16] = { "No demand seen for more than 20ms",            // 0x0400
                                                             };
 #endif
 
@@ -310,10 +311,10 @@ typedef struct
 
 
 
-#define 0300_PALM_ETHERCAT_COMMAND_HEADER_SIZE  (  sizeof(EDC_COMMAND) + sizeof(FROM_MUSCLE_DATA_TYPE) + sizeof(int16s)  )
+#define PALM_0300_ETHERCAT_COMMAND_HEADER_SIZE  (  sizeof(EDC_COMMAND) + sizeof(FROM_MUSCLE_DATA_TYPE) + sizeof(int16s)  )
 
-#define 0300_PALM_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS)
-#define 0300_PALM_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND)
+#define PALM_0300_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS)
+#define PALM_0300_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND)
 
 
 
@@ -329,11 +330,11 @@ typedef struct
 //!
 //!
 
-#define 0300_PALM_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
-#define 0300_PALM_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (0300_PALM_ETHERCAT_COMMAND_DATA_ADDRESS            + 0300_PALM_ETHERCAT_COMMAND_DATA_SIZE)
+#define PALM_0300_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
+#define PALM_0300_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (PALM_0300_ETHERCAT_COMMAND_DATA_ADDRESS            + PALM_0300_ETHERCAT_COMMAND_DATA_SIZE)
 
-#define 0300_PALM_ETHERCAT_STATUS_DATA_ADDRESS                (0300_PALM_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS + ETHERCAT_CAN_BRIDGE_DATA_SIZE)
-#define 0300_PALM_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (0300_PALM_ETHERCAT_STATUS_DATA_ADDRESS             + 0300_PALM_ETHERCAT_STATUS_DATA_SIZE)
+#define PALM_0300_ETHERCAT_STATUS_DATA_ADDRESS                (PALM_0300_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS + ETHERCAT_CAN_BRIDGE_DATA_SIZE)
+#define PALM_0300_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (PALM_0300_ETHERCAT_STATUS_DATA_ADDRESS             + PALM_0300_ETHERCAT_STATUS_DATA_SIZE)
 
 //#define NUM_CONFIGS_REQUIRED 5
 
