@@ -28,6 +28,8 @@
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
+#define error_flag_names palm_0200_edc_error_flag_names
+
 class HandLibTestProtected : public shadow_robot::SrHandLib
 {
 public:

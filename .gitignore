@@ -25,6 +25,8 @@ sr_external_dependencies/build/
 sr_external_dependencies/cmake_install.cmake
 sr_external_dependencies/include/sr_external_dependencies/external/
 sr_external_dependencies/compiled_firmware/released_firmware/
+sr_robot_lib/bin/test/motor_updater_test
+sr_robot_lib/bin/test/test_robot_lib
 sr_robot_lib/.cproject
 sr_robot_lib/.project
 sr_robot_lib/.pydevproject
