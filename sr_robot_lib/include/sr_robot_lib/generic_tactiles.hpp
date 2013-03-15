@@ -50,6 +50,7 @@ extern "C"
 
 namespace tactiles
 {
+  template <class StatusType>
   class GenericTactiles
   {
   public:
@@ -63,7 +64,7 @@ namespace tactiles
      *
      * @param status_data the received etherCAT message
      */
-    virtual void update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data);
+    virtual void update(StatusType* status_data);
 
     /**
      * Publish the information to a ROS topic.

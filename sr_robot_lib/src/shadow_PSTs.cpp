@@ -30,39 +30,43 @@
 
 namespace tactiles
 {
-  ShadowPSTs::ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
-    : GenericTactiles(update_configs_vector, update_state)
+  template <class StatusType>
+  ShadowPSTs<StatusType>::ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+    : GenericTactiles<StatusType>(update_configs_vector, update_state)
   {
     init(update_configs_vector, update_state);
   }
 
-  ShadowPSTs::ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector)
-    : GenericTactiles(update_configs_vector, update_state)
+  template <class StatusType>
+  ShadowPSTs<StatusType>::ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector)
+    : GenericTactiles<StatusType>(update_configs_vector, update_state)
   {
     init(update_configs_vector, update_state);
     tactiles_vector->clear();
-    for(unsigned int i=0;i<nb_tactiles;i++)
+    for(unsigned int i=0;i<this->nb_tactiles;i++)
     {
       PST3Data tmp_pst(init_tactiles_vector->at(i));
       tactiles_vector->push_back( tmp_pst );
     }
   }
 
-  void ShadowPSTs::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+  template <class StatusType>
+  void ShadowPSTs<StatusType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
     // Tactile sensor real time publisher
-    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nodehandle_ , "tactile", 4));
+    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(this->nodehandle , "tactile", 4));
 
     //initialize the vector of tactiles
-    tactiles_vector = boost::shared_ptr< std::vector<PST3Data> >( new std::vector<PST3Data>(nb_tactiles) );
-    all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >( new std::vector<AllTactileData>(nb_tactiles) );
+    tactiles_vector = boost::shared_ptr< std::vector<PST3Data> >( new std::vector<PST3Data>(this->nb_tactiles) );
+    this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >( new std::vector<AllTactileData>(this->nb_tactiles) );
   }
 
-  void ShadowPSTs::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
+  template <class StatusType>
+  void ShadowPSTs<StatusType>::update(StatusType* status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
     //TODO: use memcopy instead?
-    for( unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
+    for( unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
       switch( static_cast<int32u>(status_data->tactile_data_type) )
       {
@@ -138,15 +142,16 @@ namespace tactiles
       } //end switch
     } //end for tactile
 
-    if(sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
+    if(this->sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
     {
-      process_received_data_type(static_cast<int32u>(status_data->tactile_data_type));
-      if(sensor_updater->initialization_configs_vector.size() == 0)
-        sensor_updater->update_state = operation_mode::device_update_state::OPERATION;
+      this->process_received_data_type(static_cast<int32u>(status_data->tactile_data_type));
+      if(this->sensor_updater->initialization_configs_vector.size() == 0)
+        this->sensor_updater->update_state = operation_mode::device_update_state::OPERATION;
     }
   }
 
-  void ShadowPSTs::publish()
+  template <class StatusType>
+  void ShadowPSTs<StatusType>::publish()
   {
     if(tactile_publisher->trylock())
     {
@@ -156,7 +161,7 @@ namespace tactiles
 
       //tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
 
-      for(unsigned int id_tact = 0; id_tact < nb_tactiles; ++id_tact)
+      for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
       {
         //Always publish the last valid data: the data are updated
         // only if they are valid
@@ -171,10 +176,11 @@ namespace tactiles
 
   }//end publish
 
-  void ShadowPSTs::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+  template <class StatusType>
+  void ShadowPSTs<StatusType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                    diagnostic_updater::DiagnosticStatusWrapper &d)
   {
-    for(unsigned int id_tact = 0; id_tact < nb_tactiles; ++id_tact)
+    for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
     {
       std::stringstream ss;
 
@@ -199,12 +205,13 @@ namespace tactiles
     }
   }
 
-  std::vector<AllTactileData>* ShadowPSTs::get_tactile_data()
+  template <class StatusType>
+  std::vector<AllTactileData>* ShadowPSTs<StatusType>::get_tactile_data()
   {
     for( unsigned int i=0; i < tactiles_vector->size(); ++i)
-      all_tactile_data->at(i).pst = tactiles_vector->at(i);
+      this->all_tactile_data->at(i).pst = tactiles_vector->at(i);
 
-    return all_tactile_data.get();
+    return this->all_tactile_data.get();
   }
 
 }

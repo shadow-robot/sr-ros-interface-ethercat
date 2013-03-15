@@ -38,8 +38,9 @@
 
 namespace tactiles
 {
+  template <class StatusType>
   class Biotac :
-    public GenericTactiles
+    public GenericTactiles<StatusType>
   {
   public:
     Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
@@ -58,7 +59,7 @@ namespace tactiles
      *
      * @param status_data the received etherCAT message
      */
-    virtual void update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data);
+    virtual void update(StatusType* status_data);
 
     /**
      * Publish the information to a ROS topic.

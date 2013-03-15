@@ -47,7 +47,8 @@ namespace shadow_robot
   const int SrRobotLib::debug_mutex_lock_wait_time = 100;
 #endif
 
-  SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
+  template <class StatusType>
+  SrRobotLib<StatusType>::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false), motor_current_state(
       operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),
@@ -93,7 +94,8 @@ namespace shadow_robot
 
   }
 
-  void SrRobotLib::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
+  template <class StatusType>
+  void SrRobotLib<StatusType>::update(StatusType* status_data)
   {
     this->status_data = status_data;
 
@@ -197,7 +199,8 @@ namespace shadow_robot
     }
   } //end update()
 
-  void SrRobotLib::build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
+  template <class StatusType>
+  void SrRobotLib<StatusType>::build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)
   {
     //Mutual exclusion with the change_control_type service. We have to wait until the control_type_ variable has been set.
     boost::mutex::scoped_lock l(*lock_command_sending_);
@@ -233,8 +236,8 @@ namespace shadow_robot
         switch (tactiles_init->tactiles_vector->at(0).which_sensor)
         {
         case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
-          tactiles = boost::shared_ptr<tactiles::ShadowPSTs>(
-            new tactiles::ShadowPSTs(pst3_sensor_update_rate_configs_vector,
+          tactiles = boost::shared_ptr<tactiles::ShadowPSTs<StatusType> >(
+            new tactiles::ShadowPSTs<StatusType>(pst3_sensor_update_rate_configs_vector,
                                      operation_mode::device_update_state::OPERATION,
                                      tactiles_init->tactiles_vector));
 
@@ -242,8 +245,8 @@ namespace shadow_robot
           break;
 
         case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
-          tactiles = boost::shared_ptr<tactiles::Biotac>(
-            new tactiles::Biotac(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+          tactiles = boost::shared_ptr<tactiles::Biotac<StatusType> >(
+            new tactiles::Biotac<StatusType>(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
                                  tactiles_init->tactiles_vector));
 
           ROS_INFO("Biotac tactiles initialized");
@@ -463,7 +466,8 @@ namespace shadow_robot
     } //endelse reconfig_queue.empty() && reset_queue.empty()
   }
 
-  void SrRobotLib::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+  template <class StatusType>
+  void SrRobotLib<StatusType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                    diagnostic_updater::DiagnosticStatusWrapper &d)
   {
     boost::ptr_vector<shadow_joints::Joint>::iterator joint = joints_vector.begin();
@@ -583,7 +587,8 @@ namespace shadow_robot
 
   }
 
-  void SrRobotLib::calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
+  template <class StatusType>
+  void SrRobotLib<StatusType>::calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
   {
     actuator->state_.raw_sensor_values_.clear();
     actuator->state_.calibrated_sensor_values_.clear();
@@ -644,7 +649,8 @@ namespace shadow_robot
     }
   } //end calibrate_joint()
 
-  void SrRobotLib::read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
+  template <class StatusType>
+  void SrRobotLib<StatusType>::read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
   {
     //check the masks to see if the CAN messages arrived to the motors
     //the flag should be set to 1 for each motor
@@ -910,7 +916,8 @@ namespace shadow_robot
     }
   }
 
-  std::vector<std::pair<std::string, bool> > SrRobotLib::humanize_flags(int flag)
+  template <class StatusType>
+  std::vector<std::pair<std::string, bool> > SrRobotLib<StatusType>::humanize_flags(int flag)
   {
     std::vector<std::pair<std::string, bool> > flags;
 
@@ -933,7 +940,8 @@ namespace shadow_robot
     return flags;
   }
 
-  void SrRobotLib::generate_force_control_config(int motor_index, int max_pwm, int sg_left, int sg_right, int f, int p,
+  template <class StatusType>
+  void SrRobotLib<StatusType>::generate_force_control_config(int motor_index, int max_pwm, int sg_left, int sg_right, int f, int p,
                                                  int i, int d, int imax, int deadband, int sign)
   {
     ROS_INFO_STREAM(
@@ -999,7 +1007,8 @@ namespace shadow_robot
     reconfig_queue.push(config);
   }
 
-  void SrRobotLib::reinitialize_motors()
+  template <class StatusType>
+  void SrRobotLib<StatusType>::reinitialize_motors()
   {
     //Create a new MotorUpdater object
     motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater>(new generic_updater::MotorUpdater(motor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
@@ -1008,14 +1017,16 @@ namespace shadow_robot
     motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(joints_vector, motor_updater_->initialization_configs_vector));
   }
 
-  void SrRobotLib::reinitialize_sensors()
+  template <class StatusType>
+  void SrRobotLib<StatusType>::reinitialize_sensors()
   {
     //Create a new GenericTactiles object
-    tactiles_init = boost::shared_ptr<tactiles::GenericTactiles>( new tactiles::GenericTactiles(generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
+    tactiles_init = boost::shared_ptr<tactiles::GenericTactiles<StatusType> >( new tactiles::GenericTactiles<StatusType>(generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
     tactile_current_state = operation_mode::device_update_state::INITIALIZATION;
   }
 
-  bool SrRobotLib::nullify_demand_callback( sr_robot_msgs::NullifyDemand::Request& request,
+  template <class StatusType>
+  bool SrRobotLib<StatusType>::nullify_demand_callback( sr_robot_msgs::NullifyDemand::Request& request,
                                             sr_robot_msgs::NullifyDemand::Response& response )
   {
     if( request.nullify_demand )
@@ -1027,7 +1038,8 @@ namespace shadow_robot
     return true;
   }
 
-  bool SrRobotLib::change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
+  template <class StatusType>
+  bool SrRobotLib<StatusType>::change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
                                                   sr_robot_msgs::ChangeControlType::Response& response )
   {
     if( (request.control_type.control_type != sr_robot_msgs::ControlType::PWM) &&
@@ -1067,7 +1079,8 @@ namespace shadow_robot
     return true;
   }
 
-  bool SrRobotLib::change_control_parameters(int16_t control_type)
+  template <class StatusType>
+  bool SrRobotLib<StatusType>::change_control_parameters(int16_t control_type)
   {
     bool success = true;
     std::string env_variable;
@@ -1121,7 +1134,8 @@ namespace shadow_robot
     return success;
   }
 
-  bool SrRobotLib::motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
+  template <class StatusType>
+  bool SrRobotLib<StatusType>::motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
                                                     sr_robot_msgs::ChangeMotorSystemControls::Response& response )
   {
     std::vector<sr_robot_msgs::MotorSystemControls> tmp_motor_controls;

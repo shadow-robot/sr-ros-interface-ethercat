@@ -89,6 +89,7 @@ namespace crc_unions
 
 namespace shadow_robot
 {
+  template <class StatusType>
   class SrRobotLib
   {
   public:
@@ -103,7 +104,7 @@ namespace shadow_robot
      *
      * @param status_data the received etherCAT message
      */
-    void update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data);
+    void update(StatusType* status_data);
 
     /**
      * Builds a motor command: either send a torque demand or a configuration
@@ -153,8 +154,8 @@ namespace shadow_robot
      * will be instanciated during the initialization cycle,
      * depending on the type of sensors attached to the hand.
      */
-    boost::shared_ptr<tactiles::GenericTactiles> tactiles;
-    boost::shared_ptr<tactiles::GenericTactiles> tactiles_init;
+    boost::shared_ptr<tactiles::GenericTactiles<StatusType> > tactiles;
+    boost::shared_ptr<tactiles::GenericTactiles<StatusType> > tactiles_init;
 
     /**
      * Contains the idle time of the PIC communicating
@@ -265,7 +266,7 @@ namespace shadow_robot
     /// The current actuator.
     sr_actuator::SrActuator* actuator;
     /// The latest etherCAT message received.
-    ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data;
+    StatusType* status_data;
     /// A temporary calibration for a given joint.
     boost::shared_ptr<shadow_robot::JointCalibration> calibration_tmp;
 

@@ -31,9 +31,11 @@
 
 namespace tactiles
 {
-  const unsigned int GenericTactiles::nb_tactiles = 5;
+  template <class StatusType>
+  const unsigned int GenericTactiles<StatusType>::nb_tactiles = 5;
 
-  GenericTactiles::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+  template <class StatusType>
+  GenericTactiles<StatusType>::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
     sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater>(new generic_updater::SensorUpdater(update_configs_vector, update_state));
     if(update_state != operation_mode::device_update_state::INITIALIZATION)
@@ -52,8 +54,8 @@ namespace tactiles
     }
   }
 
-
-  void GenericTactiles::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
+  template <class StatusType>
+  void GenericTactiles<StatusType>::update(StatusType* status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
     //TODO: use memcopy instead?
@@ -130,7 +132,8 @@ namespace tactiles
     }
   }
 
-  void GenericTactiles::process_received_data_type(int32u data)
+  template <class StatusType>
+  void GenericTactiles<StatusType>::process_received_data_type(int32u data)
   {
     unsigned int i;
     for(i=0; i<sensor_updater->initialization_configs_vector.size(); i++)
@@ -141,12 +144,14 @@ namespace tactiles
       sensor_updater->initialization_configs_vector.erase(sensor_updater->initialization_configs_vector.begin() + i);
   }
 
-  void GenericTactiles::publish()
+  template <class StatusType>
+  void GenericTactiles<StatusType>::publish()
   {
     //We don't publish anything during the initialization phase
   }//end publish
 
-  void GenericTactiles::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+  template <class StatusType>
+  void GenericTactiles<StatusType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                         diagnostic_updater::DiagnosticStatusWrapper &d)
   {
     //We don't publish diagnostics during the initialization phase
@@ -160,7 +165,8 @@ namespace tactiles
    *
    * @return true if success
    */
-  bool GenericTactiles::reset(std_srvs::Empty::Request& request,
+  template <class StatusType>
+  bool GenericTactiles<StatusType>::reset(std_srvs::Empty::Request& request,
                               std_srvs::Empty::Response& response)
   {
     ROS_INFO_STREAM("Resetting tactiles");
@@ -168,8 +174,8 @@ namespace tactiles
     return sensor_updater->reset();
   }
 
-
-  std::string GenericTactiles::sanitise_string( const char* raw_string, const unsigned int str_size )
+  template <class StatusType>
+  std::string GenericTactiles<StatusType>::sanitise_string( const char* raw_string, const unsigned int str_size )
   {
     std::string sanitised_string = "";
     for (unsigned int i = 0; i < str_size; ++i)
@@ -190,7 +196,8 @@ namespace tactiles
     return sanitised_string;
   }
 
-  std::vector<AllTactileData>* GenericTactiles::get_tactile_data()
+  template <class StatusType>
+  std::vector<AllTactileData>* GenericTactiles<StatusType>::get_tactile_data()
   {
     return all_tactile_data.get();
   }
