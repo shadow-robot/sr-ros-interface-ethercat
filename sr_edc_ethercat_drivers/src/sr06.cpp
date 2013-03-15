@@ -233,7 +233,7 @@ int SR06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
   if(retval != 0)
     return retval;
 
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrHandLib>( new shadow_robot::SrHandLib(hw) );
+  sr_hand_lib = boost::shared_ptr<shadow_robot::SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS> >( new shadow_robot::SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS>(hw) );
 
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int>(ETHERCAT_STATUS_DATA_SIZE) );
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int>(ETHERCAT_COMMAND_DATA_SIZE) );
