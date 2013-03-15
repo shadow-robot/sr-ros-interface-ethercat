@@ -38,9 +38,9 @@
 
 namespace tactiles
 {
-  template <class StatusType>
+  template <class StatusType, class CommandType>
   class Biotac :
-    public GenericTactiles<StatusType>
+    public GenericTactiles<StatusType, CommandType>
   {
   public:
     Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);

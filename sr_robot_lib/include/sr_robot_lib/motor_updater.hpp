@@ -55,8 +55,9 @@ namespace generic_updater
    * The unimportant data are refreshed at their given rate (the value is defined in
    * the config in seconds).
    */
+  template <class CommandType>
   class MotorUpdater :
-      public GenericUpdater
+      public GenericUpdater<CommandType>
   {
   public:
     MotorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
@@ -69,7 +70,7 @@ namespace generic_updater
      * @param command The command which will be sent to the motor.
      * @return the current update state of the motor update
      */
-    operation_mode::device_update_state::DeviceUpdateState build_init_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+    operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType* command);
 
     /**
      * Building the motor command. This function is called at each packCommand() call.
@@ -79,7 +80,7 @@ namespace generic_updater
      * @param command The command which will be sent to the motor.
      * @return the current update state of the motor update
      */
-    operation_mode::device_update_state::DeviceUpdateState build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+    operation_mode::device_update_state::DeviceUpdateState build_command(CommandType* command);
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback

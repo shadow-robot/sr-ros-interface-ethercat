@@ -55,8 +55,9 @@ namespace generic_updater
    * The unimportant data are refreshed at their given rate (the value is defined in
    * the config in seconds).
    */
+  template <class CommandType>
   class SensorUpdater :
-      public GenericUpdater
+      public GenericUpdater<CommandType>
   {
   public:
     SensorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
@@ -69,7 +70,7 @@ namespace generic_updater
      * @param command The command which will be sent to the palm.
      * @return current update state
      */
-    operation_mode::device_update_state::DeviceUpdateState build_init_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+    operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType* command);
 
     /**
      * Updates the command to send to the hand. This function is called
@@ -80,7 +81,7 @@ namespace generic_updater
      * @param command The command which will be sent to the palm.
      * @return current update state
      */
-    operation_mode::device_update_state::DeviceUpdateState build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+    operation_mode::device_update_state::DeviceUpdateState build_command(CommandType* command);
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback

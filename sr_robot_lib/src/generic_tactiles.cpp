@@ -31,13 +31,13 @@
 
 namespace tactiles
 {
-  template <class StatusType>
-  const unsigned int GenericTactiles<StatusType>::nb_tactiles = 5;
+  template <class StatusType, class CommandType>
+  const unsigned int GenericTactiles<StatusType, CommandType>::nb_tactiles = 5;
 
-  template <class StatusType>
-  GenericTactiles<StatusType>::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+  template <class StatusType, class CommandType>
+  GenericTactiles<StatusType, CommandType>::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
-    sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater>(new generic_updater::SensorUpdater(update_configs_vector, update_state));
+    sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater<CommandType> >(new generic_updater::SensorUpdater<CommandType>(update_configs_vector, update_state));
     if(update_state != operation_mode::device_update_state::INITIALIZATION)
     {
       reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
@@ -54,8 +54,8 @@ namespace tactiles
     }
   }
 
-  template <class StatusType>
-  void GenericTactiles<StatusType>::update(StatusType* status_data)
+  template <class StatusType, class CommandType>
+  void GenericTactiles<StatusType, CommandType>::update(StatusType* status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
     //TODO: use memcopy instead?
@@ -132,8 +132,8 @@ namespace tactiles
     }
   }
 
-  template <class StatusType>
-  void GenericTactiles<StatusType>::process_received_data_type(int32u data)
+  template <class StatusType, class CommandType>
+  void GenericTactiles<StatusType, CommandType>::process_received_data_type(int32u data)
   {
     unsigned int i;
     for(i=0; i<sensor_updater->initialization_configs_vector.size(); i++)
@@ -144,14 +144,14 @@ namespace tactiles
       sensor_updater->initialization_configs_vector.erase(sensor_updater->initialization_configs_vector.begin() + i);
   }
 
-  template <class StatusType>
-  void GenericTactiles<StatusType>::publish()
+  template <class StatusType, class CommandType>
+  void GenericTactiles<StatusType, CommandType>::publish()
   {
     //We don't publish anything during the initialization phase
   }//end publish
 
-  template <class StatusType>
-  void GenericTactiles<StatusType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+  template <class StatusType, class CommandType>
+  void GenericTactiles<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                         diagnostic_updater::DiagnosticStatusWrapper &d)
   {
     //We don't publish diagnostics during the initialization phase
@@ -165,8 +165,8 @@ namespace tactiles
    *
    * @return true if success
    */
-  template <class StatusType>
-  bool GenericTactiles<StatusType>::reset(std_srvs::Empty::Request& request,
+  template <class StatusType, class CommandType>
+  bool GenericTactiles<StatusType, CommandType>::reset(std_srvs::Empty::Request& request,
                               std_srvs::Empty::Response& response)
   {
     ROS_INFO_STREAM("Resetting tactiles");
@@ -174,8 +174,8 @@ namespace tactiles
     return sensor_updater->reset();
   }
 
-  template <class StatusType>
-  std::string GenericTactiles<StatusType>::sanitise_string( const char* raw_string, const unsigned int str_size )
+  template <class StatusType, class CommandType>
+  std::string GenericTactiles<StatusType, CommandType>::sanitise_string( const char* raw_string, const unsigned int str_size )
   {
     std::string sanitised_string = "";
     for (unsigned int i = 0; i < str_size; ++i)
@@ -196,8 +196,8 @@ namespace tactiles
     return sanitised_string;
   }
 
-  template <class StatusType>
-  std::vector<AllTactileData>* GenericTactiles<StatusType>::get_tactile_data()
+  template <class StatusType, class CommandType>
+  std::vector<AllTactileData>* GenericTactiles<StatusType, CommandType>::get_tactile_data()
   {
     return all_tactile_data.get();
   }

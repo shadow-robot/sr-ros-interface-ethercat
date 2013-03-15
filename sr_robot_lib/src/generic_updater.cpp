@@ -32,7 +32,8 @@
 
 namespace generic_updater
 {
-  GenericUpdater::GenericUpdater(std::vector<UpdateConfig> update_configs_vector,
+  template <class CommandType>
+  GenericUpdater<CommandType>::GenericUpdater(std::vector<UpdateConfig> update_configs_vector,
                                  operation_mode::device_update_state::DeviceUpdateState update_state)
     : nh_tilde("~"), which_data_to_request(0), update_state(update_state), update_configs_vector(
       update_configs_vector)
@@ -70,11 +71,13 @@ namespace generic_updater
     }
   }
 
-  GenericUpdater::~GenericUpdater()
+  template <class CommandType>
+  GenericUpdater<CommandType>::~GenericUpdater()
   {
   }
 
-  void GenericUpdater::timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type)
+  template <class CommandType>
+  void GenericUpdater<CommandType>::timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type)
   {
     if (update_state == operation_mode::device_update_state::OPERATION)
     {

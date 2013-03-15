@@ -50,7 +50,7 @@ extern "C"
 
 namespace tactiles
 {
-  template <class StatusType>
+  template <class StatusType, class CommandType>
   class GenericTactiles
   {
   public:
@@ -93,7 +93,7 @@ namespace tactiles
     /// Number of tactile sensors (TODO: should probably be defined in the protocol)
     static const unsigned int nb_tactiles;
 
-    boost::shared_ptr<generic_updater::SensorUpdater> sensor_updater;
+    boost::shared_ptr<generic_updater::SensorUpdater<CommandType> > sensor_updater;
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<GenericTactileData> > tactiles_vector;
 

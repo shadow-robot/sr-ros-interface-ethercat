@@ -71,6 +71,7 @@ namespace generic_updater
    * The unimportant data are refreshed at their given rate (the value is defined in
    * the config in seconds).
    */
+  template <class CommandType>
   class GenericUpdater
   {
   public:
@@ -85,7 +86,7 @@ namespace generic_updater
      * @param command The command which will be sent to the motor.
      * @return the current state of the device.
      */
-    virtual operation_mode::device_update_state::DeviceUpdateState build_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command)=0;
+    virtual operation_mode::device_update_state::DeviceUpdateState build_command(CommandType* command)=0;
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback

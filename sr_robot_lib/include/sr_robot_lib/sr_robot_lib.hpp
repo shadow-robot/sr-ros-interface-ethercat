@@ -89,7 +89,7 @@ namespace crc_unions
 
 namespace shadow_robot
 {
-  template <class StatusType>
+  template <class StatusType, class CommandType>
   class SrRobotLib
   {
   public:
@@ -112,7 +112,7 @@ namespace shadow_robot
      *
      * @param command The command we're building.
      */
-    void build_motor_command(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command);
+    void build_motor_command(CommandType* command);
 
     /**
      * This function adds the diagnostics for the hand to the
@@ -154,8 +154,8 @@ namespace shadow_robot
      * will be instanciated during the initialization cycle,
      * depending on the type of sensors attached to the hand.
      */
-    boost::shared_ptr<tactiles::GenericTactiles<StatusType> > tactiles;
-    boost::shared_ptr<tactiles::GenericTactiles<StatusType> > tactiles_init;
+    boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> > tactiles;
+    boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> > tactiles_init;
 
     /**
      * Contains the idle time of the PIC communicating
@@ -244,7 +244,7 @@ namespace shadow_robot
      * It's build_command() is called each time the SR06::packCommand()
      * is called.
      */
-    boost::shared_ptr<generic_updater::MotorUpdater> motor_updater_;
+    boost::shared_ptr<generic_updater::MotorUpdater<CommandType> > motor_updater_;
 
 
     /**

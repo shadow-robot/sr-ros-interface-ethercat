@@ -30,16 +30,16 @@
 
 namespace tactiles
 {
-  template <class StatusType>
-  Biotac<StatusType>::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
-    : GenericTactiles<StatusType>(update_configs_vector, update_state)
+  template <class StatusType, class CommandType>
+  Biotac<StatusType, CommandType>::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+    : GenericTactiles<StatusType, CommandType>(update_configs_vector, update_state)
   {
     init(update_configs_vector, update_state);
   }
 
-  template <class StatusType>
-  Biotac<StatusType>::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector)
-    : GenericTactiles<StatusType>(update_configs_vector, update_state)
+  template <class StatusType, class CommandType>
+  Biotac<StatusType, CommandType>::Biotac(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector)
+    : GenericTactiles<StatusType, CommandType>(update_configs_vector, update_state)
   {
     init(update_configs_vector, update_state);
     tactiles_vector->clear();
@@ -50,8 +50,8 @@ namespace tactiles
     }
   }
 
-  template <class StatusType>
-  void Biotac<StatusType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+  template <class StatusType, class CommandType>
+  void Biotac<StatusType, CommandType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
     // Tactile sensor real time publisher
     tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(this->nodehandle , "tactile", 4));
@@ -61,8 +61,8 @@ namespace tactiles
     this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >( new std::vector<AllTactileData>(this->nb_tactiles) );
   }
 
-  template <class StatusType>
-  void Biotac<StatusType>::update(StatusType* status_data)
+  template <class StatusType, class CommandType>
+  void Biotac<StatusType, CommandType>::update(StatusType* status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
     //TODO: use memcopy instead?
@@ -218,8 +218,8 @@ namespace tactiles
     }
   }
 
-  template <class StatusType>
-  void Biotac<StatusType>::publish()
+  template <class StatusType, class CommandType>
+  void Biotac<StatusType, CommandType>::publish()
   {
     if(tactile_publisher->trylock())
     {
@@ -249,8 +249,8 @@ namespace tactiles
 
   }//end publish
 
-  template <class StatusType>
-  void Biotac<StatusType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+  template <class StatusType, class CommandType>
+  void Biotac<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                diagnostic_updater::DiagnosticStatusWrapper &d)
   {
     for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
@@ -274,8 +274,8 @@ namespace tactiles
     }
   }
 
-  template <class StatusType>
-  std::vector<AllTactileData>* Biotac<StatusType>::get_tactile_data()
+  template <class StatusType, class CommandType>
+  std::vector<AllTactileData>* Biotac<StatusType, CommandType>::get_tactile_data()
   {
     for( unsigned int i=0; i < tactiles_vector->size(); ++i)
       this->all_tactile_data->at(i).biotac = tactiles_vector->at(i);

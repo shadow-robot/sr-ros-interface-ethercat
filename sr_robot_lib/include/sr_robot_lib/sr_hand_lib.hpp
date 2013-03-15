@@ -38,8 +38,8 @@
 
 namespace shadow_robot
 {
-  template <class StatusType>
-  class SrHandLib : public SrRobotLib<StatusType>
+  template <class StatusType, class CommandType>
+  class SrHandLib : public SrRobotLib<StatusType, CommandType>
   {
   public:
     SrHandLib(pr2_hardware_interface::HardwareInterface *hw);
