@@ -231,14 +231,15 @@ namespace shadow_robot
       std::stringstream ss;
       ss << "change_force_PID_" << joint_names[index];
       //initialize the force pid service
-      joint->motor->force_pid_service = this->nh_tilde.advertiseService( ss.str().c_str(),
-                                                                         boost::bind( &SrHandLib<StatusType>::force_pid_callback, this, _1, _2, joint->motor->motor_id) );
+      //NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that we are using an explicit template function inside this template class
+      joint->motor->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>( ss.str().c_str(),
+                                                                                                                                                            boost::bind( &SrHandLib<StatusType>::force_pid_callback, this, _1, _2, joint->motor->motor_id) );
 
       ss.str("");
       ss << "reset_motor_" << joint_names[index];
       //initialize the reset motor service
-      joint->motor->reset_motor_service = this->nh_tilde.advertiseService( ss.str().c_str(),
-                                                                           boost::bind( &SrHandLib<StatusType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(joint->motor->motor_id, joint->joint_name) ) );
+      joint->motor->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>( ss.str().c_str(),
+                                                                                                                                boost::bind( &SrHandLib<StatusType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(joint->motor->motor_id, joint->joint_name) ) );
 
     } //end for joints.
   }
@@ -716,6 +717,12 @@ namespace shadow_robot
   }
 #endif
 
+  //Only to ensure that the template class is compiled for the types we are interested in
+  void never_called_function()
+  {
+    pr2_hardware_interface::HardwareInterface *hw;
+    SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS> object1 = SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS>(hw);
+  }
 }// end namespace
 
 /* For the emacs weenies in the crowd.
