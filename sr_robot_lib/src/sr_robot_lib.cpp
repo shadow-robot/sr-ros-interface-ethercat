@@ -120,9 +120,11 @@ namespace shadow_robot
     boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
     for (; joint_tmp != joints_vector.end(); ++joint_tmp)
     {
-      actuator = (joint_tmp->motor->actuator);
+      actuator = (joint_tmp->actuator_wrapper->actuator);
 
-      motor_index_full = joint_tmp->motor->motor_id;
+      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
+
+      motor_index_full = motor_wrapper->motor_id;
       actuator->state_.is_enabled_ = 1;
       actuator->state_.device_id_ = motor_index_full;
       actuator->state_.halted_ = false;
@@ -131,24 +133,13 @@ namespace shadow_robot
       if( tactiles != NULL )
         actuator->state_.tactiles_ = tactiles->get_tactile_data();
 
-      //calibrate the joint and update the position.
-      calibrate_joint(joint_tmp);
+      this->process_position_sensor_data(joint_tmp, timestamp);
 
-      //add the last position to the queue
-      joint_tmp->motor->actuator->state_.timestamp_ = timestamp;
-
-      //filter the position and velocity
-      std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(
-        joint_tmp->motor->actuator->state_.position_unfiltered_, timestamp);
-      //reset the position to the filtered value
-      joint_tmp->motor->actuator->state_.position_ = pos_and_velocity.first;
-      //set the velocity to the filtered velocity
-      joint_tmp->motor->actuator->state_.velocity_ = pos_and_velocity.second;
-
+      sr_actuator::SrActuator* motor_actuator = static_cast<sr_actuator::SrActuator>(joint_tmp->actuator_wrapper->actuator);
       //filter the effort
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
-        joint_tmp->motor->actuator->state_.force_unfiltered_, timestamp);
-      joint_tmp->motor->actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
+          motor_actuator->state_.force_unfiltered_, timestamp);
+      joint_tmp->actuator_wrapper->actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
 
       //if no motor is associated to this joint, then continue
       if ((motor_index_full == -1))
@@ -179,7 +170,7 @@ namespace shadow_robot
 
       //setting the position of the motor in the message,
       // we'll print that in the diagnostics.
-      joint_tmp->motor->msg_motor_id = index_motor_in_msg;
+      motor_wrapper->msg_motor_id = index_motor_in_msg;
 
       //ok now we read the info and add it to the actuator state
       if (read_motor_info)
@@ -293,17 +284,19 @@ namespace shadow_robot
       boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
       for (; joint_tmp != joints_vector.end(); ++joint_tmp)
       {
-        if (joint_tmp->has_motor)
+        boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
+
+        if (joint_tmp->has_actuator)
         {
           if( !nullify_demand_ )
           {
             //We send the computed demand
-            command->motor_data[joint_tmp->motor->motor_id] = joint_tmp->motor->actuator->command_.effort_;
+            command->motor_data[motor_wrapper->motor_id] = motor_wrapper->actuator->command_.effort_;
           }
           else
           {
             //We want to send a demand of 0
-            command->motor_data[joint_tmp->motor->motor_id] = 0;
+            command->motor_data[motor_wrapper->motor_id] = 0;
           }
 
 #ifdef DEBUG_PUBLISHER
@@ -319,12 +312,12 @@ namespace shadow_robot
               if( debug_pair != NULL )
               {
                 //check if we want to publish some data for the current motor
-                if( debug_pair->first == joint_tmp->motor->motor_id )
+                if( debug_pair->first == joint_tmp->actuator_wrapper->motor_id )
                 {
                   //check if it's the correct data
                   if( debug_pair->second == -1 )
                   {
-                    msg_debug.data = joint_tmp->motor->actuator->command_.effort_;
+                    msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
                     debug_publishers[publisher_index].publish(msg_debug);
                   }
                 }
@@ -336,8 +329,8 @@ namespace shadow_robot
           } //end try_lock
 #endif
 
-          joint_tmp->motor->actuator->state_.last_commanded_effort_ = joint_tmp->motor->actuator->command_.effort_;
-        } //end if has_motor
+          joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
+        } //end if has_actuator
       } // end for each joint
     } //endif reconfig_queue.empty()
     else
@@ -389,10 +382,12 @@ namespace shadow_robot
           boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
           for (; joint_tmp != joints_vector.end(); ++joint_tmp)
           {
-            if( joint_tmp->motor->motor_id == motor_id )
+            boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
+
+            if( motor_wrapper->motor_id == motor_id )
             {
-              joint_tmp->motor->actuator->state_.can_msgs_transmitted_ = 0;
-              joint_tmp->motor->actuator->state_.can_msgs_received_ = 0;
+              motor_wrapper->actuator->state_.can_msgs_transmitted_ = 0;
+              motor_wrapper->actuator->state_.can_msgs_received_ = 0;
             }
           }
 
@@ -478,26 +473,28 @@ namespace shadow_robot
       name << "SRDMotor " << joint->joint_name;
       d.name = name.str();
 
-      if (joint->has_motor)
-      {
-        const sr_actuator::SrActuatorState *state(&(joint->motor->actuator)->state_);
+      boost::shared_ptr<shadow_joints::MotorWrapper> actuator_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper);
 
-        if (joint->motor->motor_ok)
+      if (joint->has_actuator)
+      {
+        const sr_actuator::SrMotorActuatorState *state(&(actuator_wrapper->actuator)->state_);
+
+        if (actuator_wrapper->actuator_ok)
         {
-          if (joint->motor->bad_data)
+          if (actuator_wrapper->bad_data)
           {
             d.summary(d.WARN, "WARNING, bad CAN data received");
 
             d.clear();
-            d.addf("Motor ID", "%d", joint->motor->motor_id);
+            d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
           }
           else //the data is good
           {
             d.summary(d.OK, "OK");
 
             d.clear();
-            d.addf("Motor ID", "%d", joint->motor->motor_id);
-            d.addf("Motor ID in message", "%d", joint->motor->msg_motor_id);
+            d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
+            d.addf("Motor ID in message", "%d", actuator_wrapper->msg_motor_id);
             d.addf("Serial Number", "%d", state->serial_number );
             d.addf("Assembly date", "%d / %d / %d", state->assembly_data_day, state->assembly_data_month, state->assembly_data_year );
 
@@ -573,7 +570,7 @@ namespace shadow_robot
         {
           d.summary(d.ERROR, "Motor error");
           d.clear();
-          d.addf("Motor ID", "%d", joint->motor->motor_id);
+          d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
         }
       }
       else
@@ -654,17 +651,17 @@ namespace shadow_robot
   {
     //check the masks to see if the CAN messages arrived to the motors
     //the flag should be set to 1 for each motor
-    joint_tmp->motor->motor_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_motor_data_arrived,
+    joint_tmp->actuator_wrapper->actuator_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_motor_data_arrived,
                                                                        motor_index_full);
 
     //check the masks to see if a bad CAN message arrived
     //the flag should be 0
-    joint_tmp->motor->bad_data = sr_math_utils::is_bit_mask_index_true(status_data->which_motor_data_had_errors,
+    joint_tmp->actuator_wrapper->bad_data = sr_math_utils::is_bit_mask_index_true(status_data->which_motor_data_had_errors,
                                                                        index_motor_in_msg);
 
     crc_unions::union16 tmp_value;
 
-    if (joint_tmp->motor->motor_ok && !(joint_tmp->motor->bad_data))
+    if (joint_tmp->actuator_wrapper->actuator_ok && !(joint_tmp->actuator_wrapper->bad_data))
     {
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
@@ -680,7 +677,7 @@ namespace shadow_robot
           if( debug_pair != NULL )
           {
             //check if we want to publish some data for the current motor
-            if( debug_pair->first == joint_tmp->motor->motor_id )
+            if( debug_pair->first == joint_tmp->actuator_wrapper->motor_id )
             {
               //if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
               if( debug_pair->second > 0 )
@@ -710,7 +707,7 @@ namespace shadow_robot
           static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->motor->motor_id == 8 )
+        if( joint_tmp->actuator_wrapper->motor_id == 8 )
         {
           //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
           msg_debug.data = actuator->state_.strain_gauge_left_;
@@ -723,7 +720,7 @@ namespace shadow_robot
           static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->motor->motor_id == 8 )
+        if( joint_tmp->actuator_wrapper->motor_id == 8 )
         {
           //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
           msg_debug.data = actuator->state_.strain_gauge_right_;
@@ -745,7 +742,7 @@ namespace shadow_robot
           / 1000.0;
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->motor->motor_id == 8 )
+        if( joint_tmp->actuator_wrapper->motor_id == 8 )
         {
           //ROS_ERROR_STREAM("Current " <<actuator->state_.last_measured_current_);
           msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
@@ -758,7 +755,7 @@ namespace shadow_robot
           static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) / 256.0;
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->motor->motor_id == 8 )
+        if( joint_tmp->actuator_wrapper->motor_id == 8 )
         {
           //ROS_ERROR_STREAM("Voltage " <<actuator->state_.motor_voltage_);
           msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
@@ -892,7 +889,7 @@ namespace shadow_robot
           static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
 
 #ifdef DEBUG_PUBLISHER
-	if( joint_tmp->motor->motor_id == 8 )
+	if( joint_tmp->actuator_wrapper->motor_id == 8 )
         {
           msg_debug.data = static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque);
           debug_publishers[4].publish(msg_debug);
@@ -1163,6 +1160,24 @@ namespace shadow_robot
       motor_system_control_flags_.push( tmp_motor_controls );
 
     return no_motor_id_out_of_range;
+  }
+
+  template <class StatusType, class CommandType>
+  void SrRobotLib<StatusType, CommandType>::process_position_sensor_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, double timestamp)
+  {
+    //calibrate the joint and update the position.
+    calibrate_joint(joint_tmp);
+
+    //add the last position to the queue
+    joint_tmp->actuator_wrapper->actuator->state_.timestamp_ = timestamp;
+
+    //filter the position and velocity
+    std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(
+      joint_tmp->actuator_wrapper->actuator->state_.position_unfiltered_, timestamp);
+    //reset the position to the filtered value
+    joint_tmp->actuator_wrapper->actuator->state_.position_ = pos_and_velocity.first;
+    //set the velocity to the filtered velocity
+    joint_tmp->actuator_wrapper->actuator->state_.velocity_ = pos_and_velocity.second;
   }
 
 } //end namespace

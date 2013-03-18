@@ -49,16 +49,46 @@ namespace shadow_joints
     bool calibrate_after_combining_sensors;
   };
 
-  class Motor
+  class SrActuatorWrapper
   {
   public:
-    Motor()
-        : motor_id(0), msg_motor_id(0), actuator(NULL), motor_ok(false), bad_data(false)
+    SrActuatorWrapper()
+        : actuator(NULL), actuator_ok(false), bad_data(false)
     {
     }
     ;
 
-    ~Motor()
+    ~SrActuatorWrapper()
+    {
+    }
+    ;
+
+
+    //actuator
+    sr_actuator::SrGenericActuator* actuator;
+
+    /**
+     * this boolean is set to true as long as we receive the
+     * data from the actuator.
+     */
+    bool actuator_ok;
+    /**
+     * this boolean is set to true if the data coming from the actuator
+     * through the CAN bus are messed up.
+     */
+    bool bad_data;
+  };
+
+  class MotorWrapper : public SrActuatorWrapper
+  {
+  public:
+    MotorWrapper()
+        : SrActuatorWrapper(), motor_id(0), msg_motor_id(0)
+    {
+    }
+    ;
+
+    ~MotorWrapper()
     {
     }
     ;
@@ -69,20 +99,6 @@ namespace shadow_joints
 
     //the position of the motor in the message array
     int msg_motor_id;
-
-    //actuator
-    sr_actuator::SrActuator* actuator;
-
-    /**
-     * this boolean is set to true as long as we receive the
-     * data from the motor.
-     */
-    bool motor_ok;
-    /**
-     * this boolean is set to true if the data coming from the motor
-     * through the CAN bus are messed up.
-     */
-    bool bad_data;
 
     /**
      * A service used to set the force PID settings on the
@@ -95,6 +111,35 @@ namespace shadow_joints
      * motors.
      */
     ros::ServiceServer reset_motor_service;
+  };
+
+  class MuscleWrapper : public SrActuatorWrapper
+  {
+  public:
+    MuscleWrapper()
+        : SrActuatorWrapper(), muscle_id(0), msg_muscle_id(0)
+    {
+    }
+    ;
+
+    ~MuscleWrapper()
+    {
+    }
+    ;
+
+    //the position of the motor in the motor array
+    // coming from the hardware
+    int muscle_id;
+
+    //the position of the motor in the message array
+    int msg_muscle_id;
+
+
+    /**
+     * A service used to reset the HW
+     * muscle controller
+     */
+    ros::ServiceServer reset_muscle_service;
   };
 
   struct Joint
@@ -111,8 +156,8 @@ namespace shadow_joints
     //used to filter the effort
     sr_math_utils::filters::LowPassFilter effort_filter;
 
-    bool has_motor;
-    boost::shared_ptr<Motor> motor;
+    bool has_actuator;
+    boost::shared_ptr<SrActuatorWrapper> actuator_wrapper;
   };
 
   typedef threadsafe::Map<boost::shared_ptr<shadow_robot::JointCalibration> > CalibrationMap;

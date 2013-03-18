@@ -191,7 +191,7 @@ namespace shadow_robot
     virtual void initialize(std::vector<std::string> joint_names,
                             std::vector<int> motor_ids,
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrActuator*> actuators) = 0;
+                            std::vector<sr_actuator::SrGenericActuator*> actuators) = 0;
 
     /**
      * Compute the calibrated position for the given joint. This method is called
@@ -238,6 +238,15 @@ namespace shadow_robot
     void generate_force_control_config(int motor_index, int max_pwm, int sg_left, int sg_right,
                                        int f, int p, int i, int d, int imax,
                                        int deadband, int sign);
+
+    /**
+     * Calibrates and filters the position information (and computes velocity) for a give joint.
+     * This method is called from the update method, each time a new message is received.
+     *
+     * @param joint_tmp The joint we process data from.
+     * @param timestamp Timestamp of the data acquisition time
+     */
+    void process_position_sensor_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, double timestamp);
 
     /**
      * The motor updater is used to create a correct command to send to the motor.

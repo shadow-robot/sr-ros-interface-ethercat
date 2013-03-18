@@ -65,15 +65,16 @@ namespace generic_updater
       boost::ptr_vector<shadow_joints::Joint>::iterator joint;
       for (joint = joints_vector.begin(); joint < joints_vector.end(); joint++)
       {
-        if (joint->has_motor)
+        if (joint->has_actuator)
         {
+          boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper);
           if (msg_it->what_to_update == MOTOR_DATA_SLOW_MISC)
           {
-            tmp_msg_checker.msg_from_motor_checkers.push_back(new SlowMessageFromMotorChecker(joint->motor->motor_id));
+            tmp_msg_checker.msg_from_motor_checkers.push_back(new SlowMessageFromMotorChecker(motor_wrapper->motor_id));
           }
           else
           {
-            tmp_msg_checker.msg_from_motor_checkers.push_back(new MessageFromMotorChecker(joint->motor->motor_id));
+            tmp_msg_checker.msg_from_motor_checkers.push_back(new MessageFromMotorChecker(motor_wrapper->motor_id));
           }
         }
       }
@@ -90,7 +91,8 @@ namespace generic_updater
     if (index_motor_data_type != (-1))
     {
       int index_motor_id = 0;
-      index_motor_id = msg_checkers_.at(index_motor_data_type).find(joint_tmp->motor->motor_id);
+      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
+      index_motor_id = msg_checkers_.at(index_motor_data_type).find(motor_wrapper->motor_id);
       if (index_motor_id != (-1))
       {
         if (motor_data_type == MOTOR_DATA_SLOW_MISC)
@@ -113,7 +115,7 @@ namespace generic_updater
       }
       else
       {
-        ROS_ERROR_STREAM("Motor id not found: " << joint_tmp->motor->motor_id );
+        ROS_ERROR_STREAM("Motor id not found: " << motor_wrapper->motor_id );
       }
     }
     return ((update_state == operation_mode::device_update_state::OPERATION) || is_everything_checked());

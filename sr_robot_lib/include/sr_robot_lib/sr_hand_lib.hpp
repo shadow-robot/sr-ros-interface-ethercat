@@ -99,7 +99,7 @@ namespace shadow_robot
      */
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> motor_ids,
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrActuator*> actuators);
+                            std::vector<sr_actuator::SrGenericActuator*> actuators);
 
     /**
      * Updates the parameter values for the force control in the Parameter Server

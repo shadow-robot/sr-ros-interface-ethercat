@@ -153,7 +153,7 @@ namespace shadow_robot
     std::vector<std::string> joint_names_tmp;
     std::vector<int> motor_ids = read_joint_to_motor_mapping();
     std::vector<shadow_joints::JointToSensor > joints_to_sensors;
-    std::vector<sr_actuator::SrActuator*> actuators;
+    std::vector<sr_actuator::SrGenericActuator*> actuators;
 
     ROS_ASSERT(motor_ids.size() == JOINTS_NUM_0220);
     ROS_ASSERT(joint_to_sensor_vect.size() == JOINTS_NUM_0220);
@@ -197,7 +197,7 @@ namespace shadow_robot
     boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
     for(;joint != this->joints_vector.end(); ++joint)
     {
-      delete joint->motor->actuator;
+      delete joint->actuator_wrapper->actuator;
     }
   }
 
@@ -205,7 +205,7 @@ namespace shadow_robot
   void SrHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
                              std::vector<int> motor_ids,
                              std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                             std::vector<sr_actuator::SrActuator*> actuators)
+                             std::vector<sr_actuator::SrGenericActuator*> actuators)
   {
     for(unsigned int index = 0; index < joint_names.size(); ++index)
     {
@@ -220,26 +220,27 @@ namespace shadow_robot
       joint->joint_to_sensor = joint_to_sensors[index];
 
       if(motor_ids[index] == -1) //no motor associated to this joint
-        joint->has_motor = false;
+        joint->has_actuator = false;
       else
-        joint->has_motor = true;
+        joint->has_actuator = true;
 
-      joint->motor    = boost::shared_ptr<shadow_joints::Motor>( new shadow_joints::Motor() );
-      joint->motor->motor_id = motor_ids[index];
-      joint->motor->actuator = actuators[index];
+      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
+      joint->actuator_wrapper    = motor_wrapper;
+      motor_wrapper->motor_id = motor_ids[index];
+      motor_wrapper->actuator = actuators[index];
 
       std::stringstream ss;
       ss << "change_force_PID_" << joint_names[index];
       //initialize the force pid service
       //NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that we are using an explicit template function inside this template class
-      joint->motor->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>( ss.str().c_str(),
-                                                                                                                                                            boost::bind( &SrHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, joint->motor->motor_id) );
+      motor_wrapper->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>( ss.str().c_str(),
+                                                                                                                                                            boost::bind( &SrHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id) );
 
       ss.str("");
       ss << "reset_motor_" << joint_names[index];
       //initialize the reset motor service
-      joint->motor->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>( ss.str().c_str(),
-                                                                                                                                boost::bind( &SrHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(joint->motor->motor_id, joint->joint_name) ) );
+      motor_wrapper->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>( ss.str().c_str(),
+                                                                                                                                boost::bind( &SrHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(motor_wrapper->motor_id, joint->joint_name) ) );
 
     } //end for joints.
   }
@@ -467,7 +468,7 @@ namespace shadow_robot
     {
       if( !boost::is_null(joint) ) // check for validity
       {
-        if(joint->motor->motor_id == motor_index)
+        if(boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper)->motor_id == motor_index)
           return joint->joint_name;
       }
     }
