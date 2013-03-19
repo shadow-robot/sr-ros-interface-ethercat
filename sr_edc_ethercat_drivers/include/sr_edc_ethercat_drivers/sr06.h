@@ -1,7 +1,7 @@
 /**
  * @file   sr06.h
  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
- *         Ugo Cupcic <ugo@shadowrobot.com>, contact <contact@shadowrobot.com>
+ *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
  * @date   Mon May 23 13:33:30 2011
 *
 * Copyright 2011 Shadow Robot Company Ltd.

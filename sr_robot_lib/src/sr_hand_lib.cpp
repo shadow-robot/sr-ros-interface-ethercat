@@ -60,7 +60,7 @@ namespace shadow_robot
 
   template <class StatusType, class CommandType>
   SrHandLib<StatusType, CommandType>::SrHandLib(pr2_hardware_interface::HardwareInterface *hw) :
-    SrRobotLib<StatusType, CommandType>(hw)
+    SrMotorRobotLib<StatusType, CommandType>(hw)
   {
     //read the motor polling frequency from the parameter server
     this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data, human_readable_motor_data_types, motor_data_types);
@@ -102,8 +102,6 @@ namespace shadow_robot
     //Initialize the motor data checker
     this->motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(this->joints_vector, this->motor_updater_->initialization_configs_vector));
 
-    //initialize the calibration map
-    this->calibration_map = this->read_joint_calibration();
 
 #ifdef DEBUG_PUBLISHER
     //advertise the debug service, used to set which data we want to publish on the debug topics

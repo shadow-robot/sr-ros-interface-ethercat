@@ -104,7 +104,7 @@ namespace shadow_robot
      *
      * @param status_data the received etherCAT message
      */
-    void update(StatusType* status_data);
+    virtual void update(StatusType* status_data) = 0;
 
     /**
      * Builds a motor command: either send a torque demand or a configuration
@@ -112,7 +112,7 @@ namespace shadow_robot
      *
      * @param command The command we're building.
      */
-    void build_motor_command(CommandType* command);
+    virtual void build_motor_command(CommandType* command) = 0;
 
     /**
      * Builds a command to demand information form the tactile sensors.
@@ -132,13 +132,8 @@ namespace shadow_robot
      * This function adds the diagnostics for the hand to the
      * multi diagnostic status published in sr06.cpp.
      */
-    void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
-                         diagnostic_updater::DiagnosticStatusWrapper &d);
-
-    /**
-     * Initiates the process to retrieve the initialization information from the motors
-     */
-    void reinitialize_motors();
+    virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                         diagnostic_updater::DiagnosticStatusWrapper &d) = 0;
 
     /**
      * Initiates the process to retrieve the initialization information from the sensors
@@ -184,9 +179,6 @@ namespace shadow_robot
      */
     int main_pic_idle_time_min;
 
-    ///Current update state of the motor (initialization, operation..)
-    operation_mode::device_update_state::DeviceUpdateState motor_current_state;
-
     ///Current update state of the sensors (initialization, operation..)
     operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
@@ -216,44 +208,6 @@ namespace shadow_robot
      */
     void calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
 
-    /**
-     * Read additional data from the latest message and stores it into the
-     * joints_vector.
-     *
-     * @param joint_tmp The joint we want to read the data for.
-     * @param status The status information that comes from the robot
-     */
-    void read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
-
-    /**
-     * Transforms the incoming flag as a human
-     * readable vector of strings.
-     *
-     * @param flag incoming flag.
-     *
-     * @return human readable flags.
-     */
-    std::vector<std::pair<std::string, bool> > humanize_flags(int flag);
-
-    /**
-     * Generates a force control config and adds it to the reconfig_queue with its
-     * CRC. The config will be sent as soon as possible.
-     *
-     * @param motor_index The motor index.
-     * @param max_pwm The max pwm the motor will apply
-     * @param sg_left Strain gauge left
-     * @param sg_right Strain gauge right
-     * @param f The feedforward term (directly adds f*error to the output of the PID)
-     * @param p The p value.
-     * @param i the i value.
-     * @param d the d value.
-     * @param imax the imax value.
-     * @param deadband the deadband on the force.
-     * @param sign can be 0 or 1 depending on the way the motor is plugged in.
-     */
-    void generate_force_control_config(int motor_index, int max_pwm, int sg_left, int sg_right,
-                                       int f, int p, int i, int d, int imax,
-                                       int deadband, int sign);
 
     /**
      * Calibrates and filters the position information (and computes velocity) for a give joint.
@@ -305,41 +259,9 @@ namespace shadow_robot
     std::vector<generic_updater::UpdateConfig> read_update_rate_configs(std::string base_param, int nb_data_defined, const char* human_readable_data_types[], const int32u data_types[]);
 
 
-    /**
-     * The motor updater is used to create a correct command to send to the motor.
-     * It's build_command() is called each time the SR06::packCommand()
-     * is called.
-     */
-    boost::shared_ptr<generic_updater::MotorUpdater<CommandType> > motor_updater_;
-
-
-    /**
-     * The ForceConfig type consists of an int representing the motor index for this config
-     * followed by a vector of config: the index in the vector of config corresponds to the
-     * type of the data, and the value at this index corresponds to the value we want to set.
-     */
-    typedef std::pair<int, std::vector<crc_unions::union16> > ForceConfig;
-    /**
-     * This queue contains the force PID config waiting to be pushed to the motor.
-     */
-    std::queue<ForceConfig, std::list<ForceConfig> > reconfig_queue;
-    ///this index is used to iterate over the config we're sending.
-    int config_index;
-
-    ///contains a queue of motor indexes to reset
-    std::queue<short, std::list<short> > reset_motors_queue;
-
     /// A temporary calibration for a given joint.
     boost::shared_ptr<shadow_robot::JointCalibration> calibration_tmp;
 
-    ///The index of the motor in all the 20 motors
-    int motor_index_full;
-    ///The index of the motor in the current message (from 0 to 9)
-    int index_motor_in_msg;
-
-    int8u crc_byte;
-    int16u crc_result;
-    int8u crc_i;
 
     /// a ROS nodehandle (private naming, only inside the node namespace) to be able to advertise the Force PID service
     ros::NodeHandle nh_tilde;
@@ -366,8 +288,6 @@ namespace shadow_robot
     std_msgs::Int16 msg_debug;
 #endif
 
-    ///The update rate for each motor information
-    std::vector<generic_updater::UpdateConfig> motor_update_rate_configs_vector;
     ///The update rate for each sensor information type
     std::vector<generic_updater::UpdateConfig> generic_sensor_update_rate_configs_vector;
     ///The update rate for each sensor information type
@@ -375,7 +295,6 @@ namespace shadow_robot
     ///The update rate for each sensor information type
     std::vector<generic_updater::UpdateConfig> biotac_sensor_update_rate_configs_vector;
 
-    boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
 
     static const int nb_sensor_data;
     static const char* human_readable_sensor_data_types[];
@@ -387,62 +306,8 @@ namespace shadow_robot
     ///The ROS service handler for nullifying the demand
     ros::ServiceServer nullify_demand_server_;
 
-    ///The current type of control (FORCE demand or PWM demand sent to the motors)
-    sr_robot_msgs::ControlType control_type_;
-    /**
-     * Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
-     * The flag is set in the callback function of the change_control_type_ service.
-     * The flag is checked in build_motor_command() and the necessary actions are taken there.
-     * These actions involve calling services in the controller manager and all the active controllers. This is the
-     * reason why we don't do it directly in the callback function. As we use a single thread to serve the callbacks,
-     * doing so would cause a deadlock, thus we do it in the realtime loop thread instead.
-     */
-    bool control_type_changed_flag_;
-    ///A service server used to change the control type on the fly.
-    ros::ServiceServer change_control_type_;
-    ///A mutual exclusion object to ensure that no command will be sent to the robot while a change in the control type (PWM or torque) is ongoing
-    boost::shared_ptr<boost::mutex> lock_command_sending_;
 
-    /**
-     * The callback to the change_control_type_ service. Updates
-     *  the current control_type_ with the requested control_type.
-     *
-     * @param request Requested control_type_
-     * @param response The new control_type we'll use
-     *
-     * @return true if success, false if bad control type requested
-     */
-    bool change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
-                                        sr_robot_msgs::ChangeControlType::Response& response );
 
-    /**
-     * Load the necessary parameters in the Parameter Server and
-     * calls a service for every controller currently loaded in the controller manager to make it
-     * reload (resetGains()) its parameters from the Parameter Server
-     *
-     * @param control_type The new active control type (PWM or torque)
-     *
-     * @return true if all the steps successful
-     */
-    bool change_control_parameters(int16_t control_type);
-
-    ///The Flag which will be sent to change the motor controls
-    std::queue<std::vector<sr_robot_msgs::MotorSystemControls>, std::list<std::vector<sr_robot_msgs::MotorSystemControls> > > motor_system_control_flags_;
-    ///A service server used to call the different motor system controls "buttons"
-    ros::ServiceServer motor_system_control_server_;
-
-    /**
-     * The callback to the control_motor_ service. Sets the correct flags to 1 or 0
-     *  for the MOTOR_SYSTEM_CONTROLS, to control the motors (backlash compensation
-     *  on/off, increase sg tracking, jiggling, write config to EEprom)
-     *
-     * @param request Contains the different flags the user wants to set
-     * @param response SUCCESS if success, MOTOR_ID_OUT_OF_RANGE if bad motor_id given
-     *
-     * @return false if motor_id is out of range
-     */
-    bool motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
-                                          sr_robot_msgs::ChangeMotorSystemControls::Response& response );
   };//end class
 }//end namespace
 

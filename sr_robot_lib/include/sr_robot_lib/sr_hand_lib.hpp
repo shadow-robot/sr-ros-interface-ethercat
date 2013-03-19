@@ -28,7 +28,7 @@
 #ifndef _SR_HAND_LIB_HPP_
 #define _SR_HAND_LIB_HPP_
 
-#include "sr_robot_lib/sr_robot_lib.hpp"
+#include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <std_srvs/Empty.h>
 
 //to be able to load the configuration from the
@@ -39,7 +39,7 @@
 namespace shadow_robot
 {
   template <class StatusType, class CommandType>
-  class SrHandLib : public SrRobotLib<StatusType, CommandType>
+  class SrHandLib : public SrMotorRobotLib<StatusType, CommandType>
   {
   public:
     SrHandLib(pr2_hardware_interface::HardwareInterface *hw);
