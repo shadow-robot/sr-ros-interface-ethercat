@@ -57,97 +57,17 @@ namespace shadow_robot
                                                              MOTOR_DATA_PTERM, MOTOR_DATA_ITERM,
                                                              MOTOR_DATA_DTERM};
 
-  template <class StatusType, class CommandType>
-  const int SrHandLib<StatusType, CommandType>::nb_sensor_data = 31;
-
-  template <class StatusType, class CommandType>
-  const char* SrHandLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] = {"TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ",
-                                                                             "TACTILE_SENSOR_TYPE_MANUFACTURER",
-                                                                             "TACTILE_SENSOR_TYPE_SERIAL_NUMBER",
-                                                                             "TACTILE_SENSOR_TYPE_SOFTWARE_VERSION",
-                                                                             "TACTILE_SENSOR_TYPE_PCB_VERSION",
-                                                                             "TACTILE_SENSOR_TYPE_WHICH_SENSORS",
-                                                                             "TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE",
-                                                                             "TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING",
-                                                                             "TACTILE_SENSOR_TYPE_PST3_DAC_VALUE",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_PDC",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_TDC"
-                                                                             };
-
-  template <class StatusType, class CommandType>
-  const int32u SrHandLib<StatusType, CommandType>::sensor_data_types[nb_sensor_data] = {TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ,
-                                                               TACTILE_SENSOR_TYPE_MANUFACTURER,
-                                                               TACTILE_SENSOR_TYPE_SERIAL_NUMBER,
-                                                               TACTILE_SENSOR_TYPE_SOFTWARE_VERSION,
-                                                               TACTILE_SENSOR_TYPE_PCB_VERSION,
-                                                               TACTILE_SENSOR_TYPE_WHICH_SENSORS,
-                                                               TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE,
-                                                               TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING,
-                                                               TACTILE_SENSOR_TYPE_PST3_DAC_VALUE,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_PDC,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_TAC,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_TDC
-  };
 
   template <class StatusType, class CommandType>
   SrHandLib<StatusType, CommandType>::SrHandLib(pr2_hardware_interface::HardwareInterface *hw) :
     SrRobotLib<StatusType, CommandType>(hw)
   {
     //read the motor polling frequency from the parameter server
-    this->motor_update_rate_configs_vector = read_update_rate_configs("motor_data_update_rate/", nb_motor_data, human_readable_motor_data_types, motor_data_types);
+    this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data, human_readable_motor_data_types, motor_data_types);
     this->motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater<CommandType> >(new generic_updater::MotorUpdater<CommandType>(this->motor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
 
-
-    //read the generic sensor polling frequency from the parameter server
-    this->generic_sensor_update_rate_configs_vector = read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
-    this->tactiles_init = boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> >( new tactiles::GenericTactiles<StatusType, CommandType>(this->generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
-
-    //read the pst3 sensor polling frequency from the parameter server
-    this->pst3_sensor_update_rate_configs_vector = read_update_rate_configs("pst3_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
-    //read the biotac sensor polling frequency from the parameter server
-    this->biotac_sensor_update_rate_configs_vector = read_update_rate_configs("biotac_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
-
     //TODO: read this from config/EEProm?
-    std::vector<shadow_joints::JointToSensor > joint_to_sensor_vect = read_joint_to_sensor_mapping();
+    std::vector<shadow_joints::JointToSensor > joint_to_sensor_vect = this->read_joint_to_sensor_mapping();
 
     //initializing the joints vector
     std::vector<std::string> joint_names_tmp;
@@ -183,7 +103,7 @@ namespace shadow_robot
     this->motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(this->joints_vector, this->motor_updater_->initialization_configs_vector));
 
     //initialize the calibration map
-    this->calibration_map = read_joint_calibration();
+    this->calibration_map = this->read_joint_calibration();
 
 #ifdef DEBUG_PUBLISHER
     //advertise the debug service, used to set which data we want to publish on the debug topics
@@ -281,34 +201,34 @@ namespace shadow_robot
     std::string act_name = boost::to_lower_copy(joint_name);
 
     full_param << "/" << act_name << "/pid/f";
-    nodehandle_.param<int>(full_param.str(), f, 0);
+    this->nodehandle_.template param<int>(full_param.str(), f, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/p";
-    nodehandle_.param<int>(full_param.str(), p, 0);
+    this->nodehandle_.template param<int>(full_param.str(), p, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/i";
-    nodehandle_.param<int>(full_param.str(), i, 0);
+    this->nodehandle_.template param<int>(full_param.str(), i, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/d";
-    nodehandle_.param<int>(full_param.str(), d, 0);
+    this->nodehandle_.template param<int>(full_param.str(), d, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/imax";
-    nodehandle_.param<int>(full_param.str(), imax, 0);
+    this->nodehandle_.template param<int>(full_param.str(), imax, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/max_pwm";
-    nodehandle_.param<int>(full_param.str(), max_pwm, 0);
+    this->nodehandle_.template param<int>(full_param.str(), max_pwm, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/sgleftref";
-    nodehandle_.param<int>(full_param.str(), sg_left, 0);
+    this->nodehandle_.template param<int>(full_param.str(), sg_left, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/sgrightref";
-    nodehandle_.param<int>(full_param.str(), sg_right, 0);
+    this->nodehandle_.template param<int>(full_param.str(), sg_right, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/deadband";
-    nodehandle_.param<int>(full_param.str(), deadband, 0);
+    this->nodehandle_.template param<int>(full_param.str(), deadband, 0);
     full_param.str("");
     full_param << "/" << act_name << "/pid/sign";
-    nodehandle_.param<int>(full_param.str(), sign, 0);
+    this->nodehandle_.template param<int>(full_param.str(), sign, 0);
     full_param.str("");
 
     sr_robot_msgs::ForceController::Request pid_request;
@@ -328,7 +248,7 @@ namespace shadow_robot
     //setting the backlash compensation (on or off)
     bool backlash_compensation;
     full_param << "/" << act_name << "/backlash_compensation";
-    nodehandle_.param<bool>(full_param.str(), backlash_compensation, true);
+    this->nodehandle_.template param<bool>(full_param.str(), backlash_compensation, true);
     full_param.str("");
     sr_robot_msgs::ChangeMotorSystemControls::Request backlash_request;
     sr_robot_msgs::MotorSystemControls motor_sys_ctrl;
@@ -486,137 +406,36 @@ namespace shadow_robot
       std::string act_name = boost::to_lower_copy(joint_name);
 
       full_param << "/" << act_name << "/pid/f";
-      nodehandle_.setParam(full_param.str(), f);
+      this->nodehandle_.setParam(full_param.str(), f);
       full_param.str("");
       full_param << "/" << act_name << "/pid/p";
-      nodehandle_.setParam(full_param.str(), p);
+      this->nodehandle_.setParam(full_param.str(), p);
       full_param.str("");
       full_param << "/" << act_name << "/pid/i";
-      nodehandle_.setParam(full_param.str(), i);
+      this->nodehandle_.setParam(full_param.str(), i);
       full_param.str("");
       full_param << "/" << act_name << "/pid/d";
-      nodehandle_.setParam(full_param.str(), d);
+      this->nodehandle_.setParam(full_param.str(), d);
       full_param.str("");
       full_param << "/" << act_name << "/pid/imax";
-      nodehandle_.setParam(full_param.str(), imax);
+      this->nodehandle_.setParam(full_param.str(), imax);
       full_param.str("");
       full_param << "/" << act_name << "/pid/max_pwm";
-      nodehandle_.setParam(full_param.str(), max_pwm);
+      this->nodehandle_.setParam(full_param.str(), max_pwm);
       full_param.str("");
       full_param << "/" << act_name << "/pid/sgleftref";
-      nodehandle_.setParam(full_param.str(), sg_left);
+      this->nodehandle_.setParam(full_param.str(), sg_left);
       full_param.str("");
       full_param << "/" << act_name << "/pid/sgrightref";
-      nodehandle_.setParam(full_param.str(), sg_right);
+      this->nodehandle_.setParam(full_param.str(), sg_right);
       full_param.str("");
       full_param << "/" << act_name << "/pid/deadband";
-      nodehandle_.setParam(full_param.str(), deadband);
+      this->nodehandle_.setParam(full_param.str(), deadband);
       full_param.str("");
       full_param << "/" << act_name << "/pid/sign";
-      nodehandle_.setParam(full_param.str(), sign);
+      this->nodehandle_.setParam(full_param.str(), sign);
     }
   }
-
-
-  template <class StatusType, class CommandType>
-  std::vector<shadow_joints::JointToSensor> SrHandLib<StatusType, CommandType>::read_joint_to_sensor_mapping()
-  {
-    std::vector<shadow_joints::JointToSensor> joint_to_sensor_vect;
-
-    std::map<std::string, int> sensors_map;
-    for(unsigned int i=0; i < SENSORS_NUM_0220; ++i)
-    {
-      sensors_map[ sensor_names[i] ] = i;
-    }
-
-    XmlRpc::XmlRpcValue joint_to_sensor_mapping;
-    nodehandle_.getParam("joint_to_sensor_mapping", joint_to_sensor_mapping);
-    ROS_ASSERT(joint_to_sensor_mapping.getType() == XmlRpc::XmlRpcValue::TypeArray);
-    for (int32_t i = 0; i < joint_to_sensor_mapping.size(); ++i)
-    {
-      shadow_joints::JointToSensor tmp_vect;
-
-      XmlRpc::XmlRpcValue map_one_joint = joint_to_sensor_mapping[i];
-
-      //The parameter can either start by an array (sensor_name, coeff)
-      // or by an integer to specify if we calibrate before combining
-      // the different sensors
-      int param_index = 0;
-      //Check if the calibrate after combine int is set to 1
-      if(map_one_joint[param_index].getType() == XmlRpc::XmlRpcValue::TypeInt)
-      {
-        if(1 == static_cast<int>(map_one_joint[0]) )
-          tmp_vect.calibrate_after_combining_sensors = true;
-        else
-          tmp_vect.calibrate_after_combining_sensors = false;
-
-        param_index ++;
-      }
-      else //by default we calibrate before combining the sensors
-        tmp_vect.calibrate_after_combining_sensors = false;
-
-      ROS_ASSERT(map_one_joint.getType() == XmlRpc::XmlRpcValue::TypeArray);
-      for (int32_t i = param_index; i < map_one_joint.size(); ++i)
-      {
-        ROS_ASSERT(map_one_joint[i].getType() == XmlRpc::XmlRpcValue::TypeArray);
-        shadow_joints::PartialJointToSensor tmp_joint_to_sensor;
-
-        ROS_ASSERT(map_one_joint[i][0].getType() == XmlRpc::XmlRpcValue::TypeString);
-        tmp_vect.sensor_names.push_back( static_cast<std::string>(map_one_joint[i][0]) );
-        tmp_joint_to_sensor.sensor_id = sensors_map[ static_cast<std::string>(map_one_joint[i][0]) ];
-
-        ROS_ASSERT(map_one_joint[i][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-        tmp_joint_to_sensor.coeff = static_cast<double> (map_one_joint[i][1]);
-        tmp_vect.joint_to_sensor_vector.push_back(tmp_joint_to_sensor);
-      }
-      joint_to_sensor_vect.push_back(tmp_vect);
-    }
-
-    return joint_to_sensor_vect;
-  } //end read_joint_to_sensor_mapping
-
-
-  template <class StatusType, class CommandType>
-  shadow_joints::CalibrationMap SrHandLib<StatusType, CommandType>::read_joint_calibration()
-  {
-    shadow_joints::CalibrationMap joint_calibration;
-    std::string param_name = "sr_calibrations";
-
-    XmlRpc::XmlRpcValue calib;
-    nodehandle_.getParam(param_name, calib);
-    ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
-    //iterate on all the joints
-    for(int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
-    {
-      //check the calibration is well formatted:
-      // first joint name, then calibration table
-      ROS_ASSERT(calib[index_cal][0].getType() == XmlRpc::XmlRpcValue::TypeString);
-      ROS_ASSERT(calib[index_cal][1].getType() == XmlRpc::XmlRpcValue::TypeArray);
-
-      std::string joint_name = static_cast<std::string> (calib[index_cal][0]);
-      std::vector<joint_calibration::Point> calib_table_tmp;
-
-      //now iterates on the calibration table for the current joint
-      for(int32_t index_table=0; index_table < calib[index_cal][1].size(); ++index_table)
-      {
-        ROS_ASSERT(calib[index_cal][1][index_table].getType() == XmlRpc::XmlRpcValue::TypeArray);
-        //only 2 values per calibration point: raw and calibrated (doubles)
-        ROS_ASSERT(calib[index_cal][1][index_table].size() == 2);
-        ROS_ASSERT(calib[index_cal][1][index_table][0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-        ROS_ASSERT(calib[index_cal][1][index_table][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-
-
-        joint_calibration::Point point_tmp;
-        point_tmp.raw_value = static_cast<double> (calib[index_cal][1][index_table][0]);
-        point_tmp.calibrated_value = sr_math_utils::to_rad( static_cast<double> (calib[index_cal][1][index_table][1]) );
-        calib_table_tmp.push_back(point_tmp);
-      }
-
-      joint_calibration.insert(joint_name, boost::shared_ptr<shadow_robot::JointCalibration>(new shadow_robot::JointCalibration(calib_table_tmp)) );
-    }
-
-    return joint_calibration;
-  } //end read_joint_calibration
 
   template <class StatusType, class CommandType>
   std::vector<int> SrHandLib<StatusType, CommandType>::read_joint_to_motor_mapping()
@@ -625,7 +444,7 @@ namespace shadow_robot
     std::string param_name = "joint_to_motor_mapping";
 
     XmlRpc::XmlRpcValue mapping;
-    nodehandle_.getParam(param_name, mapping);
+    this->nodehandle_.getParam(param_name, mapping);
     ROS_ASSERT(mapping.getType() == XmlRpc::XmlRpcValue::TypeArray);
     //iterate on all the joints
     for(int32_t i = 0; i < mapping.size(); ++i)
@@ -637,41 +456,6 @@ namespace shadow_robot
     return motor_ids;
   } //end read_joint_to_motor_mapping
 
-  template <class StatusType, class CommandType>
-  std::vector<generic_updater::UpdateConfig> SrHandLib<StatusType, CommandType>::read_update_rate_configs(std::string base_param, int nb_data_defined, const char* human_readable_data_types[], const int32u data_types[])
-  {
-    std::vector<generic_updater::UpdateConfig> update_rate_configs_vector;
-    typedef std::pair<std::string, int32u> ConfPair;
-    std::vector<ConfPair> config;
-
-    for(int i=0; i<nb_data_defined; ++i)
-    {
-      ConfPair tmp;
-
-      ROS_DEBUG_STREAM(" read " << base_param << " config [" << i<< "] = "  << human_readable_data_types[i]);
-
-      tmp.first = base_param + human_readable_data_types[i];
-      tmp.second = data_types[i];
-      config.push_back(tmp);
-    }
-
-    for( unsigned int i = 0; i < config.size(); ++i )
-    {
-      double rate;
-      if (nodehandle_.getParam(config[i].first, rate))
-      {
-        generic_updater::UpdateConfig config_tmp;
-
-        config_tmp.when_to_update = rate;
-        config_tmp.what_to_update = config[i].second;
-        update_rate_configs_vector.push_back(config_tmp);
-
-        ROS_DEBUG_STREAM(" read " << base_param <<" config [" << i<< "] = "  << "what: "<< config_tmp.what_to_update << " when: " << config_tmp.when_to_update);
-      }
-    }
-
-    return update_rate_configs_vector;
-  }
 
 #ifdef DEBUG_PUBLISHER
   template <class StatusType, class CommandType>

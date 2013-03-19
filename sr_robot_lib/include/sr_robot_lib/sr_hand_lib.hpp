@@ -127,24 +127,6 @@ namespace shadow_robot
     std::string find_joint_name(int motor_index);
 
   private:
-    ros::NodeHandle nodehandle_;
-
-    /**
-     * Reads the mapping between the sensors and the joints from the parameter server.
-     *
-     *
-     * @return a vector (size of the number of joints) containing vectors (containing
-     *         the sensors which are combined to form a given joint)
-     */
-    std::vector<shadow_joints::JointToSensor> read_joint_to_sensor_mapping();
-
-    /**
-     * Reads the calibration from the parameter server.
-     *
-     *
-     * @return a calibration map
-     */
-    shadow_joints::CalibrationMap read_joint_calibration();
 
     /**
      * Reads the mapping associating a joint to a motor.
@@ -156,26 +138,10 @@ namespace shadow_robot
      */
     std::vector<int> read_joint_to_motor_mapping();
 
-    /**
-     * Simply reads the config from the parameter server.
-     *
-     * @base_param string with the base name of the set of parameters to apply (found in the yaml file)
-     * @nb_data_defined number of data defined in the typedef
-     * @human_readable_data_types names of the types of messages (must match with those in the yaml file)
-     * @data_types the command values corresponding to every one of the names
-     * @return A vector of UpdateConfig containing the type of data and the frequency
-     *         at which we want to poll this data
-     */
-    std::vector<generic_updater::UpdateConfig> read_update_rate_configs(std::string base_param, int nb_data_defined, const char* human_readable_data_types[], const int32u data_types[]);
-
 
     static const int nb_motor_data;
     static const char* human_readable_motor_data_types[];
     static const int32u motor_data_types[];
-
-    static const int nb_sensor_data;
-    static const char* human_readable_sensor_data_types[];
-    static const int32u sensor_data_types[];
 
     /// a service server for reconfiguring the debug data we want to publish
     ros::ServiceServer debug_service;

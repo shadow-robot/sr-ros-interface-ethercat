@@ -115,6 +115,20 @@ namespace shadow_robot
     void build_motor_command(CommandType* command);
 
     /**
+     * Builds a command to demand information form the tactile sensors.
+     *
+     * @param command The command we're building.
+     */
+    void build_tactile_command(CommandType* command);
+
+    /**
+     * Reads the tactile information.
+     *
+     * @param status The status information that comes from the robot
+     */
+    void update_tactile_info(StatusType* status);
+
+    /**
      * This function adds the diagnostics for the hand to the
      * multi diagnostic status published in sr06.cpp.
      */
@@ -198,16 +212,18 @@ namespace shadow_robot
      * from the update method, each time a new message is received.
      *
      * @param joint_tmp The joint we want to calibrate.
+     * @param status The status information that comes from the robot
      */
-    void calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp);
+    void calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
 
     /**
      * Read additional data from the latest message and stores it into the
      * joints_vector.
      *
-     * @param joint_tmp The joint we want to read teh data for.
+     * @param joint_tmp The joint we want to read the data for.
+     * @param status The status information that comes from the robot
      */
-    void read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp);
+    void read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
 
     /**
      * Transforms the incoming flag as a human
@@ -246,7 +262,48 @@ namespace shadow_robot
      * @param joint_tmp The joint we process data from.
      * @param timestamp Timestamp of the data acquisition time
      */
-    void process_position_sensor_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, double timestamp);
+    void process_position_sensor_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data, double timestamp);
+
+    /**
+     * Returns a pointer to the actuator state for a certain joint.
+     * It checks the actuator type before accessing the state_ field, to avoid accessing the
+     * base class state_ field which is not what we want
+     *
+     * @param joint_tmp The joint we want to get the actuator state from.
+     *
+     * @return a pointer to the actuator state
+     */
+    sr_actuator::SrActuatorState* get_joint_actuator_state(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp);
+
+    /**
+     * Reads the mapping between the sensors and the joints from the parameter server.
+     *
+     *
+     * @return a vector (size of the number of joints) containing vectors (containing
+     *         the sensors which are combined to form a given joint)
+     */
+    std::vector<shadow_joints::JointToSensor> read_joint_to_sensor_mapping();
+
+    /**
+     * Reads the calibration from the parameter server.
+     *
+     *
+     * @return a calibration map
+     */
+    shadow_joints::CalibrationMap read_joint_calibration();
+
+    /**
+     * Simply reads the config from the parameter server.
+     *
+     * @base_param string with the base name of the set of parameters to apply (found in the yaml file)
+     * @nb_data_defined number of data defined in the typedef
+     * @human_readable_data_types names of the types of messages (must match with those in the yaml file)
+     * @data_types the command values corresponding to every one of the names
+     * @return A vector of UpdateConfig containing the type of data and the frequency
+     *         at which we want to poll this data
+     */
+    std::vector<generic_updater::UpdateConfig> read_update_rate_configs(std::string base_param, int nb_data_defined, const char* human_readable_data_types[], const int32u data_types[]);
+
 
     /**
      * The motor updater is used to create a correct command to send to the motor.
@@ -272,10 +329,6 @@ namespace shadow_robot
     ///contains a queue of motor indexes to reset
     std::queue<short, std::list<short> > reset_motors_queue;
 
-    /// The current actuator.
-    sr_actuator::SrActuator* actuator;
-    /// The latest etherCAT message received.
-    StatusType* status_data;
     /// A temporary calibration for a given joint.
     boost::shared_ptr<shadow_robot::JointCalibration> calibration_tmp;
 
@@ -288,8 +341,12 @@ namespace shadow_robot
     int16u crc_result;
     int8u crc_i;
 
-    /// a ROS nodehandle to be able to advertise the Force PID service
+    /// a ROS nodehandle (private naming, only inside the node namespace) to be able to advertise the Force PID service
     ros::NodeHandle nh_tilde;
+
+    /// a ros nodehandle to be able to access resources out of the node namespace
+    ros::NodeHandle nodehandle_;
+
 
 #ifdef DEBUG_PUBLISHER
     ///These publishers are useful for debugging
@@ -319,6 +376,11 @@ namespace shadow_robot
     std::vector<generic_updater::UpdateConfig> biotac_sensor_update_rate_configs_vector;
 
     boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
+
+    static const int nb_sensor_data;
+    static const char* human_readable_sensor_data_types[];
+    static const int32u sensor_data_types[];
+
 
     ///True if we want to set the demand to 0 (stop the controllers)
     bool nullify_demand_;

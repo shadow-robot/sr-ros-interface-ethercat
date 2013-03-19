@@ -48,6 +48,77 @@ namespace shadow_robot
 #endif
 
   template <class StatusType, class CommandType>
+  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 31;
+
+  template <class StatusType, class CommandType>
+  const char* SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] = {"TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ",
+                                                                             "TACTILE_SENSOR_TYPE_MANUFACTURER",
+                                                                             "TACTILE_SENSOR_TYPE_SERIAL_NUMBER",
+                                                                             "TACTILE_SENSOR_TYPE_SOFTWARE_VERSION",
+                                                                             "TACTILE_SENSOR_TYPE_PCB_VERSION",
+                                                                             "TACTILE_SENSOR_TYPE_WHICH_SENSORS",
+                                                                             "TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE",
+                                                                             "TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING",
+                                                                             "TACTILE_SENSOR_TYPE_PST3_DAC_VALUE",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_PDC",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_TDC"
+                                                                             };
+
+  template <class StatusType, class CommandType>
+  const int32u SrRobotLib<StatusType, CommandType>::sensor_data_types[nb_sensor_data] = {TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ,
+                                                               TACTILE_SENSOR_TYPE_MANUFACTURER,
+                                                               TACTILE_SENSOR_TYPE_SERIAL_NUMBER,
+                                                               TACTILE_SENSOR_TYPE_SOFTWARE_VERSION,
+                                                               TACTILE_SENSOR_TYPE_PCB_VERSION,
+                                                               TACTILE_SENSOR_TYPE_WHICH_SENSORS,
+                                                               TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE,
+                                                               TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING,
+                                                               TACTILE_SENSOR_TYPE_PST3_DAC_VALUE,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_PDC,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_TAC,
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_TDC
+  };
+
+  template <class StatusType, class CommandType>
   SrRobotLib<StatusType, CommandType>::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false), motor_current_state(
       operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
@@ -55,6 +126,17 @@ namespace shadow_robot
       control_type_changed_flag_(false),
       nh_tilde("~")
   {
+
+    //read the generic sensor polling frequency from the parameter server
+    this->generic_sensor_update_rate_configs_vector = this->read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
+    this->tactiles_init = boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> >( new tactiles::GenericTactiles<StatusType, CommandType>(this->generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
+
+    //read the pst3 sensor polling frequency from the parameter server
+    this->pst3_sensor_update_rate_configs_vector = this->read_update_rate_configs("pst3_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
+    //read the biotac sensor polling frequency from the parameter server
+    this->biotac_sensor_update_rate_configs_vector = this->read_update_rate_configs("biotac_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
+
+
     lock_command_sending_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
 
     //advertise the service to nullify the demand sent to the motor
@@ -97,8 +179,6 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrRobotLib<StatusType, CommandType>::update(StatusType* status_data)
   {
-    this->status_data = status_data;
-
     //read the PIC idle time
     main_pic_idle_time = status_data->idle_time_us;
     if (status_data->idle_time_us < main_pic_idle_time_min)
@@ -120,22 +200,22 @@ namespace shadow_robot
     boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = joints_vector.begin();
     for (; joint_tmp != joints_vector.end(); ++joint_tmp)
     {
-      actuator = (joint_tmp->actuator_wrapper->actuator);
+      sr_actuator::SrActuatorState* actuator_state = get_joint_actuator_state(joint_tmp);
 
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
 
       motor_index_full = motor_wrapper->motor_id;
-      actuator->state_.is_enabled_ = 1;
-      actuator->state_.device_id_ = motor_index_full;
-      actuator->state_.halted_ = false;
+      actuator_state->is_enabled_ = 1;
+      actuator_state->device_id_ = motor_index_full;
+      actuator_state->halted_ = false;
 
       //Fill in the tactiles.
       if( tactiles != NULL )
-        actuator->state_.tactiles_ = tactiles->get_tactile_data();
+        actuator_state->tactiles_ = this->tactiles->get_tactile_data();
 
-      this->process_position_sensor_data(joint_tmp, timestamp);
+      this->process_position_sensor_data(joint_tmp, status_data, timestamp);
 
-      sr_actuator::SrActuator* motor_actuator = static_cast<sr_actuator::SrActuator>(joint_tmp->actuator_wrapper->actuator);
+      sr_actuator::SrActuator* motor_actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
       //filter the effort
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
           motor_actuator->state_.force_unfiltered_, timestamp);
@@ -174,20 +254,11 @@ namespace shadow_robot
 
       //ok now we read the info and add it to the actuator state
       if (read_motor_info)
-        read_additional_data(joint_tmp);
+        read_additional_data(joint_tmp, status_data);
     } //end for joint
 
     //then we read the tactile sensors information
-    if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
-    {
-      if( tactiles_init != NULL )
-        tactiles_init->update(status_data);
-    }
-    else
-    {
-      if( tactiles != NULL )
-        tactiles->update(status_data);
-    }
+    this->update_tactile_info(status_data);
   } //end update()
 
   template <class StatusType, class CommandType>
@@ -217,43 +288,8 @@ namespace shadow_robot
       motor_current_state = motor_updater_->build_command(command);
     }
 
-    if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
-    {
-      if (tactiles_init->sensor_updater->build_init_command(command)
-          != operation_mode::device_update_state::INITIALIZATION)
-      {
-        tactile_current_state = operation_mode::device_update_state::OPERATION;
-
-        switch (tactiles_init->tactiles_vector->at(0).which_sensor)
-        {
-        case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
-          tactiles = boost::shared_ptr<tactiles::ShadowPSTs<StatusType, CommandType> >(
-            new tactiles::ShadowPSTs<StatusType, CommandType>(pst3_sensor_update_rate_configs_vector,
-                                     operation_mode::device_update_state::OPERATION,
-                                     tactiles_init->tactiles_vector));
-
-          ROS_INFO("PST3 tactiles initialized");
-          break;
-
-        case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
-          tactiles = boost::shared_ptr<tactiles::Biotac<StatusType, CommandType> >(
-            new tactiles::Biotac<StatusType, CommandType>(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
-                                 tactiles_init->tactiles_vector));
-
-          ROS_INFO("Biotac tactiles initialized");
-          break;
-
-        case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:
-          ROS_WARN_STREAM("TACTILE_SENSOR_PROTOCOL_TYPE_INVALID!!");
-          break;
-        case TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING:
-          ROS_WARN_STREAM("TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING!!");
-          break;
-        }
-      }
-    }
-    else
-      tactile_current_state = tactiles->sensor_updater->build_command(command);
+    //Build the tactile sensors command
+    this->build_tactile_command(command);
 
     ///////
     // Now we chose the command to send to the motor
@@ -383,11 +419,14 @@ namespace shadow_robot
           for (; joint_tmp != joints_vector.end(); ++joint_tmp)
           {
             boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
+            sr_actuator::SrActuatorState* actuator_state;
+
+            actuator_state = get_joint_actuator_state(joint_tmp);
 
             if( motor_wrapper->motor_id == motor_id )
             {
-              motor_wrapper->actuator->state_.can_msgs_transmitted_ = 0;
-              motor_wrapper->actuator->state_.can_msgs_received_ = 0;
+              actuator_state->can_msgs_transmitted_ = 0;
+              actuator_state->can_msgs_received_ = 0;
             }
           }
 
@@ -585,10 +624,14 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  void SrRobotLib<StatusType, CommandType>::calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
+  void SrRobotLib<StatusType, CommandType>::calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data)
   {
-    actuator->state_.raw_sensor_values_.clear();
-    actuator->state_.calibrated_sensor_values_.clear();
+    sr_actuator::SrActuatorState* actuator_state;
+
+    actuator_state = get_joint_actuator_state(joint_tmp);
+
+    actuator_state->raw_sensor_values_.clear();
+    actuator_state->calibrated_sensor_values_.clear();
 
     if (joint_tmp->joint_to_sensor.calibrate_after_combining_sensors)
     {
@@ -601,13 +644,13 @@ namespace shadow_robot
       BOOST_FOREACH(shadow_joints::PartialJointToSensor joint_to_sensor, joint_tmp->joint_to_sensor.joint_to_sensor_vector)
       {
         int tmp_raw = status_data->sensors[joint_to_sensor.sensor_id];
-        actuator->state_.raw_sensor_values_.push_back(tmp_raw);
+        actuator_state->raw_sensor_values_.push_back(tmp_raw);
         raw_position += static_cast<double>(tmp_raw) * joint_to_sensor.coeff;
       }
 
       //and now we calibrate
       calibration_tmp = calibration_map.find(joint_tmp->joint_name);
-      actuator->state_.position_unfiltered_ = calibration_tmp->compute(static_cast<double>(raw_position));
+      actuator_state->position_unfiltered_ = calibration_tmp->compute(static_cast<double>(raw_position));
     }
     else
     {
@@ -628,26 +671,26 @@ namespace shadow_robot
         //get the raw position
         int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
         //push the new raw values
-        actuator->state_.raw_sensor_values_.push_back(raw_pos);
+        actuator_state->raw_sensor_values_.push_back(raw_pos);
 
         //calibrate and then combine
         calibration_tmp = calibration_map.find(sensor_name);
         double tmp_cal_value = calibration_tmp->compute(static_cast<double>(raw_pos));
 
         //push the new calibrated values.
-        actuator->state_.calibrated_sensor_values_.push_back(tmp_cal_value);
+        actuator_state->calibrated_sensor_values_.push_back(tmp_cal_value);
 
         calibrated_position += tmp_cal_value * joint_to_sensor.coeff;
 
         ROS_DEBUG_STREAM("      -> "<< sensor_name<< " raw = " << raw_pos << " calibrated = " << calibrated_position);
       }
-      actuator->state_.position_unfiltered_ = calibrated_position;
-      ROS_DEBUG_STREAM("          => "<< actuator->state_.position_unfiltered_);
+      actuator_state->position_unfiltered_ = calibrated_position;
+      ROS_DEBUG_STREAM("          => "<< actuator_state->position_unfiltered_);
     }
   } //end calibrate_joint()
 
   template <class StatusType, class CommandType>
-  void SrRobotLib<StatusType, CommandType>::read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
+  void SrRobotLib<StatusType, CommandType>::read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data)
   {
     //check the masks to see if the CAN messages arrived to the motors
     //the flag should be set to 1 for each motor
@@ -663,6 +706,8 @@ namespace shadow_robot
 
     if (joint_tmp->actuator_wrapper->actuator_ok && !(joint_tmp->actuator_wrapper->bad_data))
     {
+      sr_actuator::SrActuator* actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
+
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
       //publish the debug values for the given motors.
@@ -1163,21 +1208,237 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  void SrRobotLib<StatusType, CommandType>::process_position_sensor_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, double timestamp)
+  void SrRobotLib<StatusType, CommandType>::process_position_sensor_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data, double timestamp)
   {
+    sr_actuator::SrActuatorState* actuator_state = get_joint_actuator_state(joint_tmp);
+
     //calibrate the joint and update the position.
-    calibrate_joint(joint_tmp);
+    calibrate_joint(joint_tmp, status_data);
 
     //add the last position to the queue
-    joint_tmp->actuator_wrapper->actuator->state_.timestamp_ = timestamp;
+    actuator_state->timestamp_ = timestamp;
 
     //filter the position and velocity
     std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(
-      joint_tmp->actuator_wrapper->actuator->state_.position_unfiltered_, timestamp);
+        actuator_state->position_unfiltered_, timestamp);
     //reset the position to the filtered value
-    joint_tmp->actuator_wrapper->actuator->state_.position_ = pos_and_velocity.first;
+    actuator_state->position_ = pos_and_velocity.first;
     //set the velocity to the filtered velocity
-    joint_tmp->actuator_wrapper->actuator->state_.velocity_ = pos_and_velocity.second;
+    actuator_state->velocity_ = pos_and_velocity.second;
+  }
+
+  template <class StatusType, class CommandType>
+  sr_actuator::SrActuatorState* SrRobotLib<StatusType, CommandType>::get_joint_actuator_state(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp)
+  {
+    sr_actuator::SrActuatorState* actuator_state;
+
+    if (sr_actuator::SrActuator* motor_actuator = dynamic_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator))
+    {
+      actuator_state = motor_actuator->state_;
+    }
+    else if (sr_actuator::SrMuscleActuator* muscle_actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator))
+    {
+      actuator_state = muscle_actuator->state_;
+    }
+    else
+    {
+      ROS_FATAL("Unknown actuator type. Known types: sr_actuator::SrActuator, sr_actuator::SrMuscleActuator");
+      exit(EXIT_FAILURE);
+    }
+
+    return actuator_state;
+  }
+
+  template <class StatusType, class CommandType>
+  void SrRobotLib<StatusType, CommandType>::build_tactile_command(CommandType* command)
+  {
+    if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      if (tactiles_init->sensor_updater->build_init_command(command)
+          != operation_mode::device_update_state::INITIALIZATION)
+      {
+        tactile_current_state = operation_mode::device_update_state::OPERATION;
+
+        switch (tactiles_init->tactiles_vector->at(0).which_sensor)
+        {
+        case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
+          tactiles = boost::shared_ptr<tactiles::ShadowPSTs<StatusType, CommandType> >(
+            new tactiles::ShadowPSTs<StatusType, CommandType>(pst3_sensor_update_rate_configs_vector,
+                                     operation_mode::device_update_state::OPERATION,
+                                     tactiles_init->tactiles_vector));
+
+          ROS_INFO("PST3 tactiles initialized");
+          break;
+
+        case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
+          tactiles = boost::shared_ptr<tactiles::Biotac<StatusType, CommandType> >(
+            new tactiles::Biotac<StatusType, CommandType>(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+                                 tactiles_init->tactiles_vector));
+
+          ROS_INFO("Biotac tactiles initialized");
+          break;
+
+        case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:
+          ROS_WARN_STREAM("TACTILE_SENSOR_PROTOCOL_TYPE_INVALID!!");
+          break;
+        case TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING:
+          ROS_WARN_STREAM("TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING!!");
+          break;
+        }
+      }
+    }
+    else
+      tactile_current_state = tactiles->sensor_updater->build_command(command);
+  }
+
+  template <class StatusType, class CommandType>
+  void SrRobotLib<StatusType, CommandType>::update_tactile_info(StatusType* status)
+  {
+    if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      if( tactiles_init != NULL )
+        tactiles_init->update(status);
+    }
+    else
+    {
+      if( tactiles != NULL )
+        tactiles->update(status);
+    }
+  }
+
+  template <class StatusType, class CommandType>
+  shadow_joints::CalibrationMap SrRobotLib<StatusType, CommandType>::read_joint_calibration()
+  {
+    shadow_joints::CalibrationMap joint_calibration;
+    std::string param_name = "sr_calibrations";
+
+    XmlRpc::XmlRpcValue calib;
+    nodehandle_.getParam(param_name, calib);
+    ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    //iterate on all the joints
+    for(int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
+    {
+      //check the calibration is well formatted:
+      // first joint name, then calibration table
+      ROS_ASSERT(calib[index_cal][0].getType() == XmlRpc::XmlRpcValue::TypeString);
+      ROS_ASSERT(calib[index_cal][1].getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+      std::string joint_name = static_cast<std::string> (calib[index_cal][0]);
+      std::vector<joint_calibration::Point> calib_table_tmp;
+
+      //now iterates on the calibration table for the current joint
+      for(int32_t index_table=0; index_table < calib[index_cal][1].size(); ++index_table)
+      {
+        ROS_ASSERT(calib[index_cal][1][index_table].getType() == XmlRpc::XmlRpcValue::TypeArray);
+        //only 2 values per calibration point: raw and calibrated (doubles)
+        ROS_ASSERT(calib[index_cal][1][index_table].size() == 2);
+        ROS_ASSERT(calib[index_cal][1][index_table][0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        ROS_ASSERT(calib[index_cal][1][index_table][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+
+
+        joint_calibration::Point point_tmp;
+        point_tmp.raw_value = static_cast<double> (calib[index_cal][1][index_table][0]);
+        point_tmp.calibrated_value = sr_math_utils::to_rad( static_cast<double> (calib[index_cal][1][index_table][1]) );
+        calib_table_tmp.push_back(point_tmp);
+      }
+
+      joint_calibration.insert(joint_name, boost::shared_ptr<shadow_robot::JointCalibration>(new shadow_robot::JointCalibration(calib_table_tmp)) );
+    }
+
+    return joint_calibration;
+  } //end read_joint_calibration
+
+  template <class StatusType, class CommandType>
+  std::vector<shadow_joints::JointToSensor> SrRobotLib<StatusType, CommandType>::read_joint_to_sensor_mapping()
+  {
+    std::vector<shadow_joints::JointToSensor> joint_to_sensor_vect;
+
+    std::map<std::string, int> sensors_map;
+    for(unsigned int i=0; i < SENSORS_NUM_0220; ++i)
+    {
+      sensors_map[ sensor_names[i] ] = i;
+    }
+
+    XmlRpc::XmlRpcValue joint_to_sensor_mapping;
+    nodehandle_.getParam("joint_to_sensor_mapping", joint_to_sensor_mapping);
+    ROS_ASSERT(joint_to_sensor_mapping.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    for (int32_t i = 0; i < joint_to_sensor_mapping.size(); ++i)
+    {
+      shadow_joints::JointToSensor tmp_vect;
+
+      XmlRpc::XmlRpcValue map_one_joint = joint_to_sensor_mapping[i];
+
+      //The parameter can either start by an array (sensor_name, coeff)
+      // or by an integer to specify if we calibrate before combining
+      // the different sensors
+      int param_index = 0;
+      //Check if the calibrate after combine int is set to 1
+      if(map_one_joint[param_index].getType() == XmlRpc::XmlRpcValue::TypeInt)
+      {
+        if(1 == static_cast<int>(map_one_joint[0]) )
+          tmp_vect.calibrate_after_combining_sensors = true;
+        else
+          tmp_vect.calibrate_after_combining_sensors = false;
+
+        param_index ++;
+      }
+      else //by default we calibrate before combining the sensors
+        tmp_vect.calibrate_after_combining_sensors = false;
+
+      ROS_ASSERT(map_one_joint.getType() == XmlRpc::XmlRpcValue::TypeArray);
+      for (int32_t i = param_index; i < map_one_joint.size(); ++i)
+      {
+        ROS_ASSERT(map_one_joint[i].getType() == XmlRpc::XmlRpcValue::TypeArray);
+        shadow_joints::PartialJointToSensor tmp_joint_to_sensor;
+
+        ROS_ASSERT(map_one_joint[i][0].getType() == XmlRpc::XmlRpcValue::TypeString);
+        tmp_vect.sensor_names.push_back( static_cast<std::string>(map_one_joint[i][0]) );
+        tmp_joint_to_sensor.sensor_id = sensors_map[ static_cast<std::string>(map_one_joint[i][0]) ];
+
+        ROS_ASSERT(map_one_joint[i][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        tmp_joint_to_sensor.coeff = static_cast<double> (map_one_joint[i][1]);
+        tmp_vect.joint_to_sensor_vector.push_back(tmp_joint_to_sensor);
+      }
+      joint_to_sensor_vect.push_back(tmp_vect);
+    }
+
+    return joint_to_sensor_vect;
+  } //end read_joint_to_sensor_mapping
+
+  template <class StatusType, class CommandType>
+  std::vector<generic_updater::UpdateConfig> SrRobotLib<StatusType, CommandType>::read_update_rate_configs(std::string base_param, int nb_data_defined, const char* human_readable_data_types[], const int32u data_types[])
+  {
+    std::vector<generic_updater::UpdateConfig> update_rate_configs_vector;
+    typedef std::pair<std::string, int32u> ConfPair;
+    std::vector<ConfPair> config;
+
+    for(int i=0; i<nb_data_defined; ++i)
+    {
+      ConfPair tmp;
+
+      ROS_DEBUG_STREAM(" read " << base_param << " config [" << i<< "] = "  << human_readable_data_types[i]);
+
+      tmp.first = base_param + human_readable_data_types[i];
+      tmp.second = data_types[i];
+      config.push_back(tmp);
+    }
+
+    for( unsigned int i = 0; i < config.size(); ++i )
+    {
+      double rate;
+      if (nodehandle_.getParam(config[i].first, rate))
+      {
+        generic_updater::UpdateConfig config_tmp;
+
+        config_tmp.when_to_update = rate;
+        config_tmp.what_to_update = config[i].second;
+        update_rate_configs_vector.push_back(config_tmp);
+
+        ROS_DEBUG_STREAM(" read " << base_param <<" config [" << i<< "] = "  << "what: "<< config_tmp.what_to_update << " when: " << config_tmp.when_to_update);
+      }
+    }
+
+    return update_rate_configs_vector;
   }
 
 } //end namespace
