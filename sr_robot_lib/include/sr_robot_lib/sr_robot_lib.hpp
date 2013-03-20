@@ -94,7 +94,7 @@ namespace shadow_robot
   {
   public:
     SrRobotLib(pr2_hardware_interface::HardwareInterface *hw);
-    ~SrRobotLib() {};
+    virtual ~SrRobotLib() {};
 
     /**
      * This function is called each time a new etherCAT message
@@ -107,12 +107,11 @@ namespace shadow_robot
     virtual void update(StatusType* status_data) = 0;
 
     /**
-     * Builds a motor command: either send a torque demand or a configuration
-     * demand if one is waiting.
+     * Builds a command for the robot.
      *
      * @param command The command we're building.
      */
-    virtual void build_motor_command(CommandType* command) = 0;
+    virtual void build_command(CommandType* command) = 0;
 
     /**
      * Builds a command to demand information form the tactile sensors.

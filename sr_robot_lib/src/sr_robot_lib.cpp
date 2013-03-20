@@ -146,9 +146,7 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrRobotLib<StatusType, CommandType>::calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data)
   {
-    sr_actuator::SrActuatorState* actuator_state;
-
-    actuator_state = get_joint_actuator_state(joint_tmp);
+    sr_actuator::SrActuatorState* actuator_state = get_joint_actuator_state(joint_tmp);
 
     actuator_state->raw_sensor_values_.clear();
     actuator_state->calibrated_sensor_values_.clear();

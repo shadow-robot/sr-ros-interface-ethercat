@@ -74,7 +74,7 @@ namespace shadow_robot
   {
   public:
     SrMotorRobotLib(pr2_hardware_interface::HardwareInterface *hw);
-    ~SrMotorRobotLib() {};
+    virtual ~SrMotorRobotLib() {};
 
     /**
      * This function is called each time a new etherCAT message
@@ -92,7 +92,7 @@ namespace shadow_robot
      *
      * @param command The command we're building.
      */
-    void build_motor_command(CommandType* command);
+    void build_command(CommandType* command);
 
     /**
      * This function adds the diagnostics for the hand to the
@@ -105,23 +105,6 @@ namespace shadow_robot
      * Initiates the process to retrieve the initialization information from the motors
      */
     void reinitialize_motors();
-
-
-    /**
-     * This service is used to nullify the demand of the etherCAT
-     *  hand. If the nullify_demand parameter is set to True,
-     *  the demand sent to the robot will be 0, regardless of the
-     *  computed effort demanded by the controller. If set to False,
-     *  then the demand computed by the controllers will be sent to the motors.
-     *
-     * @param request contains the nullify_demand parameter
-     * @param response empty
-     *
-     * @return always true as it can't fail
-     */
-    bool nullify_demand_callback( sr_robot_msgs::NullifyDemand::Request& request,
-                                  sr_robot_msgs::NullifyDemand::Response& response );
-
 
 
     ///Current update state of the motor (initialization, operation..)
@@ -228,7 +211,7 @@ namespace shadow_robot
     /**
      * Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
      * The flag is set in the callback function of the change_control_type_ service.
-     * The flag is checked in build_motor_command() and the necessary actions are taken there.
+     * The flag is checked in build_command() and the necessary actions are taken there.
      * These actions involve calling services in the controller manager and all the active controllers. This is the
      * reason why we don't do it directly in the callback function. As we use a single thread to serve the callbacks,
      * doing so would cause a deadlock, thus we do it in the realtime loop thread instead.

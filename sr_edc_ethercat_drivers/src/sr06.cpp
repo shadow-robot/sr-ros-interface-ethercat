@@ -324,7 +324,7 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
 
   //alternate between even and uneven motors
   // and ask for the different informations.
-  sr_hand_lib->build_motor_command(command);
+  sr_hand_lib->build_command(command);
 
   ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
                 command->to_motor_data_type,

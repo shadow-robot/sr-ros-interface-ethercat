@@ -171,7 +171,7 @@ namespace shadow_robot
   } //end update()
 
   template <class StatusType, class CommandType>
-  void SrMotorRobotLib<StatusType, CommandType>::build_motor_command(CommandType* command)
+  void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType* command)
   {
     //Mutual exclusion with the change_control_type service. We have to wait until the control_type_ variable has been set.
     boost::mutex::scoped_lock l(*lock_command_sending_);
@@ -923,7 +923,7 @@ namespace shadow_robot
 
     if(control_type_.control_type != request.control_type.control_type)
     {
-      //Mutual exclusion with the build_motor_command() function. We have to wait until the current motor command has been built.
+      //Mutual exclusion with the build_command() function. We have to wait until the current motor command has been built.
       boost::mutex::scoped_lock l(*lock_command_sending_);
 
       ROS_WARN("Changing control type");
@@ -931,7 +931,7 @@ namespace shadow_robot
       control_type_ = request.control_type;
       //Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
       //The flag is set in the callback function of the change_control_type_ service.
-      //The flag is checked in build_motor_command() and the necessary actions are taken there.
+      //The flag is checked in build_command() and the necessary actions are taken there.
       //These actions involve calling services in the controller manager and all the active controllers. This is the
       //reason why we don't do it directly in the callback function. As we use a single thread to serve the callbacks,
       //doing so would cause a deadlock, thus we do it in the realtime loop thread instead.
