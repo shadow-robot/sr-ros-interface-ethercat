@@ -28,43 +28,16 @@
 #define _SR_MOTOR_ROBOT_LIB_HPP_
 
 #include "sr_robot_lib/sr_robot_lib.hpp"
-#include <boost/smart_ptr.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/thread.hpp>
-#include <vector>
-#include <deque>
-
-//used to publish debug values
-#include <std_msgs/Int16.h>
-
-#include <sr_hardware_interface/sr_actuator.hpp>
-
-#include <diagnostic_msgs/DiagnosticStatus.h>
-#include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
 #include <sr_robot_msgs/ForceController.h>
-#include <sr_robot_msgs/NullifyDemand.h>
-#include <sr_robot_msgs/SetDebugData.h>
 #include <sr_robot_msgs/ControlType.h>
 #include <sr_robot_msgs/ChangeControlType.h>
 #include <sr_robot_msgs/MotorSystemControls.h>
 #include <sr_robot_msgs/ChangeMotorSystemControls.h>
 
-#include <sr_utilities/sr_math_utils.hpp>
-#include <sr_utilities/calibration.hpp>
-#include <sr_utilities/thread_safe_map.hpp>
-
-#include "sr_robot_lib/sr_joint_motor.hpp"
 #include "sr_robot_lib/motor_updater.hpp"
-#include "sr_robot_lib/generic_tactiles.hpp"
 #include "sr_robot_lib/motor_data_checker.hpp"
 
-#include <sr_external_dependencies/types_for_external.h>
-extern "C"
-{
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
-  #include <sr_external_dependencies/external/simplemotor-bootloader/bootloader.h>
-}
 
 
 namespace shadow_robot

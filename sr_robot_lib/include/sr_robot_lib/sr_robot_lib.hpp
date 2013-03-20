@@ -41,27 +41,21 @@
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
-#include <sr_robot_msgs/ForceController.h>
 #include <sr_robot_msgs/NullifyDemand.h>
 #include <sr_robot_msgs/SetDebugData.h>
-#include <sr_robot_msgs/ControlType.h>
-#include <sr_robot_msgs/ChangeControlType.h>
-#include <sr_robot_msgs/MotorSystemControls.h>
-#include <sr_robot_msgs/ChangeMotorSystemControls.h>
 
 #include <sr_utilities/sr_math_utils.hpp>
 #include <sr_utilities/calibration.hpp>
 #include <sr_utilities/thread_safe_map.hpp>
 
 #include "sr_robot_lib/sr_joint_motor.hpp"
-#include "sr_robot_lib/motor_updater.hpp"
 #include "sr_robot_lib/generic_tactiles.hpp"
-#include "sr_robot_lib/motor_data_checker.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
   #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+  #include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
   #include <sr_external_dependencies/external/simplemotor-bootloader/bootloader.h>
 }
 

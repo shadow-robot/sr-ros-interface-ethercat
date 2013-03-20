@@ -123,6 +123,7 @@ namespace generic_updater
     boost::mutex::scoped_lock l(*(this->mutex));
     for( unsigned int i=0; i<2 ; ++i)
       this->unimportant_data_queue.push(TACTILE_SENSOR_TYPE_RESET_COMMAND);
+    return true;
   }
 }
 

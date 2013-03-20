@@ -39,6 +39,9 @@ typedef   signed short      int16s;
 typedef unsigned int        int32u;
 typedef   signed int        int32s;
 
+typedef unsigned long int        int64u;
+typedef   signed long int        int64s;
+
 
 /* For the emacs weenies in the crowd.
 Local Variables:
