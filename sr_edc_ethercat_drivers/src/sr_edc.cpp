@@ -364,21 +364,8 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   unsigned int total_size = 0;
   bool timedout;
 
-  // We're using 2 can busses,
-  // if motor id is between 0 and 9, then we're using the can_bus 1
-  // else, we're using the can bus 2.
-  int motor_id_tmp = req.motor_id;
-  if( motor_id_tmp > 9 )
-  {
-    motor_id_tmp -= 10;
-    can_bus_ = 2;
-  }
-  else
-  {
-    can_bus_ = 1;
-  }
+  get_board_id_and_can_bus(req.motor_id, &can_bus_, &motor_being_flashed);
 
-  motor_being_flashed = motor_id_tmp;
   binary_content = NULL;
   flashing = true;
 

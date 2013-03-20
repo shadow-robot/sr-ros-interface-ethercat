@@ -490,6 +490,25 @@ void SR06::reinitialize_boards()
   sr_hand_lib->reinitialize_motors();
 }
 
+void SR06::get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id)
+{
+  // We're using 2 can busses,
+  // if motor id is between 0 and 9, then we're using the can_bus 1
+  // else, we're using the can bus 2.
+  int motor_id_tmp = board_id;
+  if( motor_id_tmp > 9 )
+  {
+    motor_id_tmp -= 10;
+    *can_bus = 2;
+  }
+  else
+  {
+    *can_bus = 1;
+  }
+
+  *board_can_id = motor_id_tmp;
+}
+
 /* For the emacs weenies in the crowd.
    Local Variables:
    c-basic-offset: 2

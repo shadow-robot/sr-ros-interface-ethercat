@@ -62,7 +62,7 @@ class SrEdc : public SR0X
 {
 public:
   SrEdc();
-  ~SrEdc();
+  virtual ~SrEdc();
 
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
   int  initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
@@ -88,7 +88,17 @@ protected:
   bool                             can_packet_acked;
 
   /// This function will call the reinitialization function for the boards attached to the CAN bus
-  virtual void reinitialize_boards();
+  virtual void reinitialize_boards() = 0;
+
+  /**
+   * Given the identifier for a certain board (motor board/ muscle driver) determines the right value
+   * for the CAN bus and the ID of the board in that CAN bus.
+   *
+   * @param board_id the unique identifier for the board
+   * @param can_bus pointer to the can bus number we want to determine
+   * @param board_can_id pointer to the board id we want to determine
+   */
+  virtual void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id) = 0;
 private:
 
   //static const unsigned int        nb_sensors_const;

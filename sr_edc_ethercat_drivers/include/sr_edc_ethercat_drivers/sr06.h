@@ -76,6 +76,16 @@ protected:
   /// This function will call the reinitialization function for the boards attached to the CAN bus
   void reinitialize_boards();
 
+  /**
+   * Given the identifier for a certain board (motor board/ muscle driver) determines the right value
+   * for the CAN bus and the ID of the board in that CAN bus.
+   *
+   * @param board_id the unique identifier for the board
+   * @param can_bus pointer to the can bus number we want to determine
+   * @param board_can_id pointer to the board id we want to determine
+   */
+  void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id);
+
 private:
 
   //std::string                      firmware_file_name;
