@@ -113,11 +113,23 @@ namespace shadow_joints
     ros::ServiceServer reset_motor_service;
   };
 
+  class MuscleDriver
+  {
+  public:
+    MuscleDriver()
+    {
+    };
+
+    ~MuscleDriver()
+    {
+    };
+  };
+
   class MuscleWrapper : public SrActuatorWrapper
   {
   public:
     MuscleWrapper()
-        : SrActuatorWrapper(), muscle_id(0), msg_muscle_id(0)
+        : SrActuatorWrapper(), muscle_id({0,0}), muscle_driver_id({0,0})
     {
     }
     ;
@@ -127,13 +139,10 @@ namespace shadow_joints
     }
     ;
 
-    //the position of the motor in the motor array
-    // coming from the hardware
-    int muscle_id;
-
-    //the position of the motor in the message array
-    int msg_muscle_id;
-
+    /// id of the muscle drivers that control the muscles for this joint. These muscles can be driven by different muscle drivers.
+    int muscle_driver_id[2];
+    /// id of the muscles for this joint (the id indicates the order from 0 to 9 of the muscle in its muscle driver)
+    int muscle_id[2];
 
     /**
      * A service used to reset the HW
