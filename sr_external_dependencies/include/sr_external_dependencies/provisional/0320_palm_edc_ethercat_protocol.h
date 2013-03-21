@@ -277,8 +277,8 @@ typedef struct
                                                                 //!< This value should agree with the previous value
                                                                 //!< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
 
-    int64u                  which_pressure_data_arrived[5];     //!< Bit s indicate which pressure sensor data is new this frame
-    int64u                  which_pressure_data_had_errors[5];  //!< Bit N set when muscle driver sends bad CAN message Ideally, no bits get set.
+    int64u                  which_pressure_data_arrived;     //!< Bit s indicate which pressure sensor data is new this frame
+    int64u                  which_pressure_data_had_errors;  //!< Bit N set when muscle driver sends bad CAN message Ideally, no bits get set.
 
     MUSCLE_DATA_PACKET      muscle_data_packet[8];
 
