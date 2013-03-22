@@ -54,8 +54,7 @@ namespace generic_updater
         timers.push_back(
           nh_tilde.createTimer(
             duration,
-            boost::bind(&GenericUpdater::timer_callback, this, _1,
-                        static_cast<FROM_MOTOR_DATA_TYPE>(config.what_to_update))));
+            boost::bind(&GenericUpdater::timer_callback, this, _1, config.what_to_update)));
       }
       else
         important_update_configs_vector.push_back(config);
@@ -77,7 +76,7 @@ namespace generic_updater
   }
 
   template <class CommandType>
-  void GenericUpdater<CommandType>::timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type)
+  void GenericUpdater<CommandType>::timer_callback(const ros::TimerEvent& event, int32u data_type)
   {
     if (update_state == operation_mode::device_update_state::OPERATION)
     {

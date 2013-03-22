@@ -1,8 +1,9 @@
 /**
- * @file   sensor_updater.hpp
- * @author toni <toni@shadowrobot.com>
- * @date   20 Oct 2011
+ * @file   muscle_updater.hpp
+ * @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
+ * @date   Tue Jun  7 09:15:21 2011
  *
+*
 * Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
@@ -19,15 +20,14 @@
 * with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 *
- * @brief This class is used to update the tactile sensor command.
+ * @brief  This contains a class used to determin which data we should ask the motor for,
+ * depending on the config we're using.
  *
  *
  */
 
-#ifndef SENSOR_UPDATER_HPP_
-#define SENSOR_UPDATER_HPP_
-
-
+#ifndef _MUSCLE_UPDATER_HPP_
+#define _MUSCLE_UPDATER_HPP_
 
 #include <ros/ros.h>
 #include <vector>
@@ -40,15 +40,15 @@
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+  #include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
 }
 
 namespace generic_updater
 {
   /**
-   * The Sensor Updater builds the next command we want to send to the hand.
+   * The Motor Updater builds the next command we want to send to the hand.
    * We can ask for different types of data at different rates. The data and
-   * their rates are defined in the sr_ethercat_hand_config/rates/sensor_data_polling.yaml
+   * their rates are defined in the sr_ethercat_hand_config/rates/motor_data_polling.yaml
    * The important data are refreshed as often as possible (they have a -1. refresh
    * rate in the config file).
    *
@@ -56,51 +56,44 @@ namespace generic_updater
    * the config in seconds).
    */
   template <class CommandType>
-  class SensorUpdater :
+  class MuscleUpdater :
       public GenericUpdater<CommandType>
   {
   public:
-    SensorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    ~SensorUpdater();
+    MuscleUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
+    ~MuscleUpdater();
 
     /**
-     * Updates the initialization command to send to the hand. This function is called
-     * at each packCommand() call. Ask for the relevant information for the tactiles.
+     * Building the motor initialization command. This function is called at each packCommand() call.
+     * It builds initialization commands if the update state is operation_mode::device_update_state::INITIALIZATION.
      *
-     * @param command The command which will be sent to the palm.
-     * @return current update state
+     * @param command The command which will be sent to the motor.
+     * @return the current update state of the motor update
      */
     operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType* command);
 
     /**
-     * Updates the command to send to the hand. This function is called
-     * at each packCommand() call. Ask for the relevant information for the tactiles.
+     * Building the motor command. This function is called at each packCommand() call.
      * If an unimportant data is waiting then we send it, otherwise, we send the next
      * important data.
      *
-     * @param command The command which will be sent to the palm.
-     * @return current update state
+     * @param command The command which will be sent to the motor.
+     * @return the current update state of the motor update
      */
     operation_mode::device_update_state::DeviceUpdateState build_command(CommandType* command);
 
-    /**
-     * Will send the reset command to the tactiles, on next build
-     * command call.
-     *
-     * Simply adds the reset command to the unimportant_data_queue.
-     *
-     *
-     * @return true if RESET added to the top queue.
-     */
-    bool reset();
+  private:
+    ///are we sending the command to the even or the uneven motors.
+    int even_motors;
+
   };
 }
 
 
 /* For the emacs weenies in the crowd.
-Local Variables:
+   Local Variables:
    c-basic-offset: 2
-End:
+   End:
 */
 
-#endif /* SENSOR_UPDATER_HPP_ */
+#endif

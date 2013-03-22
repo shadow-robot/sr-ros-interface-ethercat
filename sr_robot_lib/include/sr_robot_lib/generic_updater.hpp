@@ -38,7 +38,7 @@
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+  //#include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
 }
 
 namespace operation_mode
@@ -95,7 +95,7 @@ namespace generic_updater
      * @param event
      * @param data_type The unimportant data type we want to ask for.
      */
-    void timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type);
+    void timer_callback(const ros::TimerEvent& event, int32u data_type);
 
     operation_mode::device_update_state::DeviceUpdateState update_state;
     ///Contains all the initialization data types.

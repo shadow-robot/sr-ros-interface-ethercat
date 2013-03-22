@@ -117,12 +117,43 @@ namespace shadow_joints
   {
   public:
     MuscleDriver()
+      : muscle_driver_id(0),
+        can_msgs_received_(0),
+        can_msgs_transmitted_(0),
+        pic_firmware_svn_revision_(0),
+        server_firmware_svn_revision_(0),
+        firmware_modified_(0),
+        serial_number(0),
+        assembly_date_year(0),
+        assembly_date_month(0),
+        assembly_date_day(0),
+        can_err_tx(0),
+        can_err_rx(0),
+        driver_ok(false),
+        bad_data(false)
     {
     };
 
     ~MuscleDriver()
     {
     };
+
+    int muscle_driver_id;
+    unsigned int pic_firmware_svn_revision_;
+    unsigned int server_firmware_svn_revision_;
+    bool firmware_modified_;
+    unsigned int serial_number;
+    unsigned int assembly_date_year;
+    unsigned int assembly_date_month;
+    unsigned int assembly_date_day;
+
+    unsigned int        can_err_tx;
+    unsigned int        can_err_rx;
+    uint64_t              can_msgs_transmitted_;
+    uint64_t              can_msgs_received_;
+
+    bool driver_ok;
+    bool bad_data;
   };
 
   class MuscleWrapper : public SrActuatorWrapper

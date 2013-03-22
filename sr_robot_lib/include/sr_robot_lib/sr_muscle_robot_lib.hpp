@@ -29,6 +29,8 @@
 
 #include "sr_robot_lib/sr_robot_lib.hpp"
 
+#define NUM_MUSCLE_DRIVERS      4
+
 namespace shadow_robot
 {
   template <class StatusType, class CommandType>
@@ -54,7 +56,7 @@ namespace shadow_robot
      *
      * @param command The command we're building.
      */
-    void build_command(CommandType* command);
+    void build_command(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND* command);
 
     /**
      * This function adds the diagnostics for the hand to the
@@ -95,7 +97,16 @@ namespace shadow_robot
      * @param joint_tmp The joint we want to read the data for.
      * @param status The status information that comes from the robot
      */
-    void read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS* status_data);
+    void read_additional_muscle_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
+
+    /**
+     * Read additional data from the latest message and stores it into the
+     * joints_vector.
+     *
+     * @param joint_tmp The joint we want to read the data for.
+     * @param status The status information that comes from the robot
+     */
+    void read_muscle_driver_data(boost::ptr_vector<shadow_joints::MuscleDriver>::iterator muscle_driver_tmp, StatusType* status_data);
 
     /**
      * Transforms the incoming flag as a human
@@ -107,7 +118,16 @@ namespace shadow_robot
      */
     std::vector<std::pair<std::string, bool> > humanize_flags(int flag);
 
-    unsigned int get_muscle_pressure(int muscle_driver_id, int muscle_id, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *status_data);
+    /**
+     * Decodes the pressure data for a certain muscle in a certain muscle driver from the status data structure
+     */
+    unsigned int get_muscle_pressure(int muscle_driver_id, int muscle_id, StatusType *status_data);
+
+    inline void set_muscle_driver_data_received_flags(unsigned int msg_type, int muscle_driver_id);
+
+    inline bool check_muscle_driver_data_received_flags();
+
+    void set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shift);
 
 
     boost::ptr_vector<shadow_joints::MuscleDriver> muscle_drivers_vector_;
@@ -118,18 +138,26 @@ namespace shadow_robot
      * It's build_command() is called each time the SR06::packCommand()
      * is called.
      */
-    boost::shared_ptr<generic_updater::MotorUpdater<CommandType> > motor_updater_;
+    boost::shared_ptr<generic_updater::MuscleUpdater<CommandType> > motor_updater_;
 
 
-    ///contains a queue of motor indexes to reset
-    std::queue<short, std::list<short> > reset_motors_queue;
+    ///contains a queue of muscle driver indexes to reset
+    std::queue<short, std::list<short> > reset_muscle_driver_queue;
 
 
 
-    ///The update rate for each motor information
-    std::vector<generic_updater::UpdateConfig> motor_update_rate_configs_vector;
+    ///The update rate for each muscle information
+    std::vector<generic_updater::UpdateConfig> muscle_update_rate_configs_vector;
 
-    boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
+    /**
+     *
+     * A vector to store information about a certain message from the muscle driver. First in the pair is FROM_MUSCLE_DATA_TYPE
+     * second in the pair is a bit mask where the bit in position id_muscle_driver tells if this data has been received from that muscle driver
+     * It will only contain those FROM_MUSCLE_DATA_TYPE that are considered as initialization parameters
+     */
+    std::map<unsigned int, unsigned int> from_muscle_driver_data_received_flags_;
+
+
 
   };//end class
 }//end namespace

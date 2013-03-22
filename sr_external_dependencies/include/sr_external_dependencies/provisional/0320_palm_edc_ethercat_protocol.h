@@ -236,7 +236,9 @@ typedef union
     {
         int8u       can_err_tx;
         int8u       can_err_rx;
-        int8u       nothing[6];
+        int16u      can_msgs_tx;
+        int16u      can_msgs_rx;
+        int8u       nothing[2];
     }misc;
 
     struct

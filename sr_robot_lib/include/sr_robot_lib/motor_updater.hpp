@@ -82,15 +82,6 @@ namespace generic_updater
      */
     operation_mode::device_update_state::DeviceUpdateState build_command(CommandType* command);
 
-    /**
-     * A timer callback for the unimportant data. The frequency of this callback
-     * is defined in the config file.
-     *
-     * @param event
-     * @param data_type The unimportant data type we want to ask for.
-     */
-    void timer_callback(const ros::TimerEvent& event, FROM_MOTOR_DATA_TYPE data_type);
-
   private:
     ///are we sending the command to the even or the uneven motors.
     int even_motors;
