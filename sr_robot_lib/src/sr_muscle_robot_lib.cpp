@@ -111,7 +111,7 @@ namespace shadow_robot
       if ((muscle_wrapper->muscle_driver_id[0] == -1))
         continue;
 
-      read_additional_data(joint_tmp, status_data);
+      read_additional_muscle_data(joint_tmp, status_data);
     } //end for joint
   } //end update()
 
@@ -144,6 +144,7 @@ namespace shadow_robot
       for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
       {
         boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
+        sr_actuator::SrMuscleActuator* muscle_actuator = static_cast<sr_actuator::SrMuscleActuator*>(muscle_wrapper->actuator);
 
         unsigned int muscle_driver_id_0 = muscle_wrapper->muscle_driver_id[0];
         unsigned int muscle_driver_id_1 = muscle_wrapper->muscle_driver_id[1];
@@ -154,14 +155,20 @@ namespace shadow_robot
         {
           if( !this->nullify_demand_ )
           {
-            set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shift)
-            //We send the computed demand
-            command->muscle_data[muscle_wrapper->muscle_driver_id[0]] = muscle_wrapper->actuator->command_.effort_;
+            set_valve_demand(&(command->muscle_data[(muscle_driver_id_0 * 10 + muscle_id_0) / 2]), muscle_actuator->command_.valve_[0], ((uint8_t)muscle_id_0) & 0x01);
+            set_valve_demand(&(command->muscle_data[(muscle_driver_id_1 * 10 + muscle_id_1) / 2]), muscle_actuator->command_.valve_[1], ((uint8_t)muscle_id_1) & 0x01);
+
+            muscle_actuator->state_.last_commanded_valve_[0] = muscle_actuator->command_.valve_[0];
+            muscle_actuator->state_.last_commanded_valve_[1] = muscle_actuator->command_.valve_[1];
           }
           else
           {
             //We want to send a demand of 0
-            command->motor_data[muscle_wrapper->motor_id] = 0;
+            set_valve_demand(&(command->muscle_data[(muscle_driver_id_0 * 10 + muscle_id_0) / 2]), 0, ((uint8_t)muscle_id_0) & 0x01);
+            set_valve_demand(&(command->muscle_data[(muscle_driver_id_1 * 10 + muscle_id_1) / 2]), 0, ((uint8_t)muscle_id_1) & 0x01);
+
+            muscle_actuator->state_.last_commanded_valve_[0] = 0;
+            muscle_actuator->state_.last_commanded_valve_[1] = 0;
           }
 
 #ifdef DEBUG_PUBLISHER
@@ -194,54 +201,55 @@ namespace shadow_robot
           } //end try_lock
 #endif
 
-          //joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
         } //end if has_actuator
       } // end for each joint
     } //endif
     else
     {
-      //reset the CAN messages counters for the motor we're going to reset.
-      short motor_id = reset_muscle_driver_queue.front();
-      boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = this->joints_vector.begin();
-      for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
-      {
-        boost::shared_ptr<shadow_joints::MotorWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
-        sr_actuator::SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
-
-        if( muscle_wrapper->motor_id == motor_id )
-        {
-          actuator_state->can_msgs_transmitted_ = 0;
-          actuator_state->can_msgs_received_ = 0;
-        }
-      }
-
       //we have some reset command waiting.
       // We'll send all of them
-      command->to_motor_data_type = MOTOR_SYSTEM_RESET;
+      command->to_muscle_data_type = MUSCLE_SYSTEM_RESET;
 
       while (!reset_muscle_driver_queue.empty())
       {
-        motor_id = reset_muscle_driver_queue.front();
+        short muscle_driver_id = reset_muscle_driver_queue.front();
         reset_muscle_driver_queue.pop();
 
-        // we send the MOTOR_RESET_SYSTEM_KEY
-        // and the motor id (on the bus)
-        crc_unions::union16 to_send;
-        to_send.byte[1] = MOTOR_SYSTEM_RESET_KEY >> 8;
-        if (motor_id > 9)
-          to_send.byte[0] = motor_id - 10;
-        else
-          to_send.byte[0] = motor_id;
+        //reset the CAN messages counters for the motor we're going to reset.
+        boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = this->joints_vector.begin();
+        for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
+        {
+          boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
+          sr_actuator::SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
 
-        command->motor_data[motor_id] = to_send.word;
+          if( muscle_wrapper->muscle_driver_id == muscle_driver_id )
+          {
+            actuator_state->can_msgs_transmitted_ = 0;
+            actuator_state->can_msgs_received_ = 0;
+          }
+        }
+
+        // we send the MUSCLE_SYSTEM_RESET_KEY
+        // and the muscle_driver_id (on the bus)
+        crc_unions::union16 to_send;
+        to_send.byte[1] = MUSCLE_SYSTEM_RESET_KEY >> 8;
+        if (muscle_driver_id > 1)
+          to_send.byte[0] = muscle_driver_id - 2;
+        else
+          to_send.byte[0] = muscle_driver_id;
+
+        command->muscle_data[muscle_driver_id * 5] = to_send.byte[0];
+        command->muscle_data[muscle_driver_id * 5 + 1] = to_send.byte[1];
       }
     } // end if reset queue not empty
   }
 
   template <class StatusType, class CommandType>
-  void SrMuscleRobotLib<StatusType, CommandType>::set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shift)
+  inline void SrMuscleRobotLib<StatusType, CommandType>::set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shifting_index)
   {
     uint8_t tmp_valve = 0;
+    uint8_t shift = 1;
+
     //The encoding we want for the negative integers is represented in two's complement, but based on a 4 bit data size instead of 8 bit, so
     // we'll have to do it manually
     if (valve_value < 0)
@@ -253,11 +261,21 @@ namespace shadow_robot
       //Add one
       tmp_valve = tmp_valve + 1;
     }
-    else
+    else //Positive representation is straightforward
     {
-      tmp_valve = valve_value;
+      tmp_valve = valve_value & 0x0F;
     }
 
+    //A shifting_index of 0 means that we want to write the value on the 4 most significant bits
+    // shifting_index of 1 means that we want to write the value on the 4 least significant bits
+
+    if (shifting_index == 1)
+      shift = 0;
+
+    //We zero the 4 bits that we want to write our valve value on
+    *muscle_data_byte_to_set &= (0xF0 >> (shift * 4) );
+    //We write our valve value on those 4 bits
+    *muscle_data_byte_to_set |= (tmp_valve << (shift * 4) );
   }
 
   template <class StatusType, class CommandType>
@@ -272,11 +290,11 @@ namespace shadow_robot
       name << "SRDMotor " << joint->joint_name;
       d.name = name.str();
 
-      boost::shared_ptr<shadow_joints::MotorWrapper> actuator_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper);
+      boost::shared_ptr<shadow_joints::MuscleWrapper> actuator_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint->actuator_wrapper);
 
       if (joint->has_actuator)
       {
-        const sr_actuator::SrMotorActuatorState *state(&(actuator_wrapper->actuator)->state_);
+        const sr_actuator::SrMuscleActuatorState *state(&(actuator_wrapper->actuator)->state_);
 
         if (actuator_wrapper->actuator_ok)
         {
@@ -285,91 +303,33 @@ namespace shadow_robot
             d.summary(d.WARN, "WARNING, bad CAN data received");
 
             d.clear();
-            d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
+            d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
+            d.addf("Muscle driver ID", "%d", actuator_wrapper->muscle_driver_id);
           }
           else //the data is good
           {
             d.summary(d.OK, "OK");
 
             d.clear();
-            d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
-            d.addf("Motor ID in message", "%d", actuator_wrapper->msg_motor_id);
-            d.addf("Serial Number", "%d", state->serial_number );
-            d.addf("Assembly date", "%d / %d / %d", state->assembly_data_day, state->assembly_data_month, state->assembly_data_year );
-
-            d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
-            d.addf("Strain Gauge Right", "%d", state->strain_gauge_right_);
-
-            //if some flags are set
-            std::stringstream ss;
-            if (state->flags_.size() > 0)
-            {
-              int flags_seriousness = d.OK;
-              std::pair<std::string, bool> flag;
-              BOOST_FOREACH(flag, state->flags_)
-              {
-                //Serious error flag
-                if (flag.second)
-                  flags_seriousness = d.ERROR;
-
-                if (flags_seriousness != d.ERROR)
-                  flags_seriousness = d.WARN;
-                ss << flag.first << " | ";
-              }
-              d.summary(flags_seriousness, ss.str().c_str());
-            }
-            else
-              ss << " None";
-            d.addf("Motor Flags", "%s", ss.str().c_str());
-
-            d.addf("Measured PWM", "%d", state->pwm_);
-            d.addf("Measured Current", "%f", state->last_measured_current_);
-            d.addf("Measured Voltage", "%f", state->motor_voltage_);
-            d.addf("Measured Effort", "%f", state->last_measured_effort_);
-            d.addf("Temperature", "%f", state->temperature_);
+            d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
+            d.addf("Muscle driver ID", "%d", actuator_wrapper->muscle_driver_id);
 
             d.addf("Unfiltered position", "%f", state->position_unfiltered_);
-            d.addf("Unfiltered force", "%f", state->force_unfiltered_);
 
-            d.addf("Gear Ratio", "%d", state->motor_gear_ratio);
+            d.addf("Last Commanded Valve 0", "%f", state->last_commanded_valve_[0]);
+            d.addf("Last Commanded Valve 1", "%f", state->last_commanded_valve_[1]);
 
-            d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
-            d.addf("Number of CAN messages transmitted", "%lld", state->can_msgs_transmitted_);
-
-            d.addf("Force control Pterm", "%d", state->force_control_pterm);
-            d.addf("Force control Iterm", "%d", state->force_control_iterm);
-            d.addf("Force control Dterm", "%d", state->force_control_dterm);
-
-            d.addf("Force control F", "%d", state->force_control_f_);
-            d.addf("Force control P", "%d", state->force_control_p_);
-            d.addf("Force control I", "%d", state->force_control_i_);
-            d.addf("Force control D", "%d", state->force_control_d_);
-            d.addf("Force control Imax", "%d", state->force_control_imax_);
-            d.addf("Force control Deadband", "%d", state->force_control_deadband_);
-            d.addf("Force control Frequency", "%d", state->force_control_frequency_);
-
-            if (state->force_control_sign_ == 0)
-              d.addf("Force control Sign", "+");
-            else
-              d.addf("Force control Sign", "-");
-
-            d.addf("Last Commanded Effort", "%f", state->last_commanded_effort_);
+            d.addf("Unfiltered Pressure 0", "%f", state->pressure_[0]);
+            d.addf("Unfiltered Pressure 1", "%f", state->pressure_[1]);
 
             d.addf("Encoder Position", "%f", state->position_);
-
-            if (state->firmware_modified_)
-              d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / True",
-                     state->server_firmware_svn_revision_, state->pic_firmware_svn_revision_);
-            else
-              d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False",
-                     state->server_firmware_svn_revision_, state->pic_firmware_svn_revision_);
           }
         }
         else
         {
           d.summary(d.ERROR, "Motor error");
           d.clear();
-          d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
+          d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
         }
       }
       else
@@ -380,6 +340,54 @@ namespace shadow_robot
       vec.push_back(d);
 
     } //end for each joints
+
+
+    boost::ptr_vector<shadow_joints::MuscleDriver>::iterator muscle_driver = this->muscle_drivers_vector_.begin();
+    for (; muscle_driver != this->muscle_drivers_vector_.end(); ++muscle_driver)
+    {
+      std::stringstream name;
+      name.str("");
+      name << "Muscle driver " << muscle_driver->muscle_driver_id;
+      d.name = name.str();
+
+      if (muscle_driver->driver_ok)
+      {
+        if (actuator_wrapper->bad_data)
+        {
+          d.summary(d.WARN, "WARNING, bad CAN data received");
+
+          d.clear();
+          d.addf("Muscle Driver ID", "%d", muscle_driver->muscle_driver_id);
+        }
+        else //the data is good
+        {
+          d.summary(d.OK, "OK");
+
+          d.clear();
+          d.addf("Muscle Driver ID", "%d", muscle_driver->muscle_driver_id);
+          d.addf("Serial Number", "%d", muscle_driver->serial_number );
+          d.addf("Assembly date", "%d / %d / %d", muscle_driver->assembly_date_day, muscle_driver->assembly_date_month, muscle_driver->assembly_date_year );
+
+          d.addf("Number of CAN messages received", "%lld", muscle_driver->can_msgs_received_);
+          d.addf("Number of CAN messages transmitted", "%lld", muscle_driver->can_msgs_transmitted_);
+
+          if (muscle_driver->firmware_modified_)
+            d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / True",
+                   muscle_driver->server_firmware_svn_revision_, muscle_driver->pic_firmware_svn_revision_);
+          else
+            d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False",
+                   muscle_driver->server_firmware_svn_revision_, muscle_driver->pic_firmware_svn_revision_);
+        }
+      }
+      else
+      {
+        d.summary(d.ERROR, "Muscle Driver error");
+        d.clear();
+        d.addf("Muscle Driver ID", "%d", muscle_driver->muscle_driver_id);
+      }
+
+      vec.push_back(d);
+    } //end for each muscle driver
 
   }
 

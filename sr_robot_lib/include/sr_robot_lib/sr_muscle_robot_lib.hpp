@@ -127,7 +127,16 @@ namespace shadow_robot
 
     inline bool check_muscle_driver_data_received_flags();
 
-    void set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shift);
+    /**
+     * Encodes the required valve value in a 4 bit 2's complement format, and writes it in
+     * the most significant or less significant half of the pointed byte (muscle_data_byte_to_set) depending on
+     * the value of shifting_index.
+     *
+     * @param muscle_data_byte_to_set pointer to the byte where we want to write the result
+     * @param valve_value the integer value of the valve demand
+     * @param shifting_index if 0, valve is written on the 4 MSB of muscle_data_byte_to_set, if 1 on the 4 LSB
+     */
+    inline void set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shifting_index);
 
 
     boost::ptr_vector<shadow_joints::MuscleDriver> muscle_drivers_vector_;
