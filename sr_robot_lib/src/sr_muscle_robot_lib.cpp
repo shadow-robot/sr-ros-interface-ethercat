@@ -116,7 +116,7 @@ namespace shadow_robot
   } //end update()
 
   template <class StatusType, class CommandType>
-  void SrMuscleRobotLib<StatusType, CommandType>::build_command(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND* command)
+  void SrMuscleRobotLib<StatusType, CommandType>::build_command(CommandType* command)
   {
     if (muscle_current_state == operation_mode::device_update_state::INITIALIZATION)
     {

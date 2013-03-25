@@ -1,32 +1,31 @@
 /**
- * @file   sr_hand_lib.cpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
- * @date   Fri Jun  3 13:05:10 2011
+ * @file   sr_muscle_hand_lib.cpp
+ * @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+ * @date   Tue Mar  19 17:12:13 2013
  *
-*
-* Copyright 2011 Shadow Robot Company Ltd.
-*
-* This program is free software: you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*
- * @brief This is a library for the etherCAT hand.
+ *
+ * Copyright 2013 Shadow Robot Company Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @brief This is a library for the etherCAT muscle hand.
  * You can find it instantiated in the sr_edc_ethercat_drivers.
  *
  *
  */
 
-#include "sr_robot_lib/sr_hand_lib.hpp"
+#include "sr_robot_lib/sr_muscle_hand_lib.hpp"
 #include <algorithm>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
@@ -38,54 +37,59 @@
 namespace shadow_robot
 {
   template <class StatusType, class CommandType>
-  const int SrHandLib<StatusType, CommandType>::nb_motor_data = 14;
+  const int SrMuscleHandLib<StatusType, CommandType>::nb_muscle_data = 3;
 
   template <class StatusType, class CommandType>
-  const char* SrHandLib<StatusType, CommandType>::human_readable_motor_data_types[nb_motor_data] = {"sgl", "sgr", "pwm", "flags", "current",
-                                                                           "voltage", "temperature", "can_num_received",
-                                                                           "can_num_transmitted", "slow_data",
-                                                                           "can_error_counters",
-                                                                           "pterm", "iterm", "dterm"};
+  const char* SrMuscleHandLib<StatusType, CommandType>::human_readable_muscle_data_types[nb_muscle_data] = {"MUSCLE_DATA_PRESSURE",
+                                                                                                            "MUSCLE_DATA_CAN_STATS",
+                                                                                                            "MUSCLE_DATA_SLOW_MISC"};
 
   template <class StatusType, class CommandType>
-  const int32u SrHandLib<StatusType, CommandType>::motor_data_types[nb_motor_data] = {MOTOR_DATA_SGL, MOTOR_DATA_SGR,
-                                                             MOTOR_DATA_PWM, MOTOR_DATA_FLAGS,
-                                                             MOTOR_DATA_CURRENT, MOTOR_DATA_VOLTAGE,
-                                                             MOTOR_DATA_TEMPERATURE, MOTOR_DATA_CAN_NUM_RECEIVED,
-                                                             MOTOR_DATA_CAN_NUM_TRANSMITTED, MOTOR_DATA_SLOW_MISC,
-                                                             MOTOR_DATA_CAN_ERROR_COUNTERS,
-                                                             MOTOR_DATA_PTERM, MOTOR_DATA_ITERM,
-                                                             MOTOR_DATA_DTERM};
+  const int32u SrMuscleHandLib<StatusType, CommandType>::muscle_data_types[nb_muscle_data] = {MUSCLE_DATA_PRESSURE,
+                                                                                            MUSCLE_DATA_CAN_STATS,
+                                                                                            MUSCLE_DATA_SLOW_MISC};
 
 
   template <class StatusType, class CommandType>
-  SrHandLib<StatusType, CommandType>::SrHandLib(pr2_hardware_interface::HardwareInterface *hw) :
+  SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(pr2_hardware_interface::HardwareInterface *hw) :
     SrMotorRobotLib<StatusType, CommandType>(hw)
   {
     //read the motor polling frequency from the parameter server
-    this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data, human_readable_motor_data_types, motor_data_types);
-    this->motor_updater_ = boost::shared_ptr<generic_updater::MotorUpdater<CommandType> >(new generic_updater::MotorUpdater<CommandType>(this->motor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
+    this->muscle_update_rate_configs_vector = this->read_update_rate_configs("muscle_data_update_rate/", nb_muscle_data, human_readable_muscle_data_types, muscle_data_types);
+    this->muscle_updater_ = boost::shared_ptr<generic_updater::MuscleUpdater<CommandType> >(new generic_updater::MuscleUpdater<CommandType>(this->muscle_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
 
-    //TODO: read this from config/EEProm?
+    for(unsigned int i=0; i< this->muscle_update_rate_configs_vector.size(); ++i)
+    {
+      //The initialization parameters (assigned a -2 in the config file) are introduced in the flags map that will allow us to determine
+      //if the data has been received from every muscle driver
+      if(this->muscle_update_rate_configs_vector[i].when_to_update == -2)
+        this->from_muscle_driver_data_received_flags_[this->muscle_update_rate_configs_vector[i].what_to_update] = 0;
+    }
+
+    for(unsigned int i=0; i< NUM_MUSCLE_DRIVERS; ++i)
+    {
+      this->muscle_drivers_vector_.push_back(new shadow_joints::MuscleDriver(i) );
+    }
+
     std::vector<shadow_joints::JointToSensor > joint_to_sensor_vect = this->read_joint_to_sensor_mapping();
 
     //initializing the joints vector
     std::vector<std::string> joint_names_tmp;
-    std::vector<int> motor_ids = read_joint_to_motor_mapping();
+    std::vector<shadow_joints::JointToMuscle> joint_to_muscle_map = read_joint_to_muscle_mapping();
     std::vector<shadow_joints::JointToSensor > joints_to_sensors;
     std::vector<sr_actuator::SrGenericActuator*> actuators;
 
-    ROS_ASSERT(motor_ids.size() == JOINTS_NUM_0220);
-    ROS_ASSERT(joint_to_sensor_vect.size() == JOINTS_NUM_0220);
+    ROS_ASSERT(joint_to_muscle_map.size() == JOINTS_NUM_0320);
+    ROS_ASSERT(joint_to_sensor_vect.size() == JOINTS_NUM_0320);
 
-    for(unsigned int i=0; i< JOINTS_NUM_0220; ++i)
+    for(unsigned int i=0; i< JOINTS_NUM_0320; ++i)
     {
       joint_names_tmp.push_back(std::string(joint_names[i]));
       shadow_joints::JointToSensor tmp_jts = joint_to_sensor_vect[i];
       joints_to_sensors.push_back(tmp_jts);
 
       //initializing the actuators.
-      sr_actuator::SrActuator* actuator = new sr_actuator::SrActuator(joint_names[i]);
+      sr_actuator::SrMuscleActuator* actuator = new sr_actuator::SrMuscleActuator(joint_names[i]);
       ROS_INFO_STREAM("adding actuator: "<<joint_names[i]);
       actuators.push_back( actuator );
 
@@ -97,20 +101,20 @@ namespace shadow_robot
         }
       }
     }
-    initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect, actuators);
+    initialize(joint_names_tmp, joint_to_muscle_map, joint_to_sensor_vect, actuators);
 
     //Initialize the motor data checker
-    this->motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(this->joints_vector, this->motor_updater_->initialization_configs_vector));
+    this->motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(this->joints_vector, this->muscle_updater_->initialization_configs_vector));
 
 
 #ifdef DEBUG_PUBLISHER
     //advertise the debug service, used to set which data we want to publish on the debug topics
-    debug_service = this->nh_tilde.advertiseService( "set_debug_publishers", &SrHandLib::set_debug_data_to_publish, this);
+    debug_service = this->nh_tilde.advertiseService( "set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this);
 #endif
   }
 
   template <class StatusType, class CommandType>
-  SrHandLib<StatusType, CommandType>::~SrHandLib()
+  SrMuscleHandLib<StatusType, CommandType>::~SrMuscleHandLib()
   {
     boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
     for(;joint != this->joints_vector.end(); ++joint)
@@ -120,8 +124,17 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  void SrHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
-                             std::vector<int> motor_ids,
+  void SrMuscleHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
+                             std::vector<int> actuator_ids,
+                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
+                             std::vector<sr_actuator::SrGenericActuator*> actuators)
+  {
+
+  }
+
+  template <class StatusType, class CommandType>
+  void SrMuscleHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
+                             std::vector<shadow_joints::JointToMuscle> actuator_ids,
                              std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                              std::vector<sr_actuator::SrGenericActuator*> actuators)
   {
@@ -137,14 +150,14 @@ namespace shadow_robot
       joint->joint_name = joint_names[index];
       joint->joint_to_sensor = joint_to_sensors[index];
 
-      if(motor_ids[index] == -1) //no motor associated to this joint
+      if(actuator_ids[index] == -1) //no motor associated to this joint
         joint->has_actuator = false;
       else
         joint->has_actuator = true;
 
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
       joint->actuator_wrapper    = motor_wrapper;
-      motor_wrapper->motor_id = motor_ids[index];
+      motor_wrapper->motor_id = actuator_ids[index];
       motor_wrapper->actuator = actuators[index];
 
       std::stringstream ss;
@@ -152,19 +165,19 @@ namespace shadow_robot
       //initialize the force pid service
       //NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that we are using an explicit template function inside this template class
       motor_wrapper->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>( ss.str().c_str(),
-                                                                                                                                                            boost::bind( &SrHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id) );
+                                                                                                                                                            boost::bind( &SrMuscleHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id) );
 
       ss.str("");
       ss << "reset_motor_" << joint_names[index];
       //initialize the reset motor service
       motor_wrapper->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>( ss.str().c_str(),
-                                                                                                                                boost::bind( &SrHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(motor_wrapper->motor_id, joint->joint_name) ) );
+                                                                                                                                boost::bind( &SrMuscleHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(motor_wrapper->motor_id, joint->joint_name) ) );
 
     } //end for joints.
   }
 
   template <class StatusType, class CommandType>
-  bool SrHandLib<StatusType, CommandType>::reset_motor_callback(std_srvs::Empty::Request& request,
+  bool SrMuscleHandLib<StatusType, CommandType>::reset_motor_callback(std_srvs::Empty::Request& request,
                                        std_srvs::Empty::Response& response,
                                        std::pair<int,std::string> joint)
   {
@@ -180,7 +193,7 @@ namespace shadow_robot
 */
 
     pid_timers[ joint_name ] = this->nh_tilde.createTimer( ros::Duration(3.0),
-                                                     boost::bind(&SrHandLib::resend_pids, this, joint_name, joint.first),
+                                                     boost::bind(&SrMuscleHandLib::resend_pids, this, joint_name, joint.first),
                                                      true );
 
 
@@ -188,198 +201,9 @@ namespace shadow_robot
   }
 
 
-  template <class StatusType, class CommandType>
-  void SrHandLib<StatusType, CommandType>::resend_pids(std::string joint_name, int motor_index)
-  {
-    //read the parameters from the parameter server and set the pid
-    // values.
-    std::stringstream full_param;
-
-    int f, p, i, d, imax, max_pwm, sg_left, sg_right, deadband, sign;
-    std::string act_name = boost::to_lower_copy(joint_name);
-
-    full_param << "/" << act_name << "/pid/f";
-    this->nodehandle_.template param<int>(full_param.str(), f, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/p";
-    this->nodehandle_.template param<int>(full_param.str(), p, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/i";
-    this->nodehandle_.template param<int>(full_param.str(), i, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/d";
-    this->nodehandle_.template param<int>(full_param.str(), d, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/imax";
-    this->nodehandle_.template param<int>(full_param.str(), imax, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/max_pwm";
-    this->nodehandle_.template param<int>(full_param.str(), max_pwm, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/sgleftref";
-    this->nodehandle_.template param<int>(full_param.str(), sg_left, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/sgrightref";
-    this->nodehandle_.template param<int>(full_param.str(), sg_right, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/deadband";
-    this->nodehandle_.template param<int>(full_param.str(), deadband, 0);
-    full_param.str("");
-    full_param << "/" << act_name << "/pid/sign";
-    this->nodehandle_.template param<int>(full_param.str(), sign, 0);
-    full_param.str("");
-
-    sr_robot_msgs::ForceController::Request pid_request;
-    pid_request.maxpwm = max_pwm;
-    pid_request.sgleftref = sg_left;
-    pid_request.sgrightref = sg_right;
-    pid_request.f = f;
-    pid_request.p = p;
-    pid_request.i = i;
-    pid_request.d = d;
-    pid_request.imax = imax;
-    pid_request.deadband = deadband;
-    pid_request.sign = sign;
-    sr_robot_msgs::ForceController::Response pid_response;
-    bool pid_success = force_pid_callback(pid_request, pid_response, motor_index );
-
-    //setting the backlash compensation (on or off)
-    bool backlash_compensation;
-    full_param << "/" << act_name << "/backlash_compensation";
-    this->nodehandle_.template param<bool>(full_param.str(), backlash_compensation, true);
-    full_param.str("");
-    sr_robot_msgs::ChangeMotorSystemControls::Request backlash_request;
-    sr_robot_msgs::MotorSystemControls motor_sys_ctrl;
-    motor_sys_ctrl.motor_id = motor_index;
-    motor_sys_ctrl.enable_backlash_compensation = backlash_compensation;
-
-    if( !backlash_compensation)
-      ROS_INFO_STREAM( "Setting backlash compensation to OFF for joint " << act_name );
-
-    backlash_request.motor_system_controls.push_back(motor_sys_ctrl);
-    sr_robot_msgs::ChangeMotorSystemControls::Response backlash_response;
-    bool backlash_success = this->motor_system_controls_callback_( backlash_request, backlash_response );
-
-    if( !pid_success )
-      ROS_WARN_STREAM( "Didn't load the force pid settings for the motor in joint " << act_name );
-    if( !backlash_success )
-      ROS_WARN_STREAM( "Didn't set the backlash compensation correctly for the motor in joint " << act_name );
-  }
-
 
   template <class StatusType, class CommandType>
-  bool SrHandLib<StatusType, CommandType>::force_pid_callback(sr_robot_msgs::ForceController::Request& request,
-                                     sr_robot_msgs::ForceController::Response& response,
-                                     int motor_index)
-  {
-    ROS_INFO_STREAM("Received new force PID parameters for motor " << motor_index);
-
-    //Check the parameters are in the correct ranges
-    if( motor_index > 20 )
-    {
-      ROS_WARN_STREAM(" Wrong motor index specified: " << motor_index);
-      response.configured = false;;
-      return false;
-    }
-
-    if( !( (request.maxpwm >= MOTOR_DEMAND_PWM_RANGE_MIN) &&
-           (request.maxpwm <= MOTOR_DEMAND_PWM_RANGE_MAX) )
-      )
-    {
-      ROS_WARN_STREAM(" pid parameter maxpwm is out of range : " << request.maxpwm << " -> not in [" <<
-                      MOTOR_DEMAND_PWM_RANGE_MIN << " ; " << MOTOR_DEMAND_PWM_RANGE_MAX << "]");
-      response.configured = false;
-      return false;
-    }
-
-    if( !( (request.f >= MOTOR_CONFIG_F_RANGE_MIN) &&
-           (request.maxpwm <= MOTOR_CONFIG_F_RANGE_MAX) )
-      )
-    {
-      ROS_WARN_STREAM(" pid parameter f is out of range : " << request.f << " -> not in [" <<
-                      MOTOR_CONFIG_F_RANGE_MIN << " ; " << MOTOR_CONFIG_F_RANGE_MAX << "]");
-      response.configured = false;
-      return false;
-    }
-
-    if( !( (request.p >= MOTOR_CONFIG_P_RANGE_MIN) &&
-           (request.p <= MOTOR_CONFIG_P_RANGE_MAX) )
-      )
-    {
-      ROS_WARN_STREAM(" pid parameter p is out of range : " << request.p << " -> not in [" <<
-                      MOTOR_CONFIG_P_RANGE_MIN << " ; " << MOTOR_CONFIG_P_RANGE_MAX << "]");
-      response.configured = false;
-      return false;
-    }
-
-    if( !( (request.i >= MOTOR_CONFIG_I_RANGE_MIN) &&
-           (request.i <= MOTOR_CONFIG_I_RANGE_MAX) )
-      )
-    {
-      ROS_WARN_STREAM(" pid parameter i is out of range : " << request.i << " -> not in [" <<
-                      MOTOR_CONFIG_I_RANGE_MIN << " ; " << MOTOR_CONFIG_I_RANGE_MAX << "]");
-      response.configured = false;
-      return false;
-    }
-
-    if( !( (request.d >= MOTOR_CONFIG_D_RANGE_MIN) &&
-           (request.d <= MOTOR_CONFIG_D_RANGE_MAX) )
-      )
-    {
-      ROS_WARN_STREAM(" pid parameter d is out of range : " << request.d << " -> not in [" <<
-                      MOTOR_CONFIG_D_RANGE_MIN << " ; " << MOTOR_CONFIG_D_RANGE_MAX << "]");
-      response.configured = false;
-      return false;
-    }
-
-    if( !( (request.imax >= MOTOR_CONFIG_IMAX_RANGE_MIN) &&
-           (request.imax <= MOTOR_CONFIG_IMAX_RANGE_MAX) )
-      )
-    {
-      ROS_WARN_STREAM(" pid parameter imax is out of range : " << request.imax << " -> not in [" <<
-                      MOTOR_CONFIG_IMAX_RANGE_MIN << " ; " << MOTOR_CONFIG_IMAX_RANGE_MAX << "]");
-      response.configured = false;
-      return false;
-    }
-
-    if( !( (request.deadband >= MOTOR_CONFIG_DEADBAND_RANGE_MIN) &&
-           (request.deadband <= MOTOR_CONFIG_DEADBAND_RANGE_MAX) )
-      )
-    {
-      ROS_WARN_STREAM(" pid parameter deadband is out of range : " << request.deadband << " -> not in [" <<
-                      MOTOR_CONFIG_DEADBAND_RANGE_MIN << " ; " << MOTOR_CONFIG_DEADBAND_RANGE_MAX << "]");
-      response.configured = false;
-      return false;
-    }
-
-    if( !( (request.sign >= MOTOR_CONFIG_SIGN_RANGE_MIN) &&
-           (request.sign <= MOTOR_CONFIG_SIGN_RANGE_MAX) )
-      )
-    {
-      ROS_WARN_STREAM(" pid parameter sign is out of range : " << request.sign << " -> not in [" <<
-                      MOTOR_CONFIG_SIGN_RANGE_MIN << " ; " << MOTOR_CONFIG_SIGN_RANGE_MAX << "]");
-      response.configured = false;
-      return false;
-    }
-
-    //ok, the parameters sent are coherent, send the demand to the motor.
-    this->generate_force_control_config( motor_index, request.maxpwm, request.sgleftref,
-                                   request.sgrightref, request.f, request.p, request.i,
-                                   request.d, request.imax, request.deadband, request.sign );
-
-    update_force_control_in_param_server( find_joint_name(motor_index), request.maxpwm, request.sgleftref,
-                                     request.sgrightref, request.f, request.p, request.i,
-                                     request.d, request.imax, request.deadband, request.sign);
-    response.configured = true;
-
-    //Reinitialize motors information
-    this->reinitialize_motors();
-
-    return true;
-  }
-
-  template <class StatusType, class CommandType>
-  std::string SrHandLib<StatusType, CommandType>::find_joint_name(int motor_index)
+  std::string SrMuscleHandLib<StatusType, CommandType>::find_joint_name(int motor_index)
   {
     for( boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
         joint != this->joints_vector.end(); ++joint )
@@ -394,52 +218,12 @@ namespace shadow_robot
     return "";
   }
 
-  template <class StatusType, class CommandType>
-  void SrHandLib<StatusType, CommandType>::update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p,
-                                                     int i, int d, int imax, int deadband, int sign)
-  {
-    if(joint_name != "")
-    {
-      std::stringstream full_param;
-      std::string act_name = boost::to_lower_copy(joint_name);
-
-      full_param << "/" << act_name << "/pid/f";
-      this->nodehandle_.setParam(full_param.str(), f);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/p";
-      this->nodehandle_.setParam(full_param.str(), p);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/i";
-      this->nodehandle_.setParam(full_param.str(), i);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/d";
-      this->nodehandle_.setParam(full_param.str(), d);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/imax";
-      this->nodehandle_.setParam(full_param.str(), imax);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/max_pwm";
-      this->nodehandle_.setParam(full_param.str(), max_pwm);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/sgleftref";
-      this->nodehandle_.setParam(full_param.str(), sg_left);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/sgrightref";
-      this->nodehandle_.setParam(full_param.str(), sg_right);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/deadband";
-      this->nodehandle_.setParam(full_param.str(), deadband);
-      full_param.str("");
-      full_param << "/" << act_name << "/pid/sign";
-      this->nodehandle_.setParam(full_param.str(), sign);
-    }
-  }
 
   template <class StatusType, class CommandType>
-  std::vector<int> SrHandLib<StatusType, CommandType>::read_joint_to_motor_mapping()
+  std::vector<shadow_joints::JointToMuscle> SrMuscleHandLib<StatusType, CommandType>::read_joint_to_muscle_mapping()
   {
-    std::vector<int> motor_ids;
-    std::string param_name = "joint_to_motor_mapping";
+    std::vector<shadow_joints::JointToMuscle> muscle_map;
+    std::string param_name = "joint_to_muscle_mapping";
 
     XmlRpc::XmlRpcValue mapping;
     this->nodehandle_.getParam(param_name, mapping);
@@ -447,17 +231,33 @@ namespace shadow_robot
     //iterate on all the joints
     for(int32_t i = 0; i < mapping.size(); ++i)
     {
-      ROS_ASSERT(mapping[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
-      motor_ids.push_back(static_cast<int>(mapping[i]));
+      ROS_ASSERT(mapping[i].getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+      ROS_ASSERT(mapping[i][0].getType() == XmlRpc::XmlRpcValue::TypeArray);
+      ROS_ASSERT(mapping[i][0][0].getType() == XmlRpc::XmlRpcValue::TypeInt);
+      ROS_ASSERT(mapping[i][0][1].getType() == XmlRpc::XmlRpcValue::TypeInt);
+
+      ROS_ASSERT(mapping[i][1].getType() == XmlRpc::XmlRpcValue::TypeArray);
+      ROS_ASSERT(mapping[i][1][0].getType() == XmlRpc::XmlRpcValue::TypeInt);
+      ROS_ASSERT(mapping[i][1][1].getType() == XmlRpc::XmlRpcValue::TypeInt);
+
+      shadow_joints::JointToMuscle joint_to_muscle;
+
+      joint_to_muscle.muscle_driver_id[0] = mapping[i][0][0];
+      joint_to_muscle.muscle_id[0] = mapping[i][0][1];
+      joint_to_muscle.muscle_driver_id[1] = mapping[i][1][0];
+      joint_to_muscle.muscle_id[1] = mapping[i][1][1];
+
+      muscle_map.push_back(joint_to_muscle);
     }
 
-    return motor_ids;
+    return muscle_map;
   } //end read_joint_to_motor_mapping
 
 
 #ifdef DEBUG_PUBLISHER
   template <class StatusType, class CommandType>
-  bool SrHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
+  bool SrMuscleHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
                                             sr_robot_msgs::SetDebugData::Response& response)
   {
     //check if the publisher_index is correct
@@ -504,7 +304,7 @@ namespace shadow_robot
   void never_called_function()
   {
     pr2_hardware_interface::HardwareInterface *hw;
-    SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> object1 = SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(hw);
+    SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> object1 = SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(hw);
   }
 }// end namespace
 

@@ -49,6 +49,12 @@ namespace shadow_joints
     bool calibrate_after_combining_sensors;
   };
 
+  struct JointToMuscle
+  {
+    int muscle_driver_id[2];
+    int muscle_id[2];
+  };
+
   class SrActuatorWrapper
   {
   public:
@@ -116,8 +122,8 @@ namespace shadow_joints
   class MuscleDriver
   {
   public:
-    MuscleDriver()
-      : muscle_driver_id(0),
+    MuscleDriver(int id=0)
+      : muscle_driver_id(id),
         can_msgs_received_(0),
         can_msgs_transmitted_(0),
         pic_firmware_svn_revision_(0),

@@ -1,34 +1,34 @@
 /**
- * @file   sr_hand_lib.hpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>
- * @date   Fri Jun  3 12:12:13 2011
+ * @file   sr_muscle_hand_lib.hpp
+ * @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+ * @date   Tue Mar  19 17:12:13 2013
  *
-*
-* Copyright 2011 Shadow Robot Company Ltd.
-*
-* This program is free software: you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
- * @brief This is a library for the etherCAT hand.
+ *
+ * Copyright 2013 Shadow Robot Company Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @brief This is a library for the etherCAT muscle hand.
  * You can find it instantiated in the sr_edc_ethercat_drivers.
  *
  *
  */
 
-#ifndef _SR_HAND_LIB_HPP_
-#define _SR_HAND_LIB_HPP_
+#ifndef _SR_MUSCLE_HAND_LIB_HPP_
+#define _SR_MUSCLE_HAND_LIB_HPP_
 
-#include "sr_robot_lib/sr_motor_robot_lib.hpp"
+#include "sr_robot_lib/sr_muscle_robot_lib.hpp"
 #include <std_srvs/Empty.h>
 
 //to be able to load the configuration from the
@@ -39,26 +39,12 @@
 namespace shadow_robot
 {
   template <class StatusType, class CommandType>
-  class SrHandLib : public SrMotorRobotLib<StatusType, CommandType>
+  class SrMuscleHandLib : public SrMuscleRobotLib<StatusType, CommandType>
   {
   public:
-    SrHandLib(pr2_hardware_interface::HardwareInterface *hw);
-    ~SrHandLib();
+    SrMuscleHandLib(pr2_hardware_interface::HardwareInterface *hw);
+    ~SrMuscleHandLib();
 
-    /**
-     * The service callback for setting the Force PID values. There's only one callback
-     * function, but it can called for any motors. We know which motor called the service
-     * thanks to the motor_index.
-     *
-     * @param request The request contains the new parameters for the controllers.
-     * @param response True if succeeded.
-     * @param motor_index The index of the motor for which the service has been called.
-     *
-     * @return true if succeeded.
-     */
-    bool force_pid_callback(sr_robot_msgs::ForceController::Request& request,
-                            sr_robot_msgs::ForceController::Response& response,
-                            int motor_index);
 
     /**
      * Reset the motor at motor index.
@@ -93,31 +79,26 @@ namespace shadow_robot
      * Initializes the hand library with the needed values.
      *
      * @param joint_names A vector containing all the joint names.
-     * @param motor_ids A vector containing the corresponding motor ids.
+     * @param actuator_ids A vector containing the corresponding actuator ids.
      * @param joint_to_sensors A vector mapping the joint to the sensor index we read from the palm.
      * @param actuators A vector containing the actuators for the different joints.
      */
-    virtual void initialize(std::vector<std::string> joint_names, std::vector<int> motor_ids,
+    virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                             std::vector<sr_actuator::SrGenericActuator*> actuators);
 
     /**
-     * Updates the parameter values for the force control in the Parameter Server
+     * Initializes the hand library with the needed values.
      *
-     * @param joint_name The name of the joint.
-     * @param max_pwm The max pwm the motor will apply
-     * @param sg_left Strain gauge left
-     * @param sg_right Strain gauge right
-     * @param f The feedforward term (directly adds f*error to the output of the PID)
-     * @param p The p value.
-     * @param i the i value.
-     * @param d the d value.
-     * @param imax the imax value.
-     * @param deadband the deadband on the force.
-     * @param sign can be 0 or 1 depending on the way the motor is plugged in.
+     * @param joint_names A vector containing all the joint names.
+     * @param actuator_ids A vector containing the corresponding actuator ids.
+     * @param joint_to_sensors A vector mapping the joint to the sensor index we read from the palm.
+     * @param actuators A vector containing the actuators for the different joints.
      */
-    void update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p,
-                                                       int i, int d, int imax, int deadband, int sign);
+    void initialize(std::vector<std::string> joint_names, std::vector<shadow_joints::JointToMuscle> actuator_ids,
+                            std::vector<shadow_joints::JointToSensor> joint_to_sensors,
+                            std::vector<sr_actuator::SrGenericActuator*> actuators);
+
 
     /**
      * Finds the joint name for a certain motor index
@@ -129,31 +110,22 @@ namespace shadow_robot
   private:
 
     /**
-     * Reads the mapping associating a joint to a motor.
-     * If the motor index is -1, then no motor is associated
+     * Reads the mapping associating a joint to a muscle.
+     * If the muscle index is -1, then no muscle is associated
      * to this joint.
      *
      *
-     * @return a vector of motor indexes, ordered by joint.
+     * @return a vector of JointToMuscle structures (containing the indexes of the muscles for the joint), ordered by joint.
      */
-    std::vector<int> read_joint_to_motor_mapping();
+    std::vector<shadow_joints::JointToMuscle> read_joint_to_muscle_mapping();
 
 
-    static const int nb_motor_data;
-    static const char* human_readable_motor_data_types[];
-    static const int32u motor_data_types[];
+    static const int nb_muscle_data;
+    static const char* human_readable_muscle_data_types[];
+    static const int32u muscle_data_types[];
 
     /// a service server for reconfiguring the debug data we want to publish
     ros::ServiceServer debug_service;
-
-    /**
-     * Read the motor board force pids from the parameter servers,
-     * called when resetting the motor.
-     *
-     * @param joint_name the joint we want to reset
-     * @param motor_index the index of the motor for this joint
-     */
-    void resend_pids(std::string joint_name, int motor_index);
 
     /**
      * A map used to keep the timers created in reset_motor_callback alive.

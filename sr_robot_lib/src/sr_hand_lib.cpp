@@ -121,7 +121,7 @@ namespace shadow_robot
 
   template <class StatusType, class CommandType>
   void SrHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
-                             std::vector<int> motor_ids,
+                             std::vector<int> actuator_ids,
                              std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                              std::vector<sr_actuator::SrGenericActuator*> actuators)
   {
@@ -137,14 +137,14 @@ namespace shadow_robot
       joint->joint_name = joint_names[index];
       joint->joint_to_sensor = joint_to_sensors[index];
 
-      if(motor_ids[index] == -1) //no motor associated to this joint
+      if(actuator_ids[index] == -1) //no motor associated to this joint
         joint->has_actuator = false;
       else
         joint->has_actuator = true;
 
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
       joint->actuator_wrapper    = motor_wrapper;
-      motor_wrapper->motor_id = motor_ids[index];
+      motor_wrapper->motor_id = actuator_ids[index];
       motor_wrapper->actuator = actuators[index];
 
       std::stringstream ss;

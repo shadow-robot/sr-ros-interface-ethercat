@@ -29,6 +29,8 @@
 
 #include "sr_robot_lib/sr_robot_lib.hpp"
 
+#include "sr_robot_lib/muscle_updater.hpp"
+
 #define NUM_MUSCLE_DRIVERS      4
 
 namespace shadow_robot
@@ -56,7 +58,7 @@ namespace shadow_robot
      *
      * @param command The command we're building.
      */
-    void build_command(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND* command);
+    void build_command(CommandType* command);
 
     /**
      * This function adds the diagnostics for the hand to the
@@ -78,15 +80,14 @@ namespace shadow_robot
   protected:
 
     /**
-     * Initializes the joints_vector.
+     * Initializes the hand library with the needed values.
      *
-     * @param joint_names A vector containing all the joints.
-     * @param motor_ids A vector containing the corresponding motor indexes (-1 if no motor is associated).
-     * @param joint_to_sensors The mapping between the joints and the sensors (e.g. FFJ0 = FFJ1+FFJ2)
-     * @param actuators The actuators.
+     * @param joint_names A vector containing all the joint names.
+     * @param actuator_ids A vector containing the corresponding actuator ids.
+     * @param joint_to_sensors A vector mapping the joint to the sensor index we read from the palm.
+     * @param actuators A vector containing the actuators for the different joints.
      */
-    virtual void initialize(std::vector<std::string> joint_names,
-                            std::vector<int> motor_ids,
+    virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                             std::vector<sr_actuator::SrGenericActuator*> actuators) = 0;
 
@@ -147,7 +148,7 @@ namespace shadow_robot
      * It's build_command() is called each time the SR06::packCommand()
      * is called.
      */
-    boost::shared_ptr<generic_updater::MuscleUpdater<CommandType> > motor_updater_;
+    boost::shared_ptr<generic_updater::MuscleUpdater<CommandType> > muscle_updater_;
 
 
     ///contains a queue of muscle driver indexes to reset
