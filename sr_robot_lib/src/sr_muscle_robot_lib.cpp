@@ -215,17 +215,14 @@ namespace shadow_robot
         short muscle_driver_id = reset_muscle_driver_queue.front();
         reset_muscle_driver_queue.pop();
 
-        //reset the CAN messages counters for the motor we're going to reset.
-        boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = this->joints_vector.begin();
-        for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
+        //reset the CAN messages counters for the muscle driver we're going to reset.
+        boost::ptr_vector<shadow_joints::MuscleDriver>::iterator driver = this->muscle_drivers_vector_.begin();
+        for (; driver != this->muscle_drivers_vector_.end(); ++driver)
         {
-          boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
-          sr_actuator::SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
-
-          if( muscle_wrapper->muscle_driver_id == muscle_driver_id )
+          if( driver->muscle_driver_id == muscle_driver_id)
           {
-            actuator_state->can_msgs_transmitted_ = 0;
-            actuator_state->can_msgs_received_ = 0;
+            driver->can_msgs_transmitted_ = 0;
+            driver->can_msgs_received_ = 0;
           }
         }
 
@@ -245,10 +242,9 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  inline void SrMuscleRobotLib<StatusType, CommandType>::set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shifting_index)
+  inline void SrMuscleRobotLib<StatusType, CommandType>::set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shift)
   {
     uint8_t tmp_valve = 0;
-    uint8_t shift = 1;
 
     //The encoding we want for the negative integers is represented in two's complement, but based on a 4 bit data size instead of 8 bit, so
     // we'll have to do it manually
@@ -266,11 +262,8 @@ namespace shadow_robot
       tmp_valve = valve_value & 0x0F;
     }
 
-    //A shifting_index of 0 means that we want to write the value on the 4 most significant bits
-    // shifting_index of 1 means that we want to write the value on the 4 least significant bits
-
-    if (shifting_index == 1)
-      shift = 0;
+    //A shift of 0 means that we want to write the value on the 4 least significant bits
+    // shift of 1 means that we want to write the value on the 4 most significant bits
 
     //We zero the 4 bits that we want to write our valve value on
     *muscle_data_byte_to_set &= (0xF0 >> (shift * 4) );
@@ -352,7 +345,7 @@ namespace shadow_robot
 
       if (muscle_driver->driver_ok)
       {
-        if (actuator_wrapper->bad_data)
+        if (muscle_driver->bad_data)
         {
           d.summary(d.WARN, "WARNING, bad CAN data received");
 

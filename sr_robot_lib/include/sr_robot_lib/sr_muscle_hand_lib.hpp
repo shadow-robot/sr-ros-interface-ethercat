@@ -47,18 +47,17 @@ namespace shadow_robot
 
 
     /**
-     * Reset the motor at motor index.
+     * Reset the muscle driver at motor index.
      *
      * @param request empty
      * @param response empty
-     * @param joint A pair containing the index of the motor for the given
-     *              joint followed by the name of the joint we're resetting
+     * @param muscle_driver_index The index of the muscle driver we're resetting
      *
      * @return true if success
      */
-    bool reset_motor_callback(std_srvs::Empty::Request& request,
+    bool reset_muscle_driver_callback(std_srvs::Empty::Request& request,
                               std_srvs::Empty::Response& response,
-                              std::pair<int,std::string> joint);
+                              int muscle_driver_index);
 
 #ifdef DEBUG_PUBLISHER
     /**
@@ -99,14 +98,6 @@ namespace shadow_robot
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                             std::vector<sr_actuator::SrGenericActuator*> actuators);
 
-
-    /**
-     * Finds the joint name for a certain motor index
-     *
-     * @param motor_index The integer motor index
-     */
-    std::string find_joint_name(int motor_index);
-
   private:
 
     /**
@@ -127,11 +118,6 @@ namespace shadow_robot
     /// a service server for reconfiguring the debug data we want to publish
     ros::ServiceServer debug_service;
 
-    /**
-     * A map used to keep the timers created in reset_motor_callback alive.
-     * We're using a map to keep only one timer per joint.
-     */
-    std::map<std::string, ros::Timer> pid_timers;
   };
 
 }

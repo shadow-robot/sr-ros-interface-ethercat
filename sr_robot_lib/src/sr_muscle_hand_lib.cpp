@@ -52,9 +52,9 @@ namespace shadow_robot
 
   template <class StatusType, class CommandType>
   SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(pr2_hardware_interface::HardwareInterface *hw) :
-    SrMotorRobotLib<StatusType, CommandType>(hw)
+    SrMuscleRobotLib<StatusType, CommandType>(hw)
   {
-    //read the motor polling frequency from the parameter server
+    //read the muscle polling frequency from the parameter server
     this->muscle_update_rate_configs_vector = this->read_update_rate_configs("muscle_data_update_rate/", nb_muscle_data, human_readable_muscle_data_types, muscle_data_types);
     this->muscle_updater_ = boost::shared_ptr<generic_updater::MuscleUpdater<CommandType> >(new generic_updater::MuscleUpdater<CommandType>(this->muscle_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
 
@@ -69,6 +69,15 @@ namespace shadow_robot
     for(unsigned int i=0; i< NUM_MUSCLE_DRIVERS; ++i)
     {
       this->muscle_drivers_vector_.push_back(new shadow_joints::MuscleDriver(i) );
+
+      //get the last inserted driver
+      boost::ptr_vector<shadow_joints::MuscleDriver>::reverse_iterator driver = this->muscle_drivers_vector_.rbegin();
+
+      std::stringstream ss;
+      ss << "reset_muscle_driver_" << i;
+      //initialize the reset muscle driver service
+      driver->reset_driver_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>( ss.str().c_str(),
+                                                                                                                                boost::bind( &SrMuscleHandLib<StatusType, CommandType>::reset_muscle_driver_callback, this, _1, _2, i ) );
     }
 
     std::vector<shadow_joints::JointToSensor > joint_to_sensor_vect = this->read_joint_to_sensor_mapping();
@@ -103,10 +112,6 @@ namespace shadow_robot
     }
     initialize(joint_names_tmp, joint_to_muscle_map, joint_to_sensor_vect, actuators);
 
-    //Initialize the motor data checker
-    this->motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(this->joints_vector, this->muscle_updater_->initialization_configs_vector));
-
-
 #ifdef DEBUG_PUBLISHER
     //advertise the debug service, used to set which data we want to publish on the debug topics
     debug_service = this->nh_tilde.advertiseService( "set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this);
@@ -129,7 +134,7 @@ namespace shadow_robot
                              std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                              std::vector<sr_actuator::SrGenericActuator*> actuators)
   {
-
+    ROS_ERROR("This version of SrMuscleHandLib<StatusType, CommandType>::initialize should not be used");
   }
 
   template <class StatusType, class CommandType>
@@ -150,72 +155,31 @@ namespace shadow_robot
       joint->joint_name = joint_names[index];
       joint->joint_to_sensor = joint_to_sensors[index];
 
-      if(actuator_ids[index] == -1) //no motor associated to this joint
+      if(actuator_ids[index].muscle_driver_id[0] == -1) //no muscles associated to this joint. We only check the driver 0 assuming a joint with -1 will have -1 in the driver 1 as well
         joint->has_actuator = false;
       else
         joint->has_actuator = true;
 
-      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
-      joint->actuator_wrapper    = motor_wrapper;
-      motor_wrapper->motor_id = actuator_ids[index];
-      motor_wrapper->actuator = actuators[index];
-
-      std::stringstream ss;
-      ss << "change_force_PID_" << joint_names[index];
-      //initialize the force pid service
-      //NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that we are using an explicit template function inside this template class
-      motor_wrapper->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>( ss.str().c_str(),
-                                                                                                                                                            boost::bind( &SrMuscleHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id) );
-
-      ss.str("");
-      ss << "reset_motor_" << joint_names[index];
-      //initialize the reset motor service
-      motor_wrapper->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>( ss.str().c_str(),
-                                                                                                                                boost::bind( &SrMuscleHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(motor_wrapper->motor_id, joint->joint_name) ) );
-
+      boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper ( new shadow_joints::MuscleWrapper() );
+      joint->actuator_wrapper    = muscle_wrapper;
+      muscle_wrapper->muscle_driver_id[0] = actuator_ids[index].muscle_driver_id[0];
+      muscle_wrapper->muscle_driver_id[1] = actuator_ids[index].muscle_driver_id[1];
+      muscle_wrapper->muscle_id[0] = actuator_ids[index].muscle_id[0];
+      muscle_wrapper->muscle_id[1] = actuator_ids[index].muscle_id[1];
+      muscle_wrapper->actuator = actuators[index];
     } //end for joints.
   }
 
   template <class StatusType, class CommandType>
-  bool SrMuscleHandLib<StatusType, CommandType>::reset_motor_callback(std_srvs::Empty::Request& request,
-                                       std_srvs::Empty::Response& response,
-                                       std::pair<int,std::string> joint)
+  bool SrMuscleHandLib<StatusType, CommandType>::reset_muscle_driver_callback(std_srvs::Empty::Request& request,
+                                                                              std_srvs::Empty::Response& response,
+                                                                              int muscle_driver_index)
   {
-    ROS_INFO_STREAM(" resetting " << joint.second << " ("<< joint.first <<")");
+    ROS_INFO_STREAM(" resetting muscle driver " << muscle_driver_index);
 
-    this->reset_motors_queue.push(joint.first);
-
-    //wait a few secs for the reset to be sent then resend the pids
-    std::string joint_name = joint.second;
-/*
-    ros::Duration(5.0).sleep();
-    resend_pids(joint_name, joint.first);
-*/
-
-    pid_timers[ joint_name ] = this->nh_tilde.createTimer( ros::Duration(3.0),
-                                                     boost::bind(&SrMuscleHandLib::resend_pids, this, joint_name, joint.first),
-                                                     true );
-
+    this->reset_muscle_driver_queue.push(muscle_driver_index);
 
     return true;
-  }
-
-
-
-  template <class StatusType, class CommandType>
-  std::string SrMuscleHandLib<StatusType, CommandType>::find_joint_name(int motor_index)
-  {
-    for( boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
-        joint != this->joints_vector.end(); ++joint )
-    {
-      if( !boost::is_null(joint) ) // check for validity
-      {
-        if(boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper)->motor_id == motor_index)
-          return joint->joint_name;
-      }
-    }
-    ROS_ERROR("Could not find joint name for motor index: %d", motor_index);
-    return "";
   }
 
 
@@ -252,7 +216,7 @@ namespace shadow_robot
     }
 
     return muscle_map;
-  } //end read_joint_to_motor_mapping
+  } //end read_joint_to_muscle_mapping
 
 
 #ifdef DEBUG_PUBLISHER
@@ -301,7 +265,7 @@ namespace shadow_robot
 #endif
 
   //Only to ensure that the template class is compiled for the types we are interested in
-  void never_called_function()
+  void never_called_function_muscle()
   {
     pr2_hardware_interface::HardwareInterface *hw;
     SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> object1 = SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(hw);

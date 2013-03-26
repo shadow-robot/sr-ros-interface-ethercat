@@ -27,7 +27,7 @@ ELSE(DEFINED debug)
 ENDIF(DEFINED debug)
 MESSAGE(" ----- ")
 
-rosbuild_add_library(sr_hand_lib src/biotac.cpp src/generic_tactiles.cpp src/generic_updater.cpp src/motor_data_checker.cpp src/motor_updater.cpp src/sensor_updater.cpp src/shadow_PSTs.cpp src/sr_hand_lib.cpp src/sr_robot_lib.cpp src/sr_motor_robot_lib.cpp)
+rosbuild_add_library(sr_hand_lib src/biotac.cpp src/generic_tactiles.cpp src/generic_updater.cpp src/motor_data_checker.cpp src/motor_updater.cpp src/sensor_updater.cpp src/shadow_PSTs.cpp src/sr_hand_lib.cpp src/sr_robot_lib.cpp src/sr_motor_robot_lib.cpp src/sr_muscle_hand_lib.cpp src/sr_muscle_robot_lib.cpp)
 
 ###############
 #     TESTS

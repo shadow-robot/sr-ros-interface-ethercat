@@ -501,7 +501,7 @@ namespace shadow_robot
 #endif
 
   //Only to ensure that the template class is compiled for the types we are interested in
-  void never_called_function()
+  void never_called_function_motor()
   {
     pr2_hardware_interface::HardwareInterface *hw;
     SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> object1 = SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(hw);

@@ -160,6 +160,12 @@ namespace shadow_joints
 
     bool driver_ok;
     bool bad_data;
+
+    /**
+     * A service used to reset the HW
+     * muscle controller
+     */
+    ros::ServiceServer reset_driver_service;
   };
 
   class MuscleWrapper : public SrActuatorWrapper
@@ -180,12 +186,6 @@ namespace shadow_joints
     int muscle_driver_id[2];
     /// id of the muscles for this joint (the id indicates the order from 0 to 9 of the muscle in its muscle driver)
     int muscle_id[2];
-
-    /**
-     * A service used to reset the HW
-     * muscle controller
-     */
-    ros::ServiceServer reset_muscle_service;
   };
 
   struct Joint
