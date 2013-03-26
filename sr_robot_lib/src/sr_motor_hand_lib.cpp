@@ -1,5 +1,5 @@
 /**
- * @file   sr_hand_lib.cpp
+ * @file   sr_motor_hand_lib.cpp
  * @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
  * @date   Fri Jun  3 13:05:10 2011
  *
@@ -26,7 +26,7 @@
  *
  */
 
-#include "sr_robot_lib/sr_hand_lib.hpp"
+#include "sr_robot_lib/sr_motor_hand_lib.hpp"
 #include <algorithm>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
@@ -38,17 +38,17 @@
 namespace shadow_robot
 {
   template <class StatusType, class CommandType>
-  const int SrHandLib<StatusType, CommandType>::nb_motor_data = 14;
+  const int SrMotorHandLib<StatusType, CommandType>::nb_motor_data = 14;
 
   template <class StatusType, class CommandType>
-  const char* SrHandLib<StatusType, CommandType>::human_readable_motor_data_types[nb_motor_data] = {"sgl", "sgr", "pwm", "flags", "current",
+  const char* SrMotorHandLib<StatusType, CommandType>::human_readable_motor_data_types[nb_motor_data] = {"sgl", "sgr", "pwm", "flags", "current",
                                                                            "voltage", "temperature", "can_num_received",
                                                                            "can_num_transmitted", "slow_data",
                                                                            "can_error_counters",
                                                                            "pterm", "iterm", "dterm"};
 
   template <class StatusType, class CommandType>
-  const int32u SrHandLib<StatusType, CommandType>::motor_data_types[nb_motor_data] = {MOTOR_DATA_SGL, MOTOR_DATA_SGR,
+  const int32u SrMotorHandLib<StatusType, CommandType>::motor_data_types[nb_motor_data] = {MOTOR_DATA_SGL, MOTOR_DATA_SGR,
                                                              MOTOR_DATA_PWM, MOTOR_DATA_FLAGS,
                                                              MOTOR_DATA_CURRENT, MOTOR_DATA_VOLTAGE,
                                                              MOTOR_DATA_TEMPERATURE, MOTOR_DATA_CAN_NUM_RECEIVED,
@@ -59,7 +59,7 @@ namespace shadow_robot
 
 
   template <class StatusType, class CommandType>
-  SrHandLib<StatusType, CommandType>::SrHandLib(pr2_hardware_interface::HardwareInterface *hw) :
+  SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(pr2_hardware_interface::HardwareInterface *hw) :
     SrMotorRobotLib<StatusType, CommandType>(hw)
   {
     //read the motor polling frequency from the parameter server
@@ -105,12 +105,12 @@ namespace shadow_robot
 
 #ifdef DEBUG_PUBLISHER
     //advertise the debug service, used to set which data we want to publish on the debug topics
-    debug_service = this->nh_tilde.advertiseService( "set_debug_publishers", &SrHandLib::set_debug_data_to_publish, this);
+    debug_service = this->nh_tilde.advertiseService( "set_debug_publishers", &SrMotorHandLib::set_debug_data_to_publish, this);
 #endif
   }
 
   template <class StatusType, class CommandType>
-  SrHandLib<StatusType, CommandType>::~SrHandLib()
+  SrMotorHandLib<StatusType, CommandType>::~SrMotorHandLib()
   {
     boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
     for(;joint != this->joints_vector.end(); ++joint)
@@ -120,7 +120,7 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  void SrHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
+  void SrMotorHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
                              std::vector<int> actuator_ids,
                              std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                              std::vector<sr_actuator::SrGenericActuator*> actuators)
@@ -152,19 +152,19 @@ namespace shadow_robot
       //initialize the force pid service
       //NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that we are using an explicit template function inside this template class
       motor_wrapper->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>( ss.str().c_str(),
-                                                                                                                                                            boost::bind( &SrHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id) );
+                                                                                                                                                            boost::bind( &SrMotorHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id) );
 
       ss.str("");
       ss << "reset_motor_" << joint_names[index];
       //initialize the reset motor service
       motor_wrapper->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>( ss.str().c_str(),
-                                                                                                                                boost::bind( &SrHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(motor_wrapper->motor_id, joint->joint_name) ) );
+                                                                                                                                boost::bind( &SrMotorHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(motor_wrapper->motor_id, joint->joint_name) ) );
 
     } //end for joints.
   }
 
   template <class StatusType, class CommandType>
-  bool SrHandLib<StatusType, CommandType>::reset_motor_callback(std_srvs::Empty::Request& request,
+  bool SrMotorHandLib<StatusType, CommandType>::reset_motor_callback(std_srvs::Empty::Request& request,
                                        std_srvs::Empty::Response& response,
                                        std::pair<int,std::string> joint)
   {
@@ -180,7 +180,7 @@ namespace shadow_robot
 */
 
     pid_timers[ joint_name ] = this->nh_tilde.createTimer( ros::Duration(3.0),
-                                                     boost::bind(&SrHandLib::resend_pids, this, joint_name, joint.first),
+                                                     boost::bind(&SrMotorHandLib::resend_pids, this, joint_name, joint.first),
                                                      true );
 
 
@@ -189,7 +189,7 @@ namespace shadow_robot
 
 
   template <class StatusType, class CommandType>
-  void SrHandLib<StatusType, CommandType>::resend_pids(std::string joint_name, int motor_index)
+  void SrMotorHandLib<StatusType, CommandType>::resend_pids(std::string joint_name, int motor_index)
   {
     //read the parameters from the parameter server and set the pid
     // values.
@@ -268,7 +268,7 @@ namespace shadow_robot
 
 
   template <class StatusType, class CommandType>
-  bool SrHandLib<StatusType, CommandType>::force_pid_callback(sr_robot_msgs::ForceController::Request& request,
+  bool SrMotorHandLib<StatusType, CommandType>::force_pid_callback(sr_robot_msgs::ForceController::Request& request,
                                      sr_robot_msgs::ForceController::Response& response,
                                      int motor_index)
   {
@@ -379,7 +379,7 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  std::string SrHandLib<StatusType, CommandType>::find_joint_name(int motor_index)
+  std::string SrMotorHandLib<StatusType, CommandType>::find_joint_name(int motor_index)
   {
     for( boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
         joint != this->joints_vector.end(); ++joint )
@@ -395,7 +395,7 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  void SrHandLib<StatusType, CommandType>::update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p,
+  void SrMotorHandLib<StatusType, CommandType>::update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p,
                                                      int i, int d, int imax, int deadband, int sign)
   {
     if(joint_name != "")
@@ -436,7 +436,7 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  std::vector<int> SrHandLib<StatusType, CommandType>::read_joint_to_motor_mapping()
+  std::vector<int> SrMotorHandLib<StatusType, CommandType>::read_joint_to_motor_mapping()
   {
     std::vector<int> motor_ids;
     std::string param_name = "joint_to_motor_mapping";
@@ -457,7 +457,7 @@ namespace shadow_robot
 
 #ifdef DEBUG_PUBLISHER
   template <class StatusType, class CommandType>
-  bool SrHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
+  bool SrMotorHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
                                             sr_robot_msgs::SetDebugData::Response& response)
   {
     //check if the publisher_index is correct
@@ -504,7 +504,7 @@ namespace shadow_robot
   void never_called_function_motor()
   {
     pr2_hardware_interface::HardwareInterface *hw;
-    SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> object1 = SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(hw);
+    SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> object1 = SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(hw);
   }
 }// end namespace
 

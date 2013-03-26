@@ -1,5 +1,5 @@
 /**
- * @file   sr_hand_lib.hpp
+ * @file   sr_motor_hand_lib.hpp
  * @author Ugo Cupcic <ugo@shadowrobot.com>
  * @date   Fri Jun  3 12:12:13 2011
  *
@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef _SR_HAND_LIB_HPP_
-#define _SR_HAND_LIB_HPP_
+#ifndef _SR_MOTOR_HAND_LIB_HPP_
+#define _SR_MOTOR_HAND_LIB_HPP_
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <std_srvs/Empty.h>
@@ -39,11 +39,11 @@
 namespace shadow_robot
 {
   template <class StatusType, class CommandType>
-  class SrHandLib : public SrMotorRobotLib<StatusType, CommandType>
+  class SrMotorHandLib : public SrMotorRobotLib<StatusType, CommandType>
   {
   public:
-    SrHandLib(pr2_hardware_interface::HardwareInterface *hw);
-    ~SrHandLib();
+    SrMotorHandLib(pr2_hardware_interface::HardwareInterface *hw);
+    ~SrMotorHandLib();
 
     /**
      * The service callback for setting the Force PID values. There's only one callback

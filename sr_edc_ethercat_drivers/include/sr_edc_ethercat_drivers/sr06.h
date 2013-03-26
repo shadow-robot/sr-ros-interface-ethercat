@@ -41,7 +41,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 
-#include <sr_robot_lib/sr_hand_lib.hpp>
+#include <sr_robot_lib/sr_motor_hand_lib.hpp>
 
 #include <sr_robot_msgs/EthercatDebug.h>
 
@@ -93,7 +93,7 @@ private:
   ///counter for the number of empty buffer we're reading.
   unsigned int                     zero_buffer_read;
 
-  boost::shared_ptr<shadow_robot::SrHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> > sr_hand_lib;
+  boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> > sr_hand_lib;
 
   /**
    *a counter used to publish the tactiles at 100Hz:
