@@ -1182,7 +1182,6 @@ bool SR06::write_flash_data(unsigned int base_addr, unsigned int total_size)
         if (timedout)
         {
           ROS_ERROR("WRITE ADDRESS timedout ");
-          return false;
         }
       } while ( timedout );
     }
@@ -1226,7 +1225,7 @@ bool SR06::write_flash_data(unsigned int base_addr, unsigned int total_size)
     }
     if ( timedout )
     {
-      ROS_ERROR("A WRITE data packet has been lost, resending the 32 bytes block !");
+      ROS_ERROR("A WRITE data packet has been lost at pos=%u, resending the 32 bytes block at pos=%u  !", pos, (pos - packet*8));
       pos -= packet*8;
     }
   }
