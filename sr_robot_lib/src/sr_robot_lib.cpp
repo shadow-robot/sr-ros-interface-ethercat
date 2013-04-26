@@ -1027,6 +1027,14 @@ namespace shadow_robot
   bool SrRobotLib::change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
                                                   sr_robot_msgs::ChangeControlType::Response& response )
   {
+    //querying which we're control type we're using currently.
+    if( request.control_type.control_type == sr_robot_msgs::ControlType::QUERY )
+    {
+      response.result = control_type_;
+      return true;
+    }
+
+    //We're not querying the control type
     if( (request.control_type.control_type != sr_robot_msgs::ControlType::PWM) &&
         (request.control_type.control_type != sr_robot_msgs::ControlType::FORCE) )
     {
