@@ -16,6 +16,9 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
+find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
+include_directories( ${ImageMagick_INCLUDE_DIRS})
+
 #if you compile with "DEBUG=1 make", some debug data are going to be published
 SET(debug $ENV{DEBUG})
 MESSAGE(" ----- Shadow Robot EtherCAT driver configuration:")
