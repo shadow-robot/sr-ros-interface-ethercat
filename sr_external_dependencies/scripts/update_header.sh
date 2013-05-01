@@ -18,11 +18,13 @@ function checkout_or_update {
     #removes write access
 	chmod -R a-w ${DIR_NAME}
     else
+	chmod -R a+w .
 	echo "Checking out ${SVN_PATH} in ${DIR_NAME}"
-	svn co ${SVN_PATH}
+	svn co ${SVN_PATH} ${DIR_NAME}
 
     #removes write access
 	chmod -R a-w ${DIR_NAME}
+	chmod -R a-w .
     fi
 }
 
