@@ -52,6 +52,7 @@
 #define TACTILE_DATA_LENGTH_BYTES   16
 #define TACTILE_DATA_LENGTH_WORDS   (TACTILE_DATA_LENGTH_BYTES/2)
 
+
 typedef union
 {
     int16u  word[TACTILE_DATA_LENGTH_WORDS];                            //!< As yet unspecified
@@ -73,8 +74,9 @@ typedef enum                                                            //! Data
 typedef enum                                                            //! This is the protocol that the palm is using for the tactile sensors.
 {
     TACTILE_SENSOR_PROTOCOL_TYPE_INVALID        = 0x0000,               //!< No supported sensors were found.
-    TACTILE_SENSOR_PROTOCOL_TYPE_PST3           = 0x0001,
-    TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3     = 0x0002,
+    TACTILE_SENSOR_PROTOCOL_TYPE_PST3           = 0x0001,               //!< Shadow's Pressure Tactile sensor, Hugo's firmware
+    TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3     = 0x0002,               //!< Syntouch's BioTac sensor, version 2.3
+    TACTILE_SENSOR_PROTOCOL_TYPE_UBI0           = 0x0003,               //!< Bielefeld's tactile sensor
 
     TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING    = 0xFFFF                //!< More than 1 type of sensor is connected to the hand! (Very unlikely to happen)
 }TACTILE_SENSOR_PROTOCOL_TYPE;
@@ -87,6 +89,10 @@ typedef enum                                                            // Data 
     TACTILE_SENSOR_TYPE_PST3_DAC_VALUE                  = 0x0004        //!< 0: DAC value       1: ----
 }FROM_TACTILE_SENSOR_TYPE_PST3;
 
+typedef enum                                                            // Data you can request from UBI0 tactiles
+{
+    TACTILE_SENSOR_TYPE_UBI0_TACTILE                    = 0x0000,       //!< Only one type of sensor
+}FROM_TACTILE_SENSOR_TYPE_UBI0;
 
 typedef enum                                                            // Data you can request from BioTacs
 {
@@ -130,9 +136,37 @@ typedef struct
         int8u other_sensor : 1;
     }data_valid;
     
-    int16u  nothing[4];
+    int16u  nothing[TACTILE_DATA_LENGTH_WORDS - 4];
 }TACTILE_SENSOR_BIOTAC_DATA_CONTENTS;
 
+
+// Length fo Univ. Bielefeld tactile sensors
+#define UNIBI_TACTILE_DATA_LENGTH_WORDS   12
+#define UNIBI_TACTILE_DATA_LENGTH_BYTES   (UNIBI_TACTILE_DATA_LENGTH_WORDS*2)
+
+
+typedef union
+{
+    int16u  word[UNIBI_TACTILE_DATA_LENGTH_WORDS];                            //!< As yet unspecified
+    char    string[UNIBI_TACTILE_DATA_LENGTH_BYTES];
+}UNIBI_TACTILE_SENSOR_STATUS;
+
+typedef struct
+{
+    int16u  distal[UNIBI_TACTILE_DATA_LENGTH_WORDS];
+    int16u  misc;
+}TACTILE_SENSOR_UNIBI_DATA_CONTENTS;
+
+typedef struct
+{
+    int16u  middle[4];
+    int16u  proximal[4];
+}TACTILE_SENSOR_MID_PROX;
+
+typedef struct
+{
+    int16u  sensor[16];
+}TACTILE_SENSOR_PALM;
 
 /*
 #ifndef NO_STRINGS
