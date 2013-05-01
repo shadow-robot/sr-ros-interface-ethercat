@@ -34,6 +34,7 @@
 
 #include "sr_robot_lib/shadow_PSTs.hpp"
 #include "sr_robot_lib/biotac.hpp"
+#include "sr_robot_lib/UBI0.hpp"
 #include <pr2_mechanism_msgs/ListControllers.h>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
@@ -48,7 +49,7 @@ namespace shadow_robot
 #endif
 
   template <class StatusType, class CommandType>
-  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 31;
+  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 32;
 
   template <class StatusType, class CommandType>
   const char* SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] = {"TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ",
@@ -81,7 +82,8 @@ namespace shadow_robot
                                                                              "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19",
                                                                              "TACTILE_SENSOR_TYPE_BIOTAC_PDC",
                                                                              "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
-                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_TDC"
+                                                                             "TACTILE_SENSOR_TYPE_BIOTAC_TDC",
+                                                                             "TACTILE_SENSOR_TYPE_UBI0_TACTILE"
                                                                              };
 
   template <class StatusType, class CommandType>
@@ -115,7 +117,8 @@ namespace shadow_robot
                                                                TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19,
                                                                TACTILE_SENSOR_TYPE_BIOTAC_PDC,
                                                                TACTILE_SENSOR_TYPE_BIOTAC_TAC,
-                                                               TACTILE_SENSOR_TYPE_BIOTAC_TDC
+                                                               TACTILE_SENSOR_TYPE_BIOTAC_TDC,
+                                                               TACTILE_SENSOR_TYPE_UBI0_TACTILE
   };
 
   template <class StatusType, class CommandType>
@@ -133,6 +136,8 @@ namespace shadow_robot
     this->pst3_sensor_update_rate_configs_vector = this->read_update_rate_configs("pst3_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
     //read the biotac sensor polling frequency from the parameter server
     this->biotac_sensor_update_rate_configs_vector = this->read_update_rate_configs("biotac_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
+    //read the UBI0 sensor polling frequency from the parameter server
+    this->ubi0_sensor_update_rate_configs_vector = this->read_update_rate_configs("ubi0_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
 
     //initialize the calibration map
     this->calibration_map = this->read_joint_calibration();
@@ -297,6 +302,14 @@ namespace shadow_robot
                                  tactiles_init->tactiles_vector));
 
           ROS_INFO("Biotac tactiles initialized");
+          break;
+
+        case TACTILE_SENSOR_PROTOCOL_TYPE_UBI0:
+          tactiles = boost::shared_ptr<tactiles::UBI0<StatusType, CommandType> >(
+            new tactiles::UBI0<StatusType, CommandType>(ubi0_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+                               tactiles_init->tactiles_vector));
+
+          ROS_INFO("UBI0 tactiles initialized");
           break;
 
         case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:

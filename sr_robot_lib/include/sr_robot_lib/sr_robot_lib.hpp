@@ -55,6 +55,7 @@
 extern "C"
 {
   #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+  #include <sr_external_dependencies/external/0230_palm_edc_TS/0230_palm_edc_ethercat_protocol.h>
   #include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
   #include <sr_external_dependencies/external/simplemotor-bootloader/bootloader.h>
 }
@@ -286,6 +287,8 @@ namespace shadow_robot
     std::vector<generic_updater::UpdateConfig> pst3_sensor_update_rate_configs_vector;
     ///The update rate for each sensor information type
     std::vector<generic_updater::UpdateConfig> biotac_sensor_update_rate_configs_vector;
+    ///The update rate for each sensor information type
+    std::vector<generic_updater::UpdateConfig> ubi0_sensor_update_rate_configs_vector;
 
 
     static const int nb_sensor_data;
