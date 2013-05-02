@@ -364,31 +364,31 @@ typedef struct
 //! These are the data sent from the Palm to the host.
 typedef struct
 {
-    EDC_COMMAND             EDC_command;                        //!< This tells us the contents of the data below.
-                                                                //!< This value should be identical to the EDC_command
-                                                                //!< value which arrived from the host in the previous
-                                                                //!< EtherCAT packet
+    EDC_COMMAND                 EDC_command;                        //!< This tells us the contents of the data below.
+                                                                    //!< This value should be identical to the EDC_command
+                                                                    //!< value which arrived from the host in the previous
+                                                                    //!< EtherCAT packet
 
-	int16u					sensors[SENSORS_NUM_0220+1];
+	int16u					    sensors[SENSORS_NUM_0220+1];
 
-    FROM_MOTOR_DATA_TYPE    motor_data_type;                    //!< Which data does motor[] contain?
-                                                                //!< This value should agree with the previous value
-                                                                //!< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
-    int16s                  which_motors;                       //!< 0: Even motor numbers.  1: Odd motor numbers
-                                                                //!< This value should agree with the previous value
-                                                                //!< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
+    FROM_MOTOR_DATA_TYPE        motor_data_type;                    //!< Which data does motor[] contain?
+                                                                    //!< This value should agree with the previous value
+                                                                    //!< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
+    int16s                      which_motors;                       //!< 0: Even motor numbers.  1: Odd motor numbers
+                                                                    //!< This value should agree with the previous value
+                                                                    //!< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
 
-    int32u                  which_motor_data_arrived;           //!< Bit N set when motor CAN message arrives. Ideally, bits 0..19 get set
-    int32u                  which_motor_data_had_errors;        //!< Bit N set when motor sends bad CAN message Ideally, no bits get set.
+    int32u                      which_motor_data_arrived;           //!< Bit N set when motor CAN message arrives. Ideally, bits 0..19 get set
+    int32u                      which_motor_data_had_errors;        //!< Bit N set when motor sends bad CAN message Ideally, no bits get set.
 
-    MOTOR_DATA_PACKET       motor_data_packet[10];              //!< Data for 10 motors only. (Even ones or Odd ones)
+    MOTOR_DATA_PACKET           motor_data_packet[10];              //!< Data for 10 motors only. (Even ones or Odd ones)
 
-    int32u                  tactile_data_type;
-    int16u                  tactile_data_valid;                 //!< Bit 0: FF. Bit 4: TH.
-    TACTILE_SENSOR_STATUS   tactile[5];                         //
+    int32u                      tactile_data_type;
+    int16u                      tactile_data_valid;                 //!< Bit 0: FF. Bit 4: TH.
+    TACTILE_SENSOR_STATUS_v1    tactile[5];                         //
 
-    int16u                  idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
-																//!< packet, and the next packet arriving. Ideally, this number should be more than 50.
+    int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
+																    //!< packet, and the next packet arriving. Ideally, this number should be more than 50.
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS;
 
@@ -397,16 +397,16 @@ typedef struct
 //! These are the data sent by the host.
 typedef struct
 {
-    EDC_COMMAND             EDC_command;                        //!< What type of data should the palm send back in the next packet?
+    EDC_COMMAND                 EDC_command;                        //!< What type of data should the palm send back in the next packet?
 
-    FROM_MOTOR_DATA_TYPE    from_motor_data_type;               //!< Which data does the host want from the motors?
-    int16s                  which_motors;                       //!< Which motors does the host want to read?
-                                                                //!< 0: Even motor numbers.  1: Odd motor numbers
+    FROM_MOTOR_DATA_TYPE        from_motor_data_type;               //!< Which data does the host want from the motors?
+    int16s                      which_motors;                       //!< Which motors does the host want to read?
+                                                                    //!< 0: Even motor numbers.  1: Odd motor numbers
 
-    TO_MOTOR_DATA_TYPE      to_motor_data_type;
-    int16s                  motor_data[NUM_MOTORS];             //!< Data to send to motors. Typically torque/PWM demands, or configs.
+    TO_MOTOR_DATA_TYPE          to_motor_data_type;
+    int16s                      motor_data[NUM_MOTORS];             //!< Data to send to motors. Typically torque/PWM demands, or configs.
 
-    int32u                  tactile_data_type;                  //!< Request for specific tactile data
+    int32u                      tactile_data_type;                  //!< Request for specific tactile data
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND;
 

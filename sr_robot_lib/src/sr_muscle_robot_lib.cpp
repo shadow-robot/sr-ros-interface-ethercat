@@ -287,7 +287,7 @@ namespace shadow_robot
 
       if (joint->has_actuator)
       {
-        const sr_actuator::SrMuscleActuatorState *state(&(actuator_wrapper->actuator)->state_);
+        const sr_actuator::SrMuscleActuatorState* state = static_cast<sr_actuator::SrMuscleActuatorState*>(&(actuator_wrapper->actuator)->state_);
 
         if (actuator_wrapper->actuator_ok)
         {
@@ -655,6 +655,7 @@ namespace shadow_robot
     muscle_current_state = operation_mode::device_update_state::INITIALIZATION;
   }
 
+  template class SrMuscleRobotLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 } //end namespace
 
 /* For the emacs weenies in the crowd.

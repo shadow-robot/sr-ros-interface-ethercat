@@ -263,13 +263,15 @@ namespace shadow_robot
     return true;
   }
 #endif
-
+/*
   //Only to ensure that the template class is compiled for the types we are interested in
   void never_called_function_muscle()
   {
     pr2_hardware_interface::HardwareInterface *hw;
     SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> object1 = SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(hw);
   }
+*/
+  template class SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }// end namespace
 
 /* For the emacs weenies in the crowd.

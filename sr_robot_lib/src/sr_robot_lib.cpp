@@ -260,11 +260,11 @@ namespace shadow_robot
 
     if (sr_actuator::SrActuator* motor_actuator = dynamic_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator))
     {
-      actuator_state = motor_actuator->state_;
+      actuator_state = &motor_actuator->state_;
     }
     else if (sr_actuator::SrMuscleActuator* muscle_actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator))
     {
-      actuator_state = muscle_actuator->state_;
+      actuator_state = &muscle_actuator->state_;
     }
     else
     {
@@ -474,6 +474,10 @@ namespace shadow_robot
 
     return update_rate_configs_vector;
   }
+
+  template class SrRobotLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
+  template class SrRobotLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
+  template class SrRobotLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 
 } //end namespace
 

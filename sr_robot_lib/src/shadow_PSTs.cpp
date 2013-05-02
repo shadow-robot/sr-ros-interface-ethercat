@@ -28,6 +28,8 @@
 #include "sr_robot_lib/shadow_PSTs.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
 
+#define TACTILE_DATA_LENGTH_BYTES TACTILE_DATA_LENGTH_BYTES_v1
+
 namespace tactiles
 {
   template <class StatusType, class CommandType>

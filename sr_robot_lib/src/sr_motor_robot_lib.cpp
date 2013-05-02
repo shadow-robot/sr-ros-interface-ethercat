@@ -421,7 +421,7 @@ namespace shadow_robot
 
       if (joint->has_actuator)
       {
-        const sr_actuator::SrMotorActuatorState *state(&(actuator_wrapper->actuator)->state_);
+        const sr_actuator::SrMotorActuatorState* state = static_cast<sr_actuator::SrMotorActuatorState*>(&(actuator_wrapper->actuator)->state_);
 
         if (actuator_wrapper->actuator_ok)
         {
@@ -1026,6 +1026,8 @@ namespace shadow_robot
     return no_motor_id_out_of_range;
   }
 
+  template class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
+  template class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
 } //end namespace
 
 /* For the emacs weenies in the crowd.

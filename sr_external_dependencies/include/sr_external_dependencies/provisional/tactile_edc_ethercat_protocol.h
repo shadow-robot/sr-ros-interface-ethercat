@@ -49,15 +49,15 @@
 //      ---------------
 //      TACTILE SENSORS
 //      ---------------
-#define TACTILE_DATA_LENGTH_BYTES   16
-#define TACTILE_DATA_LENGTH_WORDS   (TACTILE_DATA_LENGTH_BYTES/2)
 
+#define TACTILE_DATA_LENGTH_BYTES_v1   16
+#define TACTILE_DATA_LENGTH_WORDS_v1   (TACTILE_DATA_LENGTH_BYTES_v1/2)
 
 typedef union
 {
-    int16u  word[TACTILE_DATA_LENGTH_WORDS];                            //!< As yet unspecified
-    char    string[TACTILE_DATA_LENGTH_BYTES];
-}TACTILE_SENSOR_STATUS;
+    int16u  word[TACTILE_DATA_LENGTH_WORDS_v1];                            //!< As yet unspecified
+    char    string[TACTILE_DATA_LENGTH_BYTES_v1];
+}TACTILE_SENSOR_STATUS_v1;
 
 typedef enum                                                            //! Data you can request from tactile sensors in general
 {
@@ -106,7 +106,7 @@ typedef enum                                                            // Data 
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4     = 0x0007,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5     = 0x0008,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6     = 0x0009,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7     = 0x000A,
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7     = 0x000A, 
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8     = 0x000B,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9     = 0x000C,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10    = 0x000D,
@@ -136,30 +136,31 @@ typedef struct
         int8u other_sensor : 1;
     }data_valid;
     
-    int16u  nothing[TACTILE_DATA_LENGTH_WORDS - 4];
+    int16u  nothing[TACTILE_DATA_LENGTH_WORDS_v1 - 4];
 }TACTILE_SENSOR_BIOTAC_DATA_CONTENTS;
 
 
 // Length fo Univ. Bielefeld tactile sensors
-#define UNIBI_TACTILE_DATA_LENGTH_WORDS   12
-#define UNIBI_TACTILE_DATA_LENGTH_BYTES   (UNIBI_TACTILE_DATA_LENGTH_WORDS*2)
+
+#define TACTILE_DATA_LENGTH_BYTES_v2   32
+#define TACTILE_DATA_LENGTH_WORDS_v2   (TACTILE_DATA_LENGTH_BYTES_v2/2)
 
 
 typedef union
 {
-    int16u  word[UNIBI_TACTILE_DATA_LENGTH_WORDS];                            //!< As yet unspecified
-    char    string[UNIBI_TACTILE_DATA_LENGTH_BYTES];
-}UNIBI_TACTILE_SENSOR_STATUS;
+    int16u  word[TACTILE_DATA_LENGTH_WORDS_v2];                            //!< As yet unspecified
+    char    string[TACTILE_DATA_LENGTH_BYTES_v2];
+}TACTILE_SENSOR_STATUS_v2;
 
 typedef struct
 {
-    int16u  distal[UNIBI_TACTILE_DATA_LENGTH_WORDS];
+    int16u  distal[TACTILE_DATA_LENGTH_WORDS_v2];
     int16u  misc;
 }TACTILE_SENSOR_UNIBI_DATA_CONTENTS;
 
 typedef struct
 {
-    int16u  middle[4];
+    int16u    middle[4];
     int16u  proximal[4];
 }TACTILE_SENSOR_MID_PROX;
 

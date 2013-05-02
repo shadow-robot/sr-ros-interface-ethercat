@@ -268,29 +268,29 @@ typedef union
 //! These are the data sent from the Palm to the host.
 typedef struct
 {
-    EDC_COMMAND             EDC_command;                        //!< This tells us the contents of the data below.
-                                                                //!< This value should be identical to the EDC_command
-                                                                //!< value which arrived from the host in the previous
-                                                                //!< EtherCAT packet
+    EDC_COMMAND                 EDC_command;                        //!< This tells us the contents of the data below.
+                                                                    //!< This value should be identical to the EDC_command
+                                                                    //!< value which arrived from the host in the previous
+                                                                    //!< EtherCAT packet
 
-	int16u					sensors[SENSORS_NUM_0320+1];
+	int16u					    sensors[SENSORS_NUM_0320+1];
 
-    FROM_MUSCLE_DATA_TYPE   muscle_data_type;                   //!< Which data does pressure_sensors[] actually contain?
-                                                                //!< This value should agree with the previous value
-                                                                //!< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
+    FROM_MUSCLE_DATA_TYPE       muscle_data_type;                   //!< Which data does pressure_sensors[] actually contain?
+                                                                    //!< This value should agree with the previous value
+                                                                    //!< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
 
-    int64u                  which_pressure_data_arrived;     //!< Bit s indicate which pressure sensor data is new this frame
-    int64u                  which_pressure_data_had_errors;  //!< Bit N set when muscle driver sends bad CAN message Ideally, no bits get set.
+    int64u                      which_pressure_data_arrived;        //!< Bit s indicate which pressure sensor data is new this frame
+    int64u                      which_pressure_data_had_errors;     //!< Bit N set when muscle driver sends bad CAN message Ideally, no bits get set.
 
-    MUSCLE_DATA_PACKET      muscle_data_packet[8];
+    MUSCLE_DATA_PACKET          muscle_data_packet[8];
 
 
-    int32u                  tactile_data_type;
-    int16u                  tactile_data_valid;                 //!< Bit 0: FF. Bit 4: TH.
-    TACTILE_SENSOR_STATUS   tactile[5];                         //
+    int32u                      tactile_data_type;
+    int16u                      tactile_data_valid;                 //!< Bit 0: FF. Bit 4: TH.
+    TACTILE_SENSOR_STATUS_v1    tactile[5];                         //
 
-    int16u                  idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
-																//!< packet, and the next packet arriving. Ideally, this number should be more than 50.
+    int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
+																    //!< packet, and the next packet arriving. Ideally, this number should be more than 50.
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS;
 
@@ -299,15 +299,15 @@ typedef struct
 //! These are the data sent by the host.
 typedef struct
 {
-    EDC_COMMAND             EDC_command;                        //!< What type of data should the palm send back in the next packet?
+    EDC_COMMAND                 EDC_command;                        //!< What type of data should the palm send back in the next packet?
 
-    FROM_MUSCLE_DATA_TYPE   from_muscle_data_type;              //!< Which data does the host want from the muscles?
+    FROM_MUSCLE_DATA_TYPE       from_muscle_data_type;              //!< Which data does the host want from the muscles?
 
-    TO_MUSCLE_DATA_TYPE     to_muscle_data_type;                //!< What type of data are we sending to the muscles?
-    int8u                   muscle_data[NUM_MUSCLES/2];         //!< Data to send to muscles. [-4 .. 4] packed into the nibbles
+    TO_MUSCLE_DATA_TYPE         to_muscle_data_type;                //!< What type of data are we sending to the muscles?
+    int8u                       muscle_data[NUM_MUSCLES/2];         //!< Data to send to muscles. [-4 .. 4] packed into the nibbles
 
-    int32u                  tactile_data_type;                //!< Request for specific tactile data
-    //int32u                  tactile_data_type_1;                //!< The host can request up to 2 different values per frame
+    int32u                      tactile_data_type;                  //!< Request for specific tactile data
+    //int32u                    tactile_data_type_1;                  //!< The host can request up to 2 different values per frame
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND;
 

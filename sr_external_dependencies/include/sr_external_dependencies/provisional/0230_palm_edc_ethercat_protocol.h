@@ -49,12 +49,12 @@
 //! These are the data sent from the Palm to the host.
 typedef struct
 {
-    EDC_COMMAND             EDC_command;                        //!< This tells us the contents of the data below.
-                                                                //!< This value should be identical to the EDC_command
-                                                                //!< value which arrived from the host in the previous
-                                                                //!< EtherCAT packet
+    EDC_COMMAND                 EDC_command;                        //!< This tells us the contents of the data below.
+                                                                    //!< This value should be identical to the EDC_command
+                                                                    //!< value which arrived from the host in the previous
+                                                                    //!< EtherCAT packet
 
-	int16u					sensors[SENSORS_NUM_0220+1];
+	int16u					    sensors[SENSORS_NUM_0220+1];
 
 
     //  Motor data  //
@@ -76,7 +76,7 @@ typedef struct
 
     int32u                      tactile_data_type;
     int16u                      tactile_data_valid;                 //!< Bit 0: FF. Bit 4: TH.
-    UNIBI_TACTILE_SENSOR_STATUS tactile[5];                         //
+    TACTILE_SENSOR_STATUS_v2    tactile[5];                         //
     TACTILE_SENSOR_MID_PROX     tactile_mid_prox[5];
     TACTILE_SENSOR_PALM         tactile_palm;    
 
@@ -114,8 +114,8 @@ typedef struct
                                                 //  64-bit machine or something. So we have these calculated sizes.
                                                 //  The host and slave can ASSERT that the sizeof() the packets
                                                 //  matches the agreed sizes.
-#define ETHERCAT_STATUS_AGREED_SIZE     232     //! This is the size of the Status  EtherCAT packet (Status + CAN packet)
-#define ETHERCAT_COMMAND_AGREED_SIZE    70      //! This is the size of the Command EtherCAT packet (Status + CAN packet)
+//#define ETHERCAT_STATUS_AGREED_SIZE     232     //! This is the size of the Status  EtherCAT packet (Status + CAN packet)
+//#define ETHERCAT_COMMAND_AGREED_SIZE    70      //! This is the size of the Command EtherCAT packet (Status + CAN packet)
 
 
 
