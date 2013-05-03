@@ -207,6 +207,10 @@ namespace tactiles
     return all_tactile_data.get();
   }
 
+  //Only to ensure that the template class is compiled for the types we are interested in
+  template class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
+  template class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
+  template class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }
 
 /* For the emacs weenies in the crowd.

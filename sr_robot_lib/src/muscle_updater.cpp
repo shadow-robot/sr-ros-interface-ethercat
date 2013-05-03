@@ -117,6 +117,9 @@ namespace generic_updater
 
     return this->update_state;
   }
+
+  //Only to ensure that the template class is compiled for the types we are interested in
+  template class MuscleUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }
 
 

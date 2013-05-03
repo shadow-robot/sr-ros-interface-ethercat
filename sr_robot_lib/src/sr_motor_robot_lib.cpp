@@ -1026,6 +1026,7 @@ namespace shadow_robot
     return no_motor_id_out_of_range;
   }
 
+  //Only to ensure that the template class is compiled for the types we are interested in
   template class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
   template class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
 } //end namespace

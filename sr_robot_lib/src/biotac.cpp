@@ -56,7 +56,7 @@ namespace tactiles
   void Biotac<StatusType, CommandType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
     // Tactile sensor real time publisher
-    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(this->nodehandle , "tactile", 4));
+    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(this->nodehandle_, "tactile", 4));
 
     //initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr< std::vector<BiotacData> >( new std::vector<BiotacData>(this->nb_tactiles) );
@@ -284,6 +284,11 @@ namespace tactiles
 
     return this->all_tactile_data.get();
   }
+
+  //Only to ensure that the template class is compiled for the types we are interested in
+  template class Biotac<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
+  template class Biotac<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
+  template class Biotac<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }
 
 /* For the emacs weenies in the crowd.

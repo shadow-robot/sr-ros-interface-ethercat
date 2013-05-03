@@ -655,6 +655,7 @@ namespace shadow_robot
     muscle_current_state = operation_mode::device_update_state::INITIALIZATION;
   }
 
+  //Only to ensure that the template class is compiled for the types we are interested in
   template class SrMuscleRobotLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 } //end namespace
 

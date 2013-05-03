@@ -86,6 +86,11 @@ namespace generic_updater
       ROS_DEBUG_STREAM("Timer: data type = "<<data_type << " | queue size: "<<unimportant_data_queue.size());
     }
   }
+
+  //Only to ensure that the template class is compiled for the types we are interested in
+  template class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
+  template class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
+  template class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 } //end namespace generic_updater
 
 /* For the emacs weenies in the crowd.

@@ -125,6 +125,11 @@ namespace generic_updater
       this->unimportant_data_queue.push(TACTILE_SENSOR_TYPE_RESET_COMMAND);
     return true;
   }
+
+  //Only to ensure that the template class is compiled for the types we are interested in
+  template class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
+  template class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
+  template class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }
 
 

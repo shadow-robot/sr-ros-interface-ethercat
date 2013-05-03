@@ -125,6 +125,10 @@ namespace generic_updater
 
     return this->update_state;
   }
+
+  //Only to ensure that the template class is compiled for the types we are interested in
+  template class MotorUpdater<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
+  template class MotorUpdater<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
 }
 
 
