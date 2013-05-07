@@ -1,10 +1,10 @@
 /**
- * @file   sr06.h
+ * @file   sr08.h
  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
  *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
- * @date   Mon May 23 13:33:30 2011
+ * @date   Tue May 07 13:33:30 2013
 *
-* Copyright 2011 Shadow Robot Company Ltd.
+* Copyright 2013 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -19,13 +19,13 @@
 * You should have received a copy of the GNU General Public License along
 * with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
- * @brief This is a ROS driver for Shadow Robot #6 EtherCAT product ID
+ * @brief This is a ROS driver for Shadow Robot #8 EtherCAT product ID
  *
  *
  */
 
-#ifndef SR06_H
-#define SR06_H
+#ifndef SR08_H
+#define SR08_H
 
 #include <ethercat_hardware/ethercat_device.h>
 #include <sr_edc_ethercat_drivers/sr_edc.h>
@@ -48,15 +48,15 @@
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+  #include <sr_external_dependencies/external/0230_palm_edc_TS/0230_palm_edc_ethercat_protocol.h>
 }
 
 
-class SR06 : public SrEdc
+class SR08 : public SrEdc
 {
 public:
-  SR06();
-  ~SR06();
+  SR08();
+  ~SR08();
 
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
   int  initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
@@ -93,7 +93,7 @@ private:
   ///counter for the number of empty buffer we're reading.
   unsigned int                     zero_buffer_read;
 
-  boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> > sr_hand_lib;
+  boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> > sr_hand_lib;
 
   /**
    *a counter used to publish the tactiles at 100Hz:
@@ -115,5 +115,5 @@ End:
 */
 
 
-#endif /* SR06_H */
+#endif /* SR08_H */
 

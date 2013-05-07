@@ -225,12 +225,12 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
     command_base_ = start_address;
     command_size_ = ethercat_command_data_size + ethercat_can_bridge_data_size;
 
-    start_address += ethercat_command_data_size;
-    start_address += ethercat_can_bridge_data_size;
+    start_address += command_size_;
 
     status_base_ = start_address;
     status_size_ = ethercat_status_data_size + ethercat_can_bridge_data_size;
 
+    start_address += status_size_;
 
     // ETHERCAT_COMMAND_DATA
     //

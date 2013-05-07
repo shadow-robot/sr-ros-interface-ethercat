@@ -24,4 +24,9 @@
       SR06 etherCAT driver
     </description>
   </class>
+  <class name="8" type="SR08" base_class_type="EthercatDevice">
+    <description>
+      SR08 etherCAT driver
+    </description>
+  </class>
 </library>
