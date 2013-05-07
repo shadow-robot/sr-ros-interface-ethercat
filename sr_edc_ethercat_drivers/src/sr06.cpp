@@ -138,86 +138,8 @@ SR06::~SR06()
  */
 void SR06::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 {
-    SrEdc::construct(sh, start_address);
-
-    command_base_ = start_address;
-    command_size_ = ETHERCAT_COMMAND_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE;
-
-    start_address += ETHERCAT_COMMAND_DATA_SIZE;
-    start_address += ETHERCAT_CAN_BRIDGE_DATA_SIZE;
-
-    status_base_ = start_address;
-    status_size_ = ETHERCAT_STATUS_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE;
-
-
-    // ETHERCAT_COMMAND_DATA
-    //
-    // This is for data going TO the palm
-    //
-    ROS_INFO("First FMMU (command) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", command_base_, command_size_,
-	     static_cast<int>(ETHERCAT_COMMAND_DATA_ADDRESS) );
-    EC_FMMU *commandFMMU = new EC_FMMU( command_base_,                                                  // Logical Start Address    (in ROS address space?)
-                                        command_size_,
-                                        0x00,                                                           // Logical Start Bit
-                                        0x07,                                                           // Logical End Bit
-                                        ETHERCAT_COMMAND_DATA_ADDRESS,                                  // Physical Start Address   (in ET1200 address space?)
-                                        0x00,                                                           // Physical Start Bit
-                                        false,                                                          // Read Enable
-                                        true,                                                           // Write Enable
-                                        true                                                            // Channel Enable
-                                       );
-
-
-
-
-    // ETHERCAT_STATUS_DATA
-    //
-    // This is for data coming FROM the palm
-    //
-    ROS_INFO("Second FMMU (status) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", status_base_, status_size_,
-	     static_cast<int>(ETHERCAT_STATUS_DATA_ADDRESS) );
-    EC_FMMU *statusFMMU = new EC_FMMU(  status_base_,
-                                        status_size_,
-                                        0x00,
-                                        0x07,
-                                        ETHERCAT_STATUS_DATA_ADDRESS,
-                                        0x00,
-                                        true,
-                                        false,
-                                        true);
-
-
-
-    EtherCAT_FMMU_Config *fmmu = new EtherCAT_FMMU_Config(2);
-
-    (*fmmu)[0] = *commandFMMU;
-    (*fmmu)[1] = *statusFMMU;
-
-    sh->set_fmmu_config(fmmu);
-
-    EtherCAT_PD_Config *pd = new EtherCAT_PD_Config(4);
-
-    (*pd)[0] = EC_SyncMan(ETHERCAT_COMMAND_DATA_ADDRESS,             ETHERCAT_COMMAND_DATA_SIZE,    EC_QUEUED, EC_WRITTEN_FROM_MASTER);
-    (*pd)[1] = EC_SyncMan(ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS,  ETHERCAT_CAN_BRIDGE_DATA_SIZE, EC_QUEUED, EC_WRITTEN_FROM_MASTER);
-    (*pd)[2] = EC_SyncMan(ETHERCAT_STATUS_DATA_ADDRESS,              ETHERCAT_STATUS_DATA_SIZE,     EC_QUEUED);
-    (*pd)[3] = EC_SyncMan(ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS,   ETHERCAT_CAN_BRIDGE_DATA_SIZE, EC_QUEUED);
-
-    status_size_ = ETHERCAT_STATUS_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE;
-
-    (*pd)[0].ChannelEnable = true;
-    (*pd)[0].ALEventEnable = true;
-    (*pd)[0].WriteEvent    = true;
-
-    (*pd)[1].ChannelEnable = true;
-    (*pd)[1].ALEventEnable = true;
-    (*pd)[1].WriteEvent    = true;
-
-    (*pd)[2].ChannelEnable = true;
-    (*pd)[3].ChannelEnable = true;
-
-    sh->set_pd_config(pd);
-
-    ROS_INFO("status_size_ : %d ; command_size_ : %d", status_size_, command_size_);
+    SrEdc::construct(sh, start_address, ETHERCAT_COMMAND_DATA_SIZE, ETHERCAT_STATUS_DATA_SIZE, ETHERCAT_CAN_BRIDGE_DATA_SIZE,
+    		ETHERCAT_COMMAND_DATA_ADDRESS, ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS);
 
     ROS_INFO("Finished constructing the SR06 driver");
 }

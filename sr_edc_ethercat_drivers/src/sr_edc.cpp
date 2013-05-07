@@ -67,11 +67,6 @@ namespace is_edc_command_32_bits
   BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
 } // namespace is_edc_command_32_bits
 
-//const unsigned short int SrEdc::device_pub_freq_const      = 1000;
-//const unsigned short int SrEdc::ros_pub_freq_const         = 1000;
-//const unsigned short int SrEdc::max_iter_const             = device_pub_freq_const / ros_pub_freq_const;
-//const unsigned int       SrEdc::nb_sensors_const           = ETHERCAT_STATUS_DATA_SIZE/2; //36;
-//const unsigned char      SrEdc::nb_publish_by_unpack_const = (nb_sensors_const % max_iter_const) ? (nb_sensors_const / max_iter_const) + 1 : (nb_sensors_const / max_iter_const);
 const unsigned int       SrEdc::max_retry                  = 20;
 
 #define ETHERCAT_CAN_BRIDGE_DATA_SIZE sizeof(ETHERCAT_CAN_BRIDGE_DATA)
@@ -187,6 +182,124 @@ SrEdc::~SrEdc()
 void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 {
     SR0X::construct(sh, start_address);
+}
+
+/** \brief Construct function, run at startup to set SyncManagers and FMMUs
+ *
+ *  The role of this function is to setup the SyncManagers and the FMMUs used by this EtherCAT slave.
+ *  This slave is using two Mailboxes on two different memory areas.
+ *
+ *  Here we are setting up the way of communicating between ROS and the PIC32 using the EtherCAT protocol.
+ *
+ *  We communicate using Shared Memory areas.
+ *
+ *  The FMMUs are usefull to map the logical memory used by ROS to the Physical memory of the EtherCAT slave chip (ET1200 chip).
+ *  So that the chip receiving the packet will know that the data at address 0x10000 is in reality to be written at physical address 0x1000 of the chip memory for example.
+ *  It is the mapping between the EtherCAT bus address space and each slave's chip own memory address space.
+ *
+ *  The SyncManagers are usefull to give a safe way of accessing this Shared Memory, using a consumer / producer model. There are features like interrupts to tell the consumer
+ *  that there is something to consume or to tell the producer that the Mailbox is empty and then ready to receive a new message.
+ *
+ *  - One Mailbox contains the commands, written by ROS, read by the PIC32
+ *  - One Mailbox contains the status, written back by the PIC32, read by ROS
+ *
+ *  That's basically one Mailbox for upstream and one Mailbox for downstream.
+ *
+ * - The first Mailbox contains in fact two commands, one is the torque demand, the other is a CAN command used in CAN_DIRECT_MODE to communicate with the SimpleMotor for
+ *   test purposes, or to reflash a new firmware in bootloading mode.
+ *   This Mailbox is at logicial address 0x10000 and mapped via a FMMU to physical address 0x1000 (the first address of user memory)
+ * - The second Mailbox contains in fact two status, they are the response of the two previously described commands. One is the status containing the joints data, sensor
+ *   data, finger tips data and motor data. The other is the can command response in CAN_DIRECT_MODE. When doing a flashing in bootloading mode this is usually an acknowledgment
+ *   from the bootloader. This Mailbox is at logical address 0x10038 and mapped via a FMMU to physical address 0x1038.
+ *
+ * This function sets the two private members command_size_ and status_size_ to be the size of each Mailbox.
+ * It is important for these numbers to be accurate since they are used by the EthercatHardware class when manipulating the buffers.
+ * If you need to have several commands like in this SR06 driver, put the sum of the size, same thing for the status.
+ *
+ */
+void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size, unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
+						 unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address, unsigned int ethercat_can_bridge_data_command_address, unsigned int ethercat_can_bridge_data_status_address)
+{
+    construct(sh, start_address);
+
+    command_base_ = start_address;
+    command_size_ = ethercat_command_data_size + ethercat_can_bridge_data_size;
+
+    start_address += ethercat_command_data_size;
+    start_address += ethercat_can_bridge_data_size;
+
+    status_base_ = start_address;
+    status_size_ = ethercat_status_data_size + ethercat_can_bridge_data_size;
+
+
+    // ETHERCAT_COMMAND_DATA
+    //
+    // This is for data going TO the palm
+    //
+    ROS_INFO("First FMMU (command) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", command_base_, command_size_,
+	     static_cast<int>(ethercat_command_data_address) );
+    EC_FMMU *commandFMMU = new EC_FMMU( command_base_,                                                  // Logical Start Address    (in ROS address space?)
+                                        command_size_,
+                                        0x00,                                                           // Logical Start Bit
+                                        0x07,                                                           // Logical End Bit
+                                        ethercat_command_data_address,                                  // Physical Start Address   (in ET1200 address space?)
+                                        0x00,                                                           // Physical Start Bit
+                                        false,                                                          // Read Enable
+                                        true,                                                           // Write Enable
+                                        true                                                            // Channel Enable
+                                       );
+
+
+
+
+    // ETHERCAT_STATUS_DATA
+    //
+    // This is for data coming FROM the palm
+    //
+    ROS_INFO("Second FMMU (status) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", status_base_, status_size_,
+	     static_cast<int>(ethercat_status_data_address) );
+    EC_FMMU *statusFMMU = new EC_FMMU(  status_base_,
+                                        status_size_,
+                                        0x00,
+                                        0x07,
+                                        ethercat_status_data_address,
+                                        0x00,
+                                        true,
+                                        false,
+                                        true);
+
+
+
+    EtherCAT_FMMU_Config *fmmu = new EtherCAT_FMMU_Config(2);
+
+    (*fmmu)[0] = *commandFMMU;
+    (*fmmu)[1] = *statusFMMU;
+
+    sh->set_fmmu_config(fmmu);
+
+    EtherCAT_PD_Config *pd = new EtherCAT_PD_Config(4);
+
+    (*pd)[0] = EC_SyncMan(ethercat_command_data_address,             ethercat_command_data_size,    EC_QUEUED, EC_WRITTEN_FROM_MASTER);
+    (*pd)[1] = EC_SyncMan(ethercat_can_bridge_data_command_address,  ethercat_can_bridge_data_size, EC_QUEUED, EC_WRITTEN_FROM_MASTER);
+    (*pd)[2] = EC_SyncMan(ethercat_status_data_address,              ethercat_status_data_size,     EC_QUEUED);
+    (*pd)[3] = EC_SyncMan(ethercat_can_bridge_data_status_address,   ethercat_can_bridge_data_size, EC_QUEUED);
+
+    status_size_ = ethercat_status_data_size + ethercat_can_bridge_data_size;
+
+    (*pd)[0].ChannelEnable = true;
+    (*pd)[0].ALEventEnable = true;
+    (*pd)[0].WriteEvent    = true;
+
+    (*pd)[1].ChannelEnable = true;
+    (*pd)[1].ALEventEnable = true;
+    (*pd)[1].WriteEvent    = true;
+
+    (*pd)[2].ChannelEnable = true;
+    (*pd)[3].ChannelEnable = true;
+
+    sh->set_pd_config(pd);
+
+    ROS_INFO("status_size_ : %d ; command_size_ : %d", status_size_, command_size_);
 }
 
 /**
