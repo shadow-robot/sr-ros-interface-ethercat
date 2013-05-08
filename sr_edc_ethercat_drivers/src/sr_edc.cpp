@@ -220,7 +220,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size, unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
 						 unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address, unsigned int ethercat_can_bridge_data_command_address, unsigned int ethercat_can_bridge_data_status_address)
 {
-    construct(sh, start_address);
+    SR0X::construct(sh, start_address);
 
     command_base_ = start_address;
     command_size_ = ethercat_command_data_size + ethercat_can_bridge_data_size;
