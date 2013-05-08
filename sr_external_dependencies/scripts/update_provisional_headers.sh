@@ -9,6 +9,7 @@ mkdir -p ../include/sr_external_dependencies/external
 cd ${START_PATH}
 chmod -R a+w ../include/sr_external_dependencies/external/
 mkdir -p ../include/sr_external_dependencies/external/common/
+mkdir -p ../include/sr_external_dependencies/external/0220_palm_edc/
 mkdir -p ../include/sr_external_dependencies/external/0320_palm_edc_muscle/
 mkdir -p ../include/sr_external_dependencies/external/0230_palm_edc_TS/
 echo "copying (in directory: " $START_PATH " ), from: ../include/sr_external_dependencies/provisional/0220_palm_edc_ethercat_protocol.h to ../include/sr_external_dependencies/external/0220_palm_edc/"
