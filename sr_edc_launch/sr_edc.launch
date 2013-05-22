@@ -25,6 +25,7 @@
   <!-- pr2_etherCAT -->
   <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i $(env ETHERCAT_PORT) -x sh_description" output="screen"  launch-prefix="nice -n -20"> <!--launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
     <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
+    <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
   </node>
 
   <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
