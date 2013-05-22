@@ -45,11 +45,12 @@ namespace shadow_robot
 #endif
 
   SrRobotLib::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
-    : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false), motor_current_state(
+    : main_pic_idle_time(0), main_pic_idle_time_min(1000), motor_current_state(
       operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),
-      control_type_changed_flag_(false),
-      nh_tilde("~")
+      nh_tilde("~"),
+      nullify_demand_(false),
+      control_type_changed_flag_(false)
   {
     lock_command_sending_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
 
@@ -88,6 +89,8 @@ namespace shadow_robot
     }
 #endif
 
+    //initialises self tests (false as this is not a simulated hand\)
+    self_tests_.reset( new SrSelfTest(false) );
   }
 
   void SrRobotLib::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
@@ -458,6 +461,9 @@ namespace shadow_robot
         } // end else reset_queue.empty
       } // end else motor_system_control_flags_.empty
     } //endelse reconfig_queue.empty() && reset_queue.empty()
+
+    //check if we have some self diagnostics test to run and run them
+    self_tests_->checkTest();
   }
 
   void SrRobotLib::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
