@@ -50,5 +50,11 @@
     <param name="publish_frequency" type="double" value="100.0" />
   </node>
 
+  <group if="$(optenv HAND_COLLISION_REACTION 0)">
+    <!-- Run the hand self-collision detection -->
+    <include file="$(find sr_collision_detection)/launch/tf_sr_collision_detection.launch" />
+    <!-- Run the collision reaction (publishes a topic to reduce the max force of the joints that are close to collision) -->
+    <node name="collision_reaction" pkg="sr_collision_detection" type="collision_reaction.py" output="screen" />
+  </group>
 </launch>
 
