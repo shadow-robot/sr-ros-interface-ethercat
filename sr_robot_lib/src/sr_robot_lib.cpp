@@ -463,7 +463,8 @@ namespace shadow_robot
     } //endelse reconfig_queue.empty() && reset_queue.empty()
 
     //check if we have some self diagnostics test to run and run them
-    self_tests_->checkTest();
+    // in a separate thread
+    self_tests_->checkTestAsync();
   }
 
   void SrRobotLib::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
