@@ -374,7 +374,13 @@ namespace shadow_robot
     bool motor_system_controls_callback_( sr_robot_msgs::ChangeMotorSystemControls::Request& request,
                                           sr_robot_msgs::ChangeMotorSystemControls::Response& response );
 
+    /// It is run in a separate thread and calls the checkTests() method of the self_tests_. This avoids the tests blocking the main thread
+    void checkSelfTests();
+
     boost::shared_ptr<SrSelfTest> self_tests_;
+
+    ///Thread for running the tests in parallel when doing the tests on real hand
+    boost::shared_ptr<boost::thread> self_test_thread_;
   };//end class
 }//end namespace
 

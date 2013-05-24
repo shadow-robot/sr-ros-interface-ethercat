@@ -91,6 +91,7 @@ namespace shadow_robot
 
     //initialises self tests (false as this is not a simulated hand\)
     self_tests_.reset( new SrSelfTest(false) );
+    self_test_thread_.reset(new boost::thread(boost::bind(&SrRobotLib::checkSelfTests, this)));
   }
 
   void SrRobotLib::update(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data)
@@ -461,10 +462,6 @@ namespace shadow_robot
         } // end else reset_queue.empty
       } // end else motor_system_control_flags_.empty
     } //endelse reconfig_queue.empty() && reset_queue.empty()
-
-    //check if we have some self diagnostics test to run and run them
-    // in a separate thread
-    self_tests_->checkTestAsync();
   }
 
   void SrRobotLib::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
@@ -1161,6 +1158,18 @@ namespace shadow_robot
       motor_system_control_flags_.push( tmp_motor_controls );
 
     return no_motor_id_out_of_range;
+  }
+
+  void SrRobotLib::checkSelfTests()
+  {
+    ros::Rate loop_rate(1);
+    while (ros::ok())
+    {
+      //check if we have some self diagnostics test to run and run them
+      // in a separate thread
+      self_tests_->checkTest();
+      loop_rate.sleep();
+    }
   }
 
 } //end namespace
