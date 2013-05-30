@@ -28,6 +28,7 @@ function checkout_or_update {
     fi
 }
 
+checkout_or_update common svn://thoth:9998/Pic32/trunk/nodes/common
 checkout_or_update 0220_palm_edc svn://thoth:9998/Pic32/trunk/nodes/0220_palm_edc
 checkout_or_update 0320_palm_edc_muscle svn://thoth:9998/Pic32/trunk/nodes/0320_palm_edc_muscle
 checkout_or_update 0230_palm_edc_TS svn://thoth:9998/Pic32/trunk/nodes/0230_palm_edc_TS
