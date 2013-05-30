@@ -46,8 +46,8 @@ int32u      global_AL_Event_Register = 0;
 
 TACTILE_SENSOR_PROTOCOL_TYPE    tactile_sensor_protocol = TACTILE_SENSOR_PROTOCOL_TYPE_INVALID;
 
-ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND   etherCAT_command_data;              //!< Data structure containing command data, arrived from host PC.
-ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS    etherCAT_status_data;               //!< Data structure containing sensor data, going to PC.
+ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND   etherCAT_command_data;              //!< Data structure containing command data, arrived from host PC.
+ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS    etherCAT_status_data;               //!< Data structure containing sensor data, going to PC.
 
 ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_from_ROS;
 ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
@@ -58,7 +58,7 @@ ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 
 
 #ifdef PALM_PCB_00
-    int8u palm_EDC_0200_sensor_mapping[64] = {IGNORE, IGNORE, IGNORE, IGNORE,  FFJ4,   THJ3,   THJ1,    IGNORE,           // Channel 0
+    int8u palm_EDC_0300_sensor_mapping[64] = {IGNORE, IGNORE, IGNORE, IGNORE,  FFJ4,   THJ3,   THJ1,    IGNORE,           // Channel 0
                                               IGNORE, IGNORE, IGNORE, IGNORE,  MFJ4,   THJ4,   THJ2,    IGNORE,           // Channel 1
                                               FFJ2  , MFJ2  , RFJ2  , LFJ2  ,  RFJ4,   AN0,    IGNORE,  IGNORE,           // Channel 2
                                               FFJ1  , MFJ1  , RFJ1  , LFJ1  ,  THJ5B,  THJ5A,  IGNORE,  IGNORE,           // Channel 3
@@ -72,7 +72,7 @@ ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 
 
 #ifdef PALM_PCB_01    
-    int8u palm_EDC_0200_sensor_mapping[64] = {IGNORE, IGNORE, IGNORE, IGNORE,  FFJ4,   THJ4,   IGNORE,  IGNORE,           // Channel 0
+    int8u palm_EDC_0300_sensor_mapping[64] = {IGNORE, IGNORE, IGNORE, IGNORE,  FFJ4,   THJ4,   IGNORE,  IGNORE,           // Channel 0
                                               IGNORE, IGNORE, IGNORE, IGNORE,  MFJ4,   THJ3,   IGNORE,  IGNORE,           // Channel 1
                                               RFJ2  , MFJ2  , FFJ2  , LFJ2  ,  RFJ4,   AN0,    THJ1,    IGNORE,           // Channel 2
                                               RFJ1  , MFJ1  , FFJ1  , LFJ1  ,  THJ5B,  THJ5A,  IGNORE,  IGNORE,           // Channel 3
@@ -89,8 +89,6 @@ int32u frame_start_time = 0;                //!< Is set to the value of the MIPS
 int32u idle_time_start  = 0;                //!< Is set to the value of the MIPS core timer when the status data are written to the ET1200
 
 
-
-//Output_Pin_Class *SPI2_cs = 0;
 
 
 LED_Class *LED_CAN1_TX;                     //!< The CAN 1 transmit LED
@@ -117,15 +115,12 @@ LED_Class *ET1200_AL_err_LED;               //!< EtherCAT Application Layer Erro
 #endif
 
 
-int num_motor_CAN_messages_received_this_frame = 0;     //!< Count of the number of CAN messages received since the Start Of Frame message was sent.
+int num_muscle_CAN_messages_received_this_frame = 0;     //!< Count of the number of CAN messages received since the Start Of Frame message was sent.
 
 
 
 void run_tests(void)
 {
-    assert_static( (PALM_0200_ETHERCAT_STATUS_DATA_SIZE  + ETHERCAT_CAN_BRIDGE_DATA_SIZE) == 232);
-    assert_static( (PALM_0200_ETHERCAT_COMMAND_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE) ==  70);
-
     typedef_tests();
     simple_CAN_tests();
 }
@@ -143,7 +138,6 @@ void approx_1ms_handler(void)
     Handle_LEDs();
 
     #if AUTO_TRIGGER == 1
-        etherCAT_command_data.EDC_command = EDC_COMMAND_SENSOR_DATA;
         Read_All_Sensors();
     #endif
 
@@ -192,8 +186,6 @@ void initialise_this_node(void)
 
     Output_Pin_Class *LED_pin_AL_ERR        = Get_Output_Pin(LED_AL_ERR_PIN);
 
-    //SPI2_cs                                 = Get_Output_Pin(SPI2_CS_PIN);
-    
     #ifdef ACCEL_CS_PIN
         Output_Pin_Class *accel_CS          = Get_Output_Pin(ACCEL_CS_PIN);
         Pin_Set(accel_CS);
@@ -269,10 +261,10 @@ void initialise_this_node(void)
 
 void Read_Commands_From_ET1200(void)
 {
-    assert_dynamic(PALM_0200_ETHERCAT_COMMAND_DATA_SIZE > 0);
+    assert_dynamic(ETHERCAT_COMMAND_DATA_SIZE > 0);
     //read_ET1200_register_N(EC_PALM_EDC_COMMAND_PHY_BASE, ETHERCAT_COMMAND_DATA_SIZE, (int8u*)(&etherCAT_command_data));
-    read_ET1200_register_N( PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS,
-                            PALM_0200_ETHERCAT_COMMAND_DATA_SIZE,
+    read_ET1200_register_N( ETHERCAT_COMMAND_DATA_ADDRESS,
+                            ETHERCAT_COMMAND_DATA_SIZE,
                             (int8u*)(&etherCAT_command_data)  );
 }
 
@@ -285,7 +277,7 @@ void Read_Commands_From_ET1200(void)
 //! @author Hugo Elias
 inline void write_status_data_To_ET1200(void)
 {
-    write_ET1200_register_N(PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0200_ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
+    write_ET1200_register_N(ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
 }
 
 
@@ -321,9 +313,9 @@ int8u ROS_Wants_me_to_send_CAN(void)
 //! Are we still waiting for CAN messages to arrive?
 //!
 //! @author Hugo Elias
-int8u not_all_motor_data_received(void)
+int8u not_all_muscle_data_received(void)
 {
-    return num_motor_CAN_messages_received_this_frame < 10;
+    return num_muscle_CAN_messages_received_this_frame < 4;
 }
 
 
@@ -339,24 +331,24 @@ int32u get_frame_time_us(void)
 
 
 
-//! Half the motors will each send back one data message.
-//! Wait until we have 5 messages from each bus, then we
+//! The muscle drivers will each send back two data messages.
+//! Wait until we have 2 messages from each bus, then we
 //! can write the data back to the ET1200
 //!
 //! But, at some point, we have to time out, because either some
-//! motors aren't there, or they're just late.
+//! muscle driverss aren't there, or they're just late.
 //!
 //! @param timeout_us How long, in microseconds, after the start of frame should we give up waiting?
 //!
 //! @author Hugo Elias
-void Wait_For_All_Motors_To_Send_Data(int32u timeout_us)
+void Wait_For_All_Muscles_To_Send_Data(int32u timeout_us)
 {
     do
     {
-        collect_motor_data_CAN_messages(CAN1);
-        collect_motor_data_CAN_messages(CAN2);
+        collect_muscle_data_CAN_messages(CAN1);
+        collect_muscle_data_CAN_messages(CAN2);
     }
-    while (  (not_all_motor_data_received())
+    while (  (not_all_muscle_data_received())
           && (get_frame_time_us() < timeout_us)
           );
 }
@@ -409,7 +401,7 @@ void Read_All_Sensors(void)
     Nop();
     Nop();
 
-    for (j=0; j<SENSORS_NUM_0220; j++)
+    for (j=0; j<SENSORS_NUM_0320; j++)
         etherCAT_status_data.sensors[j] = j;
 
     switch (tactile_sensor_protocol)                                                // Read tactile sensors before joint sensors?
@@ -448,19 +440,19 @@ void Read_All_Sensors(void)
                 break;
         }
 
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(0);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(1);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(2);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(3);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(4);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(5);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(6);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(7);
+        etherCAT_status_data.sensors[ palm_EDC_0300_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(0);
+        etherCAT_status_data.sensors[ palm_EDC_0300_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(1);
+        etherCAT_status_data.sensors[ palm_EDC_0300_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(2);
+        etherCAT_status_data.sensors[ palm_EDC_0300_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(3);
+        etherCAT_status_data.sensors[ palm_EDC_0300_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(4);
+        etherCAT_status_data.sensors[ palm_EDC_0300_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(5);
+        etherCAT_status_data.sensors[ palm_EDC_0300_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(6);
+        etherCAT_status_data.sensors[ palm_EDC_0300_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(7);
     }
 
     #if AUTO_TRIGGER == 1
         etherCAT_command_data.tactile_data_type = TACTILE_SENSOR_TYPE_BIOTAC_PDC;
-        tactile_sensor_protocol                 = TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3;
+        tactile_sensor_protocol                   = TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3;
     #endif
 
     delay_us(10);
@@ -475,7 +467,7 @@ void Read_All_Sensors(void)
         case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:                               // BioTac: Hall, Misc, and Pac again are read after joint sensors.
             biotac_read_sensors(&etherCAT_command_data, &etherCAT_status_data, 0);
 
-            Wait_For_All_Motors_To_Send_Data(frame_time+490);                       // Use this delay time productively
+            Wait_For_All_Muscles_To_Send_Data(frame_time+490);                       // Use this delay time productively
             Wait_For_Until_Frame_Time(frame_time+500);                              // Now that we're close to the time, use a more accurate wait routine.
 
             biotac_read_pac(1, &etherCAT_command_data, &etherCAT_status_data);      // Read the Pac again at 500us to achieve 2000Hz.
@@ -488,7 +480,7 @@ void Read_All_Sensors(void)
 
     if (etherCAT_command_data.tactile_data_type == TACTILE_SENSOR_TYPE_WHICH_SENSORS)   // Is the host asking which tactile sensor protocol we're using?
     {
-        etherCAT_status_data.tactile[0].word[0] = tactile_sensor_protocol;              // Then tell it!
+        etherCAT_status_data.tactile[0].word[0] = tactile_sensor_protocol;                // Then tell it!
         etherCAT_status_data.tactile[1].word[0] = tactile_sensor_protocol;
         etherCAT_status_data.tactile[2].word[0] = tactile_sensor_protocol;
         etherCAT_status_data.tactile[3].word[0] = tactile_sensor_protocol;
@@ -500,22 +492,21 @@ void Read_All_Sensors(void)
 
 
 
-//! Zero the array containing the motor data so that it's tidy.
+//! Zero the array containing the muscle data so that it's tidy.
 //!
 //! @author Hugo Elias
-void zero_motor_data_packets(void)
+void zero_muscle_data_packets(void)
 {
     int i;
 
-    for (i=0; i<9; i++)
+    for (i=0; i<NUM_MUSCLES; i++)
     {
-        etherCAT_status_data.motor_data_packet[i].torque = 0;
-        etherCAT_status_data.motor_data_packet[i].misc   = 0;
+        etherCAT_status_data.pressure_sensors[i] = 0;
     }
 
-    etherCAT_status_data.which_motor_data_arrived    = 0x00000000;
-    etherCAT_status_data.which_motor_data_had_errors = 0x00000000;
-    etherCAT_status_data.which_motors                = etherCAT_command_data.which_motors;
+
+    //etherCAT_status_data.which_pressure_data_arrived[]i = 0x00;
+    //etherCAT_status_data.which_muscle_data_had_errors = 0x00000000;
 }
 
 
@@ -526,22 +517,45 @@ void zero_motor_data_packets(void)
 //! @author Hugo Elias
 void Check_For_EtherCAT_Packet(void)
 {
-    ET1200_Update();
-
-    collect_one_CAN_message();                                                              // Flush the CAN buses.
-                                                                                            // But save the last message in case this is
-                                                                                            // a bootloader message.
-
+#warning FIX ME
+    //collect_muscle_data_CAN_messages(CAN1);                                               // Mop up any missed CAN messages
+    //collect_muscle_data_CAN_messages(CAN2);                                               // 
 
     #if AUTO_TRIGGER == 1                                                                   // This is just for debugging.
         if (get_frame_time_us() > 1150)                                                     // 
         {                                                                                   // 
             frame_start_time = ReadCoreTimer();                                             // 
             approx_1ms_handler();                                                           // 
+
+            etherCAT_command_data.EDC_command    = EDC_COMMAND_SENSOR_DATA;      // Normal sensor sampling mode
+            etherCAT_command_data.from_muscle_data_type = MUSCLE_DATA_PRESSURE;
+            etherCAT_command_data.muscle_data[ 0] = 0xCD;
+            etherCAT_command_data.muscle_data[ 1] = 0xEF;
+            etherCAT_command_data.muscle_data[ 2] = 0x01;
+            etherCAT_command_data.muscle_data[ 3] = 0x23;
+            etherCAT_command_data.muscle_data[ 4] = 0xCD;
+            etherCAT_command_data.muscle_data[ 5] = 0xEF;
+            etherCAT_command_data.muscle_data[ 6] = 0x01;
+            etherCAT_command_data.muscle_data[ 7] = 0x23;
+            etherCAT_command_data.muscle_data[ 8] = 0xCD;
+            etherCAT_command_data.muscle_data[ 9] = 0x01;
+            etherCAT_command_data.muscle_data[10] = 0xCD;
+            etherCAT_command_data.muscle_data[11] = 0xEF;
+            etherCAT_command_data.muscle_data[12] = 0x01;
+            etherCAT_command_data.muscle_data[13] = 0x23;
+            etherCAT_command_data.muscle_data[14] = 0xCD;
+            etherCAT_command_data.muscle_data[15] = 0xEF;
+            etherCAT_command_data.muscle_data[16] = 0x01;
+            etherCAT_command_data.muscle_data[17] = 0x23;
+            etherCAT_command_data.muscle_data[18] = 0xCD;
+            etherCAT_command_data.muscle_data[19] = 0x01;
+            Service_EtherCAT_Packet();
         }                                                                                   // 
         return;                                                                             // 
     #endif                                                                                  // 
 
+
+    ET1200_Update();
 
     if (There_is_Command_From_ET1200())
     {   
@@ -567,7 +581,9 @@ void Check_For_EtherCAT_Packet(void)
 //! @author Hugo Elias
 void Service_EtherCAT_Packet(void)
 {
-    Read_Commands_From_ET1200();                                                            // Read the command data
+    #if AUTO_TRIGGER == 0
+        Read_Commands_From_ET1200();                                                            // Read the command data
+    #endif
 
 
     switch (etherCAT_command_data.EDC_command)
@@ -578,21 +594,22 @@ void Service_EtherCAT_Packet(void)
                                                                                             // This EDC_command is handled,
             LED_Off(ET1200_AL_err_LED);                                                     // so extinguish the Application Layer LED
 
-            send_CAN_request_data_message( etherCAT_command_data.which_motors,
-                                           etherCAT_command_data.from_motor_data_type);     // Start of frame message
+            send_CAN_request_data_message( etherCAT_command_data.from_muscle_data_type);    // Start of frame message
 
 
-            zero_motor_data_packets();                                                      // Housekeeping
+            zero_muscle_data_packets();                                                     // Housekeeping
 
             Read_All_Sensors();                                                             // Read all joint and tactile sensors.
-            num_motor_CAN_messages_received_this_frame = 0;
-            Wait_For_All_Motors_To_Send_Data(600);                                          // Wait for 600us max.
-            Send_Data_To_Motors(&etherCAT_command_data);                                    // Send CAN messages to motors
+            num_muscle_CAN_messages_received_this_frame = 0;
+            Wait_For_All_Muscles_To_Send_Data(500);                                         // Wait for 500us max.
+            Send_Data_To_Muscles(&etherCAT_command_data);                                   // Send CAN messages to muscles
 
             etherCAT_status_data.EDC_command  = EDC_COMMAND_SENSOR_DATA;                    // FIXME: I don't think this calculation is correct
             etherCAT_status_data.idle_time_us = calculate_idle_time();                      // 
 
-            write_status_data_To_ET1200();
+            #if AUTO_TRIGGER == 0
+                write_status_data_To_ET1200();
+            #endif
             idle_time_start = ReadCoreTimer();                                              // Idle time begins now because the status data
                                                                                             // has been written to the ET1200. The next EtherCAT
                                                                                             // packet can arrive any time after this.
@@ -608,7 +625,7 @@ void Service_EtherCAT_Packet(void)
 
             if ( ROS_Wants_me_to_send_CAN() )
             {
-                read_ET1200_register_N(PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_from_ROS));
+                read_ET1200_register_N(ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_from_ROS));
                 send_CAN_message_from_ROS();
                 global_AL_Event_Register = read_ET1200_register_32u(0x220);
             }
@@ -622,20 +639,7 @@ void Service_EtherCAT_Packet(void)
 
             collect_one_CAN_message();                                                      // From either CAN bus
 
-            write_ET1200_register_N(PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
-
-            can_bridge_data_to_ROS.message_id      = 0;                                     // Clear the buffer just for Wireshark tidyness
-            can_bridge_data_to_ROS.message_length  = 0;
-            can_bridge_data_to_ROS.can_bus         = 0;
-            can_bridge_data_to_ROS.message_data[0] = 0;
-            can_bridge_data_to_ROS.message_data[1] = 0;
-            can_bridge_data_to_ROS.message_data[2] = 0;
-            can_bridge_data_to_ROS.message_data[3] = 0;
-            can_bridge_data_to_ROS.message_data[4] = 0;
-            can_bridge_data_to_ROS.message_data[5] = 0;
-            can_bridge_data_to_ROS.message_data[6] = 0;
-            can_bridge_data_to_ROS.message_data[7] = 0;
-
+            write_ET1200_register_N(ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
             idle_time_start = ReadCoreTimer();                                              // Idle time begins now
 
             break;
@@ -660,10 +664,10 @@ void Platform_Init_Callback(void)
     etherCAT_command_data.EDC_command        = 0xDD;//EDC_COMMAND_SENSOR_DATA;
     can_bridge_data_from_ROS.message_data[0] = 0xff;
 
-    for (i = 1; i < PALM_0200_ETHERCAT_STATUS_DATA_SIZE / 2 ; ++i)
+    for (i = 1; i < ETHERCAT_STATUS_DATA_SIZE / 2 ; ++i)
         ((int16s *)&etherCAT_status_data)[i] = 0xDEAD;
     
-    write_ET1200_register_N  ( PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0200_ETHERCAT_STATUS_DATA_SIZE,   (int8u*)&etherCAT_status_data);
+    write_ET1200_register_N  ( ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_STATUS_DATA_SIZE,   (int8u*)&etherCAT_status_data);
 }
 
 
@@ -790,41 +794,80 @@ void __assert_dynamic_fail(const char* UNUSED(fmt), ...)
 
 
 
-//! Called when a CAN message arrives from motor unit, containing measured torque, and one other value.
-//! Declared in simple_can.h
+//! Called when a CAN message arrives from Muscle driver board, containing 5 measured pressure values, or some other data according to data_type
+//! Declared in simple_can_muscle.h
 //! 
-//! @param data_type        Tells us the meaning of other_value.
-//! @param motor_ID         Which motor did this message come from?  range[0..19]. 
-//! @param measured_torque  What is says.
-//! @param other_value      Another value, the meaning of which is determined by data_type.
+//! @param data_type    Tells us the meaning of the values
+//! @param muscle_set   Which set of muscles does this message come from?  range[0..7]. 
 //!
 //! @author Hugo Elias
-void Received_Motor_Data(FROM_MOTOR_DATA_TYPE data_type, int8u motor_number, int16s measured_torque, int16u other_value)
+
+void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_driver_number, MUSCLE_DATA_PACKET *muscle_data_packet)
 {
-    if (motor_number > 19)                                                                              // A motor_number > 19 is an error
+    TWELVE_BIT_INT_TO_NIBBLES   twelve_bit_int_to_nibbles;
+
+    if (muscle_driver_number > 7)                                                                       // A muscle_driver_number > 1 is an error
     {                                                                                                   // Let's just ignore it and hope it goes away.
         return;
     }
 
-    FROM_MOTOR_DATA_TYPE    expected_data_type   = etherCAT_command_data.from_motor_data_type;
+    FROM_MUSCLE_DATA_TYPE    expected_data_type   = etherCAT_command_data.from_muscle_data_type;
 
-    //Pin_Set(SPI2_cs);
-    num_motor_CAN_messages_received_this_frame++;
-    //Pin_Clr(SPI2_cs);
+    num_muscle_CAN_messages_received_this_frame++;
+
 
     if (data_type == expected_data_type)                                                                // This is good :)
     {
-        etherCAT_status_data.motor_data_type                            = data_type;
-        etherCAT_status_data.motor_data_packet[motor_number>>1].torque  = measured_torque;
-        etherCAT_status_data.motor_data_packet[motor_number>>1].misc    = other_value;
+        etherCAT_status_data.muscle_data_type = data_type;
 
-        etherCAT_status_data.which_motor_data_arrived                  |= 0x00000001 << motor_number;   // Record that a message arrived
-        etherCAT_status_data.which_motor_data_had_errors               &= 0xFFFFFFFE << motor_number;   // and that it was good (as far as we can tell)
+        muscle_driver_number *= NUM_PRESSURE_SENSORS_PER_MESSAGE;
+
+
+                                                                                                        // Unpack the 
+        twelve_bit_int_to_nibbles.nibbles.padding = 0;
+
+        twelve_bit_int_to_nibbles.nibbles.L = muscle_data_packet->packed.pressure0_L;
+        twelve_bit_int_to_nibbles.nibbles.M = muscle_data_packet->packed.pressure0_M;
+        twelve_bit_int_to_nibbles.nibbles.H = muscle_data_packet->packed.pressure0_H;
+        etherCAT_status_data.pressure_sensors[muscle_driver_number + 0] = twelve_bit_int_to_nibbles.integer;
+
+        twelve_bit_int_to_nibbles.nibbles.L = muscle_data_packet->packed.pressure1_L;
+        twelve_bit_int_to_nibbles.nibbles.M = muscle_data_packet->packed.pressure1_M;
+        twelve_bit_int_to_nibbles.nibbles.H = muscle_data_packet->packed.pressure1_H;
+        etherCAT_status_data.pressure_sensors[muscle_driver_number + 1] = twelve_bit_int_to_nibbles.integer;
+
+        twelve_bit_int_to_nibbles.nibbles.L = muscle_data_packet->packed.pressure2_L;
+        twelve_bit_int_to_nibbles.nibbles.M = muscle_data_packet->packed.pressure2_M;
+        twelve_bit_int_to_nibbles.nibbles.H = muscle_data_packet->packed.pressure2_H;
+        etherCAT_status_data.pressure_sensors[muscle_driver_number + 2] = twelve_bit_int_to_nibbles.integer;
+
+        twelve_bit_int_to_nibbles.nibbles.L = muscle_data_packet->packed.pressure3_L;
+        twelve_bit_int_to_nibbles.nibbles.M = muscle_data_packet->packed.pressure3_M;
+        twelve_bit_int_to_nibbles.nibbles.H = muscle_data_packet->packed.pressure3_H;
+        etherCAT_status_data.pressure_sensors[muscle_driver_number + 3] = twelve_bit_int_to_nibbles.integer;
+
+        twelve_bit_int_to_nibbles.nibbles.L = muscle_data_packet->packed.pressure4_L;
+        twelve_bit_int_to_nibbles.nibbles.M = muscle_data_packet->packed.pressure4_M;
+        twelve_bit_int_to_nibbles.nibbles.H = muscle_data_packet->packed.pressure4_H;
+        etherCAT_status_data.pressure_sensors[muscle_driver_number + 4] = twelve_bit_int_to_nibbles.integer;
+
+
+        
+/*
+        etherCAT_status_data.pressure_sensors[muscle_set + 0] = muscle_data_packet->packed.pressure0;   // Can't use a loop here, because pressure0 etc
+        etherCAT_status_data.pressure_sensors[muscle_set + 1] = muscle_data_packet->packed.pressure1;   // are actually 12-bit fields, and you can't
+        etherCAT_status_data.pressure_sensors[muscle_set + 2] = muscle_data_packet->packed.pressure2;   // have an array of bit fields because you can't
+        etherCAT_status_data.pressure_sensors[muscle_set + 3] = muscle_data_packet->packed.pressure3;   // have a pointer to them. The fields exist because
+        etherCAT_status_data.pressure_sensors[muscle_set + 4] = muscle_data_packet->packed.pressure4;   // of CAN bus packet size limit, and this C code nicely
+*/                                                                                                        // unpacks the data.
+
+        //etherCAT_status_data.which_muscle_data_arrived                  |= 0x00000001 << muscle_driver_number;   // Record that a message arrived
+        //etherCAT_status_data.which_muscle_data_had_errors               &= 0xFFFFFFFE << muscle_driver_number;   // and that it was good (as far as we can tell)
     }
     else
     {
-        etherCAT_status_data.which_motor_data_arrived                  |= 0x00000001 << motor_number;   // Record that a message arrived
-        etherCAT_status_data.which_motor_data_had_errors               |= 0x00000001 << motor_number;   // and that it was bad :(
+        //etherCAT_status_data.which_muscle_data_arrived                  |= 0x00000001 << muscle_driver_number;   // Record that a message arrived
+        //etherCAT_status_data.which_muscle_data_had_errors               |= 0x00000001 << muscle_driver_number;   // and that it was bad :(
     }
 }
 
@@ -852,7 +895,7 @@ void delay_us(int32u microseconds)
 //! Correct length pause, which works by watching the CP0 COUNT register.
 //! This code handles one rollover, so, as long as the delay isn't more than 107 seconds, you should be OK.
 //!
-//! @param milliseconds The number of microseconds to pause for
+//! @param milliseconds The number of milliseconds to pause for
 //!
 //! @author Hugo Elias
 void delay_ms(int32u milliseconds)

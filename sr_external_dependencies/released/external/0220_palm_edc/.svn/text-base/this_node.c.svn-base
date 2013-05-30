@@ -123,8 +123,8 @@ int num_motor_CAN_messages_received_this_frame = 0;     //!< Count of the number
 
 void run_tests(void)
 {
-    assert_static( (ETHERCAT_STATUS_DATA_SIZE  + ETHERCAT_CAN_BRIDGE_DATA_SIZE) == 232);
-    assert_static( (ETHERCAT_COMMAND_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE) ==  70);
+    assert_static( (PALM_0200_ETHERCAT_STATUS_DATA_SIZE  + ETHERCAT_CAN_BRIDGE_DATA_SIZE) == 232);
+    assert_static( (PALM_0200_ETHERCAT_COMMAND_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE) ==  70);
 
     typedef_tests();
     simple_CAN_tests();
@@ -269,10 +269,10 @@ void initialise_this_node(void)
 
 void Read_Commands_From_ET1200(void)
 {
-    assert_dynamic(ETHERCAT_COMMAND_DATA_SIZE > 0);
+    assert_dynamic(PALM_0200_ETHERCAT_COMMAND_DATA_SIZE > 0);
     //read_ET1200_register_N(EC_PALM_EDC_COMMAND_PHY_BASE, ETHERCAT_COMMAND_DATA_SIZE, (int8u*)(&etherCAT_command_data));
-    read_ET1200_register_N( ETHERCAT_COMMAND_DATA_ADDRESS,
-                            ETHERCAT_COMMAND_DATA_SIZE,
+    read_ET1200_register_N( PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS,
+                            PALM_0200_ETHERCAT_COMMAND_DATA_SIZE,
                             (int8u*)(&etherCAT_command_data)  );
 }
 
@@ -285,7 +285,7 @@ void Read_Commands_From_ET1200(void)
 //! @author Hugo Elias
 inline void write_status_data_To_ET1200(void)
 {
-    write_ET1200_register_N(ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
+    write_ET1200_register_N(PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0200_ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
 }
 
 
@@ -608,7 +608,7 @@ void Service_EtherCAT_Packet(void)
 
             if ( ROS_Wants_me_to_send_CAN() )
             {
-                read_ET1200_register_N(ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_from_ROS));
+                read_ET1200_register_N(PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_from_ROS));
                 send_CAN_message_from_ROS();
                 global_AL_Event_Register = read_ET1200_register_32u(0x220);
             }
@@ -622,7 +622,7 @@ void Service_EtherCAT_Packet(void)
 
             collect_one_CAN_message();                                                      // From either CAN bus
 
-            write_ET1200_register_N(ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
+            write_ET1200_register_N(PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
 
             can_bridge_data_to_ROS.message_id      = 0;                                     // Clear the buffer just for Wireshark tidyness
             can_bridge_data_to_ROS.message_length  = 0;
@@ -660,10 +660,10 @@ void Platform_Init_Callback(void)
     etherCAT_command_data.EDC_command        = 0xDD;//EDC_COMMAND_SENSOR_DATA;
     can_bridge_data_from_ROS.message_data[0] = 0xff;
 
-    for (i = 1; i < ETHERCAT_STATUS_DATA_SIZE / 2 ; ++i)
+    for (i = 1; i < PALM_0200_ETHERCAT_STATUS_DATA_SIZE / 2 ; ++i)
         ((int16s *)&etherCAT_status_data)[i] = 0xDEAD;
     
-    write_ET1200_register_N  ( ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_STATUS_DATA_SIZE,   (int8u*)&etherCAT_status_data);
+    write_ET1200_register_N  ( PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0200_ETHERCAT_STATUS_DATA_SIZE,   (int8u*)&etherCAT_status_data);
 }
 
 

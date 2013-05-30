@@ -42,8 +42,6 @@
 #define THIS_NODE_H_INCLUDED
 
 #define DUAL_CAN_AVAILABLE
-#define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
-#define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS
 
 #include "GenericTypeDefs.h"
 
@@ -60,11 +58,12 @@
 
 
 #define NO_STRINGS
-#include "0220_palm_edc_ethercat_protocol.h"
+#include "0230_palm_edc_ethercat_protocol.h"
+#define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND
+#define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS
 #include "simple_can/simple_can.h"
 
-#define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
-#define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS
+
 
 
 /**
@@ -126,7 +125,7 @@ void Check_For_EtherCAT_Packet(void);
 
 
 // application defines
-#define THIS_NODE_PRODUCT_CODE      0x0006
+#define THIS_NODE_PRODUCT_CODE      0x0008
 
 #define SYSTEM_FREQ_HZ            80000000
 #define PERIPHERAL_BUS_CLOCK_HZ   40000000
@@ -154,6 +153,7 @@ void Check_For_EtherCAT_Packet(void);
 #include "hardware/et1200/et1200.h"
 #include "syntouch/biotac_2_3_parallel.h"
 #include "pst/pst_parallel.h"
+#include "bielefeld/ubi_parallel.h"
 #include "itg3200/itg3200.h"
 #include "leds/leds.h"
 
@@ -198,7 +198,7 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define USE_SIMPLE_PST_CS
     #define AUTO_TRIGGER         0                      //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
 
-    #define ET1200_CHIP_SELECT_PIN      'C', 14
+    #define ET1200_CHIP_SELECT_PIN      'C', 14424
     #define ET1200_RESET_PIN            'F',  3
     #define ET1200_EEPROM_PIN           'G',  2
     #define SPI_CS_PIN                  'B',  9
@@ -232,9 +232,9 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define     SPIP_INPUT_BIT_5        (spi_somi_port & 0x0020)
     #define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
     #define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
-    
-    #define     SPIP_INPUT_PORT         PORTE
 
+    #define     SPIP_INPUT_PORT         PORTE
+    
     #define     FF_SOMI                 (spi_somi_port & 0x0001)
     #define     MF_SOMI                 (spi_somi_port & 0x0002)
     #define     RF_SOMI                 (spi_somi_port & 0x0004)

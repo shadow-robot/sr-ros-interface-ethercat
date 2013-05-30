@@ -48,7 +48,7 @@
 #include "GenericTypeDefs.h"
 
 #include <plib.h>
-#include <peripheral/can.h>
+#include <peripheral/CAN.h>
 #include <peripheral/timer.h>
 #include "hardware/can/shadow_can.h"
 #include "misc/typedefs_shadow.h"

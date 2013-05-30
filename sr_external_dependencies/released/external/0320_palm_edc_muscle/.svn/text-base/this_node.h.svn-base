@@ -30,7 +30,7 @@
 //  -------
 //
 //! @file 
-//! This Node definition for the 0220 Palm EDC node
+//! This Node definition for the 0320 Palm EDC node
 //! 
 //! 
 //! 
@@ -42,13 +42,11 @@
 #define THIS_NODE_H_INCLUDED
 
 #define DUAL_CAN_AVAILABLE
-#define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
-#define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS
 
 #include "GenericTypeDefs.h"
 
 #include <plib.h>
-#include <peripheral/CAN.h>
+#include <peripheral/can.h>
 #include <peripheral/timer.h>
 #include "hardware/can/shadow_can.h"
 #include "misc/typedefs_shadow.h"
@@ -60,11 +58,11 @@
 
 
 #define NO_STRINGS
-#include "0220_palm_edc_ethercat_protocol.h"
-#include "simple_can/simple_can.h"
+#include "0320_palm_edc_ethercat_protocol.h"
+#include "simple_can/simple_can_muscle.h"
 
-#define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
-#define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS
+#define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND
+#define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS
 
 
 /**
@@ -137,9 +135,6 @@ void Check_For_EtherCAT_Packet(void);
 #define NUM_LEDS                         7
 #define NUM_SPI_PORTS                    2
 
-#define ET1200_SPI_CHANNEL               0
-#define CAN_BASE_ADR_MOTORS_TX           0x0200
-#define CAN_BASE_ADR_MOTORS_RX           0x0300
 #define FIND_FREE_CAN_BUFFER_MAX_TRIES   8
 
 
@@ -167,18 +162,16 @@ void Read_Commands_From_ET1200(void);
 void Send_All_CAN_Messages(void);
 void Translate_SOMI_Bits(void);
 void Read_All_Sensors(void);
-void Collect_All_CAN_Messages(void);
-int32u get_frame_time_us(void);
-void Wait_For_Until_Frame_Time(int32u frame_time_us);
-inline void write_status_data_To_ET1200(void);
+void collect_muscle_data_CAN_messages(CAN_MODULE can_bus);
+
+       int32u get_frame_time_us(void);
+       void   Wait_For_Until_Frame_Time(int32u frame_time_us);
+inline void   write_status_data_To_ET1200(void);
 
 void delay_us(int32u microseconds) ;
 void delay_ms(int32u milliseconds);
 
-int8u get_which_motors(void);
-int8u get_from_motor_data_type(void);
-
-void bad_CAN_message_seen(void);
+void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_driver_number, MUSCLE_DATA_PACKET *muscle_data_packet);
 
 
 extern int8u palm_EDC_0200_sensor_mapping[64];
@@ -233,8 +226,6 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
     #define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
     
-    #define     SPIP_INPUT_PORT         PORTE
-
     #define     FF_SOMI                 (spi_somi_port & 0x0001)
     #define     MF_SOMI                 (spi_somi_port & 0x0002)
     #define     RF_SOMI                 (spi_somi_port & 0x0004)
@@ -262,7 +253,7 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 
 #ifdef PALM_PCB_01                                          // Definitions for actual palm board inside hand
     #define USE_SIMPLE_PST_CS
-    #define AUTO_TRIGGER         0                          //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
+    #define AUTO_TRIGGER         1                          //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
 
     #define ET1200_CHIP_SELECT_PIN      'C', 14
     #define ET1200_RESET_PIN            'F',  3

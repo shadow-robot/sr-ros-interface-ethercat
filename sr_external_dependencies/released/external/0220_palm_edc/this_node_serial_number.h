@@ -7,11 +7,11 @@
 // 0x0015 Syntouch
 // 0x0016 
 // 0x0017 Hyflam
-// 0x00AA ######### TEST #########
+// 0x0018 UPMC
 // 0x028A EtherCAT Demo Hand 1
 // 0x016A Ulster (A)
 // 0x030A Qualcom 
 
-#define THIS_NODE_SERIAL_NUMBER     0x00AA
+#define THIS_NODE_SERIAL_NUMBER     0x016A
 
 #endif

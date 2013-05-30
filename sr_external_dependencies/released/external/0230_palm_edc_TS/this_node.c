@@ -46,8 +46,8 @@ int32u      global_AL_Event_Register = 0;
 
 TACTILE_SENSOR_PROTOCOL_TYPE    tactile_sensor_protocol = TACTILE_SENSOR_PROTOCOL_TYPE_INVALID;
 
-ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND   etherCAT_command_data;              //!< Data structure containing command data, arrived from host PC.
-ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS    etherCAT_status_data;               //!< Data structure containing sensor data, going to PC.
+ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND   etherCAT_command_data;              //!< Data structure containing command data, arrived from host PC.
+ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS    etherCAT_status_data;               //!< Data structure containing sensor data, going to PC.
 
 ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_from_ROS;
 ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
@@ -90,8 +90,6 @@ int32u idle_time_start  = 0;                //!< Is set to the value of the MIPS
 
 
 
-//Output_Pin_Class *SPI2_cs = 0;
-
 
 LED_Class *LED_CAN1_TX;                     //!< The CAN 1 transmit LED
 LED_Class *LED_CAN1_RX;                     //!< The CAN 1 receive LED
@@ -123,9 +121,6 @@ int num_motor_CAN_messages_received_this_frame = 0;     //!< Count of the number
 
 void run_tests(void)
 {
-    assert_static( (PALM_0200_ETHERCAT_STATUS_DATA_SIZE  + ETHERCAT_CAN_BRIDGE_DATA_SIZE) == 232);
-    assert_static( (PALM_0200_ETHERCAT_COMMAND_DATA_SIZE + ETHERCAT_CAN_BRIDGE_DATA_SIZE) ==  70);
-
     typedef_tests();
     simple_CAN_tests();
 }
@@ -192,8 +187,6 @@ void initialise_this_node(void)
 
     Output_Pin_Class *LED_pin_AL_ERR        = Get_Output_Pin(LED_AL_ERR_PIN);
 
-    //SPI2_cs                                 = Get_Output_Pin(SPI2_CS_PIN);
-    
     #ifdef ACCEL_CS_PIN
         Output_Pin_Class *accel_CS          = Get_Output_Pin(ACCEL_CS_PIN);
         Pin_Set(accel_CS);
@@ -221,7 +214,7 @@ void initialise_this_node(void)
 
     AD1PCFG = 0xFFFF;                                                                       // Set all pins to Digital, not analog.
     U1CON   = 0x0000;                                                                       // Disable USB
-
+    
 
     ET1200_Interface_Initialise(SPI_port, I2C_port, ET1200_reset, ET1200_AL_err_LED, ET1200_eeprom, ET1200_somi, ET1200_chip_select);
 
@@ -249,10 +242,16 @@ void initialise_this_node(void)
         SPIP_Setup_MOSI_Bits(6, 19, 0xF0000000);        // 1111 0000
         SPIP_Setup_MOSI_Bits(7, 19, 0xF8000000);        // 1111 1000
     }
-
+/*
+    while(1)
+    {
+        prx0_read_serial_numbers();
+        delay_us(1788);
+    }*/
 
     tactile_sensor_protocol = biotac_autodetect(tactile_sensor_protocol);                   // Auto-detect the tactile sensor type.
     tactile_sensor_protocol =    pst_autodetect(tactile_sensor_protocol);                   // Result is stored in tactile_sensor_protocol.
+    tactile_sensor_protocol =   ubi0_autodetect(tactile_sensor_protocol);                   // Result is stored in tactile_sensor_protocol.
 
     switch (tactile_sensor_protocol)                                                        // Now initialise the tactile sensors according to the detected type.
     {
@@ -269,10 +268,10 @@ void initialise_this_node(void)
 
 void Read_Commands_From_ET1200(void)
 {
-    assert_dynamic(PALM_0200_ETHERCAT_COMMAND_DATA_SIZE > 0);
+    assert_dynamic(PALM_0230_ETHERCAT_COMMAND_DATA_SIZE > 0);
     //read_ET1200_register_N(EC_PALM_EDC_COMMAND_PHY_BASE, ETHERCAT_COMMAND_DATA_SIZE, (int8u*)(&etherCAT_command_data));
-    read_ET1200_register_N( PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS,
-                            PALM_0200_ETHERCAT_COMMAND_DATA_SIZE,
+    read_ET1200_register_N( PALM_0230_ETHERCAT_COMMAND_DATA_ADDRESS,
+                            PALM_0230_ETHERCAT_COMMAND_DATA_SIZE,
                             (int8u*)(&etherCAT_command_data)  );
 }
 
@@ -285,7 +284,7 @@ void Read_Commands_From_ET1200(void)
 //! @author Hugo Elias
 inline void write_status_data_To_ET1200(void)
 {
-    write_ET1200_register_N(PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0200_ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
+    write_ET1200_register_N(PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0230_ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
 }
 
 
@@ -404,14 +403,29 @@ void Read_All_Sensors(void)
 {
     int8u adc_channel;
     int8u j=0;
+    int8u sensors_valid;
     int32u frame_time=0;
 
     Nop();
     Nop();
 
-    for (j=0; j<SENSORS_NUM_0220; j++)
-        etherCAT_status_data.sensors[j] = j;
+/*
+    sensors_valid = prx0_read_sensors();
 
+    if (sensors_valid & 0x08)
+    {
+        for (j=0; j<9; j++)
+            etherCAT_status_data.sensors[j] = prx0_data[3].integers.sensors[j];
+
+        if (etherCAT_status_data.sensors[4] == 0)
+        {
+            Nop();
+            Nop();
+            Nop();
+        }
+    }
+*/
+/*
     switch (tactile_sensor_protocol)                                                // Read tactile sensors before joint sensors?
     {                                                                               // ------------------------------------------
         case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
@@ -427,7 +441,7 @@ void Read_All_Sensors(void)
     }
 
     delay_us(10);
-
+*/
 
     j=0;
     for (adc_channel = 0; adc_channel < 8; ++adc_channel)                           // Now read joint sensors.
@@ -465,6 +479,7 @@ void Read_All_Sensors(void)
 
     delay_us(10);
 
+
     switch (tactile_sensor_protocol)                                                // Read tactile sensors after joint sensors?
     {                                                                               // -----------------------------------------
 
@@ -479,6 +494,10 @@ void Read_All_Sensors(void)
             Wait_For_Until_Frame_Time(frame_time+500);                              // Now that we're close to the time, use a more accurate wait routine.
 
             biotac_read_pac(1, &etherCAT_command_data, &etherCAT_status_data);      // Read the Pac again at 500us to achieve 2000Hz.
+            break;
+
+        case TACTILE_SENSOR_PROTOCOL_TYPE_UBI0:                                     //
+            read_ubi0(&etherCAT_command_data, &etherCAT_status_data);
             break;
 
         default:
@@ -496,6 +515,7 @@ void Read_All_Sensors(void)
         etherCAT_status_data.tactile_data_valid = 0x001F;
         etherCAT_status_data.tactile_data_type = TACTILE_SENSOR_TYPE_WHICH_SENSORS;
     }
+
 }
 
 
@@ -527,11 +547,8 @@ void zero_motor_data_packets(void)
 void Check_For_EtherCAT_Packet(void)
 {
     ET1200_Update();
-
-    collect_one_CAN_message();                                                              // Flush the CAN buses.
-                                                                                            // But save the last message in case this is
-                                                                                            // a bootloader message.
-
+    collect_motor_data_CAN_messages(CAN1);                                                  // Mop up any missed CAN messages
+    collect_motor_data_CAN_messages(CAN2);                                                  // 
 
     #if AUTO_TRIGGER == 1                                                                   // This is just for debugging.
         if (get_frame_time_us() > 1150)                                                     // 
@@ -586,7 +603,7 @@ void Service_EtherCAT_Packet(void)
 
             Read_All_Sensors();                                                             // Read all joint and tactile sensors.
             num_motor_CAN_messages_received_this_frame = 0;
-            Wait_For_All_Motors_To_Send_Data(600);                                          // Wait for 600us max.
+            //Wait_For_All_Motors_To_Send_Data(600);                                          // Wait for 600us max.
             Send_Data_To_Motors(&etherCAT_command_data);                                    // Send CAN messages to motors
 
             etherCAT_status_data.EDC_command  = EDC_COMMAND_SENSOR_DATA;                    // FIXME: I don't think this calculation is correct
@@ -608,7 +625,7 @@ void Service_EtherCAT_Packet(void)
 
             if ( ROS_Wants_me_to_send_CAN() )
             {
-                read_ET1200_register_N(PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_from_ROS));
+                read_ET1200_register_N(PALM_0230_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_from_ROS));
                 send_CAN_message_from_ROS();
                 global_AL_Event_Register = read_ET1200_register_32u(0x220);
             }
@@ -622,20 +639,7 @@ void Service_EtherCAT_Packet(void)
 
             collect_one_CAN_message();                                                      // From either CAN bus
 
-            write_ET1200_register_N(PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
-
-            can_bridge_data_to_ROS.message_id      = 0;                                     // Clear the buffer just for Wireshark tidyness
-            can_bridge_data_to_ROS.message_length  = 0;
-            can_bridge_data_to_ROS.can_bus         = 0;
-            can_bridge_data_to_ROS.message_data[0] = 0;
-            can_bridge_data_to_ROS.message_data[1] = 0;
-            can_bridge_data_to_ROS.message_data[2] = 0;
-            can_bridge_data_to_ROS.message_data[3] = 0;
-            can_bridge_data_to_ROS.message_data[4] = 0;
-            can_bridge_data_to_ROS.message_data[5] = 0;
-            can_bridge_data_to_ROS.message_data[6] = 0;
-            can_bridge_data_to_ROS.message_data[7] = 0;
-
+            write_ET1200_register_N(PALM_0230_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_SIZE, (int8u*)(&can_bridge_data_to_ROS));
             idle_time_start = ReadCoreTimer();                                              // Idle time begins now
 
             break;
@@ -660,10 +664,10 @@ void Platform_Init_Callback(void)
     etherCAT_command_data.EDC_command        = 0xDD;//EDC_COMMAND_SENSOR_DATA;
     can_bridge_data_from_ROS.message_data[0] = 0xff;
 
-    for (i = 1; i < PALM_0200_ETHERCAT_STATUS_DATA_SIZE / 2 ; ++i)
+    for (i = 1; i < PALM_0230_ETHERCAT_STATUS_DATA_SIZE / 2 ; ++i)
         ((int16s *)&etherCAT_status_data)[i] = 0xDEAD;
     
-    write_ET1200_register_N  ( PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0200_ETHERCAT_STATUS_DATA_SIZE,   (int8u*)&etherCAT_status_data);
+    write_ET1200_register_N  ( PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0230_ETHERCAT_STATUS_DATA_SIZE,   (int8u*)&etherCAT_status_data);
 }
 
 
@@ -808,9 +812,7 @@ void Received_Motor_Data(FROM_MOTOR_DATA_TYPE data_type, int8u motor_number, int
 
     FROM_MOTOR_DATA_TYPE    expected_data_type   = etherCAT_command_data.from_motor_data_type;
 
-    //Pin_Set(SPI2_cs);
     num_motor_CAN_messages_received_this_frame++;
-    //Pin_Clr(SPI2_cs);
 
     if (data_type == expected_data_type)                                                                // This is good :)
     {
