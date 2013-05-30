@@ -54,7 +54,17 @@ typedef struct
                                                                     //!< value which arrived from the host in the previous
                                                                     //!< EtherCAT packet
 
-	int16u					    sensors[SENSORS_NUM_0220+1];
+    //  Joint data  //
+	int16u					    sensors[SENSORS_NUM_0220+1];        //!< 74 bytes
+
+
+    //  Tactile data  //
+    int32u                      tactile_data_type;                  //!<          4 bytes
+    int16u                      tactile_data_valid;                 //!<          2 bytes          (Bit 0: FF. Bit 4: TH.)
+    TACTILE_SENSOR_STATUS_v2    tactile[5];                         //!< 32*5 = 160 bytes
+    TACTILE_SENSOR_MID_PROX     tactile_mid_prox[5];                //!< 16*5 =  80 bytes
+    TACTILE_SENSOR_PALM         tactile_palm;                       //!<         32 bytes
+                                                                    //  TOTAL TACTILE DATA = 278 bytes
 
 
     //  Motor data  //
@@ -70,41 +80,53 @@ typedef struct
     int32u                      which_motor_data_had_errors;        //!< Bit N set when motor sends bad CAN message Ideally, no bits get set.
 
     MOTOR_DATA_PACKET           motor_data_packet[10];              //!< Data for 10 motors only. (Even ones or Odd ones)
+                                                                    //!< 40 bytes
+                                                                    //  TOTAL MOTOR DATA = 54 bytes
 
-
-    //  Tactile data  //
-
-    int32u                      tactile_data_type;
-    int16u                      tactile_data_valid;                 //!< Bit 0: FF. Bit 4: TH.
-    TACTILE_SENSOR_STATUS_v2    tactile[5];                         //
-    TACTILE_SENSOR_MID_PROX     tactile_mid_prox[5];
-    TACTILE_SENSOR_PALM         tactile_palm;    
 
     int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
 							    									//!< packet, and the next packet arriving. Ideally, this number should be more than 50.
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS;
 
+#define STATUS_HEADER_START     0
+#define STATUS_JOINTS_START     (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, sensors))
+#define STATUS_TACTILE_START    (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, tactile_data_type))
+#define STATUS_MOTOR_START      (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, motor_data_type))
+
+#define STATUS_TOTAL_LENGTH     (sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS))
+#define STATUS_HEADER_LENGTH    (STATUS_JOINTS_START  - STATUS_HEADER_START)
+#define STATUS_JOINTS_LENGTH    (STATUS_TACTILE_START - STATUS_JOINTS_START)
+#define STATUS_TACTILE_LENGTH   (STATUS_MOTOR_START   - STATUS_TACTILE_START)
+#define STATUS_MOTOR_LENGTH     (STATUS_TOTAL_LENGTH  - STATUS_MOTOR_START)
+
 
 
 //! These are the data sent by the host.
 typedef struct
 {
-    EDC_COMMAND             EDC_command;                        //!< What type of data should the palm send back in the next packet?
+    EDC_COMMAND             EDC_command;                        //!< Header [0]:18  What type of data should the palm send back in the next packet?
+                                                                //!< ------
 
     FROM_MOTOR_DATA_TYPE    from_motor_data_type;               //!< Which data does the host want from the motors?
     int16s                  which_motors;                       //!< Which motors does the host want to read?
                                                                 //!< 0: Even motor numbers.  1: Odd motor numbers
 
-    TO_MOTOR_DATA_TYPE      to_motor_data_type;
-    int16s                  motor_data[NUM_MOTORS];             //!< Data to send to motors. Typically torque/PWM demands, or configs.
-
+    TO_MOTOR_DATA_TYPE      to_motor_data_type;                 //!< Request for specific motor data
     int32u                  tactile_data_type;                  //!< Request for specific tactile data
+
+                                                                //!< ------------------------------------------------
+
+    int16s                  motor_data[NUM_MOTORS];             //!< Motor Data [18]:40  Data to send to motors. Typically torque/PWM demands, or configs.
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND;
 
 
-#define PALM_0230_ETHERCAT_COMMAND_HEADER_SIZE  (  sizeof(EDC_COMMAND) + sizeof(FROM_MOTOR_DATA_TYPE) + sizeof(int16s)  )
+#define PALM_0230_ETHERCAT_COMMAND_HEADER_SIZE  (  sizeof(EDC_COMMAND)          +   \
+                                                   sizeof(FROM_MOTOR_DATA_TYPE) +   \
+                                                   sizeof(int16s)               +   \
+                                                   sizeof(TO_MOTOR_DATA_TYPE)   +   \
+                                                   sizeof(int32u)               )
 
 #define PALM_0230_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS)
 #define PALM_0230_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND)
