@@ -45,7 +45,7 @@ namespace tactiles
     sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater<CommandType> >(new generic_updater::SensorUpdater<CommandType>(update_configs_vector, update_state));
     if(update_state != operation_mode::device_update_state::INITIALIZATION)
     {
-      reset_service_client_ = nodehandle_.advertiseService("/tactiles/reset", &GenericTactiles::reset, this);
+      reset_service_client_ = nodehandle_.advertiseService("tactiles/reset", &GenericTactiles::reset, this);
     }
 
     //initialize the vector of tactiles
