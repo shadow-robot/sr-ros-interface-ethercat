@@ -287,7 +287,8 @@ namespace shadow_robot
 
       if (joint->has_actuator)
       {
-        const sr_actuator::SrMuscleActuatorState* state = static_cast<sr_actuator::SrMuscleActuatorState*>(&(actuator_wrapper->actuator)->state_);
+        const sr_actuator::SrMuscleActuator* sr_muscle_actuator = static_cast<sr_actuator::SrMuscleActuator*>(actuator_wrapper->actuator);
+        const sr_actuator::SrMuscleActuatorState* state = &(sr_muscle_actuator->state_);
 
         if (actuator_wrapper->actuator_ok)
         {
