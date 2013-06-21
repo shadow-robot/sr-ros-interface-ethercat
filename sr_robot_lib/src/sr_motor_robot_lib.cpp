@@ -959,22 +959,26 @@ namespace shadow_robot
       param_value = "FORCE";
     }
 
+    ROS_ERROR("This is my namespace: %s", ros::this_node::getNamespace().c_str());
+
     int result = system((env_variable + " roslaunch sr_ethercat_hand_config sr_edc_default_controllers.launch").c_str());
 
     if(result == 0)
     {
       ROS_WARN("New parameters loaded successfully on Parameter Server");
 
+      ros::NodeHandle nh;
+
       this->nh_tilde.setParam("default_control_mode", param_value);
 
-      ros::ServiceClient list_ctrl_client = this->nh_tilde.template serviceClient<pr2_mechanism_msgs::ListControllers>("/pr2_controller_manager/list_controllers");
+      ros::ServiceClient list_ctrl_client = nh.template serviceClient<pr2_mechanism_msgs::ListControllers>("pr2_controller_manager/list_controllers");
       pr2_mechanism_msgs::ListControllers controllers_list;
 
       if (list_ctrl_client.call(controllers_list))
       {
         for(unsigned int i=0; i < controllers_list.response.controllers.size(); ++i)
         {
-          ros::ServiceClient reset_gains_client = this->nh_tilde.template serviceClient<std_srvs::Empty>("/" + controllers_list.response.controllers.at(i) + "/reset_gains");
+          ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controllers.at(i) + "/reset_gains");
           std_srvs::Empty empty_message;
           if (!reset_gains_client.call(empty_message))
           {

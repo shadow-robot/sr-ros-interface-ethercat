@@ -50,6 +50,7 @@
   <!-- pr2_etherCAT -->
   <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i $(arg eth_port) -x sh_description" output="screen"  launch-prefix="nice -n -20"> <!-- launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
     <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
+    <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
   </node>
 
   <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
