@@ -6,6 +6,8 @@
   <!-- Xacro file containing the robot description we want to load. Only taken into acount if the set_description arg is set to 1
        the default value -->
   <arg name="hand_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro" />
+  <!-- The prefix used by the robot_state_publisher -->
+  <arg name="tf_prefix" default="" />
 
   <!-- Defines the sub-directory used in 
        $(find sr_ethercat_hand_config)/mappings/
@@ -24,7 +26,9 @@
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml" />
 
   <!-- Default controllers -->
-  <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch" />
+  <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch" >
+    <arg name="config_dir" value="$(arg config_dir)" />
+  </include>
 
   <!-- Should be loaded before starting/running pr2_etherCAT node -->
   <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/calibrations/sr_edc_sensor_gain_offset.yaml" />
@@ -74,6 +78,7 @@
 	name="srh_robot_state_publisher_pos_etherCAT">
     <remap from="robot_description" to="sh_description"/>
     <param name="publish_frequency" type="double" value="100.0" />
+    <param name="tf_prefix" type="string" value="$(arg tf_prefix)" />
   </node>
 
 </launch>
