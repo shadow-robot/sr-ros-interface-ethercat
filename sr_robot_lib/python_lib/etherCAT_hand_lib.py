@@ -63,7 +63,7 @@ class EtherCAT_Hand_Lib(object):
 
         joint_to_sensor_mapping = []
         try:
-            joint_to_sensor_mapping = rospy.get_param("/joint_to_sensor_mapping")
+            joint_to_sensor_mapping = rospy.get_param("joint_to_sensor_mapping")
         except:
             rospy.logwarn("The parameter joint_to_sensor_mapping was not found, you won't be able to get the raw values from the the EtherCAT compound sensors.")
 
@@ -78,7 +78,7 @@ class EtherCAT_Hand_Lib(object):
 
     def sendupdate(self, joint_name, target, controller_type = "effort"):
         if not self.publishers.has_key(joint_name):
-            topic = "/sh_"+ joint_name.lower() +"_"+controller_type+"_controller/command"
+            topic = "sh_"+ joint_name.lower() +"_"+controller_type+"_controller/command"
             self.publishers[joint_name] = rospy.Publisher(topic, Float64)
 
         self.msg_to_send.data = math.radians( float( target ) )
@@ -136,7 +136,7 @@ class EtherCAT_Hand_Lib(object):
         """
         """
         if not self.pid_services.has_key(joint_name):
-            service_name =  "/realtime_loop/change_force_PID_"+joint_name
+            service_name =  "realtime_loop/change_force_PID_"+joint_name
             self.pid_services[joint_name] = rospy.ServiceProxy(service_name, ForceController)
 
         self.pid_services[joint_name]( pid_parameters["max_pwm"],
@@ -201,25 +201,25 @@ class EtherCAT_Hand_Lib(object):
         #check if something is being published to those topics, otherwise
         # return false (the library is not activated)
         try:
-            rospy.wait_for_message("/debug_etherCAT_data", EthercatDebug, timeout = 0.2)
-            rospy.wait_for_message("/joint_states", JointState, timeout = 0.2)
+            rospy.wait_for_message("debug_etherCAT_data", EthercatDebug, timeout = 0.2)
+            rospy.wait_for_message("joint_states", JointState, timeout = 0.2)
         except:
             return False
 
-        self.debug_subscriber = rospy.Subscriber("/debug_etherCAT_data", EthercatDebug, self.debug_callback)
-        self.joint_state_subscriber = rospy.Subscriber("/joint_states", JointState, self.joint_state_callback)
+        self.debug_subscriber = rospy.Subscriber("debug_etherCAT_data", EthercatDebug, self.debug_callback)
+        self.joint_state_subscriber = rospy.Subscriber("joint_states", JointState, self.joint_state_callback)
         return True
 
     def activate_joint_states(self):
         #check if something is being published to this topic, otherwise
         # return false (the library is not activated)
         try:
-            rospy.wait_for_message("/joint_states", JointState, timeout = 0.2)
-            self.joint_state_subscriber = rospy.Subscriber("/joint_states", JointState, self.joint_state_callback)
+            rospy.wait_for_message("joint_states", JointState, timeout = 0.2)
+            self.joint_state_subscriber = rospy.Subscriber("joint_states", JointState, self.joint_state_callback)
         except:
             try:
-                rospy.wait_for_message("/gazebo/joint_states", JointState, timeout = 0.2)
-                self.joint_state_subscriber = rospy.Subscriber("/gazebo/joint_states", JointState, self.joint_state_callback)
+                rospy.wait_for_message("gazebo/joint_states", JointState, timeout = 0.2)
+                self.joint_state_subscriber = rospy.Subscriber("gazebo/joint_states", JointState, self.joint_state_callback)
             except:
                 return False
 
