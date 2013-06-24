@@ -947,6 +947,7 @@ namespace shadow_robot
     bool success = true;
     std::string env_variable;
     std::string param_value;
+    ros::NodeHandle nh;
 
     if( control_type == sr_robot_msgs::ControlType::PWM)
     {
@@ -959,15 +960,41 @@ namespace shadow_robot
       param_value = "FORCE";
     }
 
-    ROS_ERROR("This is my namespace: %s", ros::this_node::getNamespace().c_str());
+    // Read the namespace of the node.
+    // The ns will be passed as an argument to the sr_edc_default_controllers.launch
+    // so that the parameters in it will be loaded inside the correct namespace
+    std::string ns = ros::this_node::getNamespace();
+    std::string arguments = "";
 
-    int result = system((env_variable + " roslaunch sr_ethercat_hand_config sr_edc_default_controllers.launch").c_str());
+    if(ns.compare("/") == 0)
+    {
+      ROS_DEBUG("Using base namespace: %s", ns.c_str());
+    }
+    else if (ns.find("//") == 0)
+    {
+      ns.erase(0,2);
+      ROS_DEBUG("Node namespace: %s", ns.c_str());
+      arguments += " set_namespace:=1 namespace:=" + ns;
+    }
+    else
+    {
+      ROS_ERROR("Node namespace: %s", ns.c_str());
+    }
+
+    // Read the config_dir prefix from the parameter server
+    // The config_dir will be passed as an argument to the sr_edc_default_controllers.launch
+    // so that the parameters in it will be read from the correct files
+    std::string config_dir = "";
+    nh.template param<std::string>("config_dir", config_dir, "");
+    ROS_DEBUG("config_dir: %s", config_dir.c_str());
+    arguments += " config_dir:=" + config_dir;
+    ROS_INFO("arguments: %s", arguments.c_str());
+
+    int result = system((env_variable + " roslaunch sr_ethercat_hand_config sr_edc_default_controllers.launch" + arguments).c_str());
 
     if(result == 0)
     {
       ROS_WARN("New parameters loaded successfully on Parameter Server");
-
-      ros::NodeHandle nh;
 
       this->nh_tilde.setParam("default_control_mode", param_value);
 

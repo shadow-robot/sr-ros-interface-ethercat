@@ -17,6 +17,10 @@
        In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories  
        If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
   <arg name="config_dir" default="" />
+  <!-- We set this argument as a parameter in the parameter server (it is relative so it will be pushed to a namespace if we use a ns), to be able to access it from serveral places:
+       - the change control mode service inside the realtime loop will use it
+       - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
+  <param name="config_dir" value="$(arg config_dir)"/>
 
   <include file="$(find sr_edc_launch)/sr_edc.machine" />
   <param name="/use_sim_time" value="false"/>
