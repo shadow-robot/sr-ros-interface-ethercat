@@ -138,10 +138,13 @@ SR08::~SR08()
  */
 void SR08::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 {
-    SrEdc::construct(sh, start_address, ETHERCAT_COMMAND_DATA_SIZE, ETHERCAT_STATUS_DATA_SIZE, ETHERCAT_CAN_BRIDGE_DATA_SIZE,
-    		ETHERCAT_COMMAND_DATA_ADDRESS, ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS);
+  ROS_ASSERT(ETHERCAT_STATUS_0230_AGREED_SIZE == ETHERCAT_STATUS_DATA_SIZE);
+  ROS_ASSERT(ETHERCAT_COMMAND_0230_AGREED_SIZE == ETHERCAT_COMMAND_DATA_SIZE);
 
-    ROS_INFO("Finished constructing the SR08 driver");
+  SrEdc::construct(sh, start_address, ETHERCAT_COMMAND_DATA_SIZE, ETHERCAT_STATUS_DATA_SIZE, ETHERCAT_CAN_BRIDGE_DATA_SIZE,
+    	ETHERCAT_COMMAND_DATA_ADDRESS, ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS);
+
+  ROS_INFO("Finished constructing the SR08 driver");
 }
 
 /**
@@ -247,6 +250,11 @@ void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
   //alternate between even and uneven motors
   // and ask for the different informations.
   sr_hand_lib->build_command(command);
+
+  // TODO For the moment the aux_data_type in the commend will be fixed here. This is for convenience,
+  // before we separate the aux data (and the prox_mid data) from the UBIO sensor type in the driver.
+  // After that, this should be done in the aux_data_updater (or something similar ) in the driver
+  command->aux_data_type = TACTILE_SENSOR_TYPE_MCP320x_TACTILE;
 
   ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
                 command->to_motor_data_type,

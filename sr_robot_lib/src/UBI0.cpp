@@ -55,8 +55,12 @@ namespace tactiles
   template <class StatusType, class CommandType>
   void UBI0<StatusType, CommandType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
-    // Tactile sensor real time publisher
+    // Distal tactile sensor real time publisher
     tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(this->nodehandle_ , "tactile", 4));
+    // Middle and proximal tactile sensor real time publisher
+    mid_prox_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(this->nodehandle_ , "tactile_mid_prox", 4));
+    // Auxiliar Spi data (sometimes it is a palm tactile sensor) real time publisher
+    aux_spi_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData>(this->nodehandle_ , "tactile_aux_spi", 4));
 
     //initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr< std::vector<UBI0Data> >( new std::vector<UBI0Data>(this->nb_tactiles) );
@@ -84,11 +88,11 @@ namespace tactiles
         }
         for( unsigned int i = 0; i < tactiles_vector->at(id_sensor).middle.size(); ++i)
         {
-          tactiles_vector->at(id_sensor).middle[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].middle[i]) );
+          tactiles_vector->at(id_sensor).middle[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.middle[i]) );
         }
         for( unsigned int i = 0; i < tactiles_vector->at(id_sensor).proximal.size(); ++i)
         {
-          tactiles_vector->at(id_sensor).proximal[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].proximal[i]) );
+          tactiles_vector->at(id_sensor).proximal[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.proximal[i]) );
         }
         break;
 
@@ -140,7 +144,7 @@ namespace tactiles
 
     for( unsigned int i = 0; i < palm_tactiles->palm.size(); ++i)
     {
-      palm_tactiles->palm[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_palm.sensor[i]) );
+      palm_tactiles->palm[i] = static_cast<int>(static_cast<int16u>(status_data->aux_spi_sensor.sensor[i]) );
     }
 
     if(this->sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
@@ -164,29 +168,44 @@ namespace tactiles
       for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
       {
         sr_robot_msgs::UBI0 tactile_tmp;
-        //if( tactiles_vector->at(id_tact).tactile_data_valid )
-        //{
 
         tactile_tmp.distal = tactiles_vector->at(id_tact).distal;
-        tactile_tmp.middle = tactiles_vector->at(id_tact).middle;
-        tactile_tmp.proximal = tactiles_vector->at(id_tact).proximal;
 
-        //}
-        //else
-        //{
-        //  tactile_tmp.pac0 = -1;
-        //  tactile_tmp.pac1 = -1;
-          //TODO: push vector of -1 in electrodes?
-        //}
-
-        tactiles.finger_tactiles[id_tact] = tactile_tmp;
+        tactiles.tactiles[id_tact] = tactile_tmp;
       }
-
-      tactiles.palm_tactiles.sensors = palm_tactiles->palm;
-
 
       tactile_publisher->msg_ = tactiles;
       tactile_publisher->unlockAndPublish();
+    }
+
+    if(mid_prox_publisher->trylock())
+    {
+      sr_robot_msgs::MidProxDataAll tactiles;
+      tactiles.header.stamp = ros::Time::now();
+
+      for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
+      {
+        sr_robot_msgs::MidProxData tactile_tmp;
+
+        tactile_tmp.middle = tactiles_vector->at(id_tact).middle;
+        tactile_tmp.proximal = tactiles_vector->at(id_tact).proximal;
+
+        tactiles.sensors[id_tact] = tactile_tmp;
+      }
+
+      mid_prox_publisher->msg_ = tactiles;
+      mid_prox_publisher->unlockAndPublish();
+    }
+
+    if(aux_spi_publisher->trylock())
+    {
+      sr_robot_msgs::AuxSpiData tactiles;
+      tactiles.header.stamp = ros::Time::now();
+
+      tactiles.sensors = palm_tactiles->palm;
+
+      aux_spi_publisher->msg_ = tactiles;
+      aux_spi_publisher->unlockAndPublish();
     }
 
   }//end publish
