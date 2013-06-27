@@ -45,12 +45,16 @@ int64u      node_id                  = 0;
 int32u      global_AL_Event_Register = 0;
 
 TACTILE_SENSOR_PROTOCOL_TYPE    tactile_sensor_protocol = TACTILE_SENSOR_PROTOCOL_TYPE_INVALID;
+    AUX_SENSOR_PROTOCOL_TYPE        aux_sensor_protocol =     AUX_SENSOR_PROTOCOL_TYPE_INVALID;
 
 ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND   etherCAT_command_data;              //!< Data structure containing command data, arrived from host PC.
 ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS    etherCAT_status_data;               //!< Data structure containing sensor data, going to PC.
 
 ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_from_ROS;
 ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
+
+#define JOINT   0x01
+#define TACTILE 0x02
 
 
 #define CORE_TIMER_TO_MICROSECONDS(x) ((x) / (SYSTEM_FREQ_HZ/2000000))              //!< Convert from the number of core ticks returned by ReadCoreTimer to a real time in microseconds.
@@ -81,25 +85,43 @@ ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
                                               RFJ3  , MFJ3  , FFJ3  , LFJ3  ,  AN1,    LFJ5,   IGNORE,  IGNORE,           // Channel 6
                                               IGNORE, IGNORE, IGNORE, IGNORE,  WRJ1A,  WRJ1B,  IGNORE,  IGNORE            // Channel 7
                                              };
+
+    int8u palm_EDC_0200_sensor_type[64]    = {  TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE,
+                                                TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE,
+                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,
+                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,
+                                                TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE,
+                                                TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE,
+                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,
+                                                TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE};
+
+    int8u palm_EDC_0200_tactile_mapping[64] = {    MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0, 
+                                                 PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0, 
+                                                      0,       0,       0,       0,       0,       0,       0,       0, 
+                                                      0,       0,       0,       0,       0,       0,       0,       0, 
+                                                 PROX_1,  PROX_1,  PROX_1,  PROX_1,  PROX_1,  PROX_1,  PROX_1,  PROX_1, 
+                                                  MID_1,   MID_1,   MID_1,   MID_1,   MID_1,   MID_1,   MID_1,   MID_1, 
+                                                 PROX_2,  PROX_2,  PROX_2,  PROX_2,  PROX_2,  PROX_2,  PROX_2,  PROX_2
+    };
 #endif
 
 
 
-int32u frame_start_time = 0;                //!< Is set to the value of the MIPS core timer when an EtherCAT packet arrives
-int32u idle_time_start  = 0;                //!< Is set to the value of the MIPS core timer when the status data are written to the ET1200
+int32u frame_start_time             = 0;    //!< Is set to the value of the MIPS core timer when an EtherCAT packet arrives
+int32u idle_time_start              = 0;    //!< Is set to the value of the MIPS core timer when the status data are written to the ET1200
 
+LED_Class *LED_CAN1_TX              = 0;    //!< The CAN 1 transmit LED
+LED_Class *LED_CAN1_RX              = 0;    //!< The CAN 1 receive LED
+LED_Class *LED_CAN1_ERR             = 0;    //!< The CAN 1 error LED
 
+LED_Class *LED_CAN2_TX              = 0;    //!< The CAN 2 transmit LED
+LED_Class *LED_CAN2_ERR             = 0;    //!< The CAN 2 error LED
 
+LED_Class *ET1200_AL_err_LED        = 0;    //!< EtherCAT Application Layer Error LED. See EtherCAT Indicator Specification V0.91.pdf section 4.5 ERR Indicator.
 
-LED_Class *LED_CAN1_TX;                     //!< The CAN 1 transmit LED
-LED_Class *LED_CAN1_RX;                     //!< The CAN 1 receive LED
-LED_Class *LED_CAN1_ERR;                    //!< The CAN 1 error LED
-
-LED_Class *LED_CAN2_TX;                     //!< The CAN 2 transmit LED
-LED_Class *LED_CAN2_ERR;                    //!< The CAN 2 error LED
-
-LED_Class *ET1200_AL_err_LED;               //!< EtherCAT Application Layer Error LED. See EtherCAT Indicator Specification V0.91.pdf section 4.5 ERR Indicator.
-
+Output_Pin_Class *SPI_cs            = 0;
+Output_Pin_Class *aux_chip_select   = 0;
+Input_Pin_Class  *left_right_pin    = 0;
 
 #ifdef LED_CFG_PIN
   LED_Class  *LED_CFG;                      //!< This LED is optional, and exists if LED_CFG_PIN is defined.
@@ -121,6 +143,9 @@ int num_motor_CAN_messages_received_this_frame = 0;     //!< Count of the number
 
 void run_tests(void)
 {
+    assert_static(sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS)  == ETHERCAT_STATUS_0230_AGREED_SIZE);
+    assert_static(sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND) == ETHERCAT_COMMAND_0230_AGREED_SIZE);
+
     typedef_tests();
     simple_CAN_tests();
 }
@@ -139,7 +164,7 @@ void approx_1ms_handler(void)
 
     #if AUTO_TRIGGER == 1
         etherCAT_command_data.EDC_command = EDC_COMMAND_SENSOR_DATA;
-        Read_All_Sensors();
+        //Read_All_Sensors();
     #endif
 
     ClearWDT();
@@ -165,17 +190,22 @@ void initialise_this_node(void)
 
 
                                                                                             // Initialise all of the I/O pins and peripherals.
+    aux_chip_select                         = Get_Output_Pin(SPI_CS_PIN_AUX);
     Output_Pin_Class *ET1200_chip_select    = Get_Output_Pin(ET1200_CHIP_SELECT_PIN);
     Output_Pin_Class *ET1200_reset          = Get_Output_Pin(ET1200_RESET_PIN);
     Input_Pin_Class  *ET1200_eeprom         = Get_Input_Pin (ET1200_EEPROM_PIN);
 
     SPI_simple_master_class   *SPI_port     = Init_SPI_Simple_Master(SPI_PORT);
+    SPI_simple_master_class   *SPI_port_aux = Init_SPI_Simple_Master(SPI_PORT_AUX);
     I2C_simple_master_class   *I2C_port     = Init_I2C_Simple_Master(I2C_PORT);
 
-    Output_Pin_Class *SPI_cs                = Get_Output_Pin(SPI_CS_PIN);
+    //Output_Pin_Class *SPI_cs                = Get_Output_Pin(SPI_CS_PIN);
+    SPI_cs                = Get_Output_Pin(SPI_CS_PIN);
+
     Output_Pin_Class *SPI_clock             = Get_Output_Pin(SPI_CLOCK_PIN);
     Output_Pin_Class *SPI_mosi              = Get_Output_Pin(SPI_MOSI_PIN);
     Input_Pin_Class  *ET1200_somi           = Get_Input_Pin (ET1200_SOMI_PIN);
+
 
 
     Output_Pin_Class *LED_pin_CAN1_TX       = Get_Output_Pin(LED_CAN1_TX_PIN);
@@ -186,6 +216,8 @@ void initialise_this_node(void)
     Output_Pin_Class *LED_pin_CAN2_ERR      = Get_Output_Pin(LED_CAN2_ERR_PIN);
 
     Output_Pin_Class *LED_pin_AL_ERR        = Get_Output_Pin(LED_AL_ERR_PIN);
+
+
 
     #ifdef ACCEL_CS_PIN
         Output_Pin_Class *accel_CS          = Get_Output_Pin(ACCEL_CS_PIN);
@@ -216,22 +248,11 @@ void initialise_this_node(void)
     U1CON   = 0x0000;                                                                       // Disable USB
     
 
-    ET1200_Interface_Initialise(SPI_port, I2C_port, ET1200_reset, ET1200_AL_err_LED, ET1200_eeprom, ET1200_somi, ET1200_chip_select);
-
-    #if AUTO_TRIGGER == 0
-        ET1200_Initialise();
-        write_ET1200_register_32u(0x204, 0x100);                                            //set AL event mask to get IRQ only on SyncMan0 activity
-    #endif
-
-
-    init_dual_CAN();
-
-
-
-
     {                                                                                       // Initialise the MOSI bits for each ADC channel
         Input_Pins_Class *SPI_SOMI_pins      = Get_Input_Pins('E', 0, 8);
     
+        left_right_pin                       = &(SPI_SOMI_pins[7]);
+
         Initialise_SPI_Parallel(SPI_cs, SPI_clock, SPI_mosi, SPI_SOMI_pins);
         SPIP_Setup_MOSI_Bits(0, 19, 0xC0000000);        // 1100 0000
         SPIP_Setup_MOSI_Bits(1, 19, 0xC8000000);        // 1100 1000
@@ -242,26 +263,53 @@ void initialise_this_node(void)
         SPIP_Setup_MOSI_Bits(6, 19, 0xF0000000);        // 1111 0000
         SPIP_Setup_MOSI_Bits(7, 19, 0xF8000000);        // 1111 1000
     }
+
+
+    adc_320x_initialise(SPI_port_aux);
+    ET1200_Interface_Initialise(SPI_port, I2C_port, ET1200_reset, ET1200_AL_err_LED, ET1200_eeprom, ET1200_somi, ET1200_chip_select);
+
 /*
     while(1)
     {
-        prx0_read_serial_numbers();
-        delay_us(1788);
-    }*/
+        //Test_SPI_DMA(SPI_port);
+        //delay_us(500);
+        //read_DMA_ET1200_register_N ( PALM_0230_ETHERCAT_COMMAND_DATA_ADDRESS,
+        //                                 PALM_0230_ETHERCAT_COMMAND_DATA_SIZE,
+        //                                (int8u*)(&etherCAT_command_data)  );
+        
+
+        SPI_DMA_String_ET1200_Write_N(SPI_port, 0x1046, 32, (int8u*)(&etherCAT_command_data));
+
+        delay_us(500);
+        read_ET1200_register_8u (ECREG8_CHIP_TYPE);
+        delay_us(500);
+
+    }
+*/
+    #if AUTO_TRIGGER == 0
+        ET1200_Initialise();
+        write_ET1200_register_32u(0x204, 0x100);                                            //set AL event mask to get IRQ only on SyncMan0 activity
+    #endif
+
+
+    init_dual_CAN();
+
 
     tactile_sensor_protocol = biotac_autodetect(tactile_sensor_protocol);                   // Auto-detect the tactile sensor type.
     tactile_sensor_protocol =    pst_autodetect(tactile_sensor_protocol);                   // Result is stored in tactile_sensor_protocol.
-    tactile_sensor_protocol =   ubi0_autodetect(tactile_sensor_protocol);                   // Result is stored in tactile_sensor_protocol.
+    tactile_sensor_protocol =   ubi0_autodetect(tactile_sensor_protocol);                   // 
+        aux_sensor_protocol = adc_320x_autodetect(aux_sensor_protocol);
 
     switch (tactile_sensor_protocol)                                                        // Now initialise the tactile sensors according to the detected type.
     {
         case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:             init_pst();         break;      // PST3     (new type with normal CS)
         case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:       init_biotac();      break;      // BioTac   (Syntouch)
+        case TACTILE_SENSOR_PROTOCOL_TYPE_UBI0:             init_ubi0();        break;      // Bielefeld Uni tactile sensor
 
         default:                                                                break;
     }
 
-
+    frame_start_time = 0;
 }
 
 
@@ -270,11 +318,35 @@ void Read_Commands_From_ET1200(void)
 {
     assert_dynamic(PALM_0230_ETHERCAT_COMMAND_DATA_SIZE > 0);
     //read_ET1200_register_N(EC_PALM_EDC_COMMAND_PHY_BASE, ETHERCAT_COMMAND_DATA_SIZE, (int8u*)(&etherCAT_command_data));
+/*
     read_ET1200_register_N( PALM_0230_ETHERCAT_COMMAND_DATA_ADDRESS,
                             PALM_0230_ETHERCAT_COMMAND_DATA_SIZE,
                             (int8u*)(&etherCAT_command_data)  );
+*/
+    read_DMA_ET1200_register_N ( PALM_0230_ETHERCAT_COMMAND_DATA_ADDRESS,
+                                 PALM_0230_ETHERCAT_COMMAND_DATA_SIZE,
+                                (int8u*)(&etherCAT_command_data)  );
 }
 
+
+void Read_Command_Header_From_ET1200(void)
+{
+    assert_dynamic(PALM_0230_ETHERCAT_COMMAND_DATA_SIZE > 0);
+
+    read_ET1200_register_N( PALM_0230_ETHERCAT_COMMAND_DATA_ADDRESS,
+                            PALM_0230_ETHERCAT_COMMAND_HEADER_SIZE,
+                            (int8u*)(&etherCAT_command_data)  );
+}
+
+void Read_Command_Footer_From_ET1200(void)
+{
+    assert_dynamic(PALM_0230_ETHERCAT_COMMAND_DATA_SIZE > 0);
+
+    read_ET1200_register_N( PALM_0230_ETHERCAT_COMMAND_DATA_ADDRESS + PALM_0230_ETHERCAT_COMMAND_HEADER_SIZE,
+                            PALM_0230_ETHERCAT_COMMAND_DATA_SIZE    - PALM_0230_ETHERCAT_COMMAND_HEADER_SIZE,
+                            (int8u*)(&etherCAT_command_data)        + PALM_0230_ETHERCAT_COMMAND_HEADER_SIZE);
+
+}
 
 
 //! Write the whole etherCAT_status_data[] array to the ET1200.
@@ -282,11 +354,63 @@ void Read_Commands_From_ET1200(void)
 //! packet to arrive, and the idle timer starts.
 //! 
 //! @author Hugo Elias
-inline void write_status_data_To_ET1200(void)
+inline void write_status_header_and_joint_data_To_ET1200(void)
 {
-    write_ET1200_register_N(PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0230_ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
+    int16u destniation_address = PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS;
+    int16u num_bytes           = STATUS_JOINTS_LENGTH;
+    int8u *source_pointer      = (int8u*)(&etherCAT_status_data);
+
+    write_DMA_ET1200_register_N(destniation_address, num_bytes, source_pointer);
 }
 
+
+inline void write_status_tactile_data_To_ET1200(void)
+{
+    int16u destniation_address = PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS + STATUS_TACTILE_START;
+    int16u num_bytes           = STATUS_TACTILE_LENGTH;
+    int8u *source_pointer      = (int8u*)(&etherCAT_status_data)        + STATUS_TACTILE_START;
+
+    write_DMA_ET1200_register_N(destniation_address, num_bytes, source_pointer);
+}
+
+
+inline void write_status_aux_data_To_ET1200(void)
+{
+    int16u destniation_address = PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS + STATUS_AUX_START;
+    int16u num_bytes           = STATUS_AUX_LENGTH;
+    int8u *source_pointer      = (int8u*)(&etherCAT_status_data)        + STATUS_AUX_START;
+
+    write_DMA_ET1200_register_N(destniation_address, num_bytes, source_pointer);
+}
+
+
+inline void write_status_motor_data_To_ET1200(void)
+{
+    int16u destniation_address = PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS + STATUS_MOTOR_START;
+    int16u num_bytes           = STATUS_MOTOR_LENGTH;
+    int8u *source_pointer      = (int8u*)(&etherCAT_status_data)        + STATUS_MOTOR_START;
+
+    write_DMA_ET1200_register_N(destniation_address, num_bytes, source_pointer);
+}
+
+inline void write_status_idletime_data_To_ET1200(void)
+{
+    int16u destniation_address = PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS + STATUS_IDLETIME_START;
+    int16u num_bytes           = STATUS_IDLETIME_LENGTH;
+    int8u *source_pointer      = (int8u*)(&etherCAT_status_data)        + STATUS_IDLETIME_START;
+
+    write_DMA_ET1200_register_N(destniation_address, num_bytes, source_pointer);
+}
+
+
+inline void write_status_data_To_ET1200(void)
+{
+    int16u destniation_address = PALM_0230_ETHERCAT_STATUS_DATA_ADDRESS;
+    int16u num_bytes           = sizeof(etherCAT_status_data);
+    int8u *source_pointer      = (int8u*)(&etherCAT_status_data);
+
+    write_DMA_ET1200_register_N(destniation_address, num_bytes, source_pointer);
+}
 
 
 //! Here we check the content of AL Event Register (0x220)
@@ -360,7 +484,7 @@ void Wait_For_All_Motors_To_Send_Data(int32u timeout_us)
           );
 }
 
-
+ 
 
 //! Wait until a certain time within the 1000us frame time.
 //! This is a useful function for waiting until the last
@@ -399,10 +523,11 @@ int16u calculate_idle_time(void)
 //! Read all of the Joint and Tactile sensors on the Palm
 //!
 //! @author Hugo Elias
-void Read_All_Sensors(void)
+void Read_Joint_Sensors(void)
 {
     int8u adc_channel;
     int8u j=0;
+    int8u i=0;
     int8u sensors_valid;
     int32u frame_time=0;
 
@@ -462,22 +587,37 @@ void Read_All_Sensors(void)
                 break;
         }
 
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(0);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(1);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(2);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(3);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(4);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(5);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(6);
-        etherCAT_status_data.sensors[ palm_EDC_0200_sensor_mapping[j++] ] = TRANSLATE_SOMI_MCP3208(7);
+
+        for (i=0; i<8; i++)
+        {
+            switch (palm_EDC_0200_sensor_type[j])
+            {
+                case JOINT:
+                    etherCAT_status_data.sensors[                          palm_EDC_0200_sensor_mapping[j]  ] = TRANSLATE_SOMI_MCP3208(i);
+                    break;
+    
+                case TACTILE:
+                    if (i<5)        // 5 fingers!
+                        etherCAT_status_data.tactile_mid_prox[i].integers[ palm_EDC_0200_tactile_mapping[j] ] = TRANSLATE_SOMI_MCP3208(i);
+                    break;
+            }
+
+            j++;
+        }
     }
+}
 
-    #if AUTO_TRIGGER == 1
-        etherCAT_command_data.tactile_data_type = TACTILE_SENSOR_TYPE_BIOTAC_PDC;
-        tactile_sensor_protocol                 = TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3;
-    #endif
 
-    delay_us(10);
+
+void Read_Tactile_Sensors(void)
+{
+    int8u adc_channel;
+    int8u j=0;
+    int8u sensors_valid;
+    int32u frame_time=0;
+
+    Nop();
+    Nop();
 
 
     switch (tactile_sensor_protocol)                                                // Read tactile sensors after joint sensors?
@@ -515,10 +655,34 @@ void Read_All_Sensors(void)
         etherCAT_status_data.tactile_data_valid = 0x001F;
         etherCAT_status_data.tactile_data_type = TACTILE_SENSOR_TYPE_WHICH_SENSORS;
     }
-
 }
 
 
+void Read_Aux_Sensors(void)
+{
+    switch (aux_sensor_protocol)                                                // Read tactile sensors after joint sensors?
+    {
+        case AUX_SENSOR_PROTOCOL_TYPE_INVALID:
+            break;
+
+        case AUX_SENSOR_PROTOCOL_TYPE_MCP3202:
+            break;
+
+        case AUX_SENSOR_PROTOCOL_TYPE_MCP3204:
+            break;
+
+        case AUX_SENSOR_PROTOCOL_TYPE_MCP3208:
+            adc_3208_read_sensors(&etherCAT_command_data, &etherCAT_status_data);
+            break;
+    }
+
+    if (etherCAT_command_data.aux_data_type == TACTILE_SENSOR_TYPE_WHICH_SENSORS)   // Is the host asking which tactile sensor protocol we're using?
+    {
+        etherCAT_status_data.aux_spi_sensor.sensor[0] = aux_sensor_protocol;
+        etherCAT_status_data.aux_spi_data_type        = etherCAT_command_data.aux_data_type;
+    }
+
+}
 
 //! Zero the array containing the motor data so that it's tidy.
 //!
@@ -551,10 +715,16 @@ void Check_For_EtherCAT_Packet(void)
     collect_motor_data_CAN_messages(CAN2);                                                  // 
 
     #if AUTO_TRIGGER == 1                                                                   // This is just for debugging.
+        //Read_All_Sensors();
         if (get_frame_time_us() > 1150)                                                     // 
         {                                                                                   // 
+            //Read_All_Sensors();
+            
             frame_start_time = ReadCoreTimer();                                             // 
-            approx_1ms_handler();                                                           // 
+            //Handle_LEDs();
+            ClearWDT();
+
+            Service_EtherCAT_Packet();
         }                                                                                   // 
         return;                                                                             // 
     #endif                                                                                  // 
@@ -584,8 +754,22 @@ void Check_For_EtherCAT_Packet(void)
 //! @author Hugo Elias
 void Service_EtherCAT_Packet(void)
 {
-    Read_Commands_From_ET1200();                                                            // Read the command data
+    //Read_Command_Header_From_ET1200();
 
+    Read_Commands_From_ET1200();                                                            // Read the command data using DMA. This is a background process,
+                                                                                            // so the function exist long before the whole command buffer has
+                                                                                            // been read.
+
+    delay_us(20);                                                                           // Give the SPI port a little time to read the values we need now
+                                                                                            // - EDC_command
+                                                                                            // - from_motor_data_type
+
+
+    #if AUTO_TRIGGER == 1
+        etherCAT_command_data.EDC_command        = EDC_COMMAND_SENSOR_DATA;
+        etherCAT_command_data.to_motor_data_type = 0x01;
+        etherCAT_command_data.tactile_data_type  = TACTILE_SENSOR_TYPE_UBI0_TACTILE;
+    #endif
 
     switch (etherCAT_command_data.EDC_command)
     {
@@ -595,24 +779,43 @@ void Service_EtherCAT_Packet(void)
                                                                                             // This EDC_command is handled,
             LED_Off(ET1200_AL_err_LED);                                                     // so extinguish the Application Layer LED
 
-            send_CAN_request_data_message( etherCAT_command_data.which_motors,
-                                           etherCAT_command_data.from_motor_data_type);     // Start of frame message
+            #if AUTO_TRIGGER == 1
+                send_CAN_request_data_message( 0x00,
+                                               MOTOR_DATA_SLOW_MISC);     // Start of frame message
+            #else
+                send_CAN_request_data_message( etherCAT_command_data.which_motors,
+                                               etherCAT_command_data.from_motor_data_type);     // Start of frame message
+            #endif
 
 
-            zero_motor_data_packets();                                                      // Housekeeping
+            //etherCAT_command_data.tactile_data_type  = TACTILE_SENSOR_TYPE_UBI0_TACTILE;
 
-            Read_All_Sensors();                                                             // Read all joint and tactile sensors.
+
+            Read_Joint_Sensors();                                                           // Read all joint and tactile sensors.
+            write_status_header_and_joint_data_To_ET1200();                                 // Start transmitting that data to the ET1200
+    
+            Read_Tactile_Sensors();                                                         // Read Distal Tactile sensors.
+            write_status_tactile_data_To_ET1200();                                          // Start transmitting that data to the ET1200
+
+            Read_Aux_Sensors();                                                             // Read Aux SPI sensors
+            write_status_aux_data_To_ET1200();                                              // Start transmitting that data to the ET1200
+
             num_motor_CAN_messages_received_this_frame = 0;
-            //Wait_For_All_Motors_To_Send_Data(600);                                          // Wait for 600us max.
+            Wait_For_All_Motors_To_Send_Data(500);                                          // Wait for 600us max.
             Send_Data_To_Motors(&etherCAT_command_data);                                    // Send CAN messages to motors
+            Wait_For_All_Motors_To_Send_Data(550);                                          // Wait for 600us max.
+            write_status_motor_data_To_ET1200();
 
             etherCAT_status_data.EDC_command  = EDC_COMMAND_SENSOR_DATA;                    // FIXME: I don't think this calculation is correct
             etherCAT_status_data.idle_time_us = calculate_idle_time();                      // 
 
-            write_status_data_To_ET1200();
+
             idle_time_start = ReadCoreTimer();                                              // Idle time begins now because the status data
                                                                                             // has been written to the ET1200. The next EtherCAT
                                                                                             // packet can arrive any time after this.
+            write_status_idletime_data_To_ET1200();
+
+            zero_motor_data_packets();                                                      // Housekeeping
             break;
 
 
@@ -620,6 +823,7 @@ void Service_EtherCAT_Packet(void)
         case EDC_COMMAND_CAN_DIRECT_MODE:                                                   // CAN Bridge packet
                                                                                             // -----------------
 
+            Read_Command_Header_From_ET1200();
                                                                                             // This EDC_command is handled,
             LED_Off(ET1200_AL_err_LED);                                                     // so extinguish the Application Layer LED
 
@@ -632,7 +836,7 @@ void Service_EtherCAT_Packet(void)
 
             etherCAT_status_data.EDC_command  = EDC_COMMAND_SENSOR_DATA;
             etherCAT_status_data.idle_time_us = calculate_idle_time();                      // FIXME: I don't think this calculation is correct
-            write_status_data_To_ET1200();                                                  // 
+            //write_status_data_To_ET1200();                                                  // 
 
             Wait_For_Until_Frame_Time(600);                                                 // Give the node a little time to respond, and we might be able
                                                                                             // to get the reply message back into the very next EtherCAT packet.
@@ -646,6 +850,7 @@ void Service_EtherCAT_Packet(void)
 
 
         default:                                                                            // This EDC_command is not handled, and considered an error
+            Read_Commands_From_ET1200(); 
             LED_On(ET1200_AL_err_LED);                                                      // So light the red Application Layer LED.
             break;
     }
@@ -867,4 +1072,22 @@ void delay_ms(int32u milliseconds)
     }
 } 
 
+
+//! Detect whether this is a left or a right hand
+//! 
+//! 
+//! @return the correct product code for this hand
+//! 
+//! @author Hugo Elias
+int32u get_product_code(void)
+{
+    if (Pin_Get_State(left_right_pin))
+        return THIS_NODE_PRODUCT_CODE_RIGHT;                // High = Right hand
+    else
+        return THIS_NODE_PRODUCT_CODE_LEFT;                 // Low  = Left hand
+}
+
+
+// roscd shadow_robot_ethercat
+// INTERNAL_FIRMWARE=1 rosmake
 

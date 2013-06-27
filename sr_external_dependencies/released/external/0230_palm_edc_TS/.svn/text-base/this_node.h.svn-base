@@ -106,7 +106,7 @@ typedef enum
 
 //! Used for reporting general events, or a change in state.
 //! E.G. the change from Idle mode to Active mode
-//
+//! 
 //! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
 //! this enum simply collects together the event codes relevant to this node.
 typedef enum
@@ -119,13 +119,15 @@ typedef enum
 
 void initialise_this_node(void);                            // ALL setup for this node, apart from what's explicitly listed in main.c
 
-void handle_configuration_message(CAN_message* message);
-void Service_EtherCAT_Packet(void);
-void Check_For_EtherCAT_Packet(void);
-
+void   handle_configuration_message(CAN_message* message);
+void   Service_EtherCAT_Packet(void);
+void   Check_For_EtherCAT_Packet(void);
+int32u get_product_code(void);
 
 // application defines
-#define THIS_NODE_PRODUCT_CODE      0x0008
+#define THIS_NODE_PRODUCT_CODE_LEFT     9
+#define THIS_NODE_PRODUCT_CODE_RIGHT    8
+#define THIS_NODE_PRODUCT_CODE      get_product_code()
 
 #define SYSTEM_FREQ_HZ            80000000
 #define PERIPHERAL_BUS_CLOCK_HZ   40000000
@@ -156,6 +158,7 @@ void Check_For_EtherCAT_Packet(void);
 #include "bielefeld/ubi_parallel.h"
 #include "itg3200/itg3200.h"
 #include "leds/leds.h"
+#include "adc_320x/adc_320x.h"
 
 
 #include "../support/svnversion.h"
@@ -263,11 +266,11 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 #ifdef PALM_PCB_01                                          // Definitions for actual palm board inside hand
     #define USE_SIMPLE_PST_CS
     #define AUTO_TRIGGER         0                          //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
-
+    
     #define ET1200_CHIP_SELECT_PIN      'C', 14
     #define ET1200_RESET_PIN            'F',  3
     #define ET1200_EEPROM_PIN           'G',  2
-    #define SPI2_CS_PIN                 'D',  11
+    #define SPI_CS_PIN_AUX              'D',  11
     #define SPI_CS_PIN                  'D',  7
     #define SPI_CLOCK_PIN               'D',  6
     #define SPI_MOSI_PIN                'D',  5
@@ -280,16 +283,18 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define LED_CAN2_RX_PIN             'B', 15
     #define LED_CAN2_ERR_PIN            'F',  5
     #define LED_AL_ERR_PIN              'C', 13
+    #define LEFT_RIGHT_PIN              'E',  7
     
+    #define SPI_PORT_AUX                SPI_CHANNEL1A,  2, aux_chip_select
     #define SPI_PORT                    SPI_CHANNEL2A, 10, ET1200_chip_select
     #define I2C_PORT                    I2C1, 400000
-
+    
     #define ALL_LED_BITS_PORTB          0b1000000000000000
     #define ALL_LED_BITS_PORTC          0b0010000000000000
     #define ALL_LED_BITS_PORTD          0b0000000100010001
     #define ALL_LED_BITS_PORTE          0b0000000000000000
     #define ALL_LED_BITS_PORTF          0b0000000000100000
-
+    
     
     #define     SPIP_INPUT_BIT_0        (spi_somi_port & 0x0001)
     #define     SPIP_INPUT_BIT_1        (spi_somi_port & 0x0002)
@@ -299,9 +304,9 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define     SPIP_INPUT_BIT_5        (spi_somi_port & 0x0020)
     #define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
     #define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
-
+    
     #define     SPIP_INPUT_PORT         PORTE
-
+    
     #define     FF_SOMI                 (spi_somi_port & 0x0004)
     #define     MF_SOMI                 (spi_somi_port & 0x0002)
     #define     RF_SOMI                 (spi_somi_port & 0x0001)
@@ -323,7 +328,7 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
     #define     SPI_STAT                SPI2ASTAT
     #define     SPI_CON                 SPI2ACON 
     #define     SPI_STATbits            SPI2ASTATbits
-
+    
 #endif
 
 

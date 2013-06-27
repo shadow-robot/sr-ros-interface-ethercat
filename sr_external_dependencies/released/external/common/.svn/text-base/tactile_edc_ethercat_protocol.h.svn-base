@@ -82,6 +82,15 @@ typedef enum                                                            //! This
 }TACTILE_SENSOR_PROTOCOL_TYPE;
 
 
+typedef enum                                                            //!< This is the protocol the palm is using for the Aux SPI sensor
+{
+    AUX_SENSOR_PROTOCOL_TYPE_INVALID            = 0x0000,               //!< No supported sensors were found.
+    AUX_SENSOR_PROTOCOL_TYPE_MCP3202            = 0x0001,               //!< A basic MCP3202 ADC was found.
+    AUX_SENSOR_PROTOCOL_TYPE_MCP3204            = 0x0002,               //!< A basic MCP3204 ADC was found.
+    AUX_SENSOR_PROTOCOL_TYPE_MCP3208            = 0x0003                //!< A basic MCP3208 ADC was found.
+
+}AUX_SENSOR_PROTOCOL_TYPE;
+
 typedef enum                                                            // Data you can request from PST3s
 {
     TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE       = 0x0000,       //!< 0: Pressure.       1: Temperature
@@ -91,7 +100,8 @@ typedef enum                                                            // Data 
 
 typedef enum                                                            // Data you can request from UBI0 tactiles
 {
-    TACTILE_SENSOR_TYPE_UBI0_TACTILE                    = 0x0000,       //!< Only one type of sensor
+    TACTILE_SENSOR_TYPE_UBI0_INVALID                    = 0x0000,       //!<
+    TACTILE_SENSOR_TYPE_UBI0_TACTILE                    = 0x0001,       //!< Only one type of sensor
 }FROM_TACTILE_SENSOR_TYPE_UBI0;
 
 typedef enum                                                            // Data you can request from BioTacs
@@ -124,6 +134,13 @@ typedef enum                                                            // Data 
 }FROM_TACTILE_SENSOR_TYPE_BIOTAC;
 
 
+typedef enum                                                   // Data you can request from MCP320x ADC
+{
+    TACTILE_SENSOR_TYPE_MCP320x_INVALID        = 0x0000,       //!<
+    TACTILE_SENSOR_TYPE_MCP320x_TACTILE        = 0x0001,       //!< Only one type of sensor
+}FROM_TACTILE_SENSOR_TYPE_MCP320x;
+
+
 typedef struct
 {
     int16u  Pac[2];
@@ -140,7 +157,7 @@ typedef struct
 }TACTILE_SENSOR_BIOTAC_DATA_CONTENTS;
 
 
-// Length fo Univ. Bielefeld tactile sensors
+// Length for Univ. Bielefeld tactile sensors
 
 #define TACTILE_DATA_LENGTH_BYTES_v2   32
 #define TACTILE_DATA_LENGTH_WORDS_v2   (TACTILE_DATA_LENGTH_BYTES_v2/2)
@@ -158,16 +175,43 @@ typedef struct
     int16u  misc;
 }TACTILE_SENSOR_UNIBI_DATA_CONTENTS;
 
-typedef struct
+typedef union
 {
-    int16u    middle[4];
-    int16u  proximal[4];
+    struct
+    {
+        int16u    middle[4];
+        int16u  proximal[4];
+    }named;
+
+    int16u integers[8];
 }TACTILE_SENSOR_MID_PROX;
+
+typedef enum
+{
+    MID_0   = 0,
+    MID_1   = 1,
+    MID_2   = 2,
+    MID_3   = 3,
+
+    PROX_0   = 4,
+    PROX_1   = 5,
+    PROX_2   = 6,
+    PROX_3   = 7
+}TACTILE_MID_PROX_SENSOR_NUMBERS;
+
 
 typedef struct
 {
     int16u  sensor[16];
 }TACTILE_SENSOR_PALM;
+
+
+typedef struct
+{
+    int16u  sensor[16];
+}AUX_SPI_SENSOR;
+
+
 
 /*
 #ifndef NO_STRINGS

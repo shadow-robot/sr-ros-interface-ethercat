@@ -538,6 +538,7 @@ void Check_For_EtherCAT_Packet(void)
         {                                                                                   // 
             frame_start_time = ReadCoreTimer();                                             // 
             approx_1ms_handler();                                                           // 
+            Service_EtherCAT_Packet();
         }                                                                                   // 
         return;                                                                             // 
     #endif                                                                                  // 
@@ -568,7 +569,12 @@ void Check_For_EtherCAT_Packet(void)
 void Service_EtherCAT_Packet(void)
 {
     Read_Commands_From_ET1200();                                                            // Read the command data
-
+    
+    #if AUTO_TRIGGER == 1
+        etherCAT_command_data.EDC_command        = EDC_COMMAND_SENSOR_DATA;
+        etherCAT_command_data.to_motor_data_type = 0x01;
+        etherCAT_command_data.tactile_data_type  = TACTILE_SENSOR_TYPE_UBI0_TACTILE;
+    #endif
 
     switch (etherCAT_command_data.EDC_command)
     {

@@ -54,21 +54,24 @@ typedef struct
                                                                     //!< value which arrived from the host in the previous
                                                                     //!< EtherCAT packet
 
-    //  Joint data  //
-	int16u					    sensors[SENSORS_NUM_0220+1];        //!< 74 bytes
+    //  Joint data & Mid/Prox Tactile data  //
+    int16u					    sensors[SENSORS_NUM_0220+1];        //!<          74 bytes
+    TACTILE_SENSOR_MID_PROX     tactile_mid_prox[5];                //!< 16*5  =  80 bytes
+                                                                    //!< TOTAL = 154 bytes
 
+    //  Fingertip Tactile data  //
+    int32u                      tactile_data_type;                  //!<           4 bytes
+    int16u                      tactile_data_valid;                 //!<           2 bytes          (Bit 0: FF. Bit 4: TH.)
+    TACTILE_SENSOR_STATUS_v2    tactile[5];                         //!<  32*5 = 160 bytes
+                                                                    //!< TOTAL = 166 bytes
 
-    //  Tactile data  //
-    int32u                      tactile_data_type;                  //!<          4 bytes
-    int16u                      tactile_data_valid;                 //!<          2 bytes          (Bit 0: FF. Bit 4: TH.)
-    TACTILE_SENSOR_STATUS_v2    tactile[5];                         //!< 32*5 = 160 bytes
-    TACTILE_SENSOR_MID_PROX     tactile_mid_prox[5];                //!< 16*5 =  80 bytes
-    TACTILE_SENSOR_PALM         tactile_palm;                       //!<         32 bytes
-                                                                    //  TOTAL TACTILE DATA = 278 bytes
+    //  Aux SPI port data  //
+    int32u                      aux_spi_data_type;                  //!<           4 bytes
+    AUX_SPI_SENSOR              aux_spi_sensor;                     //!<          32 bytes
+                                                                    //!< TOTAL =  36 bytes
 
 
     //  Motor data  //
-
     FROM_MOTOR_DATA_TYPE        motor_data_type;                    //!< Which data does motor[] contain?
                                                                     //!< This value should agree with the previous value
                                                                     //!< in ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND
@@ -90,15 +93,17 @@ typedef struct
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS;
 
 #define STATUS_HEADER_START     0
-#define STATUS_JOINTS_START     (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, sensors))
 #define STATUS_TACTILE_START    (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, tactile_data_type))
-#define STATUS_MOTOR_START      (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, motor_data_type))
+#define STATUS_AUX_START        (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, aux_spi_data_type))
+#define STATUS_MOTOR_START      (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS,   motor_data_type))
+#define STATUS_IDLETIME_START   (offsetof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS,      idle_time_us))
 
 #define STATUS_TOTAL_LENGTH     (sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS))
-#define STATUS_HEADER_LENGTH    (STATUS_JOINTS_START  - STATUS_HEADER_START)
-#define STATUS_JOINTS_LENGTH    (STATUS_TACTILE_START - STATUS_JOINTS_START)
-#define STATUS_TACTILE_LENGTH   (STATUS_MOTOR_START   - STATUS_TACTILE_START)
-#define STATUS_MOTOR_LENGTH     (STATUS_TOTAL_LENGTH  - STATUS_MOTOR_START)
+#define STATUS_JOINTS_LENGTH    (STATUS_TACTILE_START  - STATUS_HEADER_START)
+#define STATUS_TACTILE_LENGTH   (STATUS_AUX_START      - STATUS_TACTILE_START)
+#define STATUS_AUX_LENGTH       (STATUS_MOTOR_START    - STATUS_AUX_START)
+#define STATUS_MOTOR_LENGTH     (STATUS_IDLETIME_START - STATUS_MOTOR_START)
+#define STATUS_IDLETIME_LENGTH  (STATUS_TOTAL_LENGTH   - STATUS_IDLETIME_START)
 
 
 
@@ -113,10 +118,10 @@ typedef struct
                                                                 //!< 0: Even motor numbers.  1: Odd motor numbers
 
     TO_MOTOR_DATA_TYPE      to_motor_data_type;                 //!< Request for specific motor data
-    int32u                  tactile_data_type;                  //!< Request for specific tactile data
+    int32u                   tactile_data_type;                 //!< Request for specific tactile data
+    int32u                       aux_data_type;                 //!< Request for specific aux data
 
-                                                                //!< ------------------------------------------------
-
+    
     int16s                  motor_data[NUM_MOTORS];             //!< Motor Data [18]:40  Data to send to motors. Typically torque/PWM demands, or configs.
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND;
@@ -131,13 +136,13 @@ typedef struct
 #define PALM_0230_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS)
 #define PALM_0230_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND)
 
-                                                //  Now we need to be *sure* that the Host and the Slave definitely
-                                                //  agree on the size of the EtherCAT packets, even if the host is a
-                                                //  64-bit machine or something. So we have these calculated sizes.
-                                                //  The host and slave can ASSERT that the sizeof() the packets
-                                                //  matches the agreed sizes.
-//#define ETHERCAT_STATUS_AGREED_SIZE     232     //! This is the size of the Status  EtherCAT packet (Status + CAN packet)
-//#define ETHERCAT_COMMAND_AGREED_SIZE    70      //! This is the size of the Command EtherCAT packet (Status + CAN packet)
+                                                    //  Now we need to be *sure* that the Host and the Slave definitely
+                                                    //  agree on the size of the EtherCAT packets, even if the host is a
+                                                    //  64-bit machine or something. So we have these calculated sizes.
+                                                    //  The host and slave can ASSERT that the sizeof() the packets
+                                                    //  matches the agreed sizes.
+#define ETHERCAT_STATUS_0230_AGREED_SIZE     416    //! This is the size of the Status  EtherCAT packet (Status + CAN packet)
+#define ETHERCAT_COMMAND_0230_AGREED_SIZE    62     //! This is the size of the Command EtherCAT packet (Status + CAN packet)
 
 
 
