@@ -1,6 +1,6 @@
 <launch>
   <!-- Allows to specify the ethernet interface to be used. It defaults to the value of the env var ETHERCAT_PORT -->
-  <arg name="eth_port" default="$(env ETHERCAT_PORT)" />
+  <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)" />
   <!-- Set to 0 if the hand description will not be specified with the argument hand_description. In which case it depends on the environment variables -->
   <arg name="set_description" default="0" />
   <!-- Xacro file containing the robot description we want to load. Only taken into acount if the set_description arg is set to 1
