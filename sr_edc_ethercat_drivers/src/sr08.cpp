@@ -69,7 +69,7 @@ namespace is_edc_command_32_bits
 
 
 
-PLUGINLIB_REGISTER_CLASS(8, SR08, EthercatDevice);
+PLUGINLIB_EXPORT_CLASS(SR08, EthercatDevice);
 
 
 /** \brief Constructor of the SR08 driver

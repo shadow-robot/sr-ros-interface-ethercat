@@ -31,7 +31,7 @@
 #include <dll/ethercat_device_addressed_telegram.h>
 #include <dll/ethercat_frame.h>
 
-PLUGINLIB_REGISTER_CLASS(0, SRBridge, EthercatDevice);
+PLUGINLIB_EXPORT_CLASS(SRBridge, EthercatDevice);
 
 void SRBridge::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 {

@@ -69,7 +69,7 @@ namespace is_edc_command_32_bits
 
 
 
-PLUGINLIB_REGISTER_CLASS(6, SR06, EthercatDevice);
+PLUGINLIB_EXPORT_CLASS(SR06, EthercatDevice);
 
 
 /** \brief Constructor of the SR06 driver
