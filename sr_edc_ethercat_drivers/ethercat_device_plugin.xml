@@ -19,7 +19,7 @@
       SR08 etherCAT driver (right hand)
     </description>
   </class>
-  <class name="16777218" type="SR08" base_class_type="EthercatDevice">
+  <class name="16777217" type="SR08" base_class_type="EthercatDevice">
     <description>
       SR08 etherCAT driver (left hand)
     </description>
