@@ -125,8 +125,8 @@ void   Check_For_EtherCAT_Packet(void);
 int32u get_product_code(void);
 
 // application defines
-#define THIS_NODE_PRODUCT_CODE_LEFT     9
-#define THIS_NODE_PRODUCT_CODE_RIGHT    8
+#define THIS_NODE_PRODUCT_CODE_LEFT     0x01000001
+#define THIS_NODE_PRODUCT_CODE_RIGHT    0x01000000
 #define THIS_NODE_PRODUCT_CODE      get_product_code()
 
 #define SYSTEM_FREQ_HZ            80000000

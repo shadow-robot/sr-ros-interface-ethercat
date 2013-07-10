@@ -76,33 +76,39 @@ ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 
 
 #ifdef PALM_PCB_01    
-    int8u palm_EDC_0200_sensor_mapping[64] = {IGNORE, IGNORE, IGNORE, IGNORE,  FFJ4,   THJ4,   IGNORE,  IGNORE,           // Channel 0
-                                              IGNORE, IGNORE, IGNORE, IGNORE,  MFJ4,   THJ3,   IGNORE,  IGNORE,           // Channel 1
-                                              RFJ2  , MFJ2  , FFJ2  , LFJ2  ,  RFJ4,   AN0,    THJ1,    IGNORE,           // Channel 2
-                                              RFJ1  , MFJ1  , FFJ1  , LFJ1  ,  THJ5B,  THJ5A,  IGNORE,  IGNORE,           // Channel 3
-                                              IGNORE, IGNORE, IGNORE, IGNORE,  AN3,    WRJ2,   THJ2,    IGNORE,           // Channel 4
-                                              IGNORE, IGNORE, IGNORE, IGNORE,  AN2,    LFJ4,   IGNORE,  IGNORE,           // Channel 5
-                                              RFJ3  , MFJ3  , FFJ3  , LFJ3  ,  AN1,    LFJ5,   IGNORE,  IGNORE,           // Channel 6
-                                              IGNORE, IGNORE, IGNORE, IGNORE,  WRJ1A,  WRJ1B,  IGNORE,  IGNORE            // Channel 7
+    int8u palm_EDC_0200_sensor_mapping[64]  = {  IGNORE,   IGNORE,  IGNORE,  IGNORE,   FFJ4,    THJ4,   IGNORE,  IGNORE,    //!< Which joint sensor is connected  // Channel 0
+                                                 IGNORE,   IGNORE,  IGNORE,  IGNORE,   MFJ4,    THJ3,   IGNORE,  IGNORE,    //!  to each proximal ADC channel?
+                                                 RFJ2  ,   MFJ2  ,  FFJ2  ,  LFJ2  ,   RFJ4,    AN0,    THJ1,    IGNORE,    // Channel 2
+                                                 RFJ1  ,   MFJ1  ,  FFJ1  ,  LFJ1  ,   THJ5B,   THJ5A,  IGNORE,  IGNORE,    // Channel 3
+                                                 IGNORE,   IGNORE,  IGNORE,  IGNORE,   AN3,     WRJ2,   THJ2,    IGNORE,    // Channel 4
+                                                 IGNORE,   IGNORE,  IGNORE,  IGNORE,   AN2,     LFJ4,   IGNORE,  IGNORE,    // Channel 5
+                                                 RFJ3  ,   MFJ3  ,  FFJ3  ,  LFJ3  ,   AN1,     LFJ5,   IGNORE,  IGNORE,    // Channel 6
+                                                 IGNORE,   IGNORE,  IGNORE,  IGNORE,   WRJ1A,   WRJ1B,  IGNORE,  IGNORE     // Channel 7
                                              };
 
-    int8u palm_EDC_0200_sensor_type[64]    = {  TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE,
-                                                TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE,
-                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,
-                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,
-                                                TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE,
-                                                TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE,
-                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,
-                                                TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE, TACTILE};
+    int8u palm_EDC_0200_sensor_type[64]     = { TACTILE, TACTILE, TACTILE, TACTILE,   JOINT,   JOINT, TACTILE, TACTILE,     //!< What type of sensors is
+                                                TACTILE, TACTILE, TACTILE, TACTILE,   JOINT,   JOINT, TACTILE, TACTILE,     //!  connected to each proximal
+                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT, TACTILE,     //!  ADC channel?
+                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT, TACTILE, TACTILE,
+                                                TACTILE, TACTILE, TACTILE, TACTILE,   JOINT,   JOINT,   JOINT, TACTILE,
+                                                TACTILE, TACTILE, TACTILE, TACTILE,   JOINT,   JOINT, TACTILE, TACTILE,
+                                                  JOINT,   JOINT,   JOINT,   JOINT,   JOINT,   JOINT, TACTILE, TACTILE,
+                                                TACTILE, TACTILE, TACTILE, TACTILE,   JOINT,   JOINT, TACTILE, TACTILE
+                                              };
 
-    int8u palm_EDC_0200_tactile_mapping[64] = {    MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0, 
-                                                 PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0, 
-                                                      0,       0,       0,       0,       0,       0,       0,       0, 
+    int8u palm_EDC_0200_tactile_mapping[64] = {   MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0,   MID_0,     //!< Which mid/prox tactile 
+                                                 PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,  PROX_0,     //!  sensors connect to which
+                                                      0,       0,       0,       0,       0,       0,       0,       0,     //!  ADC channels?
                                                       0,       0,       0,       0,       0,       0,       0,       0, 
                                                  PROX_1,  PROX_1,  PROX_1,  PROX_1,  PROX_1,  PROX_1,  PROX_1,  PROX_1, 
                                                   MID_1,   MID_1,   MID_1,   MID_1,   MID_1,   MID_1,   MID_1,   MID_1, 
+                                                      0,       0,       0,       0,       0,       0,       0,       0,
                                                  PROX_2,  PROX_2,  PROX_2,  PROX_2,  PROX_2,  PROX_2,  PROX_2,  PROX_2
-    };
+                                              };
+
+    int8u palm_EDC_0200_tactile_SOMI_mapping[8] = {   2,       1,       0,       3,       4,    0xFF,    0xFF,    0xFF};    //!< Which SOMI lines connect
+                                                                                                                            //!  to which fingers?
+
 #endif
 
 
@@ -299,6 +305,7 @@ void initialise_this_node(void)
     tactile_sensor_protocol =    pst_autodetect(tactile_sensor_protocol);                   // Result is stored in tactile_sensor_protocol.
     tactile_sensor_protocol =   ubi0_autodetect(tactile_sensor_protocol);                   // 
         aux_sensor_protocol = adc_320x_autodetect(aux_sensor_protocol);
+
 
     switch (tactile_sensor_protocol)                                                        // Now initialise the tactile sensors according to the detected type.
     {
@@ -525,31 +532,14 @@ int16u calculate_idle_time(void)
 //! @author Hugo Elias
 void Read_Joint_Sensors(void)
 {
-    int8u adc_channel;
-    int8u j=0;
-    int8u i=0;
-    int8u sensors_valid;
-    int32u frame_time=0;
+    int16u SOMI_data;
+    int8u  sensor_number;
+    int8u  adc_channel;
+    int8u  finger;
+    int8u  j=0;
+    int8u  i=0;
 
-    Nop();
-    Nop();
-
-/*
-    sensors_valid = prx0_read_sensors();
-
-    if (sensors_valid & 0x08)
-    {
-        for (j=0; j<9; j++)
-            etherCAT_status_data.sensors[j] = prx0_data[3].integers.sensors[j];
-
-        if (etherCAT_status_data.sensors[4] == 0)
-        {
-            Nop();
-            Nop();
-            Nop();
-        }
-    }
-*/
+    #warning This code does not handle non-Bielefeld distal sensors.
 /*
     switch (tactile_sensor_protocol)                                                // Read tactile sensors before joint sensors?
     {                                                                               // ------------------------------------------
@@ -597,8 +587,13 @@ void Read_Joint_Sensors(void)
                     break;
     
                 case TACTILE:
-                    if (i<5)        // 5 fingers!
-                        etherCAT_status_data.tactile_mid_prox[i].integers[ palm_EDC_0200_tactile_mapping[j] ] = TRANSLATE_SOMI_MCP3208(i);
+                    finger        = palm_EDC_0200_tactile_SOMI_mapping[i];
+                    SOMI_data     = TRANSLATE_SOMI_MCP3208(i);
+                    sensor_number = palm_EDC_0200_tactile_mapping[j];
+
+                    if ((finger >= 0) && (finger <= 4))
+                        etherCAT_status_data.tactile_mid_prox[finger].integers[ sensor_number ] = SOMI_data;
+
                     break;
             }
 
@@ -611,13 +606,8 @@ void Read_Joint_Sensors(void)
 
 void Read_Tactile_Sensors(void)
 {
-    int8u adc_channel;
-    int8u j=0;
-    int8u sensors_valid;
     int32u frame_time=0;
 
-    Nop();
-    Nop();
 
 
     switch (tactile_sensor_protocol)                                                // Read tactile sensors after joint sensors?
@@ -801,9 +791,10 @@ void Service_EtherCAT_Packet(void)
             write_status_aux_data_To_ET1200();                                              // Start transmitting that data to the ET1200
 
             num_motor_CAN_messages_received_this_frame = 0;
-            Wait_For_All_Motors_To_Send_Data(500);                                          // Wait for 600us max.
-            Send_Data_To_Motors(&etherCAT_command_data);                                    // Send CAN messages to motors
+            zero_motor_data_packets();                                                      // Housekeeping
             Wait_For_All_Motors_To_Send_Data(550);                                          // Wait for 600us max.
+            Send_Data_To_Motors(&etherCAT_command_data);                                    // Send CAN messages to motors
+            Wait_For_All_Motors_To_Send_Data(625);                                          // Wait for 600us max.
             write_status_motor_data_To_ET1200();
 
             etherCAT_status_data.EDC_command  = EDC_COMMAND_SENSOR_DATA;                    // FIXME: I don't think this calculation is correct
@@ -815,7 +806,6 @@ void Service_EtherCAT_Packet(void)
                                                                                             // packet can arrive any time after this.
             write_status_idletime_data_To_ET1200();
 
-            zero_motor_data_packets();                                                      // Housekeeping
             break;
 
 
