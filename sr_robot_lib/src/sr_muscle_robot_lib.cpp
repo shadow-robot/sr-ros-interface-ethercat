@@ -389,24 +389,40 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::read_additional_muscle_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data)
   {
+    int packet_offset_muscle_0 = 0;
+    int packet_offset_muscle_1 = 0;
+
     boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
 
-    //check the masks to see if the CAN messages arrivedfrom the muscle driver
-    //the flag should be set to 1 for each muscle. Every actuator has two muscles, so we check both flags to decide that the actuator is OK
-    muscle_wrapper->actuator_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_arrived,
-                                                                        muscle_wrapper->muscle_driver_id[0] * 10 + muscle_wrapper->muscle_id[0])
-                               && sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_arrived,
-                                                                        muscle_wrapper->muscle_driver_id[1] * 10 + muscle_wrapper->muscle_id[1]);
+    //Every muscle driver sends two muscle_data_packet containing pressures from 5 muscles each
+    if (muscle_wrapper->muscle_id[0] >= NUM_PRESSURE_SENSORS_PER_MESSAGE)
+    {
+      packet_offset_muscle_0 = 1;
+    }
 
+    if (muscle_wrapper->muscle_id[1] >= NUM_PRESSURE_SENSORS_PER_MESSAGE)
+    {
+      packet_offset_muscle_1 = 1;
+    }
+
+    //check the masks to see if the CAN messages arrived from the muscle driver
+    //the flag should be set to 1 for each muscle driver CAN message (a muscle driver sends 2 separate CAN messages with 5 muscle pressures each.
+    // Every actuator (every joint) has two muscles, so we check both flags to decide that the actuator is OK
+    muscle_wrapper->actuator_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_muscle_data_arrived,
+                                                                        muscle_wrapper->muscle_driver_id[0] * 2 + packet_offset_muscle_0)
+                               && sr_math_utils::is_bit_mask_index_true(status_data->which_muscle_data_arrived,
+                                                                        muscle_wrapper->muscle_driver_id[1] * 2 + packet_offset_muscle_1);
+
+    /*
     //check the masks to see if a bad CAN message arrived
     //the flag should be 0
     muscle_wrapper->bad_data = sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_had_errors,
                                                                                   muscle_wrapper->muscle_driver_id[0] * 10 + muscle_wrapper->muscle_id[0])
                                          && sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_had_errors,
                                                                                   muscle_wrapper->muscle_driver_id[1] * 10 + muscle_wrapper->muscle_id[1]);
+    */
 
-
-    if (muscle_wrapper->actuator_ok && !(muscle_wrapper->bad_data))
+    if (muscle_wrapper->actuator_ok)
     {
       sr_actuator::SrMuscleActuator* actuator = static_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator);
 
@@ -528,16 +544,17 @@ namespace shadow_robot
   void SrMuscleRobotLib<StatusType, CommandType>::read_muscle_driver_data(boost::ptr_vector<shadow_joints::MuscleDriver>::iterator muscle_driver_tmp, StatusType* status_data)
   {
     //check one the masks (e.g. the first) for this muscle driver to see if the CAN messages arrived correctly from the muscle driver
-    //the flag should be set to 1 for each muscle in this driver.
-    muscle_driver_tmp->driver_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_arrived,
-                                                                        muscle_driver_tmp->muscle_driver_id * 10 );
-
+    //the flag should be set to 1 for each message in this driver.
+    muscle_driver_tmp->driver_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_muscle_data_arrived,
+                                                                        muscle_driver_tmp->muscle_driver_id * 2 );
+    /*
     //check the masks to see if a bad CAN message arrived
     //the flag should be 0
     muscle_driver_tmp->bad_data = sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_had_errors,
-                                                                        muscle_driver_tmp->muscle_driver_id * 10 );
+                                                                        muscle_driver_tmp->muscle_driver_id * 2 );
+    */
 
-    if (muscle_driver_tmp->driver_ok && !(muscle_driver_tmp->bad_data))
+    if (muscle_driver_tmp->driver_ok)
     {
       //we received the data and it was correct
       set_muscle_driver_data_received_flags(status_data->muscle_data_type, muscle_driver_tmp->muscle_driver_id);

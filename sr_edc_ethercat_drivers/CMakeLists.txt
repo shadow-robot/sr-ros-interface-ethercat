@@ -22,7 +22,7 @@ rosbuild_genmsg()
 #rosbuild_gensrv()
 
 
-rosbuild_add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
+rosbuild_add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/sr_edc_muscle.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
 target_link_libraries(sr_edc_ethercat_drivers bfd)
 
 
