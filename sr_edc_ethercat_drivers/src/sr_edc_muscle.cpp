@@ -157,7 +157,7 @@ int SrEdcMuscle::initialize(pr2_hardware_interface::HardwareInterface *hw, bool 
   if(retval != 0)
     return retval;
 
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> >( new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(hw) );
+  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> >( new shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(hw) );
 
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int>(ETHERCAT_STATUS_DATA_SIZE) );
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int>(ETHERCAT_COMMAND_DATA_SIZE) );
