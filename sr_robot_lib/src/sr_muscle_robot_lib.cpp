@@ -297,16 +297,20 @@ namespace shadow_robot
             d.summary(d.WARN, "WARNING, bad CAN data received");
 
             d.clear();
-            d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
-            d.addf("Muscle driver ID", "%d", actuator_wrapper->muscle_driver_id);
+            d.addf("Muscle ID 0", "%d", actuator_wrapper->muscle_id[0]);
+            d.addf("Muscle driver ID 0", "%d", actuator_wrapper->muscle_driver_id[0]);
+            d.addf("Muscle ID 1", "%d", actuator_wrapper->muscle_id[1]);
+            d.addf("Muscle driver ID 1", "%d", actuator_wrapper->muscle_driver_id[1]);
           }
           else //the data is good
           {
             d.summary(d.OK, "OK");
 
             d.clear();
-            d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
-            d.addf("Muscle driver ID", "%d", actuator_wrapper->muscle_driver_id);
+            d.addf("Muscle ID 0", "%d", actuator_wrapper->muscle_id[0]);
+            d.addf("Muscle driver ID 0", "%d", actuator_wrapper->muscle_driver_id[0]);
+            d.addf("Muscle ID 1", "%d", actuator_wrapper->muscle_id[1]);
+            d.addf("Muscle driver ID 1", "%d", actuator_wrapper->muscle_driver_id[1]);
 
             d.addf("Unfiltered position", "%f", state->position_unfiltered_);
 
@@ -323,7 +327,10 @@ namespace shadow_robot
         {
           d.summary(d.ERROR, "Motor error");
           d.clear();
-          d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
+          d.addf("Muscle ID 0", "%d", actuator_wrapper->muscle_id[0]);
+          d.addf("Muscle driver ID 0", "%d", actuator_wrapper->muscle_driver_id[0]);
+          d.addf("Muscle ID 1", "%d", actuator_wrapper->muscle_id[1]);
+          d.addf("Muscle driver ID 1", "%d", actuator_wrapper->muscle_driver_id[1]);
         }
       }
       else
@@ -604,7 +611,8 @@ namespace shadow_robot
       //Check the message to see if everything has already been received
       if (muscle_current_state == operation_mode::device_update_state::INITIALIZATION)
       {
-        if (check_muscle_driver_data_received_flags())
+        if ((check_muscle_driver_data_received_flags())
+            || (muscle_updater_->update_state == operation_mode::device_update_state::OPERATION))
         {
           muscle_updater_->update_state = operation_mode::device_update_state::OPERATION;
           muscle_current_state = operation_mode::device_update_state::OPERATION;

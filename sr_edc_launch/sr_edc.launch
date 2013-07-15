@@ -28,6 +28,7 @@
   <!-- polling rates -->
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml" />
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml" />
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/muscle_data_polling.yaml" />
 
   <!-- Default controllers -->
   <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch" >

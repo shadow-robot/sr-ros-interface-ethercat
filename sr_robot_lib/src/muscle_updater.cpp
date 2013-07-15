@@ -49,7 +49,8 @@ namespace generic_updater
     if(!this->mutex->try_lock())
       return this->update_state;
 
-    if (this->update_state == operation_mode::device_update_state::INITIALIZATION)
+    if ((this->update_state == operation_mode::device_update_state::INITIALIZATION)
+        && (this->initialization_configs_vector.size() > 0))
     {
       ///////
       // First we ask for the next data we want to receive
@@ -64,6 +65,7 @@ namespace generic_updater
     }
     else
     {
+      this->update_state == operation_mode::device_update_state::OPERATION;
       //For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
       //we use the first important message
       //This is to avoid sending a random command
