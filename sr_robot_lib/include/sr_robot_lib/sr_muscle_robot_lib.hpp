@@ -139,6 +139,10 @@ namespace shadow_robot
      */
     inline void set_valve_demand(uint8_t *muscle_data_byte_to_set, int8_t valve_value, uint8_t shifting_index);
 
+    /**
+     * Calback for the timer that controls the timeout for the muscle initialization period
+     */
+    void init_timer_callback(const ros::TimerEvent& event);
 
     boost::ptr_vector<shadow_joints::MuscleDriver> muscle_drivers_vector_;
 
@@ -168,7 +172,12 @@ namespace shadow_robot
     std::map<unsigned int, unsigned int> from_muscle_driver_data_received_flags_;
 
 
+    ros::Timer check_init_timeout_timer;
+    static const double timeout;
+    ros::Duration init_max_duration;
 
+    ///A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
+    boost::shared_ptr<boost::mutex> lock_init_timeout_;
   };//end class
 }//end namespace
 

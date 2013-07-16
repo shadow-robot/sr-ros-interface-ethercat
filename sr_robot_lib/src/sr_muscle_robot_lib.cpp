@@ -41,11 +41,13 @@
 
 namespace shadow_robot
 {
+  template <class StatusType, class CommandType>
+  const double SrMuscleRobotLib<StatusType, CommandType>::timeout = 5.0;
 
   template <class StatusType, class CommandType>
   SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(pr2_hardware_interface::HardwareInterface *hw)
     : SrRobotLib<StatusType, CommandType>(hw),
-      muscle_current_state(operation_mode::device_update_state::INITIALIZATION)
+      muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout)
   {
 #ifdef DEBUG_PUBLISHER
     debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
@@ -56,7 +58,10 @@ namespace shadow_robot
       debug_publishers.push_back(node_handle.advertise<std_msgs::Int16>(ss.str().c_str(),100));
     }
 #endif
-
+    lock_init_timeout_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
+    //Create a one-shot timer
+    check_init_timeout_timer = this->nh_tilde.createTimer(init_max_duration,
+                                               boost::bind(&SrMuscleRobotLib<StatusType, CommandType>::init_timer_callback, this, _1), true);
   }
 
   template <class StatusType, class CommandType>
@@ -607,6 +612,8 @@ namespace shadow_robot
         break;
       }
 
+      //Mutual exclusion with the the initialization timeout
+      boost::mutex::scoped_lock l(*lock_init_timeout_);
 
       //Check the message to see if everything has already been received
       if (muscle_current_state == operation_mode::device_update_state::INITIALIZATION)
@@ -616,6 +623,8 @@ namespace shadow_robot
         {
           muscle_updater_->update_state = operation_mode::device_update_state::OPERATION;
           muscle_current_state = operation_mode::device_update_state::OPERATION;
+          //stop the timer
+          check_init_timeout_timer.stop();
 
           ROS_INFO("All muscle data initialized.");
         }
@@ -676,9 +685,31 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::reinitialize_motors()
   {
+    //Mutual exclusion with the the initialization timeout
+    boost::mutex::scoped_lock l(*lock_init_timeout_);
+
+    //stop the timer just in case it was still running
+    check_init_timeout_timer.stop();
     //Create a new MuscleUpdater object
     muscle_updater_ = boost::shared_ptr<generic_updater::MuscleUpdater<CommandType> >(new generic_updater::MuscleUpdater<CommandType>(muscle_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
     muscle_current_state = operation_mode::device_update_state::INITIALIZATION;
+    //To reschedule the one-shot timer
+    check_init_timeout_timer.setPeriod(init_max_duration);
+    check_init_timeout_timer.start();
+  }
+
+  template <class StatusType, class CommandType>
+  void SrMuscleRobotLib<StatusType, CommandType>::init_timer_callback(const ros::TimerEvent& event)
+  {
+    //Mutual exclusion with the the initialization timeout
+    boost::mutex::scoped_lock l(*lock_init_timeout_);
+
+    if(muscle_current_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      muscle_updater_->update_state = operation_mode::device_update_state::OPERATION;
+      muscle_current_state = operation_mode::device_update_state::OPERATION;
+      ROS_ERROR_STREAM("Muscle Initialization Timeout: the static information in the diagnostics may not be up to date.");
+    }
   }
 
   //Only to ensure that the template class is compiled for the types we are interested in
