@@ -321,6 +321,15 @@ bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_bu
     */
     debug_publisher->msg_.motor_data_packet_torque.clear();
     debug_publisher->msg_.motor_data_packet_misc.clear();
+
+    for(unsigned int i=0; i < 8; ++i)
+    {
+      debug_publisher->msg_.motor_data_packet_torque.push_back( (status_data->muscle_data_packet[i].packed.pressure0_H << 8) + (status_data->muscle_data_packet[i].packed.pressure0_M << 4) + status_data->muscle_data_packet[i].packed.pressure0_L);
+      debug_publisher->msg_.motor_data_packet_torque.push_back( (status_data->muscle_data_packet[i].packed.pressure1_H << 8) + (status_data->muscle_data_packet[i].packed.pressure1_M << 4) + status_data->muscle_data_packet[i].packed.pressure1_L);
+      debug_publisher->msg_.motor_data_packet_torque.push_back( (status_data->muscle_data_packet[i].packed.pressure2_H << 8) + (status_data->muscle_data_packet[i].packed.pressure2_M << 4) + status_data->muscle_data_packet[i].packed.pressure2_L);
+      debug_publisher->msg_.motor_data_packet_torque.push_back( (status_data->muscle_data_packet[i].packed.pressure3_H << 8) + (status_data->muscle_data_packet[i].packed.pressure3_M << 4) + status_data->muscle_data_packet[i].packed.pressure3_L);
+      debug_publisher->msg_.motor_data_packet_torque.push_back( (status_data->muscle_data_packet[i].packed.pressure4_H << 8) + (status_data->muscle_data_packet[i].packed.pressure4_M << 4) + status_data->muscle_data_packet[i].packed.pressure4_L);
+    }
     /*
     for(unsigned int i=0; i < 10; ++i)
     {

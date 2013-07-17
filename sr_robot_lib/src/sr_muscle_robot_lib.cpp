@@ -319,13 +319,13 @@ namespace shadow_robot
 
             d.addf("Unfiltered position", "%f", state->position_unfiltered_);
 
-            d.addf("Last Commanded Valve 0", "%f", state->last_commanded_valve_[0]);
-            d.addf("Last Commanded Valve 1", "%f", state->last_commanded_valve_[1]);
+            d.addf("Last Commanded Valve 0", "%d", state->last_commanded_valve_[0]);
+            d.addf("Last Commanded Valve 1", "%d", state->last_commanded_valve_[1]);
 
-            d.addf("Unfiltered Pressure 0", "%f", state->pressure_[0]);
-            d.addf("Unfiltered Pressure 1", "%f", state->pressure_[1]);
+            d.addf("Unfiltered Pressure 0", "%u", state->pressure_[0]);
+            d.addf("Unfiltered Pressure 1", "%u", state->pressure_[1]);
 
-            d.addf("Encoder Position", "%f", state->position_);
+            d.addf("Position", "%f", state->position_);
           }
         }
         else
@@ -479,6 +479,9 @@ namespace shadow_robot
       case MUSCLE_DATA_PRESSURE:
         actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0], status_data));
         actuator->state_.pressure_[1] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1], status_data));
+
+        //ROS_WARN("DriverID: %u MuscleID: %u Pressure 0: %u", muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0],  actuator->state_.pressure_[0]);
+        //ROS_WARN("DriverID: %u MuscleID: %u Pressure 1: %u", muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1],  actuator->state_.pressure_[1]);
 
 #ifdef DEBUG_PUBLISHER
         if( joint_tmp->actuator_wrapper->motor_id == 8 )
