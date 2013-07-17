@@ -49,6 +49,9 @@ namespace shadow_robot
 #endif
 
   template <class StatusType, class CommandType>
+  const double SrRobotLib<StatusType, CommandType>::tactile_timeout = 5.0;
+
+  template <class StatusType, class CommandType>
   const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 32;
 
   template <class StatusType, class CommandType>
@@ -124,7 +127,7 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   SrRobotLib<StatusType, CommandType>::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false),
-      tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
+      tactile_current_state(operation_mode::device_update_state::INITIALIZATION), tactile_init_max_duration(tactile_timeout),
       nh_tilde("~")
   {
 
@@ -146,6 +149,10 @@ namespace shadow_robot
     // this makes it possible to easily stop the controllers.
     nullify_demand_server_ = nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
 
+    lock_tactile_init_timeout_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
+    //Create a one-shot timer
+    tactile_check_init_timeout_timer = this->nh_tilde.createTimer(tactile_init_max_duration,
+                                               boost::bind(&SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback, this, _1), true);
   }
 
   template <class StatusType, class CommandType>
@@ -278,12 +285,17 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrRobotLib<StatusType, CommandType>::build_tactile_command(CommandType* command)
   {
+    //Mutual exclusion with the the initialization timeout
+    boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
+
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
       if (tactiles_init->sensor_updater->build_init_command(command)
           != operation_mode::device_update_state::INITIALIZATION)
       {
         tactile_current_state = operation_mode::device_update_state::OPERATION;
+
+        tactile_check_init_timeout_timer.stop();
 
         switch (tactiles_init->tactiles_vector->at(0).which_sensor)
         {
@@ -473,6 +485,22 @@ namespace shadow_robot
     }
 
     return update_rate_configs_vector;
+  }
+
+  template <class StatusType, class CommandType>
+  void SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback(const ros::TimerEvent& event)
+  {
+    //Mutual exclusion with the the initialization timeout
+    boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
+
+    if(tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      tactile_current_state = operation_mode::device_update_state::OPERATION;
+      tactiles = boost::shared_ptr<tactiles::UBI0<StatusType, CommandType> >(
+            new tactiles::UBI0<StatusType, CommandType>(ubi0_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+                               tactiles_init->tactiles_vector));
+      ROS_ERROR_STREAM("Tactile Initialization Timeout: considering UBI0 tactiles");
+    }
   }
 
   //Only to ensure that the template class is compiled for the types we are interested in

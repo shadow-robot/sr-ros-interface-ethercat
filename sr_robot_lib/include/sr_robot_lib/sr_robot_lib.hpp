@@ -251,6 +251,10 @@ namespace shadow_robot
      */
     std::vector<generic_updater::UpdateConfig> read_update_rate_configs(std::string base_param, int nb_data_defined, const char* human_readable_data_types[], const int32u data_types[]);
 
+    /**
+     * Calback for the timer that controls the timeout for the tactile initialization period
+     */
+    void tactile_init_timer_callback(const ros::TimerEvent& event);
 
     /// A temporary calibration for a given joint.
     boost::shared_ptr<shadow_robot::JointCalibration> calibration_tmp;
@@ -301,7 +305,12 @@ namespace shadow_robot
     ///The ROS service handler for nullifying the demand
     ros::ServiceServer nullify_demand_server_;
 
+    ros::Timer tactile_check_init_timeout_timer;
+    static const double tactile_timeout;
+    ros::Duration tactile_init_max_duration;
 
+    ///A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
+    boost::shared_ptr<boost::mutex> lock_tactile_init_timeout_;
 
   };//end class
 }//end namespace
