@@ -340,6 +340,8 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrRobotLib<StatusType, CommandType>::update_tactile_info(StatusType* status)
   {
+    //Mutual exclusion with the the initialization timeout
+    boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
       if( tactiles_init != NULL )
