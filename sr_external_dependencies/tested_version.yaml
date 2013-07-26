@@ -1,1 +1,1 @@
-protocol_common:2096 ; protocol_motor:2096 ; protocol_muscle:2096 ; protocol_ubi_ts:2096 ; bootloader:2096 ; firmware:2096 ; git_shadow:427a7b2 ; git_ethercat:8217b72
+protocol_common:2111 ; protocol_motor:2111 ; protocol_muscle:2111 ; protocol_ubi_ts:2111 ; bootloader:2111 ; firmware:exported ; git_shadow:cf20c62 ; git_ethercat:e131330

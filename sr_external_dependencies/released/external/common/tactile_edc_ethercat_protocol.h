@@ -101,7 +101,7 @@ typedef enum                                                            // Data 
 typedef enum                                                            // Data you can request from UBI0 tactiles
 {
     TACTILE_SENSOR_TYPE_UBI0_INVALID                    = 0x0000,       //!<
-    TACTILE_SENSOR_TYPE_UBI0_TACTILE                    = 0x0001,       //!< Only one type of sensor
+    TACTILE_SENSOR_TYPE_UBI0_TACTILE                    = 0x0001       //!< Only one type of sensor
 }FROM_TACTILE_SENSOR_TYPE_UBI0;
 
 typedef enum                                                            // Data you can request from BioTacs
@@ -137,8 +137,8 @@ typedef enum                                                            // Data 
 typedef enum                                                   // Data you can request from MCP320x ADC
 {
     TACTILE_SENSOR_TYPE_MCP320x_INVALID        = 0x0000,       //!<
-    TACTILE_SENSOR_TYPE_MCP320x_TACTILE        = 0x0001,       //!< Only one type of sensor
-}FROM_TACTILE_SENSOR_TYPE_MCP320x;
+    TACTILE_SENSOR_TYPE_MCP320x_TACTILE        = 0x0001       //!< Only one type of sensor
+} FROM_TACTILE_SENSOR_TYPE_MCP320x;
 
 
 typedef struct
