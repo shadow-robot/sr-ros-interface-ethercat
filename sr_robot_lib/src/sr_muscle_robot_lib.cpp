@@ -62,6 +62,52 @@ namespace shadow_robot
     //Create a one-shot timer
     check_init_timeout_timer = this->nh_tilde.createTimer(init_max_duration,
                                                boost::bind(&SrMuscleRobotLib<StatusType, CommandType>::init_timer_callback, this, _1), true);
+
+    this->pressure_calibration_map_ = this->read_pressure_calibration();
+  }
+
+  template <class StatusType, class CommandType>
+  shadow_joints::CalibrationMap SrMuscleRobotLib<StatusType, CommandType>::read_pressure_calibration()
+  {
+    ROS_INFO("Reading pressure calibration");
+    shadow_joints::CalibrationMap pressure_calibration;
+    std::string param_name = "sr_pressure_calibrations";
+
+    XmlRpc::XmlRpcValue calib;
+    this->nodehandle_.getParam(param_name, calib);
+    ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    //iterate on all the joints
+    for(int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
+    {
+      //check the calibration is well formatted:
+      // first joint name, then calibration table
+      ROS_ASSERT(calib[index_cal][0].getType() == XmlRpc::XmlRpcValue::TypeString);
+      ROS_ASSERT(calib[index_cal][1].getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+      std::string joint_name = static_cast<std::string> (calib[index_cal][0]);
+      std::vector<joint_calibration::Point> calib_table_tmp;
+      ROS_INFO_STREAM("Hello " << index_cal << " " << joint_name);
+
+      //now iterates on the calibration table for the current joint
+      for(int32_t index_table=0; index_table < calib[index_cal][1].size(); ++index_table)
+      {
+        ROS_ASSERT(calib[index_cal][1][index_table].getType() == XmlRpc::XmlRpcValue::TypeArray);
+        //only 2 values per calibration point: raw and calibrated (doubles)
+        ROS_ASSERT(calib[index_cal][1][index_table].size() == 2);
+        ROS_ASSERT(calib[index_cal][1][index_table][0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        ROS_ASSERT(calib[index_cal][1][index_table][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+
+
+        joint_calibration::Point point_tmp;
+        point_tmp.raw_value = static_cast<double> (calib[index_cal][1][index_table][0]);
+        point_tmp.calibrated_value = static_cast<double> (calib[index_cal][1][index_table][1]);
+        calib_table_tmp.push_back(point_tmp);
+      }
+
+      pressure_calibration.insert(joint_name, boost::shared_ptr<shadow_robot::JointCalibration>(new shadow_robot::JointCalibration(calib_table_tmp)) );
+    }
+
+    return pressure_calibration;
   }
 
   template <class StatusType, class CommandType>

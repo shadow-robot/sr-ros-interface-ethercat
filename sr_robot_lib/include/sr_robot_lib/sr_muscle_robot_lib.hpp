@@ -30,6 +30,7 @@
 #include "sr_robot_lib/sr_robot_lib.hpp"
 
 #include "sr_robot_lib/muscle_updater.hpp"
+#include <sr_utilities/calibration.hpp>
 
 #define NUM_MUSCLE_DRIVERS      4
 
@@ -90,6 +91,17 @@ namespace shadow_robot
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
                             std::vector<sr_actuator::SrGenericActuator*> actuators) = 0;
+
+     /// The map used to calibrate each pressure sensor.
+     shadow_joints::CalibrationMap pressure_calibration_map_;
+
+    /**
+     * Reads the calibration from the parameter server.
+     *
+     * @return a calibration map
+     */
+    virtual shadow_joints::CalibrationMap read_pressure_calibration();
+
 
     /**
      * Read additional data from the latest message and stores it into the
