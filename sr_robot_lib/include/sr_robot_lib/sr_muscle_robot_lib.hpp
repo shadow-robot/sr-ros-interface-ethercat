@@ -94,6 +94,9 @@ namespace shadow_robot
 
      /// The map used to calibrate each pressure sensor.
      shadow_joints::CalibrationMap pressure_calibration_map_;
+     /// A temporary calibration for a given joint.
+     boost::shared_ptr<shadow_robot::JointCalibration> pressure_calibration_tmp_;
+
 
     /**
      * Reads the calibration from the parameter server.

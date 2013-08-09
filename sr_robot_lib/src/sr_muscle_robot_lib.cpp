@@ -86,7 +86,6 @@ namespace shadow_robot
 
       std::string joint_name = static_cast<std::string> (calib[index_cal][0]);
       std::vector<joint_calibration::Point> calib_table_tmp;
-      ROS_INFO_STREAM("Hello " << index_cal << " " << joint_name);
 
       //now iterates on the calibration table for the current joint
       for(int32_t index_table=0; index_table < calib[index_cal][1].size(); ++index_table)
@@ -520,12 +519,24 @@ namespace shadow_robot
 #endif
 
       //we received the data and it was correct
+      unsigned int p1 = 0;
       switch (status_data->muscle_data_type)
       {
       case MUSCLE_DATA_PRESSURE:
-        actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0], status_data));
-        actuator->state_.pressure_[1] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1], status_data));
-
+        // Calibrate the raw values to bar pressure values.
+        for (int i=0; i<2; ++i)
+        {
+          p1 = get_muscle_pressure(muscle_wrapper->muscle_driver_id[i], muscle_wrapper->muscle_id[i], status_data);
+          std::string name = joint_tmp->joint_name + "_" + boost::lexical_cast<std::string>(i);
+          // XXX: If the joint isn't found we crash
+          //ROS_INFO_STREAM("Calib: "<<name);
+          pressure_calibration_tmp_ = pressure_calibration_map_.find(name);
+          double bar = pressure_calibration_tmp_->compute(static_cast<double>(p1));
+          actuator->state_.pressure_[i] = static_cast<int16u>(bar);
+        }
+        // Raw values
+        //actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0], status_data));
+        //actuator->state_.pressure_[1] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1], status_data));
         //ROS_WARN("DriverID: %u MuscleID: %u Pressure 0: %u", muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0],  actuator->state_.pressure_[0]);
         //ROS_WARN("DriverID: %u MuscleID: %u Pressure 1: %u", muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1],  actuator->state_.pressure_[1]);
 
