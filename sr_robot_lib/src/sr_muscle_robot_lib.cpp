@@ -532,6 +532,8 @@ namespace shadow_robot
           //ROS_INFO_STREAM("Calib: "<<name);
           pressure_calibration_tmp_ = pressure_calibration_map_.find(name);
           double bar = pressure_calibration_tmp_->compute(static_cast<double>(p1));
+          if (bar < 0.0)
+              bar = 0.0;
           actuator->state_.pressure_[i] = static_cast<int16u>(bar);
         }
         // Raw values
