@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('sr_naist_living_machines')
+import roslib; roslib.load_manifest('sr_edc_muscle_tools')
 import rospy
 from sr_robot_msgs.msg import sendupdate, joint
 from std_msgs.msg import Float64
