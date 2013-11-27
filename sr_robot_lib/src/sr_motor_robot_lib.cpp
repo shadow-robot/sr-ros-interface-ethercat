@@ -980,7 +980,7 @@ namespace shadow_robot
     {
       ROS_ERROR("Node namespace: %s", ns.c_str());
     }
-
+    arguments = " set_namespace:=0";
     // Read the config_dir prefix from the parameter server
     // The config_dir will be passed as an argument to the sr_edc_default_controllers.launch
     // so that the parameters in it will be read from the correct files
