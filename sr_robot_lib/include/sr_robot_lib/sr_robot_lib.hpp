@@ -275,8 +275,8 @@ namespace shadow_robot
      * This vector has the same size as the debug_publishers vector.
      */
     std::vector<boost::shared_ptr<std::pair<int, int> > > debug_motor_indexes_and_data;
-    static const int debug_mutex_lock_wait_time;
-    boost::shared_mutex debug_mutex;
+    //static const int debug_mutex_lock_wait_time;
+    //boost::shared_mutex debug_mutex;
     ros::NodeHandle node_handle;
     std_msgs::Int16 msg_debug;
 #endif
