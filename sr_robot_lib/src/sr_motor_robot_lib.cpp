@@ -126,7 +126,7 @@ namespace shadow_robot
       //filter the effort
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
           motor_actuator->state_.force_unfiltered_, timestamp);
-      joint_tmp->actuator_wrapper->actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
+      motor_actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
 
       //if no motor is associated to this joint, then continue
       if ((motor_index_full == -1))
@@ -626,7 +626,7 @@ namespace shadow_robot
         if( actuator_wrapper->motor_id == 19 )
         {
           //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
-          this->msg_debug.data = actuator->state_.strain_gauge_right_;
+          this->msg_debug.data = actuator->state_.pwm_;
           this->debug_publishers[2].publish(this->msg_debug);
         }
 #endif
