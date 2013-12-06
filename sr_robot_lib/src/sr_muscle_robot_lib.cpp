@@ -50,12 +50,12 @@ namespace shadow_robot
       muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout)
   {
 #ifdef DEBUG_PUBLISHER
-    debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
-    for( int i = 0; i < nb_debug_publishers_const; ++i )
+    this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
+    for( int i = 0; i < this->nb_debug_publishers_const; ++i )
     {
       std::stringstream ss;
       ss << "srh/debug_" << i;
-      debug_publishers.push_back(node_handle.advertise<std_msgs::Int16>(ss.str().c_str(),100));
+      this->debug_publishers.push_back(this->node_handle.template advertise<std_msgs::Int16>(ss.str().c_str(),100));
     }
 #endif
     lock_init_timeout_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
@@ -220,37 +220,38 @@ namespace shadow_robot
             muscle_actuator->state_.last_commanded_valve_[0] = 0;
             muscle_actuator->state_.last_commanded_valve_[1] = 0;
           }
-
+/*
 #ifdef DEBUG_PUBLISHER
           //publish the debug values for the given motors.
           // NB: debug_motor_indexes_and_data is smaller
           //     than debug_publishers.
           int publisher_index = 0;
           boost::shared_ptr<std::pair<int,int> > debug_pair;
-          if( debug_mutex.try_lock() )
+          if( this->debug_mutex.try_lock() )
           {
-            BOOST_FOREACH(debug_pair, debug_motor_indexes_and_data)
+            BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
             {
               if( debug_pair != NULL )
               {
+                shadow_joints::MuscleWrapper* actuator_wrapper = static_cast<shadow_joints::MuscleWrapper*>(joint_tmp->actuator_wrapper.get());
                 //check if we want to publish some data for the current motor
-                if( debug_pair->first == joint_tmp->actuator_wrapper->motor_id )
+                if( debug_pair->first == actuator_wrapper->muscle_id[0] )
                 {
                   //check if it's the correct data
                   if( debug_pair->second == -1 )
                   {
-                    msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
-                    debug_publishers[publisher_index].publish(msg_debug);
+                    this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
+                    this->debug_publishers[publisher_index].publish(this->msg_debug);
                   }
                 }
               }
               publisher_index ++;
             }
 
-            debug_mutex.unlock();
+            this->debug_mutex.unlock();
           } //end try_lock
 #endif
-
+*/
         } //end if has_actuator
       } // end for each joint
     } //endif
@@ -482,7 +483,8 @@ namespace shadow_robot
     if (muscle_wrapper->actuator_ok)
     {
       sr_actuator::SrMuscleActuator* actuator = static_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator);
-
+      shadow_joints::MuscleWrapper* actuator_wrapper = static_cast<shadow_joints::MuscleWrapper*>(joint_tmp->actuator_wrapper.get());
+/*            
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
       //publish the debug values for the given motors.
@@ -490,23 +492,25 @@ namespace shadow_robot
       //     than debug_publishers.
       boost::shared_ptr<std::pair<int,int> > debug_pair;
 
-      if( debug_mutex.try_lock() )
+      if( this->debug_mutex.try_lock() )
       {
-        BOOST_FOREACH(debug_pair, debug_motor_indexes_and_data)
+        BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
         {
           if( debug_pair != NULL )
           {
             //check if we want to publish some data for the current motor
-            if( debug_pair->first == joint_tmp->actuator_wrapper->motor_id )
+            if( debug_pair->first == actuator_wrapper->muscle_id[0] )
             {
               //if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
               if( debug_pair->second > 0 )
               {
                 //check if it's the correct data
-                if( debug_pair->second == status_data->motor_data_type )
+                if( debug_pair->second == status_data->muscle_data_type )
                 {
-                  msg_debug.data = status_data->motor_data_packet[index_motor_in_msg].misc;
-                  debug_publishers[publisher_index].publish(msg_debug);
+                  //TODO do something meaningful here
+                  //this->msg_debug.data = status_data->muscle_data_packet[0].misc;
+                  this->msg_debug.data = 0;
+                  this->debug_publishers[publisher_index].publish(this->msg_debug);
                 }
               }
             }
@@ -514,10 +518,10 @@ namespace shadow_robot
           publisher_index ++;
         }
 
-        debug_mutex.unlock();
+        this->debug_mutex.unlock();
       } //end try_lock
 #endif
-
+*/
       //we received the data and it was correct
       unsigned int p1 = 0;
       switch (status_data->muscle_data_type)
@@ -543,11 +547,11 @@ namespace shadow_robot
         //ROS_WARN("DriverID: %u MuscleID: %u Pressure 1: %u", muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1],  actuator->state_.pressure_[1]);
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->actuator_wrapper->motor_id == 8 )
+        if( actuator_wrapper->muscle_id[0] == 8 )
         {
           //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
-          msg_debug.data = actuator->state_.strain_gauge_left_;
-          debug_publishers[0].publish(msg_debug);
+          //this->msg_debug.data = actuator->state_.strain_gauge_left_;
+          //this->debug_publishers[0].publish(this->msg_debug);
         }
 #endif
         break;
