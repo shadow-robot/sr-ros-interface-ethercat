@@ -16,6 +16,9 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
+find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
+include_directories( ${ImageMagick_INCLUDE_DIRS})
+
 #if you compile with "DEBUG=1 make", some debug data are going to be published
 SET(debug $ENV{DEBUG})
 MESSAGE(" ----- Shadow Robot EtherCAT driver configuration:")
@@ -29,6 +32,7 @@ MESSAGE(" ----- ")
 
 rosbuild_add_library(sr_hand_lib src/UBI0.cpp src/biotac.cpp src/generic_tactiles.cpp src/generic_updater.cpp src/motor_data_checker.cpp src/motor_updater.cpp src/muscle_updater.cpp src/sensor_updater.cpp src/shadow_PSTs.cpp src/sr_motor_hand_lib.cpp src/sr_robot_lib.cpp src/sr_motor_robot_lib.cpp src/sr_muscle_hand_lib.cpp src/sr_muscle_robot_lib.cpp)
 
+target_link_libraries(sr_hand_lib sr_self_test)
 ###############
 #     TESTS
 SET(jenkins $ENV{JENKINS})

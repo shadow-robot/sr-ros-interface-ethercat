@@ -129,7 +129,6 @@ namespace shadow_robot
       tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
       nh_tilde("~")
   {
-
     //read the generic sensor polling frequency from the parameter server
     this->generic_sensor_update_rate_configs_vector = this->read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
     this->tactiles_init = boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> >( new tactiles::GenericTactiles<StatusType, CommandType>(this->generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
@@ -148,6 +147,9 @@ namespace shadow_robot
     // this makes it possible to easily stop the controllers.
     nullify_demand_server_ = nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
 
+    //initialises self tests (false as this is not a simulated hand\)
+    self_tests_.reset( new SrSelfTest(false) );
+    self_test_thread_.reset(new boost::thread(boost::bind(&SrRobotLib::checkSelfTests, this)));
   }
 
   template <class StatusType, class CommandType>
@@ -475,6 +477,19 @@ namespace shadow_robot
     }
 
     return update_rate_configs_vector;
+  }
+
+  template <class StatusType, class CommandType>
+  void SrRobotLib<StatusType, CommandType>::checkSelfTests()
+  {
+    ros::Rate loop_rate(1);
+    while (ros::ok())
+    {
+      //check if we have some self diagnostics test to run and run them
+      // in a separate thread
+      self_tests_->checkTest();
+      loop_rate.sleep();
+    }
   }
 
   //Only to ensure that the template class is compiled for the types we are interested in

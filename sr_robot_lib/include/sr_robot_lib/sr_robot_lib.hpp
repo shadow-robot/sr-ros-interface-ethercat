@@ -48,6 +48,8 @@
 #include <sr_utilities/calibration.hpp>
 #include <sr_utilities/thread_safe_map.hpp>
 
+#include <sr_self_test/sr_self_test.hpp>
+
 #include "sr_robot_lib/sr_joint_motor.hpp"
 #include "sr_robot_lib/generic_tactiles.hpp"
 
@@ -301,8 +303,13 @@ namespace shadow_robot
     ///The ROS service handler for nullifying the demand
     ros::ServiceServer nullify_demand_server_;
 
+    /// It is run in a separate thread and calls the checkTests() method of the self_tests_. This avoids the tests blocking the main thread
+    void checkSelfTests();
 
+    boost::shared_ptr<SrSelfTest> self_tests_;
 
+    ///Thread for running the tests in parallel when doing the tests on real hand
+    boost::shared_ptr<boost::thread> self_test_thread_;
   };//end class
 }//end namespace
 
