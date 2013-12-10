@@ -24,23 +24,25 @@
  *
  */
 
-#include "sr_robot_lib/sr_hand_lib.hpp"
+#include "sr_robot_lib/sr_motor_hand_lib.hpp"
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
 #define error_flag_names palm_0200_edc_error_flag_names
+#define STATUS_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS
+#define COMMAND_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND
 
-class HandLibTestProtected : public shadow_robot::SrHandLib
+class HandLibTestProtected : public shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>
 {
 public:
   HandLibTestProtected(pr2_hardware_interface::HardwareInterface *hw)
-    : shadow_robot::SrHandLib(hw)
+    : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw)
   {};
 
   ~HandLibTestProtected()
   {};
 
-public: using shadow_robot::SrHandLib::joints_vector;
+public: using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::joints_vector;
 };
 
 class HandLibTest
@@ -81,6 +83,10 @@ TEST(SrRobotLib, Initialization)
 {
   boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
 
+//  pr2_hardware_interface::HardwareInterface *hw;
+//  hw = new pr2_hardware_interface::HardwareInterface();
+//  boost::shared_ptr< shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE> > lib_test = boost::shared_ptr< shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE> >( new shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw) );
+
   EXPECT_TRUE(true);
 }
 
@@ -91,7 +97,7 @@ TEST(SrRobotLib, UpdateMotor)
 {
   boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
 
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data = new ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS();
+  STATUS_TYPE* status_data = new STATUS_TYPE();
   //add growing sensors values
   for(unsigned int i=1 ; i < SENSORS_NUM_0220 + 2; ++i)
   {
@@ -128,15 +134,18 @@ TEST(SrRobotLib, UpdateMotor)
   boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = lib_test->sr_hand_lib->joints_vector.begin();
   for(;joint_tmp != lib_test->sr_hand_lib->joints_vector.end(); ++joint_tmp)
   {
-    if(joint_tmp->has_motor)
+    if(joint_tmp->has_actuator)
     {
+      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
       //we updated the even motors
-      if(joint_tmp->motor->motor_id % 2 == 0)
+      if(motor_wrapper->motor_id % 2 == 0)
       {
-        ROS_ERROR_STREAM("last measured effort: " << joint_tmp->motor->actuator->state_.last_measured_effort_ << " actuator: " << joint_tmp->motor->actuator);
+        const sr_actuator::SrActuator* sr_actuator = static_cast<sr_actuator::SrActuator*>(motor_wrapper->actuator);
 
-        EXPECT_FLOAT_EQ(joint_tmp->motor->actuator->state_.force_unfiltered_ , 4.0);//(double)joint_tmp->motor->motor_id/2.0);
-        EXPECT_EQ(joint_tmp->motor->actuator->state_.strain_gauge_right_, joint_tmp->motor->motor_id);
+        ROS_ERROR_STREAM("last measured effort: " << sr_actuator->state_.last_measured_effort_ << " actuator: " << motor_wrapper->actuator);
+
+        EXPECT_FLOAT_EQ(sr_actuator->state_.force_unfiltered_ , 4.0);//(double)motor_wrapper->motor_id/2.0);
+        EXPECT_EQ(sr_actuator->state_.strain_gauge_right_, motor_wrapper->motor_id);
       }
     }
   }
@@ -151,7 +160,7 @@ TEST(SrRobotLib, UpdateActuators)
 {
   boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
 
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS* status_data = new ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS();
+  STATUS_TYPE* status_data = new STATUS_TYPE();
   //add growing sensors values
   for(unsigned int i=0 ; i < SENSORS_NUM_0220 + 1; ++i)
   {
@@ -203,9 +212,9 @@ public:
 
   using HandLibTestProtected::calibrate_joint;
 
-  using HandLibTestProtected::status_data;
+  //using HandLibTestProtected::status_data;
 
-  using HandLibTestProtected::actuator;
+  //using HandLibTestProtected::actuator;
 
   using HandLibTestProtected::humanize_flags;
 };
@@ -222,7 +231,7 @@ public:
 //   pr2_hardware_interface::HardwareInterface *hw;
 //   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
-//   ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS status_data;
+//   STATUS_TYPE status_data;
 
 //   //set all the sensors to 0
 //   for(unsigned int i = 0; i < SENSORS_NUM_0220 + 1; ++i)
@@ -284,7 +293,7 @@ public:
 //   pr2_hardware_interface::HardwareInterface *hw;
 //   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
-//   ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS status_data;
+//   STATUS_TYPE status_data;
 
 //   //set all the sensors to 0
 //   for(unsigned int i = 0; i < SENSORS_NUM_0220 + 1; ++i)
@@ -345,7 +354,7 @@ public:
 //   pr2_hardware_interface::HardwareInterface *hw;
 //   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
-//   ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS status_data;
+//   STATUS_TYPE status_data;
 
 //   //set all the sensors to 0
 //   for(unsigned int i = 0; i < SENSORS_NUM_0220 + 1; ++i)
