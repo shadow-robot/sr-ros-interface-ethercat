@@ -246,7 +246,7 @@ namespace shadow_robot
 
     //setting the backlash compensation (on or off)
     bool backlash_compensation;
-    full_param << "/" << act_name << "/backlash_compensation";
+    full_param << act_name << "/backlash_compensation";
     this->nodehandle_.template param<bool>(full_param.str(), backlash_compensation, true);
     full_param.str("");
     sr_robot_msgs::ChangeMotorSystemControls::Request backlash_request;
