@@ -1,0 +1,68 @@
+<package>
+  <name>sr_robot_lib</name>
+  <version>1.2.0</version>
+  <description>sr_robot_lib contains the robot library used in the sr_edc_ethercat_drivers. The
+     library is used to store the incoming etherCAT messages in an easy to access format,
+     and prepare the messages to be send through etherCAT.</description>
+  <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
+
+  <license>GPL</license>
+
+  <url type="website">http://ros.org/wiki/sr_robot_lib</url>
+  <url type="website">http://www.shadowrobot.com/products/dexterous-hand/</url>
+  <url type="repository">https://github.com/shadow-robot/sr-ros-interface-ethercat</url>
+  <url type="bugtracker">https://github.com/shadow-robot/sr-ros-interface-ethercat/issues</url>
+
+
+  <author>Ugo Cupcic</author>
+  <author>Toni Oliver</author>
+  <author>Mark Pitchless</author>
+
+
+  <!-- Dependencies which this package needs to build itself. -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Dependencies needed to compile this package. -->
+  <build_depend>sr_utilities</build_depend>
+  <build_depend>sr_hardware_interface</build_depend>
+  <build_depend>sr_external_dependencies</build_depend>
+  <build_depend>sr_robot_msgs</build_depend>
+  <build_depend>sr_ethercat_hand_config</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>diagnostic_updater</build_depend>
+  <build_depend>realtime_tools</build_depend>
+  <build_depend>pr2_mechanism_msgs</build_depend>
+  <build_depend>sr_self_test</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+
+  <!-- Dependencies needed after this package is compiled. -->
+  <run_depend>sr_utilities</run_depend>
+  <run_depend>sr_hardware_interface</run_depend>
+  <run_depend>sr_external_dependencies</run_depend>
+  <run_depend>sr_robot_msgs</run_depend>
+  <run_depend>sr_ethercat_hand_config</run_depend>
+  <run_depend>std_srvs</run_depend>
+  <run_depend>diagnostic_updater</run_depend>
+  <run_depend>realtime_tools</run_depend>
+  <run_depend>pr2_mechanism_msgs</run_depend>
+  <run_depend>sr_self_test</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+
+  <!-- Dependencies needed only for running tests. -->
+  <!-- <test_depend>sr_utilities</test_depend> -->
+  <!-- <test_depend>sr_hardware_interface</test_depend> -->
+  <!-- <test_depend>sr_external_dependencies</test_depend> -->
+  <!-- <test_depend>sr_robot_msgs</test_depend> -->
+  <!-- <test_depend>sr_ethercat_hand_config</test_depend> -->
+  <!-- <test_depend>std_srvs</test_depend> -->
+  <!-- <test_depend>diagnostic_updater</test_depend> -->
+  <!-- <test_depend>realtime_tools</test_depend> -->
+  <!-- <test_depend>pr2_mechanism_msgs</test_depend> -->
+  <!-- <test_depend>sr_self_test</test_depend> -->
+  <!-- <test_depend>roscpp</test_depend> -->
+  <!-- <test_depend>rospy</test_depend> -->
+  <test_depend>gtest</test_depend>
+
+</package>
