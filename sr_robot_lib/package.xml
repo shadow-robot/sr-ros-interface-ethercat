@@ -34,7 +34,6 @@
   <build_depend>pr2_mechanism_msgs</build_depend>
   <build_depend>sr_self_test</build_depend>
   <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
 
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>sr_utilities</run_depend>
@@ -51,18 +50,6 @@
   <run_depend>rospy</run_depend>
 
   <!-- Dependencies needed only for running tests. -->
-  <!-- <test_depend>sr_utilities</test_depend> -->
-  <!-- <test_depend>sr_hardware_interface</test_depend> -->
-  <!-- <test_depend>sr_external_dependencies</test_depend> -->
-  <!-- <test_depend>sr_robot_msgs</test_depend> -->
-  <!-- <test_depend>sr_ethercat_hand_config</test_depend> -->
-  <!-- <test_depend>std_srvs</test_depend> -->
-  <!-- <test_depend>diagnostic_updater</test_depend> -->
-  <!-- <test_depend>realtime_tools</test_depend> -->
-  <!-- <test_depend>pr2_mechanism_msgs</test_depend> -->
-  <!-- <test_depend>sr_self_test</test_depend> -->
-  <!-- <test_depend>roscpp</test_depend> -->
-  <!-- <test_depend>rospy</test_depend> -->
   <test_depend>gtest</test_depend>
 
 </package>
