@@ -5,6 +5,10 @@ project(sr_edc_ethercat_drivers)
 # Load catkin and all dependencies required for this package
 # TODO: remove all from COMPONENTS that are not catkin packages.
 find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_external_dependencies binutils)
+find_package(Boost REQUIRED COMPONENTS smart_ptr algorithm assign)
+find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
+
+include_directories(include ${Boost_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 # include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
 # CATKIN_MIGRATION: removed during catkin migration
@@ -30,8 +34,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
-include_directories( ${ImageMagick_INCLUDE_DIRS})
+
 
 #uncomment if you have defined messages
 add_message_files(
