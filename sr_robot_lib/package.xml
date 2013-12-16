@@ -26,13 +26,13 @@
   <build_depend>sr_hardware_interface</build_depend>
   <build_depend>sr_external_dependencies</build_depend>
   <build_depend>sr_robot_msgs</build_depend>
-  <build_depend>sr_ethercat_hand_config</build_depend>
   <build_depend>std_srvs</build_depend>
   <build_depend>diagnostic_updater</build_depend>
   <build_depend>realtime_tools</build_depend>
   <build_depend>pr2_mechanism_msgs</build_depend>
   <build_depend>sr_self_test</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>rostest</build_depend>
 
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>sr_utilities</run_depend>

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-START_PATH=`pwd`
+PREVIOUS_PATH=`pwd`
+START_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd ${START_PATH}
 
 mkdir -p ../include/sr_external_dependencies/external
 cd "../include/sr_external_dependencies/external"
@@ -37,4 +39,4 @@ checkout_or_update simplemotor-bootloader svn://thoth:9998/EDC/simplemotor-bootl
 cd ${START_PATH}
 cd "../compiled_firmware"
 checkout_or_update released_firmware svn://thoth:9998/EDC/simplemotor/released_firmware/
-cd ${START_PATH}
+cd ${PREVIOUS_PATH}

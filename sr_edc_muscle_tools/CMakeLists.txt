@@ -5,12 +5,19 @@ project(sr_edc_muscle_tools)
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS)
 
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
     CATKIN_DEPENDS rospy std_msgs sr_hand
 )
+
+#############
+## Install ##
+#############
+
+## Mark executable scripts (Python etc.) for installation
+## in contrast to setup.py, you can choose the destination
+file(GLOB SCRIPTS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" 
+   "${CMAKE_CURRENT_SOURCE_DIR}/bin/*")
+install(PROGRAMS ${SCRIPTS}
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

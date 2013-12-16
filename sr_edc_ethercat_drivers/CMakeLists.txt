@@ -6,49 +6,19 @@ project(sr_edc_ethercat_drivers)
 # TODO: remove all from COMPONENTS that are not catkin packages.
 find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_external_dependencies message_generation)
 find_package(binutils REQUIRED)
-find_package(Boost REQUIRED COMPONENTS smart_ptr algorithm assign)
+find_package(Boost REQUIRED COMPONENTS )
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
 include_directories(include ${binutils_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
-# include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
-# CATKIN_MIGRATION: removed during catkin migration
-# cmake_minimum_required(VERSION 2.4.6)
 
-# CATKIN_MIGRATION: removed during catkin migration
-# include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-#set(ROS_BUILD_TYPE RelWithDebInfo)
-
-
-# CATKIN_MIGRATION: removed during catkin migration
-# rosbuild_init()
-
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-
-
-
-#uncomment if you have defined messages
 add_message_files(
   FILES
   ActuatorInfo.msg
   MotorTrace.msg
   MotorTraceSample.msg
 )
-#uncomment if you have defined services
-#add_service_files(
-#  FILES
-  # TODO: List your msg files here
-#)
+
 
 
 add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/sr_edc_muscle.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
@@ -72,11 +42,10 @@ target_link_libraries (test_clock rt)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-    #TODO DEPENDENCIES geometry_msgs std_msgs
+    DEPENDENCIES std_msgs
 )
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
-# TODO: fill in what other packages will need to use this package
 catkin_package(
     DEPENDS binutils
     CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_external_dependencies message_runtime
