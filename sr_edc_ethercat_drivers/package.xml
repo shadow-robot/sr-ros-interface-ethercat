@@ -2,18 +2,19 @@
   <name>sr_edc_ethercat_drivers</name>
   <version>1.2.0</version>
   <description>A package implementing a ROS interface for the etherCAT Shadow Robot Dextrous Hand.</description>
-  <maintainer email="">Yann Sionneau</maintainer>
-  <maintainer email=" ugo@shadowrobot.com">Ugo Cupcic </maintainer>
-  <maintainer email="">software@shadowrobot.com</maintainer>
+  <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
 
   <license>GPL</license>
 
   <url type="website">http://ros.org/wiki/sr_edc_ethercat_drivers</url>
-  <!-- <url type="bugtracker"></url> -->
+  <url type="website">http://www.shadowrobot.com/products/dexterous-hand/</url>
+  <url type="repository">https://github.com/shadow-robot/sr-ros-interface-ethercat</url>
+  <url type="bugtracker">https://github.com/shadow-robot/sr-ros-interface-ethercat/issues</url>
 
+
+  <author>Ugo Cupcic</author>
   <author>Yann Sionneau</author>
-  <author email=" ugo@shadowrobot.com">Ugo Cupcic </author>
-  <author>software@shadowrobot.com</author>
+  <author>Toni Oliver</author>
 
   <!-- Dependencies which this package needs to build itself. -->
   <buildtool_depend>catkin</buildtool_depend>
@@ -25,6 +26,7 @@
   <build_depend>sr_robot_lib</build_depend>
   <build_depend>ethercat_hardware</build_depend>
   <build_depend>sr_external_dependencies</build_depend>
+  <build_depend>message_generation</build_depend>
 
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>roscpp</run_depend>
@@ -33,6 +35,7 @@
   <run_depend>sr_robot_lib</run_depend>
   <run_depend>ethercat_hardware</run_depend>
   <run_depend>sr_external_dependencies</run_depend>
+  <run_depend>message_runtime</run_depend>
 
   <!-- Dependencies needed only for running tests. -->
   <!-- <test_depend>roscpp</test_depend> -->

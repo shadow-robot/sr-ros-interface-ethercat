@@ -3,7 +3,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(sr_robot_lib)
 # Load catkin and all dependencies required for this package
-# TODO: remove all from COMPONENTS that are not catkin packages.
 find_package(catkin REQUIRED COMPONENTS sr_utilities sr_hardware_interface sr_external_dependencies sr_robot_msgs sr_ethercat_hand_config std_srvs diagnostic_updater realtime_tools pr2_mechanism_msgs sr_self_test roscpp rospy)
 find_package(Boost REQUIRED COMPONENTS thread smart_ptr ptr_container)
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
@@ -43,12 +42,9 @@ target_link_libraries(sr_hand_lib sr_self_test)
 catkin_python_setup()
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
-# TODO: fill in what other packages will need to use this package
 catkin_package(
-    DEPENDS sr_utilities sr_hardware_interface sr_external_dependencies sr_robot_msgs sr_ethercat_hand_config std_srvs diagnostic_updater realtime_tools pr2_mechanism_msgs sr_self_test roscpp rospy
-    CATKIN_DEPENDS # TODO
+    CATKIN_DEPENDS sr_utilities sr_hardware_interface sr_external_dependencies sr_robot_msgs sr_ethercat_hand_config std_srvs diagnostic_updater realtime_tools pr2_mechanism_msgs sr_self_test roscpp rospy
     INCLUDE_DIRS include
-    LIBRARIES # TODO
 )
 
 ###############

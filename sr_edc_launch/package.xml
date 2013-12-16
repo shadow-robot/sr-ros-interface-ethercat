@@ -2,37 +2,23 @@
   <name>sr_edc_launch</name>
   <version>1.2.0</version>
   <description>Package with launch files to start the needed nodes for the Shadow Robot EtherCAT hand.</description>
-  <maintainer email="">Yann Sionneau</maintainer>
-  <maintainer email=" ugo@shadowrobot.com ">Ugo Cupcic </maintainer>
-  <maintainer email="">software@shadowrobot.com</maintainer>
+  <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
 
   <license>GPL</license>
 
   <url type="website">http://ros.org/wiki/sr_edc_launch</url>
-  <!-- <url type="bugtracker"></url> -->
+  <url type="website">http://www.shadowrobot.com/products/dexterous-hand/</url>
+  <url type="repository">https://github.com/shadow-robot/sr-ros-interface-ethercat</url>
+  <url type="bugtracker">https://github.com/shadow-robot/sr-ros-interface-ethercat/issues</url>
 
+  <author>Ugo Cupcic</author>
   <author>Yann Sionneau</author>
-  <author email=" ugo@shadowrobot.com ">Ugo Cupcic </author>
-  <author>software@shadowrobot.com</author>
+  <author>Toni Oliver</author>
 
   <!-- Dependencies which this package needs to build itself. -->
   <buildtool_depend>catkin</buildtool_depend>
 
   <!-- Dependencies needed to compile this package. -->
-  <build_depend>sr_ethercat_hand_config</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>diagnostic_aggregator</build_depend>
-  <build_depend>diagnostic_updater</build_depend>
-  <build_depend>diagnostic_msgs</build_depend>
-  <build_depend>self_test</build_depend>
-  <build_depend>urdf</build_depend>
-  <build_depend>xacro</build_depend>
-  <build_depend>convex_decomposition</build_depend>
-  <build_depend>ivcon</build_depend>
-  <build_depend>pr2_etherCAT</build_depend>
-  <build_depend>pr2_bringup</build_depend>
-  <build_depend>robot_mechanism_controllers</build_depend>
-  <build_depend>sr_description</build_depend>
 
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>sr_ethercat_hand_config</run_depend>
@@ -50,20 +36,5 @@
   <run_depend>robot_mechanism_controllers</run_depend>
   <run_depend>sr_description</run_depend>
 
-  <!-- Dependencies needed only for running tests. -->
-  <!-- <test_depend>sr_ethercat_hand_config</test_depend> -->
-  <!-- <test_depend>roscpp</test_depend> -->
-  <!-- <test_depend>diagnostic_aggregator</test_depend> -->
-  <!-- <test_depend>diagnostic_updater</test_depend> -->
-  <!-- <test_depend>diagnostic_msgs</test_depend> -->
-  <!-- <test_depend>self_test</test_depend> -->
-  <!-- <test_depend>urdf</test_depend> -->
-  <!-- <test_depend>xacro</test_depend> -->
-  <!-- <test_depend>convex_decomposition</test_depend> -->
-  <!-- <test_depend>ivcon</test_depend> -->
-  <!-- <test_depend>pr2_etherCAT</test_depend> -->
-  <!-- <test_depend>pr2_bringup</test_depend> -->
-  <!-- <test_depend>robot_mechanism_controllers</test_depend> -->
-  <!-- <test_depend>sr_description</test_depend> -->
 
 </package>

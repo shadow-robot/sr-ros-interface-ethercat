@@ -3,27 +3,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(sr_external_dependencies)
 # Load catkin and all dependencies required for this package
-# TODO: remove all from COMPONENTS that are not catkin packages.
 find_package(catkin REQUIRED )
-
-# include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
-# CATKIN_MIGRATION: removed during catkin migration
-# cmake_minimum_required(VERSION 2.4.6)
-
-# CATKIN_MIGRATION: removed during catkin migration
-# include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-#set(ROS_BUILD_TYPE RelWithDebInfo)
-
-
-# CATKIN_MIGRATION: removed during catkin migration
-# rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -42,16 +22,30 @@ IF(internal_firmware)
 ELSE(internal_firmware)
   EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/scripts/update_released_header.sh")
 ENDIF(internal_firmware)
-## Generate added messages and services with any dependencies listed here
-#generate_messages(
-#    #TODO DEPENDENCIES geometry_msgs std_msgs
-#)
+
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
-# TODO: fill in what other packages will need to use this package
 catkin_package(
-    DEPENDS # TODO add dependencies
-    CATKIN_DEPENDS # TODO
-    INCLUDE_DIRS # TODO include
-    LIBRARIES # TODO
+    INCLUDE_DIRS include
 )
+
+#############
+## Install ##
+#############
+
+# all install targets should use catkin DESTINATION variables
+# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
+
+## Mark cpp header files for installation
+install(DIRECTORY include/${PROJECT_NAME}/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+   PATTERN ".svn" EXCLUDE
+)
+
+install(DIRECTORY released/
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/released)
+
+install(FILES tested_version.yaml
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+
