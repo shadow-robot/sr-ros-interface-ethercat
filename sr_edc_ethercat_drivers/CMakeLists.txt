@@ -4,11 +4,13 @@ cmake_minimum_required(VERSION 2.8.3)
 project(sr_edc_ethercat_drivers)
 # Load catkin and all dependencies required for this package
 # TODO: remove all from COMPONENTS that are not catkin packages.
-find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_external_dependencies message_generation)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_robot_msgs sr_external_dependencies message_generation)
 find_package(Boost REQUIRED COMPONENTS )
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
-find_library(BFD bfd)
+find_library(BFD_LIBRARY bfd)
+
+message( STATUS "Found libbfd: ${BFD_LIBRARY}")
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
@@ -23,14 +25,14 @@ add_message_files(
 
 
 add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/sr_edc_muscle.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
-target_link_libraries(sr_edc_ethercat_drivers BFD)
-add_dependencies(sr_edc_ethercat_drivers ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(sr_edc_ethercat_drivers ${BFD_LIBRARY})
+add_dependencies(sr_edc_ethercat_drivers ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 
 ###############
 #   EXAMPLES  #
 ###############
-add_executable(examples/send_targets examples/send_targets.cpp)
+#add_executable(send_targets examples/send_targets.cpp)
 
 ###############
 #    TESTS    #

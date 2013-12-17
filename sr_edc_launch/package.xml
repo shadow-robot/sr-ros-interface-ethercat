@@ -31,7 +31,7 @@
   <run_depend>xacro</run_depend>
   <run_depend>convex_decomposition</run_depend>
   <run_depend>ivcon</run_depend>
-  <run_depend>pr2_etherCAT</run_depend>
+  <run_depend>pr2_ethercat</run_depend>
   <run_depend>pr2_bringup</run_depend>
   <run_depend>robot_mechanism_controllers</run_depend>
   <run_depend>sr_description</run_depend>

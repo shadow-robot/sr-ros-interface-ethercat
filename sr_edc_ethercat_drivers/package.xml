@@ -26,6 +26,7 @@
   <build_depend>sr_robot_lib</build_depend>
   <build_depend>ethercat_hardware</build_depend>
   <build_depend>sr_external_dependencies</build_depend>
+  <build_depend>sr_robot_msgs</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>binutils</build_depend>
 
@@ -36,6 +37,7 @@
   <run_depend>sr_robot_lib</run_depend>
   <run_depend>ethercat_hardware</run_depend>
   <run_depend>sr_external_dependencies</run_depend>
+  <run_depend>sr_robot_msgs</run_depend>
   <run_depend>message_runtime</run_depend>
   <run_depend>binutils</run_depend>
 
