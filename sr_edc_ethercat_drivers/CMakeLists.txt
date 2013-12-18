@@ -25,7 +25,7 @@ add_message_files(
 
 
 add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/sr_edc_muscle.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
-target_link_libraries(sr_edc_ethercat_drivers ${BFD_LIBRARY})
+target_link_libraries(sr_edc_ethercat_drivers ${BFD_LIBRARY} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(sr_edc_ethercat_drivers ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 

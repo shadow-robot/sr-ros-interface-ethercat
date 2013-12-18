@@ -14,7 +14,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
-    CATKIN_DEPENDS sr_ethercat_hand_config roscpp diagnostic_aggregator diagnostic_updater diagnostic_msgs self_test urdf xacro convex_decomposition ivcon pr2_etherCAT pr2_bringup robot_mechanism_controllers sr_description
+    CATKIN_DEPENDS sr_ethercat_hand_config roscpp diagnostic_aggregator diagnostic_updater diagnostic_msgs self_test urdf xacro convex_decomposition ivcon pr2_ethercat pr2_bringup robot_mechanism_controllers sr_description
 )
 
 
