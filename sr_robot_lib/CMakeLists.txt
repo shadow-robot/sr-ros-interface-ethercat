@@ -45,11 +45,11 @@ IF(DEFINED jenkins)
 ENDIF(DEFINED jenkins)
 
 if(COMMAND add_rostest_gtest)
-  add_rostest_gtest( test/test_robot_lib test/sr_hand_lib.test test/test_robot_lib.cpp )
-  target_link_libraries(test/test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES} )
+  add_rostest_gtest( test_robot_lib test/sr_hand_lib.test test/test_robot_lib.cpp )
+  target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES} )
 
-  add_rostest_gtest( test/motor_updater_test test/motor_updater.test test/motor_updater_test.cpp )
-  target_link_libraries(test/motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES} )
+  add_rostest_gtest( motor_updater_test test/motor_updater.test test/motor_updater_test.cpp )
+  target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES} )
 endif(COMMAND add_rostest_gtest)
 
 
