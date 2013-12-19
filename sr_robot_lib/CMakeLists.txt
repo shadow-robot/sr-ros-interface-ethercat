@@ -49,7 +49,7 @@ IF(DEFINED jenkins)
   target_link_libraries(test/test_robot_lib gcov)
 ENDIF(DEFINED jenkins)
 rosbuild_add_gtest_build_flags(test/test_robot_lib)
-rosbuild_add_rostest(launch/sr_hand_lib.test)
+rosbuild_add_rostest(test/sr_hand_lib.test)
 
 #rosbuild_add_executable(test/motor_updater_test test/motor_updater_test.cpp src/motor_updater.cpp src/generic_updater.cpp)
 rosbuild_add_executable(test/motor_updater_test test/motor_updater_test.cpp)
