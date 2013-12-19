@@ -390,10 +390,10 @@ bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_bu
 
     extra_analog_msg.layout.dim[2].label = "analog_inputs";
     extra_analog_msg.layout.dim[2].size = 4;
-    extra_analog_msg.data[6] = status_data->sensors[AN0];
-    extra_analog_msg.data[7] = status_data->sensors[AN1];
-    extra_analog_msg.data[8] = status_data->sensors[AN2];
-    extra_analog_msg.data[9] = status_data->sensors[AN3];
+    extra_analog_msg.data[6] = status_data->sensors[ANA0];
+    extra_analog_msg.data[7] = status_data->sensors[ANA1];
+    extra_analog_msg.data[8] = status_data->sensors[ANA2];
+    extra_analog_msg.data[9] = status_data->sensors[ANA3];
 
     if( extra_analog_inputs_publisher->trylock() )
     {
