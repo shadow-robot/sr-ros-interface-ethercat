@@ -58,8 +58,8 @@
     <param name="sh_description" command="$(find xacro)/xacro.py '$(arg hand_description)'" />
   </group>
 
-  <!-- pr2_ethercat -->
-  <node name="realtime_loop" machine="local" pkg="pr2_ethercat" type="pr2_ethercat" args="-i $(arg eth_port) -x sh_description" output="screen"  launch-prefix="nice -n -20"> <!-- launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+  <!-- ros_ethercat -->
+  <node name="realtime_loop" machine="local" pkg="ros_ethercat" type="ros_ethercat" args="-i $(arg eth_port) -r sh_description" output="screen"  launch-prefix="nice -n -20"> <!-- launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
     <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
     <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
     <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
@@ -69,11 +69,11 @@
 
   <group if="$(arg calibration_controllers)">
     <group if="$(optenv THREE_FINGER 0)">
-      <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
+      <node name="calibrate_sr_edc" pkg="sr_mechanism_controllers" type="calibrate.py" output="screen"
 	    args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
     </group>
     <group unless="$(optenv THREE_FINGER 0)">
-      <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
+      <node name="calibrate_sr_edc" pkg="sr_mechanism_controllers" type="calibrate.py" output="screen"
 	    args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_mfj0 cal_sh_mfj3 cal_sh_mfj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_lfj0 cal_sh_lfj3 cal_sh_lfj4 cal_sh_lfj5 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
     </group>
   </group>

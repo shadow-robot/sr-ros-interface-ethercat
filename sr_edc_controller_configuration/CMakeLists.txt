@@ -13,7 +13,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
-    CATKIN_DEPENDS pr2_controller_manager robot_mechanism_controllers sr_ethercat_hand_config
+    CATKIN_DEPENDS robot_mechanism_controllers sr_ethercat_hand_config
 )
 
 #############
