@@ -48,6 +48,8 @@
 #include <sr_utilities/calibration.hpp>
 #include <sr_utilities/thread_safe_map.hpp>
 
+#include <sr_self_test/sr_self_test.hpp>
+
 #include "sr_robot_lib/sr_joint_motor.hpp"
 #include "sr_robot_lib/generic_tactiles.hpp"
 
@@ -279,8 +281,8 @@ namespace shadow_robot
      * This vector has the same size as the debug_publishers vector.
      */
     std::vector<boost::shared_ptr<std::pair<int, int> > > debug_motor_indexes_and_data;
-    static const int debug_mutex_lock_wait_time;
-    boost::shared_mutex debug_mutex;
+    //static const int debug_mutex_lock_wait_time;
+    //boost::shared_mutex debug_mutex;
     ros::NodeHandle node_handle;
     std_msgs::Int16 msg_debug;
 #endif
@@ -311,7 +313,13 @@ namespace shadow_robot
 
     ///A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
     boost::shared_ptr<boost::mutex> lock_tactile_init_timeout_;
+    /// It is run in a separate thread and calls the checkTests() method of the self_tests_. This avoids the tests blocking the main thread
+    void checkSelfTests();
 
+    boost::shared_ptr<SrSelfTest> self_tests_;
+
+    ///Thread for running the tests in parallel when doing the tests on real hand
+    boost::shared_ptr<boost::thread> self_test_thread_;
   };//end class
 }//end namespace
 

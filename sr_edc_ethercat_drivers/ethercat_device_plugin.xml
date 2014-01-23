@@ -24,4 +24,14 @@
       SR08 etherCAT driver (left hand)
     </description>
   </class>
+  <class name="16777218" type="SrEdcMuscle" base_class_type="EthercatDevice">
+    <description>
+      SrEdcMuscle etherCAT driver (right hand)
+    </description>
+  </class>
+  <class name="16777219" type="SrEdcMuscle" base_class_type="EthercatDevice">
+    <description>
+      SrEdcMuscle etherCAT driver (left hand)
+    </description>
+  </class>
 </library>

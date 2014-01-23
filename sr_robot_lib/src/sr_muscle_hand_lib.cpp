@@ -40,9 +40,9 @@ namespace shadow_robot
   const int SrMuscleHandLib<StatusType, CommandType>::nb_muscle_data = 3;
 
   template <class StatusType, class CommandType>
-  const char* SrMuscleHandLib<StatusType, CommandType>::human_readable_muscle_data_types[nb_muscle_data] = {"MUSCLE_DATA_PRESSURE",
-                                                                                                            "MUSCLE_DATA_CAN_STATS",
-                                                                                                            "MUSCLE_DATA_SLOW_MISC"};
+  const char* SrMuscleHandLib<StatusType, CommandType>::human_readable_muscle_data_types[nb_muscle_data] = {"muscle_data_pressure",
+                                                                                                            "muscle_data_can_stats",
+                                                                                                            "muscle_data_slow_misc"};
 
   template <class StatusType, class CommandType>
   const int32u SrMuscleHandLib<StatusType, CommandType>::muscle_data_types[nb_muscle_data] = {MUSCLE_DATA_PRESSURE,
@@ -111,11 +111,12 @@ namespace shadow_robot
       }
     }
     initialize(joint_names_tmp, joint_to_muscle_map, joint_to_sensor_vect, actuators);
-
+/*
 #ifdef DEBUG_PUBLISHER
     //advertise the debug service, used to set which data we want to publish on the debug topics
     debug_service = this->nh_tilde.advertiseService( "set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this);
 #endif
+*/
   }
 
   template <class StatusType, class CommandType>
@@ -218,14 +219,14 @@ namespace shadow_robot
     return muscle_map;
   } //end read_joint_to_muscle_mapping
 
-
+/*
 #ifdef DEBUG_PUBLISHER
   template <class StatusType, class CommandType>
   bool SrMuscleHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
                                             sr_robot_msgs::SetDebugData::Response& response)
   {
     //check if the publisher_index is correct
-    if( request.publisher_index < nb_debug_publishers_const )
+    if( request.publisher_index < this->nb_debug_publishers_const )
     {
       if( request.motor_index > NUM_MOTORS )
       {
@@ -241,17 +242,17 @@ namespace shadow_robot
           return false;
         }
       }
-      if(!debug_mutex.timed_lock(boost::posix_time::microseconds(debug_mutex_lock_wait_time)))
+      if(!this->debug_mutex.timed_lock(boost::posix_time::microseconds(this->debug_mutex_lock_wait_time)))
       {
         response.success = false;
         return false;
       }
 
-      debug_motor_indexes_and_data[request.publisher_index] = boost::shared_ptr<std::pair<int, int> >(new std::pair<int, int>());
+      this->debug_motor_indexes_and_data[request.publisher_index] = boost::shared_ptr<std::pair<int, int> >(new std::pair<int, int>());
 
-      debug_motor_indexes_and_data[request.publisher_index]->first = request.motor_index;
-      debug_motor_indexes_and_data[request.publisher_index]->second = request.motor_data_type;
-      debug_mutex.unlock();
+      this->debug_motor_indexes_and_data[request.publisher_index]->first = request.motor_index;
+      this->debug_motor_indexes_and_data[request.publisher_index]->second = request.motor_data_type;
+      this->debug_mutex.unlock();
     }
     else
     {
@@ -263,7 +264,7 @@ namespace shadow_robot
     return true;
   }
 #endif
-
+*/
   //Only to ensure that the template class is compiled for the types we are interested in
   template class SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }// end namespace

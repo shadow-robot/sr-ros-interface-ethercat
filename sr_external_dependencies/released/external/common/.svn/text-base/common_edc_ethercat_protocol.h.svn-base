@@ -153,7 +153,7 @@ typedef enum
 	ACCX, ACCY, ACCZ,                               // [26..28]
 	GYRX, GYRY, GYRZ,                               // [29..32]
 
-	AN0, AN1, AN2, AN3,                             // [31..35]
+	ANA0, ANA1, ANA2, ANA3,                     // [31..35]
     IGNORE                                          // [36]
 }SENSOR_NAME_ENUM;
 

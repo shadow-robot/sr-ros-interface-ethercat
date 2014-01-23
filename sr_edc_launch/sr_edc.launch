@@ -8,6 +8,8 @@
   <arg name="hand_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro" />
   <!-- The prefix used by the robot_state_publisher -->
   <arg name="tf_prefix" default="" />
+  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
+  <arg name="calibration_controllers" default="1" />
 
   <!-- Defines the sub-directory used in 
        $(find sr_ethercat_hand_config)/mappings/
@@ -28,6 +30,7 @@
   <!-- polling rates -->
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml" />
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml" />
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/muscle_data_polling.yaml" />
 
   <!-- Default controllers -->
   <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch" >
@@ -59,17 +62,20 @@
   <node name="realtime_loop" machine="local" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i $(arg eth_port) -x sh_description" output="screen"  launch-prefix="nice -n -20"> <!-- launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
     <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
     <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
+    <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
   </node>
 
   <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
 
-  <group if="$(optenv THREE_FINGER 0)">
-    <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
-	  args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
-  </group>
-  <group unless="$(optenv THREE_FINGER 0)">
-    <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
-	  args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_mfj0 cal_sh_mfj3 cal_sh_mfj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_lfj0 cal_sh_lfj3 cal_sh_lfj4 cal_sh_lfj5 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
+  <group if="$(arg calibration_controllers)">
+    <group if="$(optenv THREE_FINGER 0)">
+      <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
+	    args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
+    </group>
+    <group unless="$(optenv THREE_FINGER 0)">
+      <node name="calibrate_sr_edc" pkg="pr2_bringup" type="calibrate.py" output="screen"
+	    args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_mfj0 cal_sh_mfj3 cal_sh_mfj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_lfj0 cal_sh_lfj3 cal_sh_lfj4 cal_sh_lfj5 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
+    </group>
   </group>
 
   <!-- diagnostic aggregator for being able to see the results in the robot_monitor -->

@@ -11,6 +11,10 @@
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/sensor_to_joint.yaml" />
   <!-- The joint_to_motor_mapping is different depending on the hand being a right or a left hand -->
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/$(arg config_dir)joint_to_motor_mapping.yaml" />
+  <!-- The joint_to_muscle_mapping is different depending on the hand being a right or a left hand -->
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/$(arg config_dir)joint_to_muscle_mapping.yaml" />
   <!-- The calibration of the position sensors is different for every hand -->
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg config_dir)calibration.yaml" />
+  <!-- The calibration of the pressure sensors is different for every hand -->
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg config_dir)pressure_calibration.yaml" />
 </launch>

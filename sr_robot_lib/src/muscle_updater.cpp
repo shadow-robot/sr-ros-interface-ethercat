@@ -26,7 +26,7 @@
  *
  */
 
-#include "sr_robot_lib/motor_updater.hpp"
+#include "sr_robot_lib/muscle_updater.hpp"
 #include <boost/foreach.hpp>
 #include <iostream>
 
@@ -34,7 +34,7 @@ namespace generic_updater
 {
   template <class CommandType>
   MuscleUpdater<CommandType>::MuscleUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
-    : GenericUpdater<CommandType>(update_configs_vector, update_state), even_motors(1)
+    : GenericUpdater<CommandType>(update_configs_vector, update_state)
   {
   }
 
@@ -49,7 +49,8 @@ namespace generic_updater
     if(!this->mutex->try_lock())
       return this->update_state;
 
-    if (this->update_state == operation_mode::device_update_state::INITIALIZATION)
+    if ((this->update_state == operation_mode::device_update_state::INITIALIZATION)
+        && (this->initialization_configs_vector.size() > 0))
     {
       ///////
       // First we ask for the next data we want to receive
@@ -64,10 +65,10 @@ namespace generic_updater
     }
     else
     {
+      this->update_state == operation_mode::device_update_state::OPERATION;
       //For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
-      //we use the first important message and ask it to the even motors (0)
+      //we use the first important message
       //This is to avoid sending a random command
-      command->which_motors = 0;
       command->from_muscle_data_type = static_cast<FROM_MUSCLE_DATA_TYPE>(this->important_update_configs_vector[0].what_to_update);
       ROS_DEBUG_STREAM("Updating important data type: "<<command->from_muscle_data_type << " | ["<<this->which_data_to_request<<"/"<<this->important_update_configs_vector.size()<<"] ");
     }
@@ -85,18 +86,10 @@ namespace generic_updater
 
     ///////
     // First we ask for the next data we want to receive
-    if(even_motors)
-      even_motors = 0;
-    else
-    {
-      even_motors = 1;
-      this->which_data_to_request ++;
+    this->which_data_to_request ++;
 
-      if( this->which_data_to_request >= this->important_update_configs_vector.size() )
-        this->which_data_to_request = 0;
-    }
-
-    command->which_motors = even_motors;
+    if( this->which_data_to_request >= this->important_update_configs_vector.size() )
+      this->which_data_to_request = 0;
 
     if(!this->unimportant_data_queue.empty())
     {

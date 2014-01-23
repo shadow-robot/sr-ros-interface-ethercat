@@ -8,7 +8,7 @@ dir_src=
 dir_bin=C:\Code\Pic32\trunk\nodes\0230_palm_edc_TS\output_files
 dir_tmp=
 dir_sin=
-dir_inc=D:\Program Files\Microchip\MPLAB C32 Suite\pic32-libs\include\proc;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include\proc;C:\Code\Pic32\trunk\shadow_libraries;C:\Code\Pic32\trunk\nodes\0230_palm_edc_TS;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include
+dir_inc=C:\Code\Pic32\trunk\support;D:\Program Files\Microchip\MPLAB C32 Suite\pic32-libs\include\proc;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include\proc;C:\Code\Pic32\trunk\shadow_libraries;C:\Code\Pic32\trunk\nodes\0230_palm_edc_TS;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\include
 dir_lib=C:\Program Files\Microchip\MPLAB C32 Suite\lib;C:\Program Files\Microchip\MPLAB C32 Suite\pic32mx\lib
 dir_lkr=
 [CAT_FILTERS]
@@ -190,7 +190,7 @@ file_033=C:\Code\Pic32\trunk\shadow_libraries\misc\typedefs_shadow.h
 file_034=C:\Code\Pic32\trunk\shadow_libraries\syntouch\biotac_2_3_parallel.h
 file_035=C:\Code\Pic32\trunk\shadow_libraries\hardware\spi\spi_parallel_32.h
 file_036=C:\Code\Pic32\trunk\shadow_libraries\pst\pst_parallel.h
-file_037=this_node_serial_number.h
+file_037=C:\Code\Pic32\trunk\support\this_node_serial_number.h
 file_038=this_node.h
 file_039=0230_palm_edc_ethercat_protocol.h
 file_040=C:\Code\Pic32\trunk\shadow_libraries\bielefeld\ubi_parallel.h

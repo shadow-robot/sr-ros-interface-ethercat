@@ -72,12 +72,12 @@ namespace shadow_robot
     motor_system_control_server_ = this->nh_tilde.advertiseService( "change_motor_system_controls", &SrMotorRobotLib::motor_system_controls_callback_, this);
 
 #ifdef DEBUG_PUBLISHER
-    debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
-    for( int i = 0; i < nb_debug_publishers_const; ++i )
+    this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
+    for( int i = 0; i < this->nb_debug_publishers_const; ++i )
     {
       std::stringstream ss;
       ss << "srh/debug_" << i;
-      debug_publishers.push_back(node_handle.advertise<std_msgs::Int16>(ss.str().c_str(),100));
+      this->debug_publishers.push_back(this->node_handle.template advertise<std_msgs::Int16>(ss.str().c_str(),100));
     }
 #endif
 
@@ -126,7 +126,7 @@ namespace shadow_robot
       //filter the effort
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
           motor_actuator->state_.force_unfiltered_, timestamp);
-      joint_tmp->actuator_wrapper->actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
+      motor_actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
 
       //if no motor is associated to this joint, then continue
       if ((motor_index_full == -1))
@@ -241,37 +241,38 @@ namespace shadow_robot
             //We want to send a demand of 0
             command->motor_data[motor_wrapper->motor_id] = 0;
           }
-
+/*
 #ifdef DEBUG_PUBLISHER
           //publish the debug values for the given motors.
           // NB: debug_motor_indexes_and_data is smaller
           //     than debug_publishers.
           int publisher_index = 0;
           boost::shared_ptr<std::pair<int,int> > debug_pair;
-          if( debug_mutex.try_lock() )
+          if( this->debug_mutex.try_lock() )
           {
-            BOOST_FOREACH(debug_pair, debug_motor_indexes_and_data)
+            BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
             {
               if( debug_pair != NULL )
               {
+                shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
                 //check if we want to publish some data for the current motor
-                if( debug_pair->first == joint_tmp->actuator_wrapper->motor_id )
+                if( debug_pair->first == actuator_wrapper->motor_id )
                 {
                   //check if it's the correct data
                   if( debug_pair->second == -1 )
                   {
-                    msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
-                    debug_publishers[publisher_index].publish(msg_debug);
+                    this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
+                    this->debug_publishers[publisher_index].publish(this->msg_debug);
                   }
                 }
               }
               publisher_index ++;
             }
 
-            debug_mutex.unlock();
+            this->debug_mutex.unlock();
           } //end try_lock
 #endif
-
+*/
           joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
         } //end if has_actuator
       } // end for each joint
@@ -548,7 +549,8 @@ namespace shadow_robot
     if (joint_tmp->actuator_wrapper->actuator_ok && !(joint_tmp->actuator_wrapper->bad_data))
     {
       sr_actuator::SrActuator* actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
-
+      shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
+/*
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
       //publish the debug values for the given motors.
@@ -556,14 +558,16 @@ namespace shadow_robot
       //     than debug_publishers.
       boost::shared_ptr<std::pair<int,int> > debug_pair;
 
-      if( debug_mutex.try_lock() )
+      if( this->debug_mutex.try_lock() )
       {
-        BOOST_FOREACH(debug_pair, debug_motor_indexes_and_data)
+        BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
         {
           if( debug_pair != NULL )
           {
+            shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
+            
             //check if we want to publish some data for the current motor
-            if( debug_pair->first == joint_tmp->actuator_wrapper->motor_id )
+            if( debug_pair->first == actuator_wrapper->motor_id )
             {
               //if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
               if( debug_pair->second > 0 )
@@ -571,8 +575,8 @@ namespace shadow_robot
                 //check if it's the correct data
                 if( debug_pair->second == status_data->motor_data_type )
                 {
-                  msg_debug.data = status_data->motor_data_packet[index_motor_in_msg].misc;
-                  debug_publishers[publisher_index].publish(msg_debug);
+                  this->msg_debug.data = status_data->motor_data_packet[index_motor_in_msg].misc;
+                  this->debug_publishers[publisher_index].publish(this->msg_debug);
                 }
               }
             }
@@ -580,10 +584,10 @@ namespace shadow_robot
           publisher_index ++;
         }
 
-        debug_mutex.unlock();
+        this->debug_mutex.unlock();
       } //end try_lock
 #endif
-
+*/
       //we received the data and it was correct
       bool read_torque = true;
       switch (status_data->motor_data_type)
@@ -593,11 +597,11 @@ namespace shadow_robot
           static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->actuator_wrapper->motor_id == 8 )
+        if( actuator_wrapper->motor_id == 19 )
         {
           //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
-          msg_debug.data = actuator->state_.strain_gauge_left_;
-          debug_publishers[0].publish(msg_debug);
+          this->msg_debug.data = actuator->state_.strain_gauge_left_;
+          this->debug_publishers[0].publish(this->msg_debug);
         }
 #endif
         break;
@@ -606,17 +610,26 @@ namespace shadow_robot
           static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc);
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->actuator_wrapper->motor_id == 8 )
+        if( actuator_wrapper->motor_id == 19 )
         {
           //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
-          msg_debug.data = actuator->state_.strain_gauge_right_;
-          debug_publishers[1].publish(msg_debug);
+          this->msg_debug.data = actuator->state_.strain_gauge_right_;
+          this->debug_publishers[1].publish(this->msg_debug);
         }
 #endif
         break;
       case MOTOR_DATA_PWM:
         actuator->state_.pwm_ =
           static_cast<int>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
+
+#ifdef DEBUG_PUBLISHER
+        if( actuator_wrapper->motor_id == 19 )
+        {
+          //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
+          this->msg_debug.data = actuator->state_.pwm_;
+          this->debug_publishers[2].publish(this->msg_debug);
+        }
+#endif
         break;
       case MOTOR_DATA_FLAGS:
         actuator->state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
@@ -628,11 +641,11 @@ namespace shadow_robot
           / 1000.0;
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->actuator_wrapper->motor_id == 8 )
+        if( actuator_wrapper->motor_id == 19 )
         {
           //ROS_ERROR_STREAM("Current " <<actuator->state_.last_measured_current_);
-          msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
-          debug_publishers[2].publish(msg_debug);
+          this->msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+          this->debug_publishers[3].publish(this->msg_debug);
         }
 #endif
         break;
@@ -641,11 +654,11 @@ namespace shadow_robot
           static_cast<double>(static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc)) / 256.0;
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->actuator_wrapper->motor_id == 8 )
+        if( actuator_wrapper->motor_id == 19 )
         {
           //ROS_ERROR_STREAM("Voltage " <<actuator->state_.motor_voltage_);
-          msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
-          debug_publishers[3].publish(msg_debug);
+          this->msg_debug.data = static_cast<int16u>(status_data->motor_data_packet[index_motor_in_msg].misc);
+          this->debug_publishers[4].publish(this->msg_debug);
         }
 #endif
         break;
@@ -775,10 +788,10 @@ namespace shadow_robot
           static_cast<double>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque));
 
 #ifdef DEBUG_PUBLISHER
-	if( joint_tmp->actuator_wrapper->motor_id == 8 )
+	if( actuator_wrapper->motor_id == 19 )
         {
-          msg_debug.data = static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque);
-          debug_publishers[4].publish(msg_debug);
+          this->msg_debug.data = static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].torque);
+          this->debug_publishers[5].publish(this->msg_debug);
         }
 #endif
       }
@@ -904,6 +917,14 @@ namespace shadow_robot
   bool SrMotorRobotLib<StatusType, CommandType>::change_control_type_callback_( sr_robot_msgs::ChangeControlType::Request& request,
                                                   sr_robot_msgs::ChangeControlType::Response& response )
   {
+    //querying which we're control type we're using currently.
+    if( request.control_type.control_type == sr_robot_msgs::ControlType::QUERY )
+    {
+      response.result = control_type_;
+      return true;
+    }
+
+    //We're not querying the control type
     if( (request.control_type.control_type != sr_robot_msgs::ControlType::PWM) &&
         (request.control_type.control_type != sr_robot_msgs::ControlType::FORCE) )
     {
@@ -980,7 +1001,7 @@ namespace shadow_robot
     {
       ROS_ERROR("Node namespace: %s", ns.c_str());
     }
-
+    arguments = " set_namespace:=0";
     // Read the config_dir prefix from the parameter server
     // The config_dir will be passed as an argument to the sr_edc_default_controllers.launch
     // so that the parameters in it will be read from the correct files

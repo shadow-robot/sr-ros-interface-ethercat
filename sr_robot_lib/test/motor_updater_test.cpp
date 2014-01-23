@@ -28,6 +28,8 @@
 #include "sr_robot_lib/motor_updater.hpp"
 #include <gtest/gtest.h>
 
+#define COMMAND_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND
+
 struct UpdaterResult
 {
   bool svn_transmitted;
@@ -63,9 +65,9 @@ public:
     test3.when_to_update = 1.0;
     update_configs_vector.push_back(test3);
 
-    generic_updater::MotorUpdater motor_updater = generic_updater::MotorUpdater(update_configs_vector, operation_mode::device_update_state::OPERATION);
+    generic_updater::MotorUpdater<COMMAND_TYPE> motor_updater = generic_updater::MotorUpdater<COMMAND_TYPE>(update_configs_vector, operation_mode::device_update_state::OPERATION);
 
-    ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND* command = new ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND();
+    COMMAND_TYPE* command = new COMMAND_TYPE();
     motor_updater.build_command(command);
 
     bool svn_transmitted = false;

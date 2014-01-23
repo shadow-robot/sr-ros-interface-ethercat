@@ -101,7 +101,7 @@ LED_Class *LED_CAN2_TX;                     //!< The CAN 2 transmit LED
 LED_Class *LED_CAN2_ERR;                    //!< The CAN 2 error LED
 
 LED_Class *ET1200_AL_err_LED;               //!< EtherCAT Application Layer Error LED. See EtherCAT Indicator Specification V0.91.pdf section 4.5 ERR Indicator.
-
+SPI_simple_master_class   *SPI_port;
 
 #ifdef LED_CFG_PIN
   LED_Class  *LED_CFG;                      //!< This LED is optional, and exists if LED_CFG_PIN is defined.
@@ -174,7 +174,7 @@ void initialise_this_node(void)
     Output_Pin_Class *ET1200_reset          = Get_Output_Pin(ET1200_RESET_PIN);
     Input_Pin_Class  *ET1200_eeprom         = Get_Input_Pin (ET1200_EEPROM_PIN);
 
-    SPI_simple_master_class   *SPI_port     = Init_SPI_Simple_Master(SPI_PORT);
+                               SPI_port     = Init_SPI_Simple_Master(SPI_PORT);
     I2C_simple_master_class   *I2C_port     = Init_I2C_Simple_Master(I2C_PORT);
 
     Output_Pin_Class *SPI_cs                = Get_Output_Pin(SPI_CS_PIN);
@@ -267,13 +267,16 @@ void initialise_this_node(void)
 
 
 
+//! Read the whole etherCAT_command_data[] array from the ET1200 using DMA.
+//! 
+//! @author Hugo Elias
 void Read_Commands_From_ET1200(void)
 {
     assert_dynamic(PALM_0200_ETHERCAT_COMMAND_DATA_SIZE > 0);
-    //read_ET1200_register_N(EC_PALM_EDC_COMMAND_PHY_BASE, ETHERCAT_COMMAND_DATA_SIZE, (int8u*)(&etherCAT_command_data));
-    read_ET1200_register_N( PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS,
-                            PALM_0200_ETHERCAT_COMMAND_DATA_SIZE,
-                            (int8u*)(&etherCAT_command_data)  );
+
+    read_DMA_ET1200_register_N ( PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS,
+                                 PALM_0200_ETHERCAT_COMMAND_DATA_SIZE,
+                                (int8u*)(&etherCAT_command_data)  );
 }
 
 
@@ -285,7 +288,13 @@ void Read_Commands_From_ET1200(void)
 //! @author Hugo Elias
 inline void write_status_data_To_ET1200(void)
 {
-    write_ET1200_register_N(PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0200_ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
+    //write_ET1200_register_N(PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS, PALM_0200_ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
+
+    int16u destniation_address = PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS;
+    int16u num_bytes           = PALM_0200_ETHERCAT_STATUS_DATA_SIZE;
+    int8u *source_pointer      = (int8u*)(&etherCAT_status_data);
+
+    write_DMA_ET1200_register_N(destniation_address, num_bytes, source_pointer);
 }
 
 
@@ -568,8 +577,11 @@ void Check_For_EtherCAT_Packet(void)
 //! @author Hugo Elias
 void Service_EtherCAT_Packet(void)
 {
+    int i;
+
     Read_Commands_From_ET1200();                                                            // Read the command data
-    
+    wait_for_DMA_to_complete(SPI_port);
+
     #if AUTO_TRIGGER == 1
         etherCAT_command_data.EDC_command        = EDC_COMMAND_SENSOR_DATA;
         etherCAT_command_data.to_motor_data_type = 0x01;
@@ -814,9 +826,7 @@ void Received_Motor_Data(FROM_MOTOR_DATA_TYPE data_type, int8u motor_number, int
 
     FROM_MOTOR_DATA_TYPE    expected_data_type   = etherCAT_command_data.from_motor_data_type;
 
-    //Pin_Set(SPI2_cs);
     num_motor_CAN_messages_received_this_frame++;
-    //Pin_Clr(SPI2_cs);
 
     if (data_type == expected_data_type)                                                                // This is good :)
     {
@@ -870,5 +880,3 @@ void delay_ms(int32u milliseconds)
     {
     }
 } 
-
-

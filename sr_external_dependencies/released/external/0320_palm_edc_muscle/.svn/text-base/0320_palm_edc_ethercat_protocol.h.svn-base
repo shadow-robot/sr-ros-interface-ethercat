@@ -51,6 +51,7 @@
 
 #define NUM_MUSCLES                         40
 #define NUM_PRESSURE_SENSORS_PER_MESSAGE     5
+#define NUM_MUSCLE_DATA_PACKETS              8
 
 
 // ========================================================
@@ -157,6 +158,8 @@ typedef enum
 #define MUSCLE_DEMAND_VALVES_RANGE_MIN     -0x4
 #define MUSCLE_DEMAND_VALVES_RANGE_MAX      0x4
 
+#define DIRECTION_TO_MUSCLE                 0x01
+#define DIRECTION_FROM_MUSCLE               0x02
 
 
 #ifndef NO_STRINGS													                    // The PIC compiler doesn't deal well with strings.
@@ -241,10 +244,10 @@ typedef union
         int8u       nothing[2];
     }misc;
 
-    struct
-    {
-        int8u d[8];
-    } raw;
+    //struct
+    //{
+        int8u raw[8];
+    //} raw;
 } MUSCLE_DATA_PACKET;
 
 
@@ -279,10 +282,11 @@ typedef struct
                                                                     //!< This value should agree with the previous value
                                                                     //!< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
 
-    int64u                      which_pressure_data_arrived;        //!< Bit s indicate which pressure sensor data is new this frame
-    int64u                      which_pressure_data_had_errors;     //!< Bit N set when muscle driver sends bad CAN message Ideally, no bits get set.
-
-    MUSCLE_DATA_PACKET          muscle_data_packet[8];
+    int16u                       which_muscle_data_arrived;         //!< Bit s indicate which muscle data packet is new this frame
+                                                                    //!  This variable needst to be 16 bits (even though we use
+                                                                    //!  only 8 of the bits) to ensure that later words are 16-bit
+                                                                    //!  aligned. (Mis-alignment causes memory exception).
+    MUSCLE_DATA_PACKET          muscle_data_packet[NUM_MUSCLE_DATA_PACKETS];
 
 
     int32u                      tactile_data_type;
@@ -318,6 +322,13 @@ typedef struct
 #define PALM_0300_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS)
 #define PALM_0300_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND)
 
+                                                    //  Now we need to be *sure* that the Host and the Slave definitely
+                                                    //  agree on the size of the EtherCAT packets, even if the host is a
+                                                    //  64-bit machine or something. So we have these calculated sizes.
+                                                    //  The host and slave can ASSERT that the sizeof() the packets
+                                                    //  matches the agreed sizes.
+#define ETHERCAT_STATUS_0300_AGREED_SIZE     236    //! This is the size of the Status  EtherCAT packet (Status + CAN packet)
+#define ETHERCAT_COMMAND_0300_AGREED_SIZE    36     //! This is the size of the Command EtherCAT packet (Status + CAN packet)
 
 
 //! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |

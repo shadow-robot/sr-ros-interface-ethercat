@@ -55,6 +55,12 @@ ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 
 #define CORE_TIMER_TO_MICROSECONDS(x) ((x) / (SYSTEM_FREQ_HZ/2000000))              //!< Convert from the number of core ticks returned by ReadCoreTimer to a real time in microseconds.
 
+#define ETHERCAT_COMMAND_DATA_ADDRESS PALM_0300_ETHERCAT_COMMAND_DATA_ADDRESS
+#define ETHERCAT_COMMAND_DATA_SIZE PALM_0300_ETHERCAT_COMMAND_DATA_SIZE
+#define ETHERCAT_STATUS_DATA_ADDRESS PALM_0300_ETHERCAT_STATUS_DATA_ADDRESS
+#define ETHERCAT_STATUS_DATA_SIZE PALM_0300_ETHERCAT_STATUS_DATA_SIZE
+#define ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS PALM_0300_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
+#define ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS PALM_0300_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
 
 
 #ifdef PALM_PCB_00
@@ -263,8 +269,11 @@ void Read_Commands_From_ET1200(void)
 {
     assert_dynamic(ETHERCAT_COMMAND_DATA_SIZE > 0);
     //read_ET1200_register_N(EC_PALM_EDC_COMMAND_PHY_BASE, ETHERCAT_COMMAND_DATA_SIZE, (int8u*)(&etherCAT_command_data));
-    read_ET1200_register_N( ETHERCAT_COMMAND_DATA_ADDRESS,
+    /*read_ET1200_register_N( ETHERCAT_COMMAND_DATA_ADDRESS,
                             ETHERCAT_COMMAND_DATA_SIZE,
+                            (int8u*)(&etherCAT_command_data)  );*/
+    read_DMA_ET1200_register_N ( ETHERCAT_COMMAND_DATA_ADDRESS,
+                             ETHERCAT_COMMAND_DATA_SIZE,
                             (int8u*)(&etherCAT_command_data)  );
 }
 
@@ -277,7 +286,8 @@ void Read_Commands_From_ET1200(void)
 //! @author Hugo Elias
 inline void write_status_data_To_ET1200(void)
 {
-    write_ET1200_register_N(ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
+    //write_ET1200_register_N(ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
+    write_DMA_ET1200_register_N(ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_STATUS_DATA_SIZE, (int8u*)(&etherCAT_status_data));
 }
 
 
@@ -315,7 +325,7 @@ int8u ROS_Wants_me_to_send_CAN(void)
 //! @author Hugo Elias
 int8u not_all_muscle_data_received(void)
 {
-    return num_muscle_CAN_messages_received_this_frame < 4;
+    return num_muscle_CAN_messages_received_this_frame < NUM_MUSCLE_DATA_PACKETS;
 }
 
 
@@ -451,8 +461,8 @@ void Read_All_Sensors(void)
     }
 
     #if AUTO_TRIGGER == 1
-        etherCAT_command_data.tactile_data_type = TACTILE_SENSOR_TYPE_BIOTAC_PDC;
-        tactile_sensor_protocol                   = TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3;
+        //etherCAT_command_data.tactile_data_type = TACTILE_SENSOR_TYPE_BIOTAC_PDC;
+        //tactile_sensor_protocol                   = TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3;
     #endif
 
     delay_us(10);
@@ -497,11 +507,14 @@ void Read_All_Sensors(void)
 //! @author Hugo Elias
 void zero_muscle_data_packets(void)
 {
-    int i;
+    int i, j;
 
-    for (i=0; i<NUM_MUSCLES; i++)
+    for (i=0; i<NUM_MUSCLE_DATA_PACKETS; i++)
     {
-        etherCAT_status_data.pressure_sensors[i] = 0;
+        for (j=0; j<8; j++)
+        {
+            etherCAT_status_data.muscle_data_packet[i].raw[j] = 0;
+        }
     }
 
 
@@ -585,6 +598,10 @@ void Service_EtherCAT_Packet(void)
         Read_Commands_From_ET1200();                                                            // Read the command data
     #endif
 
+    delay_us(20);                                                                           // Give the SPI port a little time to read the values we need now
+                                                                                            // - EDC_command
+                                                                                            // - from_motor_data_type
+
 
     switch (etherCAT_command_data.EDC_command)
     {
@@ -601,7 +618,7 @@ void Service_EtherCAT_Packet(void)
 
             Read_All_Sensors();                                                             // Read all joint and tactile sensors.
             num_muscle_CAN_messages_received_this_frame = 0;
-            Wait_For_All_Muscles_To_Send_Data(500);                                         // Wait for 500us max.
+            Wait_For_All_Muscles_To_Send_Data(700);                                         // Wait for 500us max.
             Send_Data_To_Muscles(&etherCAT_command_data);                                   // Send CAN messages to muscles
 
             etherCAT_status_data.EDC_command  = EDC_COMMAND_SENSOR_DATA;                    // FIXME: I don't think this calculation is correct
@@ -802,11 +819,10 @@ void __assert_dynamic_fail(const char* UNUSED(fmt), ...)
 //!
 //! @author Hugo Elias
 
-void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_driver_number, MUSCLE_DATA_PACKET *muscle_data_packet)
+void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_data_packet_number, MUSCLE_DATA_PACKET *muscle_data_packet)
 {
-    TWELVE_BIT_INT_TO_NIBBLES   twelve_bit_int_to_nibbles;
-
-    if (muscle_driver_number > 7)                                                                       // A muscle_driver_number > 1 is an error
+    
+    if (muscle_data_packet_number > 7)                                                                       // A muscle_driver_number > 1 is an error
     {                                                                                                   // Let's just ignore it and hope it goes away.
         return;
     }
@@ -820,10 +836,12 @@ void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_driver_n
     {
         etherCAT_status_data.muscle_data_type = data_type;
 
-        muscle_driver_number *= NUM_PRESSURE_SENSORS_PER_MESSAGE;
+        //muscle_driver_number *= NUM_PRESSURE_SENSORS_PER_MESSAGE;
 
 
-                                                                                                        // Unpack the 
+        etherCAT_status_data.muscle_data_packet[muscle_data_packet_number] = *muscle_data_packet;                                                                                                       // Unpack the
+
+        /*
         twelve_bit_int_to_nibbles.nibbles.padding = 0;
 
         twelve_bit_int_to_nibbles.nibbles.L = muscle_data_packet->packed.pressure0_L;
@@ -850,7 +868,7 @@ void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_driver_n
         twelve_bit_int_to_nibbles.nibbles.M = muscle_data_packet->packed.pressure4_M;
         twelve_bit_int_to_nibbles.nibbles.H = muscle_data_packet->packed.pressure4_H;
         etherCAT_status_data.pressure_sensors[muscle_driver_number + 4] = twelve_bit_int_to_nibbles.integer;
-
+        */
 
         
 /*
@@ -861,13 +879,13 @@ void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_driver_n
         etherCAT_status_data.pressure_sensors[muscle_set + 4] = muscle_data_packet->packed.pressure4;   // of CAN bus packet size limit, and this C code nicely
 */                                                                                                        // unpacks the data.
 
-        //etherCAT_status_data.which_muscle_data_arrived                  |= 0x00000001 << muscle_driver_number;   // Record that a message arrived
-        //etherCAT_status_data.which_muscle_data_had_errors               &= 0xFFFFFFFE << muscle_driver_number;   // and that it was good (as far as we can tell)
+        etherCAT_status_data.which_muscle_data_arrived                  |= 0x00000001 << muscle_data_packet_number;   // Record that a message arrived
+        //etherCAT_status_data.which_muscle_data_had_errors               &= 0xFFFFFFFE << muscle_data_packet_number;   // and that it was good (as far as we can tell)
     }
     else
     {
-        //etherCAT_status_data.which_muscle_data_arrived                  |= 0x00000001 << muscle_driver_number;   // Record that a message arrived
-        //etherCAT_status_data.which_muscle_data_had_errors               |= 0x00000001 << muscle_driver_number;   // and that it was bad :(
+        etherCAT_status_data.which_muscle_data_arrived                  |= 0x00000001 << muscle_data_packet_number;   // Record that a message arrived
+        //etherCAT_status_data.which_muscle_data_had_errors               |= 0x00000001 << muscle_data_packet_number;   // and that it was bad :(
     }
 }
 

@@ -172,8 +172,12 @@ namespace shadow_joints
   {
   public:
     MuscleWrapper()
-        : SrActuatorWrapper(), muscle_id({0,0}), muscle_driver_id({0,0})
+        : SrActuatorWrapper()
     {
+      muscle_id[0] = 0;
+      muscle_id[1] = 0;
+      muscle_driver_id[0] = 0;
+      muscle_driver_id[1] = 0;
     }
     ;
 

@@ -46,7 +46,7 @@
 #include "GenericTypeDefs.h"
 
 #include <plib.h>
-#include <peripheral/can.h>
+#include <peripheral/CAN.h>
 #include <peripheral/timer.h>
 #include "hardware/can/shadow_can.h"
 #include "misc/typedefs_shadow.h"
@@ -63,6 +63,7 @@
 
 #define COMMAND_DATA_TYPE ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND
 #define STATUS_DATA_TYPE  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS
+
 
 
 /**
@@ -124,7 +125,7 @@ void Check_For_EtherCAT_Packet(void);
 
 
 // application defines
-#define THIS_NODE_PRODUCT_CODE      0x0006
+#define THIS_NODE_PRODUCT_CODE  0x01000002
 
 #define SYSTEM_FREQ_HZ            80000000
 #define PERIPHERAL_BUS_CLOCK_HZ   40000000
@@ -253,7 +254,7 @@ extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 
 #ifdef PALM_PCB_01                                          // Definitions for actual palm board inside hand
     #define USE_SIMPLE_PST_CS
-    #define AUTO_TRIGGER         1                          //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
+    #define AUTO_TRIGGER         0                          //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
 
     #define ET1200_CHIP_SELECT_PIN      'C', 14
     #define ET1200_RESET_PIN            'F',  3

@@ -41,22 +41,72 @@
 
 namespace shadow_robot
 {
+  template <class StatusType, class CommandType>
+  const double SrMuscleRobotLib<StatusType, CommandType>::timeout = 5.0;
 
   template <class StatusType, class CommandType>
   SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(pr2_hardware_interface::HardwareInterface *hw)
     : SrRobotLib<StatusType, CommandType>(hw),
-      muscle_current_state(operation_mode::device_update_state::INITIALIZATION)
+      muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout)
   {
 #ifdef DEBUG_PUBLISHER
-    debug_motor_indexes_and_data.resize(nb_debug_publishers_const);
-    for( int i = 0; i < nb_debug_publishers_const; ++i )
+    this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
+    for( int i = 0; i < this->nb_debug_publishers_const; ++i )
     {
       std::stringstream ss;
       ss << "srh/debug_" << i;
-      debug_publishers.push_back(node_handle.advertise<std_msgs::Int16>(ss.str().c_str(),100));
+      this->debug_publishers.push_back(this->node_handle.template advertise<std_msgs::Int16>(ss.str().c_str(),100));
     }
 #endif
+    lock_init_timeout_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
+    //Create a one-shot timer
+    check_init_timeout_timer = this->nh_tilde.createTimer(init_max_duration,
+                                               boost::bind(&SrMuscleRobotLib<StatusType, CommandType>::init_timer_callback, this, _1), true);
 
+    this->pressure_calibration_map_ = this->read_pressure_calibration();
+  }
+
+  template <class StatusType, class CommandType>
+  shadow_joints::CalibrationMap SrMuscleRobotLib<StatusType, CommandType>::read_pressure_calibration()
+  {
+    ROS_INFO("Reading pressure calibration");
+    shadow_joints::CalibrationMap pressure_calibration;
+    std::string param_name = "sr_pressure_calibrations";
+
+    XmlRpc::XmlRpcValue calib;
+    this->nodehandle_.getParam(param_name, calib);
+    ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    //iterate on all the joints
+    for(int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
+    {
+      //check the calibration is well formatted:
+      // first joint name, then calibration table
+      ROS_ASSERT(calib[index_cal][0].getType() == XmlRpc::XmlRpcValue::TypeString);
+      ROS_ASSERT(calib[index_cal][1].getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+      std::string joint_name = static_cast<std::string> (calib[index_cal][0]);
+      std::vector<joint_calibration::Point> calib_table_tmp;
+
+      //now iterates on the calibration table for the current joint
+      for(int32_t index_table=0; index_table < calib[index_cal][1].size(); ++index_table)
+      {
+        ROS_ASSERT(calib[index_cal][1][index_table].getType() == XmlRpc::XmlRpcValue::TypeArray);
+        //only 2 values per calibration point: raw and calibrated (doubles)
+        ROS_ASSERT(calib[index_cal][1][index_table].size() == 2);
+        ROS_ASSERT(calib[index_cal][1][index_table][0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        ROS_ASSERT(calib[index_cal][1][index_table][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+
+
+        joint_calibration::Point point_tmp;
+        point_tmp.raw_value = static_cast<double> (calib[index_cal][1][index_table][0]);
+        point_tmp.calibrated_value = static_cast<double> (calib[index_cal][1][index_table][1]);
+        calib_table_tmp.push_back(point_tmp);
+      }
+
+      pressure_calibration.insert(joint_name, boost::shared_ptr<shadow_robot::JointCalibration>(new shadow_robot::JointCalibration(calib_table_tmp)) );
+    }
+
+    return pressure_calibration;
   }
 
   template <class StatusType, class CommandType>
@@ -170,37 +220,38 @@ namespace shadow_robot
             muscle_actuator->state_.last_commanded_valve_[0] = 0;
             muscle_actuator->state_.last_commanded_valve_[1] = 0;
           }
-
+/*
 #ifdef DEBUG_PUBLISHER
           //publish the debug values for the given motors.
           // NB: debug_motor_indexes_and_data is smaller
           //     than debug_publishers.
           int publisher_index = 0;
           boost::shared_ptr<std::pair<int,int> > debug_pair;
-          if( debug_mutex.try_lock() )
+          if( this->debug_mutex.try_lock() )
           {
-            BOOST_FOREACH(debug_pair, debug_motor_indexes_and_data)
+            BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
             {
               if( debug_pair != NULL )
               {
+                shadow_joints::MuscleWrapper* actuator_wrapper = static_cast<shadow_joints::MuscleWrapper*>(joint_tmp->actuator_wrapper.get());
                 //check if we want to publish some data for the current motor
-                if( debug_pair->first == joint_tmp->actuator_wrapper->motor_id )
+                if( debug_pair->first == actuator_wrapper->muscle_id[0] )
                 {
                   //check if it's the correct data
                   if( debug_pair->second == -1 )
                   {
-                    msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
-                    debug_publishers[publisher_index].publish(msg_debug);
+                    this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
+                    this->debug_publishers[publisher_index].publish(this->msg_debug);
                   }
                 }
               }
               publisher_index ++;
             }
 
-            debug_mutex.unlock();
+            this->debug_mutex.unlock();
           } //end try_lock
 #endif
-
+*/
         } //end if has_actuator
       } // end for each joint
     } //endif
@@ -297,33 +348,40 @@ namespace shadow_robot
             d.summary(d.WARN, "WARNING, bad CAN data received");
 
             d.clear();
-            d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
-            d.addf("Muscle driver ID", "%d", actuator_wrapper->muscle_driver_id);
+            d.addf("Muscle ID 0", "%d", actuator_wrapper->muscle_id[0]);
+            d.addf("Muscle driver ID 0", "%d", actuator_wrapper->muscle_driver_id[0]);
+            d.addf("Muscle ID 1", "%d", actuator_wrapper->muscle_id[1]);
+            d.addf("Muscle driver ID 1", "%d", actuator_wrapper->muscle_driver_id[1]);
           }
           else //the data is good
           {
             d.summary(d.OK, "OK");
 
             d.clear();
-            d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
-            d.addf("Muscle driver ID", "%d", actuator_wrapper->muscle_driver_id);
+            d.addf("Muscle ID 0", "%d", actuator_wrapper->muscle_id[0]);
+            d.addf("Muscle driver ID 0", "%d", actuator_wrapper->muscle_driver_id[0]);
+            d.addf("Muscle ID 1", "%d", actuator_wrapper->muscle_id[1]);
+            d.addf("Muscle driver ID 1", "%d", actuator_wrapper->muscle_driver_id[1]);
 
             d.addf("Unfiltered position", "%f", state->position_unfiltered_);
 
-            d.addf("Last Commanded Valve 0", "%f", state->last_commanded_valve_[0]);
-            d.addf("Last Commanded Valve 1", "%f", state->last_commanded_valve_[1]);
+            d.addf("Last Commanded Valve 0", "%d", state->last_commanded_valve_[0]);
+            d.addf("Last Commanded Valve 1", "%d", state->last_commanded_valve_[1]);
 
-            d.addf("Unfiltered Pressure 0", "%f", state->pressure_[0]);
-            d.addf("Unfiltered Pressure 1", "%f", state->pressure_[1]);
+            d.addf("Unfiltered Pressure 0", "%u", state->pressure_[0]);
+            d.addf("Unfiltered Pressure 1", "%u", state->pressure_[1]);
 
-            d.addf("Encoder Position", "%f", state->position_);
+            d.addf("Position", "%f", state->position_);
           }
         }
         else
         {
           d.summary(d.ERROR, "Motor error");
           d.clear();
-          d.addf("Muscle ID", "%d", actuator_wrapper->muscle_id);
+          d.addf("Muscle ID 0", "%d", actuator_wrapper->muscle_id[0]);
+          d.addf("Muscle driver ID 0", "%d", actuator_wrapper->muscle_driver_id[0]);
+          d.addf("Muscle ID 1", "%d", actuator_wrapper->muscle_id[1]);
+          d.addf("Muscle driver ID 1", "%d", actuator_wrapper->muscle_driver_id[1]);
         }
       }
       else
@@ -389,27 +447,44 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::read_additional_muscle_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data)
   {
+    int packet_offset_muscle_0 = 0;
+    int packet_offset_muscle_1 = 0;
+
     boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
 
-    //check the masks to see if the CAN messages arrivedfrom the muscle driver
-    //the flag should be set to 1 for each muscle. Every actuator has two muscles, so we check both flags to decide that the actuator is OK
-    muscle_wrapper->actuator_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_arrived,
-                                                                        muscle_wrapper->muscle_driver_id[0] * 10 + muscle_wrapper->muscle_id[0])
-                               && sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_arrived,
-                                                                        muscle_wrapper->muscle_driver_id[1] * 10 + muscle_wrapper->muscle_id[1]);
+    //Every muscle driver sends two muscle_data_packet containing pressures from 5 muscles each
+    if (muscle_wrapper->muscle_id[0] >= NUM_PRESSURE_SENSORS_PER_MESSAGE)
+    {
+      packet_offset_muscle_0 = 1;
+    }
 
+    if (muscle_wrapper->muscle_id[1] >= NUM_PRESSURE_SENSORS_PER_MESSAGE)
+    {
+      packet_offset_muscle_1 = 1;
+    }
+
+    //check the masks to see if the CAN messages arrived from the muscle driver
+    //the flag should be set to 1 for each muscle driver CAN message (a muscle driver sends 2 separate CAN messages with 5 muscle pressures each.
+    // Every actuator (every joint) has two muscles, so we check both flags to decide that the actuator is OK
+    muscle_wrapper->actuator_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_muscle_data_arrived,
+                                                                        muscle_wrapper->muscle_driver_id[0] * 2 + packet_offset_muscle_0)
+                               && sr_math_utils::is_bit_mask_index_true(status_data->which_muscle_data_arrived,
+                                                                        muscle_wrapper->muscle_driver_id[1] * 2 + packet_offset_muscle_1);
+
+    /*
     //check the masks to see if a bad CAN message arrived
     //the flag should be 0
     muscle_wrapper->bad_data = sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_had_errors,
                                                                                   muscle_wrapper->muscle_driver_id[0] * 10 + muscle_wrapper->muscle_id[0])
                                          && sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_had_errors,
                                                                                   muscle_wrapper->muscle_driver_id[1] * 10 + muscle_wrapper->muscle_id[1]);
+    */
 
-
-    if (muscle_wrapper->actuator_ok && !(muscle_wrapper->bad_data))
+    if (muscle_wrapper->actuator_ok)
     {
       sr_actuator::SrMuscleActuator* actuator = static_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator);
-
+      shadow_joints::MuscleWrapper* actuator_wrapper = static_cast<shadow_joints::MuscleWrapper*>(joint_tmp->actuator_wrapper.get());
+/*            
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
       //publish the debug values for the given motors.
@@ -417,23 +492,25 @@ namespace shadow_robot
       //     than debug_publishers.
       boost::shared_ptr<std::pair<int,int> > debug_pair;
 
-      if( debug_mutex.try_lock() )
+      if( this->debug_mutex.try_lock() )
       {
-        BOOST_FOREACH(debug_pair, debug_motor_indexes_and_data)
+        BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
         {
           if( debug_pair != NULL )
           {
             //check if we want to publish some data for the current motor
-            if( debug_pair->first == joint_tmp->actuator_wrapper->motor_id )
+            if( debug_pair->first == actuator_wrapper->muscle_id[0] )
             {
               //if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
               if( debug_pair->second > 0 )
               {
                 //check if it's the correct data
-                if( debug_pair->second == status_data->motor_data_type )
+                if( debug_pair->second == status_data->muscle_data_type )
                 {
-                  msg_debug.data = status_data->motor_data_packet[index_motor_in_msg].misc;
-                  debug_publishers[publisher_index].publish(msg_debug);
+                  //TODO do something meaningful here
+                  //this->msg_debug.data = status_data->muscle_data_packet[0].misc;
+                  this->msg_debug.data = 0;
+                  this->debug_publishers[publisher_index].publish(this->msg_debug);
                 }
               }
             }
@@ -441,23 +518,40 @@ namespace shadow_robot
           publisher_index ++;
         }
 
-        debug_mutex.unlock();
+        this->debug_mutex.unlock();
       } //end try_lock
 #endif
-
+*/
       //we received the data and it was correct
+      unsigned int p1 = 0;
       switch (status_data->muscle_data_type)
       {
       case MUSCLE_DATA_PRESSURE:
-        actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0], status_data));
-        actuator->state_.pressure_[1] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1], status_data));
+        // Calibrate the raw values to bar pressure values.
+        for (int i=0; i<2; ++i)
+        {
+          p1 = get_muscle_pressure(muscle_wrapper->muscle_driver_id[i], muscle_wrapper->muscle_id[i], status_data);
+          std::string name = joint_tmp->joint_name + "_" + boost::lexical_cast<std::string>(i);
+          // XXX: If the joint isn't found we crash
+          //ROS_INFO_STREAM("Calib: "<<name);
+          pressure_calibration_tmp_ = pressure_calibration_map_.find(name);
+          double bar = pressure_calibration_tmp_->compute(static_cast<double>(p1));
+          if (bar < 0.0)
+              bar = 0.0;
+          actuator->state_.pressure_[i] = static_cast<int16u>(bar);
+        }
+        // Raw values
+        //actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0], status_data));
+        //actuator->state_.pressure_[1] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1], status_data));
+        //ROS_WARN("DriverID: %u MuscleID: %u Pressure 0: %u", muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0],  actuator->state_.pressure_[0]);
+        //ROS_WARN("DriverID: %u MuscleID: %u Pressure 1: %u", muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1],  actuator->state_.pressure_[1]);
 
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->actuator_wrapper->motor_id == 8 )
+        if( actuator_wrapper->muscle_id[0] == 8 )
         {
           //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
-          msg_debug.data = actuator->state_.strain_gauge_left_;
-          debug_publishers[0].publish(msg_debug);
+          //this->msg_debug.data = actuator->state_.strain_gauge_left_;
+          //this->debug_publishers[0].publish(this->msg_debug);
         }
 #endif
         break;
@@ -528,16 +622,17 @@ namespace shadow_robot
   void SrMuscleRobotLib<StatusType, CommandType>::read_muscle_driver_data(boost::ptr_vector<shadow_joints::MuscleDriver>::iterator muscle_driver_tmp, StatusType* status_data)
   {
     //check one the masks (e.g. the first) for this muscle driver to see if the CAN messages arrived correctly from the muscle driver
-    //the flag should be set to 1 for each muscle in this driver.
-    muscle_driver_tmp->driver_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_arrived,
-                                                                        muscle_driver_tmp->muscle_driver_id * 10 );
-
+    //the flag should be set to 1 for each message in this driver.
+    muscle_driver_tmp->driver_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_muscle_data_arrived,
+                                                                        muscle_driver_tmp->muscle_driver_id * 2 );
+    /*
     //check the masks to see if a bad CAN message arrived
     //the flag should be 0
     muscle_driver_tmp->bad_data = sr_math_utils::is_bit_mask_index_true(status_data->which_pressure_data_had_errors,
-                                                                        muscle_driver_tmp->muscle_driver_id * 10 );
+                                                                        muscle_driver_tmp->muscle_driver_id * 2 );
+    */
 
-    if (muscle_driver_tmp->driver_ok && !(muscle_driver_tmp->bad_data))
+    if (muscle_driver_tmp->driver_ok)
     {
       //we received the data and it was correct
       set_muscle_driver_data_received_flags(status_data->muscle_data_type, muscle_driver_tmp->muscle_driver_id);
@@ -583,14 +678,19 @@ namespace shadow_robot
         break;
       }
 
+      //Mutual exclusion with the the initialization timeout
+      boost::mutex::scoped_lock l(*lock_init_timeout_);
 
       //Check the message to see if everything has already been received
       if (muscle_current_state == operation_mode::device_update_state::INITIALIZATION)
       {
-        if (check_muscle_driver_data_received_flags())
+        if ((check_muscle_driver_data_received_flags())
+            || (muscle_updater_->update_state == operation_mode::device_update_state::OPERATION))
         {
           muscle_updater_->update_state = operation_mode::device_update_state::OPERATION;
           muscle_current_state = operation_mode::device_update_state::OPERATION;
+          //stop the timer
+          check_init_timeout_timer.stop();
 
           ROS_INFO("All muscle data initialized.");
         }
@@ -651,9 +751,31 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::reinitialize_motors()
   {
+    //Mutual exclusion with the the initialization timeout
+    boost::mutex::scoped_lock l(*lock_init_timeout_);
+
+    //stop the timer just in case it was still running
+    check_init_timeout_timer.stop();
     //Create a new MuscleUpdater object
     muscle_updater_ = boost::shared_ptr<generic_updater::MuscleUpdater<CommandType> >(new generic_updater::MuscleUpdater<CommandType>(muscle_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
     muscle_current_state = operation_mode::device_update_state::INITIALIZATION;
+    //To reschedule the one-shot timer
+    check_init_timeout_timer.setPeriod(init_max_duration);
+    check_init_timeout_timer.start();
+  }
+
+  template <class StatusType, class CommandType>
+  void SrMuscleRobotLib<StatusType, CommandType>::init_timer_callback(const ros::TimerEvent& event)
+  {
+    //Mutual exclusion with the the initialization timeout
+    boost::mutex::scoped_lock l(*lock_init_timeout_);
+
+    if(muscle_current_state == operation_mode::device_update_state::INITIALIZATION)
+    {
+      muscle_updater_->update_state = operation_mode::device_update_state::OPERATION;
+      muscle_current_state = operation_mode::device_update_state::OPERATION;
+      ROS_ERROR_STREAM("Muscle Initialization Timeout: the static information in the diagnostics may not be up to date.");
+    }
   }
 
   //Only to ensure that the template class is compiled for the types we are interested in

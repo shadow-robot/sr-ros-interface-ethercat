@@ -44,8 +44,10 @@ namespace shadow_robot
 {
 #ifdef DEBUG_PUBLISHER
 //max of 20 publishers for debug
-  const int SrRobotLib::nb_debug_publishers_const = 20;
-  const int SrRobotLib::debug_mutex_lock_wait_time = 100;
+  template <class StatusType, class CommandType>
+  const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
+  //template <class StatusType, class CommandType>
+  //const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
 #endif
 
   template <class StatusType, class CommandType>
@@ -130,7 +132,6 @@ namespace shadow_robot
       tactile_current_state(operation_mode::device_update_state::INITIALIZATION), tactile_init_max_duration(tactile_timeout),
       nh_tilde("~")
   {
-
     //read the generic sensor polling frequency from the parameter server
     this->generic_sensor_update_rate_configs_vector = this->read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
     this->tactiles_init = boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> >( new tactiles::GenericTactiles<StatusType, CommandType>(this->generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION) );
@@ -153,6 +154,9 @@ namespace shadow_robot
     //Create a one-shot timer
     tactile_check_init_timeout_timer = this->nh_tilde.createTimer(tactile_init_max_duration,
                                                boost::bind(&SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback, this, _1), true);
+    //initialises self tests (false as this is not a simulated hand\)
+    self_tests_.reset( new SrSelfTest(false) );
+    self_test_thread_.reset(new boost::thread(boost::bind(&SrRobotLib::checkSelfTests, this)));
   }
 
   template <class StatusType, class CommandType>
@@ -502,6 +506,20 @@ namespace shadow_robot
             new tactiles::UBI0<StatusType, CommandType>(ubi0_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
                                tactiles_init->tactiles_vector));
       ROS_ERROR_STREAM("Tactile Initialization Timeout: considering UBI0 tactiles");
+     }
+  }
+
+  template <class StatusType, class CommandType>  
+  void SrRobotLib<StatusType, CommandType>::checkSelfTests()
+  {
+    ros::Rate loop_rate(1);
+    while (ros::ok())
+    {
+      //check if we have some self diagnostics test to run and run them
+      // in a separate thread
+      self_tests_->checkTest();
+      loop_rate.sleep();
+
     }
   }
 

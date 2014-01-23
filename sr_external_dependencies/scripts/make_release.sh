@@ -10,7 +10,7 @@ chmod -R a+w released/*
 echo "Releasing protocol"
 cp -r include/sr_external_dependencies/external/* released/external/
 echo "Releasing firmware"
-cp -r compiled_firmware/released_firmware/* released/released_firmware/
+cp -r compiled_firmware/* released/
 
 chmod -R a-w released/*
 

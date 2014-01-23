@@ -1,5 +1,5 @@
 <launch>
-  <include file="$(find sr_edc_controller_configuration)/sr_edc_default_controllers.launch"/>
+  <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch" />
 
   <group if="$(optenv THREE_FINGER 0)">
     <node name="default_loaded_controllers_spawner"
