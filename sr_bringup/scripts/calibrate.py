@@ -43,7 +43,7 @@ import sys, os
 from time import sleep
 
 # Loads interface with the robot.
-roslib.load_manifest('pr2_bringup')
+roslib.load_manifest('sr_bringup')
 import rospy
 from std_msgs.msg import *
 from pr2_mechanism_msgs.srv import LoadController, UnloadController, SwitchController, SwitchControllerRequest
