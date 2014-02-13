@@ -12,9 +12,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
-catkin_package(
-    CATKIN_DEPENDS pr2_controller_manager robot_mechanism_controllers sr_ethercat_hand_config
-)
+catkin_package()
 
 #############
 ## Install ##
@@ -26,7 +24,7 @@ catkin_package(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 file(GLOB SCRIPTS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" 
-   "${CMAKE_CURRENT_SOURCE_DIR}/bin/*")
+   "${CMAKE_CURRENT_SOURCE_DIR}/scripts/*")
 install(PROGRAMS ${SCRIPTS}
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
