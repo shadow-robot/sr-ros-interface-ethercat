@@ -106,9 +106,9 @@ namespace generic_updater
      * Checks a certain message coming from a certain joint (motor)
      * Joints without a motor are not expected to provide any information
      *
-     * @joint_tmp joint iterator containing the data of the joint
-     * @motor_data_type the type of the received data
-     * @motor_slow_data_type the type of the received sub-data (used if the motor_data_type is MOTOR_DATA_SLOW_MISC)
+     * @param joint_tmp joint iterator containing the data of the joint
+     * @param motor_data_type the type of the received data
+     * @param motor_slow_data_type the type of the received sub-data (used if the motor_data_type is MOTOR_DATA_SLOW_MISC)
      * @return true if all expected messages have already been received
      */
     bool check_message(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp,
@@ -118,8 +118,8 @@ namespace generic_updater
      * Initializes the Motor Data Checker to the not received state for each message
      * Should be used when reinitializing
      *
-     * @joints_vector the vector with the joints (motors) from which information is coming
-     * @initialization_configs_vector vector containing the initialization commands whose answers need to be checked
+     * @param joints_vector the vector with the joints (motors) from which information is coming
+     * @param initialization_configs_vector vector containing the initialization commands whose answers need to be checked
      */
     void init(boost::ptr_vector<shadow_joints::Joint> joints_vector,
               std::vector<UpdateConfig> initialization_configs_vector);

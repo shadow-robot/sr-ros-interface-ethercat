@@ -199,7 +199,7 @@ namespace shadow_robot
      * from the update method, each time a new message is received.
      *
      * @param joint_tmp The joint we want to calibrate.
-     * @param status The status information that comes from the robot
+     * @param status_data The status information that comes from the robot
      */
     void calibrate_joint(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
 
@@ -209,6 +209,7 @@ namespace shadow_robot
      * This method is called from the update method, each time a new message is received.
      *
      * @param joint_tmp The joint we process data from.
+     * @param status_data The status information that comes from the robot
      * @param timestamp Timestamp of the data acquisition time
      */
     void process_position_sensor_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data, double timestamp);
@@ -244,10 +245,10 @@ namespace shadow_robot
     /**
      * Simply reads the config from the parameter server.
      *
-     * @base_param string with the base name of the set of parameters to apply (found in the yaml file)
-     * @nb_data_defined number of data defined in the typedef
-     * @human_readable_data_types names of the types of messages (must match with those in the yaml file)
-     * @data_types the command values corresponding to every one of the names
+     * @param base_param string with the base name of the set of parameters to apply (found in the yaml file)
+     * @param nb_data_defined number of data defined in the typedef
+     * @param human_readable_data_types names of the types of messages (must match with those in the yaml file)
+     * @param data_types the command values corresponding to every one of the names
      * @return A vector of UpdateConfig containing the type of data and the frequency
      *         at which we want to poll this data
      */
@@ -320,4 +321,3 @@ End:
 */
 
 #endif
-
