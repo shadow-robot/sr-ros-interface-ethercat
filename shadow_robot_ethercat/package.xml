@@ -1,5 +1,5 @@
 <package>
-  <name>sr_ros_interface_ethercat</name>
+  <name>shadow_robot_ethercat</name>
   <version>1.2.0</version>
   <description>This stack contains the drivers and the controllers for Shadow Robot's EtherCAT Hand.</description>
   <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
