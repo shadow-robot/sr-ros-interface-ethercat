@@ -24,7 +24,7 @@ catkin_python_setup()
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
-    CATKIN_DEPENDS sr_utilities sr_hardware_interface sr_external_dependencies sr_robot_msgs sr_ethercat_hand_config std_srvs diagnostic_updater realtime_tools pr2_mechanism_msgs sr_self_test roscpp rospy
+    CATKIN_DEPENDS sr_utilities sr_hardware_interface sr_external_dependencies sr_robot_msgs std_srvs diagnostic_updater realtime_tools pr2_mechanism_msgs sr_self_test roscpp rospy
     INCLUDE_DIRS include
     LIBRARIES sr_hand_lib
 )
