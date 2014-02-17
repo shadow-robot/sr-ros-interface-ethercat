@@ -31,7 +31,7 @@ catkin_package(
 
 add_library(sr_hand_lib src/UBI0.cpp src/biotac.cpp src/generic_tactiles.cpp src/generic_updater.cpp src/motor_data_checker.cpp src/motor_updater.cpp src/muscle_updater.cpp src/sensor_updater.cpp src/shadow_PSTs.cpp src/sr_motor_hand_lib.cpp src/sr_robot_lib.cpp src/sr_motor_robot_lib.cpp src/sr_muscle_hand_lib.cpp src/sr_muscle_robot_lib.cpp)
 
-target_link_libraries(sr_hand_lib sr_self_test ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS})
 
 
