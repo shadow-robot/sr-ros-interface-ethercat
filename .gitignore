@@ -34,4 +34,4 @@ sr_robot_lib/_gtest_from_src/
 sr_robot_lib/build/
 sr_robot_lib/cmake_install.cmake
 sr_robot_lib/lib/
-sr_robot_lib/python_lib/etherCAT_hand_lib.pyc
+*.pyc
