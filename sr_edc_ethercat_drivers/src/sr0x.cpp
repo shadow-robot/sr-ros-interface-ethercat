@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-PLUGINLIB_REGISTER_CLASS(5, SR0X, EthercatDevice);
+PLUGINLIB_EXPORT_CLASS(SR0X, EthercatDevice);
 
 SR0X::SR0X() : EthercatDevice()
 {
