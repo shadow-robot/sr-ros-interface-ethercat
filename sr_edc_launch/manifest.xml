@@ -20,7 +20,7 @@
   <depend package="convex_decomposition"/>
   <depend package="ivcon"/>
   <depend package="pr2_etherCAT"/>
-  <depend package="sr_bringup"/>
+  <depend package="sr_mechanism_controllers"/>
   <depend package="robot_mechanism_controllers"/>
   <depend package="sr_description"/>
 </package>
