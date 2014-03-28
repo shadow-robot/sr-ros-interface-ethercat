@@ -103,7 +103,7 @@ namespace shadow_robot
      * joints_vector.
      *
      * @param joint_tmp The joint we want to read the data for.
-     * @param status The status information that comes from the robot
+     * @param status_data The status information that comes from the robot
      */
     void read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
 
@@ -244,4 +244,3 @@ End:
 */
 
 #endif
-

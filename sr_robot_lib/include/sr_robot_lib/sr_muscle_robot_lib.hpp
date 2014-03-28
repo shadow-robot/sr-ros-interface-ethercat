@@ -111,7 +111,7 @@ namespace shadow_robot
      * joints_vector.
      *
      * @param joint_tmp The joint we want to read the data for.
-     * @param status The status information that comes from the robot
+     * @param status_data The status information that comes from the robot
      */
     void read_additional_muscle_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
 
@@ -119,8 +119,8 @@ namespace shadow_robot
      * Read additional data from the latest message and stores it into the
      * joints_vector.
      *
-     * @param joint_tmp The joint we want to read the data for.
-     * @param status The status information that comes from the robot
+     * @param muscle_driver_tmp The muscle we want to read the data for.
+     * @param status_data The status information that comes from the robot
      */
     void read_muscle_driver_data(boost::ptr_vector<shadow_joints::MuscleDriver>::iterator muscle_driver_tmp, StatusType* status_data);
 
@@ -203,4 +203,3 @@ End:
 */
 
 #endif
-

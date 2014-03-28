@@ -140,7 +140,7 @@ private:
   /**
    * Read back the firmware from the flash of the PIC, and checks it against the data read from the object (.hex) file
    *
-   * @param base_addr the base address of the code (the lowest address to be written on the flash)
+   * @param baddr the base address of the code (the lowest address to be written on the flash)
    * @param total_size the size in bytes of the code to write
    *
    * @return true if both are identical
@@ -208,4 +208,3 @@ End:
 
 
 #endif /* SR_EDC_H */
-

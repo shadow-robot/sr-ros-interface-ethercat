@@ -22,11 +22,25 @@ add_message_files(
   MotorTraceSample.msg
 )
 
+## Generate added messages and services with any dependencies listed here
+generate_messages(
+    DEPENDENCIES std_msgs
+)
+
+# catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
+catkin_package(
+    DEPENDS binutils
+    CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_external_dependencies message_runtime
+    INCLUDE_DIRS include
+    LIBRARIES sr_edc_ethercat_drivers
+)
+
 
 
 add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/sr_edc_muscle.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
+add_dependencies(sr_edc_ethercat_drivers ${sr_edc_ethercat_drivers_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(sr_edc_ethercat_drivers ${BFD_LIBRARY} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(sr_edc_ethercat_drivers ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+
 
 
 ###############
@@ -43,19 +57,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(test_clock ${Boost_LIBRARIES})
 target_link_libraries (test_clock rt)
 
-## Generate added messages and services with any dependencies listed here
-generate_messages(
-    DEPENDENCIES std_msgs
-)
-
-# catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
-catkin_package(
-    DEPENDS binutils
-    CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_external_dependencies message_runtime
-    INCLUDE_DIRS include
-    LIBRARIES # TODO
-)
-
 
 #############
 ## Install ##
@@ -68,13 +69,11 @@ catkin_package(
 install(TARGETS sr_edc_ethercat_drivers
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-   FILES_MATCHING PATTERN "*.hpp"
-   PATTERN ".svn" EXCLUDE
 )
 
 ## Mark executable scripts (Python etc.) for installation

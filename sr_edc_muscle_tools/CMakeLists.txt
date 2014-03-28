@@ -7,9 +7,7 @@ find_package(catkin REQUIRED COMPONENTS)
 
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
-catkin_package(
-    CATKIN_DEPENDS rospy std_msgs sr_hand
-)
+catkin_package()
 
 #############
 ## Install ##

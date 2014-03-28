@@ -108,7 +108,7 @@ namespace tactiles
       {
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          tactiles_vector->at(id_sensor).manufacturer = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
+          tactiles_vector->at(id_sensor).manufacturer = this->sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
       }
       break;
@@ -117,7 +117,7 @@ namespace tactiles
       {
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          tactiles_vector->at(id_sensor).serial_number = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
+          tactiles_vector->at(id_sensor).serial_number = this->sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
       }
       break;
@@ -132,7 +132,7 @@ namespace tactiles
       case TACTILE_SENSOR_TYPE_PCB_VERSION:
         if( sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor) )
         {
-          tactiles_vector->at(id_sensor).pcb_version = sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
+          tactiles_vector->at(id_sensor).pcb_version = this->sanitise_string( status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES );
         }
         break;
 
