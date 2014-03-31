@@ -43,7 +43,7 @@ namespace shadow_robot
   {
   public:
     SrMuscleHandLib(pr2_hardware_interface::HardwareInterface *hw);
-    ~SrMuscleHandLib();
+    virtual ~SrMuscleHandLib();
 
 
     /**

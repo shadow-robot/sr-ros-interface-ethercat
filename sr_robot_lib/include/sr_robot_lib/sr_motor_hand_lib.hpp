@@ -43,7 +43,7 @@ namespace shadow_robot
   {
   public:
     SrMotorHandLib(pr2_hardware_interface::HardwareInterface *hw);
-    ~SrMotorHandLib();
+    virtual ~SrMotorHandLib();
 
     /**
      * The service callback for setting the Force PID values. There's only one callback

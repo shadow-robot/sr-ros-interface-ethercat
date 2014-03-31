@@ -1024,13 +1024,13 @@ namespace shadow_robot
 
       if (list_ctrl_client.call(controllers_list))
       {
-        for(unsigned int i=0; i < controllers_list.response.controllers.size(); ++i)
+        for(unsigned int i=0; i < controllers_list.response.controller.size(); ++i)
         {
-          ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controllers.at(i) + "/reset_gains");
+          ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controller[i].name + "/reset_gains");
           std_srvs::Empty empty_message;
           if (!reset_gains_client.call(empty_message))
           {
-            ROS_ERROR_STREAM("Failed to reset gains for controller: " << controllers_list.response.controllers.at(i));
+            ROS_ERROR_STREAM("Failed to reset gains for controller: " << controllers_list.response.controller[i].name);
             return false;
           }
         }
