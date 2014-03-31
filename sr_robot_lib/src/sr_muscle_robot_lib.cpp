@@ -33,7 +33,7 @@
 
 #include <ros/ros.h>
 
-#include <pr2_mechanism_msgs/ListControllers.h>
+#include <controller_manager_msgs/ListControllers.h>
 
 #define SERIOUS_ERROR_FLAGS PALM_0300_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0300_edc_error_flag_names

@@ -220,7 +220,7 @@ void SR08::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
  *
  *  This is one of the most important functions of this driver.
  *  This function is called each millisecond (1 kHz freq) by the EthercatHardware::update() function
- *  in the controlLoop() of the pr2_etherCAT node.
+ *  in the controlLoop() of the ros_etherCAT node.
  *
  *  This function is called with a buffer as a parameter, the buffer provided is where we write the commands to send via EtherCAT.
  *

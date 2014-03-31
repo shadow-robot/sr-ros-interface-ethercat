@@ -37,7 +37,7 @@
     <arg name="config_dir" value="$(arg config_dir)" />
   </include>
 
-  <!-- Should be loaded before starting/running pr2_ethercat node -->
+  <!-- Should be loaded before starting/running ros_ethercat node -->
   <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/calibrations/sr_edc_sensor_gain_offset.yaml" />
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/controls/sr_edc_calibration_controllers.yaml" />
 

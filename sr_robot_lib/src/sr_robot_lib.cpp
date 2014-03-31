@@ -35,7 +35,7 @@
 #include "sr_robot_lib/shadow_PSTs.hpp"
 #include "sr_robot_lib/biotac.hpp"
 #include "sr_robot_lib/UBI0.hpp"
-#include <pr2_mechanism_msgs/ListControllers.h>
+#include <controller_manager_msgs/ListControllers.h>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0200_edc_error_flag_names

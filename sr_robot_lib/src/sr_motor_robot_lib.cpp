@@ -33,7 +33,7 @@
 
 #include <ros/ros.h>
 
-#include <pr2_mechanism_msgs/ListControllers.h>
+#include <controller_manager_msgs/ListControllers.h>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0200_edc_error_flag_names
@@ -1019,8 +1019,8 @@ namespace shadow_robot
 
       this->nh_tilde.setParam("default_control_mode", param_value);
 
-      ros::ServiceClient list_ctrl_client = nh.template serviceClient<pr2_mechanism_msgs::ListControllers>("pr2_controller_manager/list_controllers");
-      pr2_mechanism_msgs::ListControllers controllers_list;
+      ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
+      controller_manager_msgs::ListControllers controllers_list;
 
       if (list_ctrl_client.call(controllers_list))
       {
