@@ -41,6 +41,8 @@
   <run_depend>message_runtime</run_depend>
   <run_depend>binutils</run_depend>
 
+  <!-- Dependencies needed only for running tests. -->
+
 <export>
     <ethercat_hardware plugin="${prefix}/ethercat_device_plugin.xml"/>
 </export>

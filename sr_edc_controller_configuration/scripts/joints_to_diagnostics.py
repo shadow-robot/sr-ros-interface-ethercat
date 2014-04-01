@@ -1,10 +1,10 @@
 #! /usr/bin/python
 # Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
-#
+# 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-#
+# 
 #     * Redistributions of source code must retain the above copyright
 #       notice, this list of conditions and the following disclaimer.
 #     * Redistributions in binary form must reproduce the above copyright
@@ -13,7 +13,7 @@
 #     * Neither the name of the Willow Garage, Inc. nor the names of its
 #       contributors may be used to endorse or promote products derived from
 #       this software without specific prior written permission.
-#
+# 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -88,7 +88,7 @@ def joint_to_diag(js):
         KeyValue('Max Abs. Velocity', str(js.max_abs_velocity)),
         KeyValue('Max Abs. Effort', str(js.max_abs_effort)),
         KeyValue('Limits Hit', str(js.violated_limits)) ]
-
+    
     return ds
 
 
@@ -107,11 +107,11 @@ def publish_diags():
         global last_msg, last_update_time
         if last_msg is None:
             return
-
+        
         # Don't publish anything without updates
         if rospy.get_time() - last_update_time > 3:
             return
-
+        
         d = DiagnosticArray()
         d.header.stamp = last_msg.header.stamp
         if last_msg.joint_statistics == []:
