@@ -42,7 +42,7 @@ namespace shadow_robot
   class SrMotorHandLib : public SrMotorRobotLib<StatusType, CommandType>
   {
   public:
-    SrMotorHandLib(pr2_hardware_interface::HardwareInterface *hw);
+    SrMotorHandLib(ros_ethercat_hardware_interface::HardwareInterface *hw);
     virtual ~SrMotorHandLib();
 
     /**

@@ -59,7 +59,7 @@ namespace shadow_robot
 
 
   template <class StatusType, class CommandType>
-  SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(pr2_hardware_interface::HardwareInterface *hw) :
+  SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(ros_ethercat_hardware_interface::HardwareInterface *hw) :
     SrMotorRobotLib<StatusType, CommandType>(hw)
   {
     //read the motor polling frequency from the parameter server

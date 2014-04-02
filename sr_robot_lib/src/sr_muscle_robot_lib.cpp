@@ -45,7 +45,7 @@ namespace shadow_robot
   const double SrMuscleRobotLib<StatusType, CommandType>::timeout = 5.0;
 
   template <class StatusType, class CommandType>
-  SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(pr2_hardware_interface::HardwareInterface *hw)
+  SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(ros_ethercat_hardware_interface::HardwareInterface *hw)
     : SrRobotLib<StatusType, CommandType>(hw),
       muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout)
   {

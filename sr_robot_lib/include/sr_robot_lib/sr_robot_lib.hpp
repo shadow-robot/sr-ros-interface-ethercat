@@ -90,7 +90,7 @@ namespace shadow_robot
   class SrRobotLib
   {
   public:
-    SrRobotLib(pr2_hardware_interface::HardwareInterface *hw);
+    SrRobotLib(ros_ethercat_hardware_interface::HardwareInterface *hw);
     virtual ~SrRobotLib() {};
 
     /**

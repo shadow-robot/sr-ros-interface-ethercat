@@ -51,7 +51,7 @@ namespace shadow_robot
 
 
   template <class StatusType, class CommandType>
-  SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(pr2_hardware_interface::HardwareInterface *hw) :
+  SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(ros_ethercat_hardware_interface::HardwareInterface *hw) :
     SrMuscleRobotLib<StatusType, CommandType>(hw)
   {
     //read the muscle polling frequency from the parameter server

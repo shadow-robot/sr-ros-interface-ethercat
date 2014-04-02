@@ -26,6 +26,7 @@
 #ifndef SR0X_H
 #define SR0X_H
 
+#define pr2_hardware_interface ros_ethercat_hardware_interface
 #include <ethercat_hardware/ethercat_device.h>
 #include <sr_edc_ethercat_drivers/motor_trace_buffer.h>
 
@@ -35,7 +36,7 @@ class SR0X : public EthercatDevice
 {
 public:
   virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address);
-  virtual int initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
+  virtual int initialize(ros_ethercat_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
 
   SR0X();
   virtual ~SR0X();

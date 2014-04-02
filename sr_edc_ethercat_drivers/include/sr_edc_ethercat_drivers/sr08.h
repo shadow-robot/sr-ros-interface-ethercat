@@ -27,6 +27,7 @@
 #ifndef SR08_H
 #define SR08_H
 
+#define pr2_hardware_interface ros_ethercat_hardware_interface
 #include <ethercat_hardware/ethercat_device.h>
 #include <sr_edc_ethercat_drivers/sr_edc.h>
 #include <realtime_tools/realtime_publisher.h>
@@ -59,7 +60,7 @@ public:
   ~SR08();
 
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
-  int  initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
+  int  initialize(ros_ethercat_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
   void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
 
   void packCommand(unsigned char *buffer, bool halt, bool reset);

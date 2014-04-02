@@ -54,7 +54,7 @@ void SR0X::construct(EtherCAT_SlaveHandler *sh, int &start_address)
   EthercatDevice::construct(sh,start_address);
 }
 
-int SR0X::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int SR0X::initialize(ros_ethercat_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
   ROS_DEBUG("Device #%02d: SR0%d (%#08x) Firmware Revision %d.%02d, PCB Revision %c.%02d, Serial #: %d",
             sh_->get_ring_position(),
