@@ -27,8 +27,7 @@
 #ifndef SR08_H
 #define SR08_H
 
-#define pr2_hardware_interface ros_ethercat_hardware_interface
-#include <ethercat_hardware/ethercat_device.h>
+#include <ros_ethercat_hardware/ethercat_device.h>
 #include <sr_edc_ethercat_drivers/sr_edc.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <std_msgs/Int16.h>

@@ -59,7 +59,7 @@
   </group>
 
   <!-- ros_ethercat -->
-  <node name="realtime_loop" machine="local" pkg="ros_ethercat" type="ros_ethercat" args="-i $(arg eth_port) -r sh_description" output="screen"  launch-prefix="nice -n -20"> <!-- launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+  <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen"  launch-prefix="nice -n -20"> <!-- launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
     <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
     <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
     <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
