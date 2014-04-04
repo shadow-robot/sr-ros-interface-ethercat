@@ -51,7 +51,7 @@ namespace shadow_robot
 #endif
 
   template <class StatusType, class CommandType>
-  const double SrRobotLib<StatusType, CommandType>::tactile_timeout = 5.0;
+  const double SrRobotLib<StatusType, CommandType>::tactile_timeout = 10.0;
 
   template <class StatusType, class CommandType>
   const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 32;
