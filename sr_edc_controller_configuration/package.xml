@@ -21,7 +21,7 @@
 
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>controller_manager</run_depend>
-  <run_depend>robot_mechanism_controllers</run_depend>
+  <run_depend>ros_controllers</run_depend>
   <run_depend>sr_ethercat_hand_config</run_depend>
 
 </package>
