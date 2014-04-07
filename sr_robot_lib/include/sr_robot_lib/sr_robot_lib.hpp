@@ -66,7 +66,7 @@ namespace operation_mode
 {
   namespace robot_state
   {
-    enum RobotState
+    enum Robot
     {
       INITIALIZATION,
       OPERATION,
