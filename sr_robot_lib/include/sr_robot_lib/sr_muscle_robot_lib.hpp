@@ -40,8 +40,8 @@ namespace shadow_robot
   class SrMuscleRobotLib : public SrRobotLib<StatusType, CommandType>
   {
   public:
-    SrMuscleRobotLib(ros_ethercat_hardware_interface::HardwareInterface *hw);
-    virtual ~SrMuscleRobotLib() {};
+    SrMuscleRobotLib(ros_ethercat_mechanism_model::Robot *hw);
+    virtual ~SrMuscleRobotLib() {}
 
     /**
      * This function is called each time a new etherCAT message
@@ -89,8 +89,7 @@ namespace shadow_robot
      * @param actuators A vector containing the actuators for the different joints.
      */
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
-                            std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrGenericActuator*> actuators) = 0;
+                            std::vector<shadow_joints::JointToSensor> joint_to_sensors) = 0;
 
      /// The map used to calibrate each pressure sensor.
      shadow_joints::CalibrationMap pressure_calibration_map_;

@@ -46,8 +46,8 @@ namespace shadow_robot
   class SrMotorRobotLib : public SrRobotLib<StatusType, CommandType>
   {
   public:
-    SrMotorRobotLib(ros_ethercat_hardware_interface::HardwareInterface *hw);
-    virtual ~SrMotorRobotLib() {};
+    SrMotorRobotLib(ros_ethercat_mechanism_model::Robot *hw);
+    virtual ~SrMotorRobotLib() {}
 
     /**
      * This function is called each time a new etherCAT message
@@ -95,8 +95,7 @@ namespace shadow_robot
      * @param actuators A vector containing the actuators for the different joints.
      */
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
-                            std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrGenericActuator*> actuators) = 0;
+                            std::vector<shadow_joints::JointToSensor> joint_to_sensors) = 0;
 
     /**
      * Read additional data from the latest message and stores it into the

@@ -42,8 +42,8 @@ namespace shadow_robot
   class SrMotorHandLib : public SrMotorRobotLib<StatusType, CommandType>
   {
   public:
-    SrMotorHandLib(ros_ethercat_hardware_interface::HardwareInterface *hw);
-    virtual ~SrMotorHandLib();
+    SrMotorHandLib(ros_ethercat_mechanism_model::Robot *hw);
+    virtual ~SrMotorHandLib() {}
 
     /**
      * The service callback for setting the Force PID values. There's only one callback
@@ -98,8 +98,7 @@ namespace shadow_robot
      * @param actuators A vector containing the actuators for the different joints.
      */
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
-                            std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrGenericActuator*> actuators);
+                            std::vector<shadow_joints::JointToSensor> joint_to_sensors);
 
     /**
      * Updates the parameter values for the force control in the Parameter Server

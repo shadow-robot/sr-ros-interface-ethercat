@@ -45,7 +45,7 @@ namespace shadow_robot
   const double SrMuscleRobotLib<StatusType, CommandType>::timeout = 5.0;
 
   template <class StatusType, class CommandType>
-  SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(ros_ethercat_hardware_interface::HardwareInterface *hw)
+  SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(ros_ethercat_mechanism_model::Robot *hw)
     : SrRobotLib<StatusType, CommandType>(hw),
       muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout)
   {
@@ -147,9 +147,7 @@ namespace shadow_robot
 
       boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
 
-      actuator_state->is_enabled_ = 1;
       //actuator_state->device_id_ = muscle_wrapper->muscle_id[0];
-      actuator_state->halted_ = false;
 
       //Fill in the tactiles.
       if( this->tactiles != NULL )

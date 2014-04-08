@@ -59,7 +59,7 @@ namespace shadow_robot
 
 
   template <class StatusType, class CommandType>
-  SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(ros_ethercat_hardware_interface::HardwareInterface *hw) :
+  SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(ros_ethercat_mechanism_model::Robot *hw) :
     SrMotorRobotLib<StatusType, CommandType>(hw)
   {
     //read the motor polling frequency from the parameter server
@@ -73,7 +73,6 @@ namespace shadow_robot
     std::vector<std::string> joint_names_tmp;
     std::vector<int> motor_ids = read_joint_to_motor_mapping();
     std::vector<shadow_joints::JointToSensor > joints_to_sensors;
-    std::vector<sr_actuator::SrGenericActuator*> actuators;
 
     ROS_ASSERT(motor_ids.size() == JOINTS_NUM_0220);
     ROS_ASSERT(joint_to_sensor_vect.size() == JOINTS_NUM_0220);
@@ -85,19 +84,20 @@ namespace shadow_robot
       joints_to_sensors.push_back(tmp_jts);
 
       //initializing the actuators.
-      sr_actuator::SrActuator* actuator = new sr_actuator::SrActuator(joint_names[i]);
       ROS_INFO_STREAM("adding actuator: "<<joint_names[i]);
-      actuators.push_back( actuator );
 
       if(hw)
       {
-        if(!hw->addActuator(actuator) )
+        if (hw->actuators_.count(joint_names[i]))
+          ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i]);
+        else
         {
-          ROS_FATAL("An actuator of the name '%s' already exists.", actuator->name_.c_str());
+          hw->actuators_[joint_names[i]] =
+              dynamic_cast<ros_ethercat_mechanism_model::Actuator*>(new sr_actuator::SrActuator());
         }
       }
     }
-    initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect, actuators);
+    initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
 
     //Initialize the motor data checker
     this->motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(this->joints_vector, this->motor_updater_->initialization_configs_vector));
@@ -111,20 +111,9 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  SrMotorHandLib<StatusType, CommandType>::~SrMotorHandLib()
-  {
-    boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
-    for(;joint != this->joints_vector.end(); ++joint)
-    {
-      delete joint->actuator_wrapper->actuator;
-    }
-  }
-
-  template <class StatusType, class CommandType>
   void SrMotorHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
                              std::vector<int> actuator_ids,
-                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                             std::vector<sr_actuator::SrGenericActuator*> actuators)
+                             std::vector<shadow_joints::JointToSensor> joint_to_sensors)
   {
     for(unsigned int index = 0; index < joint_names.size(); ++index)
     {
@@ -146,7 +135,7 @@ namespace shadow_robot
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
       joint->actuator_wrapper    = motor_wrapper;
       motor_wrapper->motor_id = actuator_ids[index];
-      motor_wrapper->actuator = actuators[index];
+      motor_wrapper->actuator = dynamic_cast<sr_actuator::SrActuator*>(hw->actuators_[joint->joint_name]);
 
       std::stringstream ss;
       ss << "change_force_PID_" << joint_names[index];

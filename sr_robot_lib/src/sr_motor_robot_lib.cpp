@@ -42,7 +42,7 @@ namespace shadow_robot
 {
 
   template <class StatusType, class CommandType>
-  SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(ros_ethercat_hardware_interface::HardwareInterface *hw)
+  SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(ros_ethercat_mechanism_model::Robot *hw)
     : SrRobotLib<StatusType, CommandType>(hw),
       motor_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),
@@ -112,9 +112,7 @@ namespace shadow_robot
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
 
       motor_index_full = motor_wrapper->motor_id;
-      actuator_state->is_enabled_ = 1;
       actuator_state->device_id_ = motor_index_full;
-      actuator_state->halted_ = false;
 
       //Fill in the tactiles.
       if( this->tactiles != NULL )

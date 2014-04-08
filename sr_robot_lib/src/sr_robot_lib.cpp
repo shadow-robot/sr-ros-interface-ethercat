@@ -124,7 +124,7 @@ namespace shadow_robot
   };
 
   template <class StatusType, class CommandType>
-  SrRobotLib<StatusType, CommandType>::SrRobotLib(ros_ethercat_hardware_interface::HardwareInterface *hw)
+  SrRobotLib<StatusType, CommandType>::SrRobotLib(ros_ethercat_mechanism_model::Robot *hw)
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false),
       tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
       nh_tilde("~")
@@ -244,9 +244,6 @@ namespace shadow_robot
 
     //calibrate the joint and update the position.
     calibrate_joint(joint_tmp, status_data);
-
-    //add the last position to the queue
-    actuator_state->timestamp_ = timestamp;
 
     //filter the position and velocity
     std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(

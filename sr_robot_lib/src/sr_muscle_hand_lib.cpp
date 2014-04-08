@@ -51,7 +51,7 @@ namespace shadow_robot
 
 
   template <class StatusType, class CommandType>
-  SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(ros_ethercat_hardware_interface::HardwareInterface *hw) :
+  SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(ros_ethercat_mechanism_model::Robot *hw) :
     SrMuscleRobotLib<StatusType, CommandType>(hw)
   {
     //read the muscle polling frequency from the parameter server
@@ -86,7 +86,6 @@ namespace shadow_robot
     std::vector<std::string> joint_names_tmp;
     std::vector<shadow_joints::JointToMuscle> joint_to_muscle_map = read_joint_to_muscle_mapping();
     std::vector<shadow_joints::JointToSensor > joints_to_sensors;
-    std::vector<sr_actuator::SrGenericActuator*> actuators;
 
     ROS_ASSERT(joint_to_muscle_map.size() == JOINTS_NUM_0320);
     ROS_ASSERT(joint_to_sensor_vect.size() == JOINTS_NUM_0320);
@@ -98,19 +97,20 @@ namespace shadow_robot
       joints_to_sensors.push_back(tmp_jts);
 
       //initializing the actuators.
-      sr_actuator::SrMuscleActuator* actuator = new sr_actuator::SrMuscleActuator(joint_names[i]);
       ROS_INFO_STREAM("adding actuator: "<<joint_names[i]);
-      actuators.push_back( actuator );
 
       if(hw)
       {
-        if(!hw->addActuator(actuator) )
+        if (hw->actuators_.count(joint_names[i]))
+          ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i]);
+        else
         {
-          ROS_FATAL("An actuator of the name '%s' already exists.", actuator->name_.c_str());
+          hw->actuators_[joint_names[i]] =
+              dynamic_cast<ros_ethercat_mechanism_model::Actuator*>(new sr_actuator::SrMuscleActuator());
         }
       }
     }
-    initialize(joint_names_tmp, joint_to_muscle_map, joint_to_sensor_vect, actuators);
+    initialize(joint_names_tmp, joint_to_muscle_map, joint_to_sensor_vect);
 /*
 #ifdef DEBUG_PUBLISHER
     //advertise the debug service, used to set which data we want to publish on the debug topics
@@ -120,20 +120,9 @@ namespace shadow_robot
   }
 
   template <class StatusType, class CommandType>
-  SrMuscleHandLib<StatusType, CommandType>::~SrMuscleHandLib()
-  {
-    boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
-    for(;joint != this->joints_vector.end(); ++joint)
-    {
-      delete joint->actuator_wrapper->actuator;
-    }
-  }
-
-  template <class StatusType, class CommandType>
   void SrMuscleHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
                              std::vector<int> actuator_ids,
-                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                             std::vector<sr_actuator::SrGenericActuator*> actuators)
+                             std::vector<shadow_joints::JointToSensor> joint_to_sensors)
   {
     ROS_ERROR("This version of SrMuscleHandLib<StatusType, CommandType>::initialize should not be used");
   }
@@ -141,8 +130,7 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrMuscleHandLib<StatusType, CommandType>::initialize(std::vector<std::string> joint_names,
                              std::vector<shadow_joints::JointToMuscle> actuator_ids,
-                             std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                             std::vector<sr_actuator::SrGenericActuator*> actuators)
+                             std::vector<shadow_joints::JointToSensor> joint_to_sensors)
   {
     for(unsigned int index = 0; index < joint_names.size(); ++index)
     {
@@ -167,7 +155,7 @@ namespace shadow_robot
       muscle_wrapper->muscle_driver_id[1] = actuator_ids[index].muscle_driver_id[1];
       muscle_wrapper->muscle_id[0] = actuator_ids[index].muscle_id[0];
       muscle_wrapper->muscle_id[1] = actuator_ids[index].muscle_id[1];
-      muscle_wrapper->actuator = actuators[index];
+      muscle_wrapper->actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(hw->actuators_[joint->joint_name]);
     } //end for joints.
   }
 
