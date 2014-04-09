@@ -86,7 +86,6 @@ namespace shadow_robot
      * @param joint_names A vector containing all the joint names.
      * @param actuator_ids A vector containing the corresponding actuator ids.
      * @param joint_to_sensors A vector mapping the joint to the sensor index we read from the palm.
-     * @param actuators A vector containing the actuators for the different joints.
      */
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
                             std::vector<shadow_joints::JointToSensor> joint_to_sensors) = 0;
