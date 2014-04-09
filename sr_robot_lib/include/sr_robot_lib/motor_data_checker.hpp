@@ -50,7 +50,7 @@ namespace generic_updater
         : motor_id_(id), received_(false)
     {};
 
-    ~MessageFromMotorChecker()
+    virtual ~MessageFromMotorChecker()
     {};
 
     int motor_id_;
@@ -65,7 +65,7 @@ namespace generic_updater
   {
   public:
     SlowMessageFromMotorChecker(int id);
-    ~SlowMessageFromMotorChecker()
+    virtual ~SlowMessageFromMotorChecker()
     {};
 
     boost::array<bool, MOTOR_SLOW_DATA_LAST + 1> slow_data_received;
