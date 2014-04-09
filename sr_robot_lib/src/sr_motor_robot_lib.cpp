@@ -120,7 +120,7 @@ namespace shadow_robot
 
       this->process_position_sensor_data(joint_tmp, status_data, timestamp);
 
-      sr_actuator::SrActuator* motor_actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
+      sr_actuator::SrActuator* motor_actuator = dynamic_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
       //filter the effort
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
           motor_actuator->state_.force_unfiltered_, timestamp);

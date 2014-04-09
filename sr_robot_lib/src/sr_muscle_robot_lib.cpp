@@ -192,7 +192,7 @@ namespace shadow_robot
       for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
       {
         boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
-        sr_actuator::SrMuscleActuator* muscle_actuator = static_cast<sr_actuator::SrMuscleActuator*>(muscle_wrapper->actuator);
+        sr_actuator::SrMuscleActuator* muscle_actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(muscle_wrapper->actuator);
 
         unsigned int muscle_driver_id_0 = muscle_wrapper->muscle_driver_id[0];
         unsigned int muscle_driver_id_1 = muscle_wrapper->muscle_driver_id[1];

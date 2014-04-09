@@ -99,14 +99,14 @@ namespace shadow_robot
       //initializing the actuators.
       ROS_INFO_STREAM("adding actuator: "<<joint_names[i]);
 
-      if(hw)
+      if(this->hw_)
       {
-        if (hw->actuators_.count(joint_names[i]))
+        if (this->hw_->actuators_.count(joint_names[i]))
           ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i]);
         else
         {
-          hw->actuators_[joint_names[i]] =
-              dynamic_cast<ros_ethercat_mechanism_model::Actuator*>(new sr_actuator::SrMuscleActuator());
+          this->hw_->actuators_[joint_names[i]] =
+              *dynamic_cast<ros_ethercat_mechanism_model::Actuator*>(new sr_actuator::SrMuscleActuator());
         }
       }
     }
@@ -155,7 +155,7 @@ namespace shadow_robot
       muscle_wrapper->muscle_driver_id[1] = actuator_ids[index].muscle_driver_id[1];
       muscle_wrapper->muscle_id[0] = actuator_ids[index].muscle_id[0];
       muscle_wrapper->muscle_id[1] = actuator_ids[index].muscle_id[1];
-      muscle_wrapper->actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(hw->actuators_[joint->joint_name]);
+      muscle_wrapper->actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(&this->hw_->actuators_[joint->joint_name]);
     } //end for joints.
   }
 

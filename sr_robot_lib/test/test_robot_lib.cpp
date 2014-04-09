@@ -83,8 +83,8 @@ TEST(SrRobotLib, Initialization)
 {
   boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
 
-//  ros_ethercat_hardware_interface::HardwareInterface *hw;
-//  hw = new ros_ethercat_hardware_interface::HardwareInterface();
+//  ros_ethercat_mechanism_model::Robot *hw;
+//  hw = new ros_ethercat_mechanism_model::Robot();
 //  boost::shared_ptr< shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE> > lib_test = boost::shared_ptr< shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE> >( new shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw) );
 
   EXPECT_TRUE(true);
@@ -228,7 +228,7 @@ public:
 // TEST(SrRobotLib, CalibrationOneMotor)
 // {
 
-//   ros_ethercat_hardware_interface::HardwareInterface *hw;
+//   ros_ethercat_mechanism_model::Robot *hw;
 //   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
 //   STATUS_TYPE status_data;
@@ -290,7 +290,7 @@ public:
 // TEST(SrRobotLib, CalibrationFFJ0)
 // {
 
-//   ros_ethercat_hardware_interface::HardwareInterface *hw;
+//   ros_ethercat_mechanism_model::Robot *hw;
 //   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
 //   STATUS_TYPE status_data;
@@ -351,7 +351,7 @@ public:
 // TEST(SrRobotLib, CalibrationTHJ5)
 // {
 
-//   ros_ethercat_hardware_interface::HardwareInterface *hw;
+//   ros_ethercat_mechanism_model::Robot *hw;
 //   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
 //   STATUS_TYPE status_data;

@@ -178,6 +178,8 @@ namespace shadow_robot
     ///Current update state of the sensors (initialization, operation..)
     operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
+    ros_ethercat_mechanism_model::Robot *hw_;
+
   protected:
     /// The vector containing all the robot joints.
     boost::ptr_vector<shadow_joints::Joint> joints_vector;
@@ -191,8 +193,7 @@ namespace shadow_robot
      * @param actuators A vector containing the actuators for the different joints.
      */
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
-                            std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrGenericActuator*> actuators) = 0;
+                            std::vector<shadow_joints::JointToSensor> joint_to_sensors) = 0;
 
     /**
      * Compute the calibrated position for the given joint. This method is called

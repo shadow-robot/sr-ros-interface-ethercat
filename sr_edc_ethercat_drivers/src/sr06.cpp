@@ -147,7 +147,7 @@ void SR06::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 /**
  *
  */
-int SR06::initialize(ros_ethercat_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int SR06::initialize(ros_ethercat_mechanism_model::Robot *hw, bool allow_unprogrammed)
 {
 
   int retval = SrEdc::initialize(hw, allow_unprogrammed);
