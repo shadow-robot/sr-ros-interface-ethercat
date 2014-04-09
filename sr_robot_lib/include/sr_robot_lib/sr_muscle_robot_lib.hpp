@@ -40,11 +40,7 @@ namespace shadow_robot
   class SrMuscleRobotLib : public SrRobotLib<StatusType, CommandType>
   {
   public:
-<<<<<<< HEAD
     SrMuscleRobotLib(ros_ethercat_mechanism_model::Robot *hw);
-=======
-    SrMuscleRobotLib(pr2_hardware_interface::HardwareInterface *hw);
->>>>>>> ca370795a0f32f2874037d72125966de8f5e3eb5
     virtual ~SrMuscleRobotLib() {}
 
     /**
