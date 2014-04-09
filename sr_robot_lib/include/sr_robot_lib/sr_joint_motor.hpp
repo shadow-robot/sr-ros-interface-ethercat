@@ -59,16 +59,9 @@ namespace shadow_joints
   {
   public:
     SrActuatorWrapper()
-        : actuator(NULL), actuator_ok(false), bad_data(false)
-    {
-    }
-    ;
-
-    ~SrActuatorWrapper()
-    {
-    }
-    ;
-
+        : actuator(NULL), actuator_ok(false), bad_data(false) {}
+    
+    ~SrActuatorWrapper() {}
 
     //actuator
     sr_actuator::SrGenericActuator* actuator;
@@ -89,15 +82,9 @@ namespace shadow_joints
   {
   public:
     MotorWrapper()
-        : SrActuatorWrapper(), motor_id(0), msg_motor_id(0)
-    {
-    }
-    ;
+        : SrActuatorWrapper(), motor_id(0), msg_motor_id(0) {}
 
-    ~MotorWrapper()
-    {
-    }
-    ;
+    ~MotorWrapper() {}
 
     //the position of the motor in the motor array
     // coming from the hardware
@@ -137,12 +124,9 @@ namespace shadow_joints
         can_err_rx(0),
         driver_ok(false),
         bad_data(false)
-    {
-    };
+    {}
 
-    ~MuscleDriver()
-    {
-    };
+    ~MuscleDriver() {}
 
     int muscle_driver_id;
     unsigned int pic_firmware_svn_revision_;
@@ -179,12 +163,8 @@ namespace shadow_joints
       muscle_driver_id[0] = 0;
       muscle_driver_id[1] = 0;
     }
-    ;
 
-    ~MuscleWrapper()
-    {
-    }
-    ;
+    ~MuscleWrapper() {}
 
     /// id of the muscle drivers that control the muscles for this joint. These muscles can be driven by different muscle drivers.
     int muscle_driver_id[2];
