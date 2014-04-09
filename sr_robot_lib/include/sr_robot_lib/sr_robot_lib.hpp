@@ -91,7 +91,7 @@ namespace shadow_robot
   {
   public:
     SrRobotLib(ros_ethercat_mechanism_model::Robot *hw);
-    virtual ~SrRobotLib() {};
+    virtual ~SrRobotLib() {}
 
     /**
      * This function is called each time a new etherCAT message
