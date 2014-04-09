@@ -41,7 +41,7 @@ namespace shadow_robot
   {
   public:
     SrMuscleRobotLib(pr2_hardware_interface::HardwareInterface *hw);
-    virtual ~SrMuscleRobotLib() {};
+    virtual ~SrMuscleRobotLib() {}
 
     /**
      * This function is called each time a new etherCAT message
