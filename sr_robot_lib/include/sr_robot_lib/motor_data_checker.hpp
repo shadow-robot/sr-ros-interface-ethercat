@@ -50,7 +50,7 @@ namespace generic_updater
         : motor_id_(id), received_(false)
     {};
 
-    virtual ~MessageFromMotorChecker()
+    ~MessageFromMotorChecker()
     {};
 
     int motor_id_;
