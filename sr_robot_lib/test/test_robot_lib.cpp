@@ -153,7 +153,7 @@ TEST(SrRobotLib, UpdateMotor)
 
 /**
  * Tests the update of the actuators
- * which are in the ros_ethercat_hardware_interface hw*
+ * which are in the ros_ethercat_mechanism_model hw*
  */
 
 TEST(SrRobotLib, UpdateActuators)
