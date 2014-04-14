@@ -59,7 +59,7 @@ namespace shadow_robot
 
 
   template <class StatusType, class CommandType>
-  SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(ros_ethercat_mechanism_model::Robot *hw) :
+  SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(ros_ethercat_model::Robot *hw) :
     SrMotorRobotLib<StatusType, CommandType>(hw)
   {
     //read the motor polling frequency from the parameter server
@@ -92,7 +92,7 @@ namespace shadow_robot
       else
       {
         this->hw_->actuators_[joint_names[i]] =
-            *dynamic_cast<ros_ethercat_mechanism_model::Actuator*>(new sr_actuator::SrActuator());
+            *dynamic_cast<ros_ethercat_model::Actuator*>(new sr_actuator::SrActuator());
       }
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);

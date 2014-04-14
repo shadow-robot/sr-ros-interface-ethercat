@@ -42,7 +42,7 @@ namespace shadow_robot
 {
 
   template <class StatusType, class CommandType>
-  SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(ros_ethercat_mechanism_model::Robot *hw)
+  SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(ros_ethercat_model::Robot *hw)
     : SrRobotLib<StatusType, CommandType>(hw),
       motor_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),

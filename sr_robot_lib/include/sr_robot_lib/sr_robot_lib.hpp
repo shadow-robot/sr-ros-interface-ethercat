@@ -90,7 +90,7 @@ namespace shadow_robot
   class SrRobotLib
   {
   public:
-    SrRobotLib(ros_ethercat_mechanism_model::Robot *hw);
+    SrRobotLib(ros_ethercat_model::Robot *hw);
     virtual ~SrRobotLib() {}
 
     /**
@@ -178,7 +178,7 @@ namespace shadow_robot
     ///Current update state of the sensors (initialization, operation..)
     operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
-    ros_ethercat_mechanism_model::Robot *hw_;
+    ros_ethercat_model::Robot *hw_;
 
   protected:
     /// The vector containing all the robot joints.
