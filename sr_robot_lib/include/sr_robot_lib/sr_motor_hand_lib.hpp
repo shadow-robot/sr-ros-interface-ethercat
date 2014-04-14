@@ -42,7 +42,7 @@ namespace shadow_robot
   class SrMotorHandLib : public SrMotorRobotLib<StatusType, CommandType>
   {
   public:
-    SrMotorHandLib(ros_ethercat_model::Robot *hw);
+    SrMotorHandLib(ros_ethercat_model::RobotState *hw);
     virtual ~SrMotorHandLib() {}
 
     /**

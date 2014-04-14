@@ -29,7 +29,7 @@
 class SRBridge : public SR0X
 {
 public:
-  int initialize(ros_ethercat_model::Robot *hw, bool allow_unprogrammed);
+  int initialize(ros_ethercat_model::RobotState *hw, bool allow_unprogrammed);
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
   void diagnostics(diagnostic_updater::DiagnosticStatusWrapper &d, unsigned char *buffer);
 

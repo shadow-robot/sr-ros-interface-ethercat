@@ -35,7 +35,7 @@
 class HandLibTestProtected : public shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>
 {
 public:
-  HandLibTestProtected(ros_ethercat_model::Robot *hw)
+  HandLibTestProtected(ros_ethercat_model::RobotState *hw)
     : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw)
   {};
 
@@ -48,13 +48,13 @@ public: using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::joints_ve
 class HandLibTest
 {
 public:
-  ros_ethercat_model::Robot *hw;
+  ros_ethercat_model::RobotState *hw;
   boost::shared_ptr<HandLibTestProtected> sr_hand_lib;
   sr_actuator::SrActuator* actuator;
 
   HandLibTest()
   {
-    hw = new ros_ethercat_model::Robot(NULL);
+    hw = new ros_ethercat_model::RobotState(NULL);
     sr_hand_lib= boost::shared_ptr<HandLibTestProtected>( new HandLibTestProtected(hw) );
   }
 
@@ -206,7 +206,7 @@ class TestHandLib
   : public HandLibTestProtected
 {
 public:
-  TestHandLib(ros_ethercat_model::Robot* hw)
+  TestHandLib(ros_ethercat_model::RobotState* hw)
     : HandLibTestProtected(hw)
   {}
 
@@ -409,7 +409,7 @@ public:
  */
 TEST(SrRobotLib, HumanizeFlags)
 {
-  ros_ethercat_model::Robot *hw;
+  ros_ethercat_model::RobotState *hw;
   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
   std::vector<std::pair<std::string, bool> > flags;

@@ -58,7 +58,7 @@ public:
   ~SrEdcMuscle();
 
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
-  int  initialize(ros_ethercat_model::Robot *hw, bool allow_unprogrammed=true);
+  int  initialize(ros_ethercat_model::RobotState *hw, bool allow_unprogrammed=true);
   void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
 
   void packCommand(unsigned char *buffer, bool halt, bool reset);

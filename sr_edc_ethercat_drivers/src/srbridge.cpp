@@ -49,7 +49,7 @@ void SRBridge::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 
 }
 
-int SRBridge::initialize(ros_ethercat_model::Robot *hw, bool allow_unprogrammed)
+int SRBridge::initialize(ros_ethercat_model::RobotState *hw, bool allow_unprogrammed)
 {
   int result = SR0X::initialize(hw, allow_unprogrammed);
   if (result != 0)
