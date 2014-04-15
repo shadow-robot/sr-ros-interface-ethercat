@@ -76,7 +76,6 @@ namespace shadow_robot
 
     ROS_ASSERT(motor_ids.size() == JOINTS_NUM_0220);
     ROS_ASSERT(joint_to_sensor_vect.size() == JOINTS_NUM_0220);
-    ROS_ASSERT_MSG(this->hw_, "pointer to robot is NULL");
 
     for(unsigned int i=0; i< JOINTS_NUM_0220; ++i)
     {
@@ -90,10 +89,7 @@ namespace shadow_robot
       if (this->hw_->actuators_.count(joint_names[i]))
         ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i]);
       else
-      {
-        this->hw_->actuators_[joint_names[i]] =
-            *dynamic_cast<ros_ethercat_model::Actuator*>(new sr_actuator::SrActuator());
-      }
+        this->hw_->actuators_.insert(joint_names[i], new sr_actuator::SrActuator());
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
 
@@ -133,7 +129,7 @@ namespace shadow_robot
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
       joint->actuator_wrapper    = motor_wrapper;
       motor_wrapper->motor_id = actuator_ids[index];
-      motor_wrapper->actuator = dynamic_cast<sr_actuator::SrActuator*>(&this->hw_->actuators_[joint->joint_name]);
+      motor_wrapper->actuator = dynamic_cast<sr_actuator::SrActuator*>(this->hw_->getActuator(joint->joint_name));
 
       std::stringstream ss;
       ss << "change_force_PID_" << joint_names[index];
