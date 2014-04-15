@@ -86,12 +86,12 @@ namespace shadow_robot
       //initializing the actuators.
       ROS_INFO_STREAM("adding actuator: "<<joint_names[i]);
 
-      if (this->hw)
+      if (hw)
       {
-        if (this->hw_->actuators_.count(joint_names[i]))
+        if (hw->actuators_.count(joint_names[i]))
           ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i].c_str());
         else
-          this->hw_->actuators_.insert(joint_names[i], new sr_actuator::SrActuator());
+          hw->actuators_.insert(joint_names[i], new sr_actuator::SrActuator());
       }
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
