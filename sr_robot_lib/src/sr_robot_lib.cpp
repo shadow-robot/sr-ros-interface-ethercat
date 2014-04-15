@@ -260,11 +260,11 @@ namespace shadow_robot
   {
     sr_actuator::SrActuatorState* actuator_state;
 
-    if (sr_actuator::SrActuator* motor_actuator = dynamic_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator))
+    if (sr_actuator::SrActuator* motor_actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator))
     {
       actuator_state = &motor_actuator->state_;
     }
-    else if (sr_actuator::SrMuscleActuator* muscle_actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator))
+    else if (sr_actuator::SrMuscleActuator* muscle_actuator = static_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator))
     {
       actuator_state = &muscle_actuator->state_;
     }

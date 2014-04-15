@@ -64,7 +64,7 @@ namespace shadow_joints
     ~SrActuatorWrapper() {}
 
     //actuator
-    sr_actuator::SrGenericActuator* actuator;
+    ros_ethercat_model::Actuator* actuator;
 
     /**
      * this boolean is set to true as long as we receive the

@@ -101,10 +101,10 @@ namespace shadow_robot
 
       if(hw)
       {
-        if (hw->actuators_.count(joint_names[i]))
-          ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i].c_str());
+        if (hw->getActuator(joint_names_tmp[i]))
+          ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i]);
         else
-          hw->actuators_.insert(joint_names[i], new sr_actuator::SrMuscleActuator());
+          hw->actuators_.insert(joint_names_tmp[i], new sr_actuator::SrMuscleActuator());
       }
     }
     initialize(joint_names_tmp, joint_to_muscle_map, joint_to_sensor_vect);
@@ -152,7 +152,7 @@ namespace shadow_robot
       muscle_wrapper->muscle_driver_id[1] = actuator_ids[index].muscle_driver_id[1];
       muscle_wrapper->muscle_id[0] = actuator_ids[index].muscle_id[0];
       muscle_wrapper->muscle_id[1] = actuator_ids[index].muscle_id[1];
-      muscle_wrapper->actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(this->hw_->getActuator(joint->joint_name));
+      muscle_wrapper->actuator = static_cast<sr_actuator::SrMuscleActuator*>(this->hw_->getActuator(joint->joint_name));
     } //end for joints.
   }
 

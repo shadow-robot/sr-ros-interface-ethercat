@@ -88,10 +88,10 @@ namespace shadow_robot
 
       if(hw)
       {
-        if (hw->actuators_.count(joint_names[i]))
-          ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i].c_str());
+        if (hw->getActuator(joint_names_tmp[i]))
+          ROS_FATAL("An actuator of the name '%s' already exists.", joint_names[i]);
         else
-          hw->actuators_.insert(joint_names[i], new sr_actuator::SrActuator());
+          hw->actuators_.insert(joint_names_tmp[i], new sr_actuator::SrActuator());
       }
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
@@ -132,7 +132,7 @@ namespace shadow_robot
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
       joint->actuator_wrapper    = motor_wrapper;
       motor_wrapper->motor_id = actuator_ids[index];
-      motor_wrapper->actuator = dynamic_cast<sr_actuator::SrActuator*>(this->hw_->getActuator(joint->joint_name));
+      motor_wrapper->actuator = static_cast<sr_actuator::SrActuator*>(this->hw_->getActuator(joint->joint_name));
 
       std::stringstream ss;
       ss << "change_force_PID_" << joint_names[index];

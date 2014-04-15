@@ -28,7 +28,6 @@
 
 from __future__ import with_statement
 
-import roslib
 import rospy
 
 from pr2_mechanism_msgs.msg import MechanismStatistics
