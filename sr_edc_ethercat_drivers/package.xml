@@ -24,7 +24,6 @@
   <build_depend>roslib</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>sr_robot_lib</build_depend>
-  <build_depend>ros_ethercat_model</build_depend>
   <build_depend>ros_ethercat_hardware</build_depend>
   <build_depend>sr_external_dependencies</build_depend>
   <build_depend>sr_robot_msgs</build_depend>
@@ -36,7 +35,6 @@
   <run_depend>roslib</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>sr_robot_lib</run_depend>
-  <run_depend>ros_ethercat_model</run_depend>
   <run_depend>ros_ethercat_hardware</run_depend>
   <run_depend>sr_external_dependencies</run_depend>
   <run_depend>sr_robot_msgs</run_depend>
