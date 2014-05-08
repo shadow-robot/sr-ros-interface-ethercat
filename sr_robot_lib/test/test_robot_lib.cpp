@@ -35,7 +35,7 @@
 class HandLibTestProtected : public shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>
 {
 public:
-  HandLibTestProtected(ros_ethercat_model::RobotState *hw)
+  HandLibTestProtected(hardware_interface::HardwareInterface *hw)
     : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw)
   {};
 
@@ -55,7 +55,8 @@ public:
   HandLibTest()
   {
     hw = new ros_ethercat_model::RobotState(NULL);
-    sr_hand_lib= boost::shared_ptr<HandLibTestProtected>( new HandLibTestProtected(hw) );
+    hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface>(hw);
+    sr_hand_lib= boost::shared_ptr<HandLibTestProtected>( new HandLibTestProtected(ehw) );
   }
 
   ~HandLibTest()
@@ -206,7 +207,7 @@ class TestHandLib
   : public HandLibTestProtected
 {
 public:
-  TestHandLib(ros_ethercat_model::RobotState* hw)
+  TestHandLib(hardware_interface::HardwareInterface* hw)
     : HandLibTestProtected(hw)
   {}
 
@@ -409,7 +410,6 @@ public:
  */
 TEST(SrRobotLib, HumanizeFlags)
 {
-  ros_ethercat_model::RobotState *hw;
   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
   std::vector<std::pair<std::string, bool> > flags;

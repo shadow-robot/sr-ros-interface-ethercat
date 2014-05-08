@@ -149,7 +149,7 @@ void SrEdcMuscle::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 /**
  *
  */
-int SrEdcMuscle::initialize(ros_ethercat_model::RobotState *hw, bool allow_unprogrammed)
+int SrEdcMuscle::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
 
   int retval = SrEdc::initialize(hw, allow_unprogrammed);

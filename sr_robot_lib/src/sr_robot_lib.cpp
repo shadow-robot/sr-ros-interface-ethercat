@@ -124,10 +124,10 @@ namespace shadow_robot
   };
 
   template <class StatusType, class CommandType>
-  SrRobotLib<StatusType, CommandType>::SrRobotLib(ros_ethercat_model::RobotState *hw)
+  SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInterface *hw)
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false),
       tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
-      hw_(hw),
+      hw_(static_cast<ros_ethercat_model::RobotState*>(hw)),
       nh_tilde("~")
   {
     //read the generic sensor polling frequency from the parameter server
