@@ -41,7 +41,7 @@
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
-#include <ros_ethercat_model/robot.hpp>
+#include <ros_ethercat_model/robot_state.hpp>
 
 #include <sr_robot_msgs/NullifyDemand.h>
 #include <sr_robot_msgs/SetDebugData.h>
