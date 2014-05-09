@@ -56,14 +56,13 @@ class SR06 : public SrEdc
 {
 public:
   SR06();
-  ~SR06();
 
-  void construct(EtherCAT_SlaveHandler *sh, int &start_address);
-  int  initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
-  void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
+  virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address);
+  virtual int  initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
+  virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
 
-  void packCommand(unsigned char *buffer, bool halt, bool reset);
-  bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
+  virtual void packCommand(unsigned char *buffer, bool halt, bool reset);
+  virtual bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
 
 protected:
 
@@ -74,7 +73,7 @@ protected:
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
 
   /// This function will call the reinitialization function for the boards attached to the CAN bus
-  void reinitialize_boards();
+  virtual void reinitialize_boards();
 
   /**
    * Given the identifier for a certain board (motor board/ muscle driver) determines the right value
@@ -84,7 +83,7 @@ protected:
    * @param can_bus pointer to the can bus number we want to determine
    * @param board_can_id pointer to the board id we want to determine
    */
-  void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id);
+  virtual void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id);
 
 private:
 

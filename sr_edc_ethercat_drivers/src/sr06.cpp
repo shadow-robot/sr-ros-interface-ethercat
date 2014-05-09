@@ -79,8 +79,7 @@ PLUGINLIB_EXPORT_CLASS(SR06, EthercatDevice);
  *  and create the Bootloading service.
  */
 SR06::SR06()
-  : SrEdc(),
-    zero_buffer_read(0),
+  : zero_buffer_read(0),
     cycle_count(0)
 {
 /*
@@ -91,16 +90,6 @@ SR06::SR06()
   ROS_INFO(          "nb_sensors_const = %d", nb_sensors_const           );
   ROS_INFO("nb_publish_by_unpack_const = %d", nb_publish_by_unpack_const );
 */
-}
-
-/** \brief Destructor of the SR06 driver
- *
- *  This is the Destructor of the driver. it frees the FMMUs and SyncManagers which have been allocated during the construct.
- */
-SR06::~SR06()
-{
-  delete sh_->get_fmmu_config();
-  delete sh_->get_pd_config();
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs

@@ -42,7 +42,7 @@ namespace sr_edc_ethercat_drivers
 /**
  * \brief Class to buffer and publish previous 1-second of motor data
  *
- * Data is sampled with each cycle of realtime loop (1kHz) so that there
+ * Data is sampled with each cycle of realtime loop so that there
  * is too much data to be published continuouly.  Instead of continuously
  * publishing data, the trace buffers the previous X seconds of samples.
  * Publishing can be triggered as result of event or request.

@@ -78,8 +78,7 @@ PLUGINLIB_EXPORT_CLASS(SrEdcMuscle, EthercatDevice);
  *  and create the Bootloading service.
  */
 SrEdcMuscle::SrEdcMuscle()
-  : SrEdc(),
-    zero_buffer_read(0),
+  : zero_buffer_read(0),
     cycle_count(0)
 {
 /*
@@ -90,16 +89,6 @@ SrEdcMuscle::SrEdcMuscle()
   ROS_INFO(          "nb_sensors_const = %d", nb_sensors_const           );
   ROS_INFO("nb_publish_by_unpack_const = %d", nb_publish_by_unpack_const );
 */
-}
-
-/** \brief Destructor of the SrEdcMuscle driver
- *
- *  This is the Destructor of the driver. it frees the FMMUs and SyncManagers which have been allocated during the construct.
- */
-SrEdcMuscle::~SrEdcMuscle()
-{
-  delete sh_->get_fmmu_config();
-  delete sh_->get_pd_config();
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs

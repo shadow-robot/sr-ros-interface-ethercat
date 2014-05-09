@@ -30,6 +30,7 @@
 #include <al/ethercat_AL.h>
 #include <dll/ethercat_device_addressed_telegram.h>
 #include <dll/ethercat_frame.h>
+#include <cassert>
 
 PLUGINLIB_EXPORT_CLASS(SRBridge, EthercatDevice);
 
@@ -67,18 +68,18 @@ int SRBridge::initialize(hardware_interface::HardwareInterface *hw, bool allow_u
   uint16_t data, new_data;
   int rv;
 
-  rv = readData(&com, (EC_UINT)EC_Slave_RD[PDI_Conf_reg].ado, (void *)&data, (EC_UINT)2);
+  rv = readData(&com, EC_Slave_RD[PDI_Conf_reg].ado, &data, 2, FIXED_ADDR);
   ROS_INFO("bridge port type: %s\n", data&1?"MII":"EBUS");
 
-  rv = readData(&com, 0x100, &data, 2);
+  rv = readData(&com, 0x100, &data, 2, FIXED_ADDR);
   if (rv != 0) ROS_ERROR("can't read open status");
 
   new_data = data & ~0xc000;
 
-  rv = writeData(&com, 0x100, &new_data, 2);
+  rv = writeData(&com, 0x100, &new_data, 2, FIXED_ADDR);
   if (rv != 0) ROS_ERROR("can't write DL values");
 
-  rv = readData(&com, 0x100, &data, 2);
+  rv = readData(&com, 0x100, &data, 2, FIXED_ADDR);
   if (rv != 0) ROS_ERROR("can't read open status");
 
   return 0;

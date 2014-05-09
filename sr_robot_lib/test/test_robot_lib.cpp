@@ -410,6 +410,7 @@ public:
  */
 TEST(SrRobotLib, HumanizeFlags)
 {
+  hardware_interface::HardwareInterface *hw;
   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
   std::vector<std::pair<std::string, bool> > flags;
