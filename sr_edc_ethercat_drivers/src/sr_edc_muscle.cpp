@@ -140,8 +140,7 @@ void SrEdcMuscle::construct(EtherCAT_SlaveHandler *sh, int &start_address)
  */
 int SrEdcMuscle::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
-
-  int retval = SrEdc::initialize(hw, allow_unprogrammed);
+  int retval = SR0X::initialize(hw, allow_unprogrammed);
 
   if(retval != 0)
     return retval;

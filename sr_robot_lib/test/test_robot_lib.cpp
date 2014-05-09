@@ -35,7 +35,7 @@
 class HandLibTestProtected : public shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>
 {
 public:
-  HandLibTestProtected(hardware_interface::HardwareInterface *hw)
+  HandLibTestProtected(pr2_hardware_interface::HardwareInterface *hw)
     : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw)
   {};
 
@@ -48,15 +48,14 @@ public: using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::joints_ve
 class HandLibTest
 {
 public:
-  ros_ethercat_model::RobotState *hw;
+  pr2_hardware_interface::HardwareInterface *hw;
   boost::shared_ptr<HandLibTestProtected> sr_hand_lib;
   sr_actuator::SrActuator* actuator;
 
   HandLibTest()
   {
-    hw = new ros_ethercat_model::RobotState(NULL);
-    hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface>(hw);
-    sr_hand_lib= boost::shared_ptr<HandLibTestProtected>( new HandLibTestProtected(ehw) );
+    hw = new pr2_hardware_interface::HardwareInterface();
+    sr_hand_lib= boost::shared_ptr<HandLibTestProtected>( new HandLibTestProtected(hw) );
   }
 
   ~HandLibTest()
@@ -154,7 +153,7 @@ TEST(SrRobotLib, UpdateMotor)
 
 /**
  * Tests the update of the actuators
- * which are in the ros_ethercat_model hw*
+ * which are in the pr2_hardware_interface hw*
  */
 
 TEST(SrRobotLib, UpdateActuators)
@@ -207,7 +206,7 @@ class TestHandLib
   : public HandLibTestProtected
 {
 public:
-  TestHandLib(hardware_interface::HardwareInterface* hw)
+  TestHandLib(pr2_hardware_interface::HardwareInterface* hw)
     : HandLibTestProtected(hw)
   {}
 
@@ -410,7 +409,7 @@ public:
  */
 TEST(SrRobotLib, HumanizeFlags)
 {
-  hardware_interface::HardwareInterface *hw;
+  pr2_hardware_interface::HardwareInterface *hw;
   boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
   std::vector<std::pair<std::string, bool> > flags;
