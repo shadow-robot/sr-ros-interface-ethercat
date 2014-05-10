@@ -84,11 +84,7 @@ namespace shadow_joints
     MotorWrapper()
         : SrActuatorWrapper(), motor_id(0), msg_motor_id(0) {}
 
-    ~MotorWrapper()
-    {
-      force_pid_service.shutdown();
-      reset_motor_service.shutdown();
-    }
+    ~MotorWrapper() {}
 
     //the position of the motor in the motor array
     // coming from the hardware
@@ -130,10 +126,7 @@ namespace shadow_joints
         bad_data(false)
     {}
 
-    ~MuscleDriver()
-    {
-      reset_driver_service.shutdown();
-    }
+    ~MuscleDriver() {}
 
     int muscle_driver_id;
     unsigned int pic_firmware_svn_revision_;

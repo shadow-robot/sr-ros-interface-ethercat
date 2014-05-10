@@ -47,11 +47,7 @@ namespace shadow_robot
   {
   public:
     SrMotorRobotLib(hardware_interface::HardwareInterface *hw);
-    virtual ~SrMotorRobotLib()
-    {
-      change_control_type_.shutdown();
-      motor_system_control_server_.shutdown();
-    }
+    virtual ~SrMotorRobotLib() {}
 
     /**
      * This function is called each time a new etherCAT message
