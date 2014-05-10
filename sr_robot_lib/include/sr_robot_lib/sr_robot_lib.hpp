@@ -93,7 +93,7 @@ namespace shadow_robot
   {
   public:
     SrRobotLib(hardware_interface::HardwareInterface *hw);
-    virtual ~SrRobotLib() {}
+    virtual ~SrRobotLib() { nullify_demand_server_.shutdown(); }
 
     /**
      * This function is called each time a new etherCAT message

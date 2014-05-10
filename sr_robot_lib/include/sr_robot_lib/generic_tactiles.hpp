@@ -57,7 +57,10 @@ namespace tactiles
   {
   public:
     GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    virtual ~GenericTactiles() {}
+    virtual ~GenericTactiles()
+    {
+      reset_service_client_.shutdown();
+    }
 
     /**
      * This function is called each time a new etherCAT message
