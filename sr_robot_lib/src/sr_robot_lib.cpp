@@ -128,7 +128,11 @@ namespace shadow_robot
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false),
       tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
       hw_(static_cast<ros_ethercat_model::RobotState*>(hw)),
-      nh_tilde("~")
+      nh_tilde("~"),
+
+      //advertise the service to nullify the demand sent to the motor
+      // this makes it possible to easily stop the controllers.
+      nullify_demand_server_(nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this))
   {
     //read the generic sensor polling frequency from the parameter server
     this->generic_sensor_update_rate_configs_vector = this->read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
@@ -143,10 +147,6 @@ namespace shadow_robot
 
     //initialize the calibration map
     this->calibration_map = this->read_joint_calibration();
-
-    //advertise the service to nullify the demand sent to the motor
-    // this makes it possible to easily stop the controllers.
-    nullify_demand_server_ = nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
 
     //initialises self tests (false as this is not a simulated hand\)
     self_tests_.reset( new SrSelfTest(false) );

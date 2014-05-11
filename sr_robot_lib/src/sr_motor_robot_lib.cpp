@@ -46,7 +46,9 @@ namespace shadow_robot
     : SrRobotLib<StatusType, CommandType>(hw),
       motor_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),
-      control_type_changed_flag_(false)
+      control_type_changed_flag_(false),
+      change_control_type_(this->nh_tilde.advertiseService( "change_control_type", &SrMotorRobotLib::change_control_type_callback_, this)),
+      motor_system_control_server_(this->nh_tilde.advertiseService( "change_motor_system_controls", &SrMotorRobotLib::motor_system_controls_callback_, this))
   {
     lock_command_sending_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
 
@@ -64,12 +66,6 @@ namespace shadow_robot
     {
       ROS_INFO("Using TORQUE control.");
     }
-
-    //initialising the change control type service
-    change_control_type_ = this->nh_tilde.advertiseService( "change_control_type", &SrMotorRobotLib::change_control_type_callback_, this);
-
-    ///Initialising service
-    motor_system_control_server_ = this->nh_tilde.advertiseService( "change_motor_system_controls", &SrMotorRobotLib::motor_system_controls_callback_, this);
 
 #ifdef DEBUG_PUBLISHER
     this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
@@ -239,7 +235,7 @@ namespace shadow_robot
             //We want to send a demand of 0
             command->motor_data[motor_wrapper->motor_id] = 0;
           }
-/*
+
 #ifdef DEBUG_PUBLISHER
           //publish the debug values for the given motors.
           // NB: debug_motor_indexes_and_data is smaller
@@ -270,7 +266,6 @@ namespace shadow_robot
             this->debug_mutex.unlock();
           } //end try_lock
 #endif
-*/
           joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
         } //end if has_actuator
       } // end for each joint
@@ -548,7 +543,7 @@ namespace shadow_robot
     {
       sr_actuator::SrActuator* actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
       shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
-/*
+
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
       //publish the debug values for the given motors.
@@ -585,7 +580,7 @@ namespace shadow_robot
         this->debug_mutex.unlock();
       } //end try_lock
 #endif
-*/
+
       //we received the data and it was correct
       bool read_torque = true;
       switch (status_data->motor_data_type)

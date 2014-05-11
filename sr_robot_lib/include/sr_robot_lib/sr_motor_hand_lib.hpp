@@ -141,9 +141,6 @@ namespace shadow_robot
     static const char* human_readable_motor_data_types[];
     static const int32u motor_data_types[];
 
-    /// a service server for reconfiguring the debug data we want to publish
-    ros::ServiceServer debug_service;
-
     /**
      * Read the motor board force pids from the parameter servers,
      * called when resetting the motor.

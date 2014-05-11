@@ -53,6 +53,10 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(hardware_interface::HardwareInterface *hw) :
     SrMuscleRobotLib<StatusType, CommandType>(hw)
+#ifdef DEBUG_PUBLISHER
+    //advertise the debug service, used to set which data we want to publish on the debug topics
+    , debug_service(nh_tilde.advertiseService( "set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this))
+#endif
   {
     //read the muscle polling frequency from the parameter server
     this->muscle_update_rate_configs_vector = this->read_update_rate_configs("muscle_data_update_rate/", nb_muscle_data, human_readable_muscle_data_types, muscle_data_types);
@@ -97,12 +101,6 @@ namespace shadow_robot
       joints_to_sensors.push_back(tmp_jts);
     }
     initialize(joint_names_tmp, joint_to_muscle_map, joint_to_sensor_vect);
-/*
-#ifdef DEBUG_PUBLISHER
-    //advertise the debug service, used to set which data we want to publish on the debug topics
-    debug_service = this->nh_tilde.advertiseService( "set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this);
-#endif
-*/
   }
 
   template <class StatusType, class CommandType>
@@ -193,7 +191,6 @@ namespace shadow_robot
     return muscle_map;
   } //end read_joint_to_muscle_mapping
 
-/*
 #ifdef DEBUG_PUBLISHER
   template <class StatusType, class CommandType>
   bool SrMuscleHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
@@ -238,7 +235,7 @@ namespace shadow_robot
     return true;
   }
 #endif
-*/
+
   //Only to ensure that the template class is compiled for the types we are interested in
   template class SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }// end namespace

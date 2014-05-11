@@ -111,9 +111,10 @@ namespace shadow_robot
     static const char* human_readable_muscle_data_types[];
     static const int32u muscle_data_types[];
 
+#ifdef DEBUG_PUBLISHER
     /// a service server for reconfiguring the debug data we want to publish
     ros::ServiceServer debug_service;
-
+#endif
   };
 
 }

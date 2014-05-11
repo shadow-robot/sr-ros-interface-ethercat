@@ -86,13 +86,6 @@ namespace shadow_robot
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
     //Initialize the motor data checker
     this->motor_data_checker = boost::shared_ptr<generic_updater::MotorDataChecker>(new generic_updater::MotorDataChecker(this->joints_vector, this->motor_updater_->initialization_configs_vector));
-
-/*
-#ifdef DEBUG_PUBLISHER
-    //advertise the debug service, used to set which data we want to publish on the debug topics
-    debug_service = this->nh_tilde.advertiseService( "set_debug_publishers", &SrMotorHandLib::set_debug_data_to_publish, this);
-#endif
-*/
   }
 
   template <class StatusType, class CommandType>
@@ -429,7 +422,7 @@ namespace shadow_robot
     return motor_ids;
   } //end read_joint_to_motor_mapping
 
-/*
+
 #ifdef DEBUG_PUBLISHER
   template <class StatusType, class CommandType>
   bool SrMotorHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
@@ -474,7 +467,7 @@ namespace shadow_robot
     return true;
   }
 #endif
-*/
+
   //Only to ensure that the template class is compiled for the types we are interested in
   template class SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
   template class SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
