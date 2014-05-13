@@ -32,10 +32,6 @@
 
 #include <sr_edc_ethercat_drivers/sr_edc.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
 #include <realtime_tools/realtime_publisher.h>
 
 #include <math.h>
@@ -788,8 +784,8 @@ void SrEdc::find_address_range(bfd *fd, unsigned int *smallest_start_address, un
         if (section_addr >= 0x7fff)
           continue;
         section_size = (unsigned int) bfd_section_size (fd, s);
-        *smallest_start_address = min(section_addr, *smallest_start_address);
-        *biggest_end_address = max(*biggest_end_address, section_addr + section_size);
+        *smallest_start_address = std::min(section_addr, *smallest_start_address);
+        *biggest_end_address = std::max(*biggest_end_address, section_addr + section_size);
       }
     }
   }

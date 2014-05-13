@@ -26,7 +26,7 @@
 #ifndef SR0X_H
 #define SR0X_H
 
-#include <ros_ethercat_hardware/ethercat_device.h>
+#include <ros_ethercat_hardware/ethercat_hardware.h>
 #include <sr_edc_ethercat_drivers/motor_trace_buffer.h>
 
 

@@ -25,11 +25,6 @@
 
 #include <iomanip>
 #include <sstream>
-
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
 #include <cassert>
 
 PLUGINLIB_EXPORT_CLASS(SRBridge, EthercatDevice);

@@ -32,7 +32,7 @@
 #ifndef SR_EDC_H
 #define SR_EDC_H
 
-#include <ros_ethercat_hardware/ethercat_device.h>
+#include <ros_ethercat_hardware/ethercat_hardware.h>
 #include <sr_edc_ethercat_drivers/sr0x.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <std_msgs/Int16.h>

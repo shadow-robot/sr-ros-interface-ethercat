@@ -26,10 +26,6 @@
 
 #include <sr_edc_ethercat_drivers/sr_edc_muscle.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
 #include <realtime_tools/realtime_publisher.h>
 
 #include <math.h>

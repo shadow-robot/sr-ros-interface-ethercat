@@ -26,11 +26,6 @@
 
 #include <sr_edc_ethercat_drivers/sr0x.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
-
 #include <sstream>
 #include <iomanip>
 #include <boost/foreach.hpp>
