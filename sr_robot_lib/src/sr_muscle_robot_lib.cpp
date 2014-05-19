@@ -218,7 +218,7 @@ namespace shadow_robot
             muscle_actuator->state_.last_commanded_valve_[0] = 0;
             muscle_actuator->state_.last_commanded_valve_[1] = 0;
           }
-/*
+
 #ifdef DEBUG_PUBLISHER
           //publish the debug values for the given motors.
           // NB: debug_motor_indexes_and_data is smaller
@@ -249,7 +249,7 @@ namespace shadow_robot
             this->debug_mutex.unlock();
           } //end try_lock
 #endif
-*/
+
         } //end if has_actuator
       } // end for each joint
     } //endif
@@ -482,7 +482,7 @@ namespace shadow_robot
     {
       sr_actuator::SrMuscleActuator* actuator = static_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator);
       shadow_joints::MuscleWrapper* actuator_wrapper = static_cast<shadow_joints::MuscleWrapper*>(joint_tmp->actuator_wrapper.get());
-/*            
+
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
       //publish the debug values for the given motors.
@@ -519,7 +519,7 @@ namespace shadow_robot
         this->debug_mutex.unlock();
       } //end try_lock
 #endif
-*/
+
       //we received the data and it was correct
       unsigned int p1 = 0;
       switch (status_data->muscle_data_type)
