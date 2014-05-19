@@ -57,12 +57,6 @@ int SRBridge::initialize(pr2_hardware_interface::HardwareInterface *hw, bool all
 
   assert(sh_->get_product_code() == PRODUCT_CODE);
 
-  if (device_offset_ != 0)
-  {
-    ROS_FATAL("Device offset of SRBRIDGE should be 0 not %d", device_offset_);
-    return -1;
-  }
-
   EthercatDirectCom com(EtherCAT_DataLinkLayer::instance());
   uint16_t data, new_data;
   int rv;
