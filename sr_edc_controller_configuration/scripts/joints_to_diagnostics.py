@@ -28,7 +28,6 @@
 
 from __future__ import with_statement
 
-import roslib; roslib.load_manifest('pr2_controller_manager')
 import rospy
 
 from pr2_mechanism_msgs.msg import MechanismStatistics
@@ -64,7 +63,7 @@ def joint_to_diag(js):
         ds.level = DiagnosticStatus.ERROR
         ds.message = 'NaN in joint data'
         if not has_warned_invalid:
-            rospy.logerr("NaN value for joint data. pr2_controller_manager restart required.")
+            rospy.logerr("NaN value for joint data. controller_manager restart required.")
             has_warned_invalid = True
 
     if check_nan and (math.isinf(js.position) or math.isinf(js.velocity) or \
@@ -72,7 +71,7 @@ def joint_to_diag(js):
         ds.level = DiagnosticStatus.ERROR
         ds.message = 'Inf in joint data'
         if not has_warned_invalid:
-            rospy.logerr("Infinite value for joint data. pr2_controller_manager restart required.")
+            rospy.logerr("Infinite value for joint data. controller_manager restart required.")
             has_warned_invalid = True
 
     ds.name = "Joint (%s)" % js.name

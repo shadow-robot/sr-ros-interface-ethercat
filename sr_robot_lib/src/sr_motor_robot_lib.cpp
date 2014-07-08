@@ -33,7 +33,7 @@
 
 #include <ros/ros.h>
 
-#include <pr2_mechanism_msgs/ListControllers.h>
+#include <controller_manager_msgs/ListControllers.h>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0200_edc_error_flag_names
@@ -42,11 +42,13 @@ namespace shadow_robot
 {
 
   template <class StatusType, class CommandType>
-  SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(pr2_hardware_interface::HardwareInterface *hw)
+  SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(hardware_interface::HardwareInterface *hw)
     : SrRobotLib<StatusType, CommandType>(hw),
       motor_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),
-      control_type_changed_flag_(false)
+      control_type_changed_flag_(false),
+      change_control_type_(this->nh_tilde.advertiseService( "change_control_type", &SrMotorRobotLib::change_control_type_callback_, this)),
+      motor_system_control_server_(this->nh_tilde.advertiseService( "change_motor_system_controls", &SrMotorRobotLib::motor_system_controls_callback_, this))
   {
     lock_command_sending_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
 
@@ -64,12 +66,6 @@ namespace shadow_robot
     {
       ROS_INFO("Using TORQUE control.");
     }
-
-    //initialising the change control type service
-    change_control_type_ = this->nh_tilde.advertiseService( "change_control_type", &SrMotorRobotLib::change_control_type_callback_, this);
-
-    ///Initialising service
-    motor_system_control_server_ = this->nh_tilde.advertiseService( "change_motor_system_controls", &SrMotorRobotLib::motor_system_controls_callback_, this);
 
 #ifdef DEBUG_PUBLISHER
     this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
@@ -112,9 +108,7 @@ namespace shadow_robot
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
 
       motor_index_full = motor_wrapper->motor_id;
-      actuator_state->is_enabled_ = 1;
       actuator_state->device_id_ = motor_index_full;
-      actuator_state->halted_ = false;
 
       //Fill in the tactiles.
       if( this->tactiles != NULL )
@@ -241,7 +235,7 @@ namespace shadow_robot
             //We want to send a demand of 0
             command->motor_data[motor_wrapper->motor_id] = 0;
           }
-/*
+
 #ifdef DEBUG_PUBLISHER
           //publish the debug values for the given motors.
           // NB: debug_motor_indexes_and_data is smaller
@@ -272,7 +266,6 @@ namespace shadow_robot
             this->debug_mutex.unlock();
           } //end try_lock
 #endif
-*/
           joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
         } //end if has_actuator
       } // end for each joint
@@ -550,7 +543,7 @@ namespace shadow_robot
     {
       sr_actuator::SrActuator* actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
       shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
-/*
+
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
       //publish the debug values for the given motors.
@@ -587,7 +580,7 @@ namespace shadow_robot
         this->debug_mutex.unlock();
       } //end try_lock
 #endif
-*/
+
       //we received the data and it was correct
       bool read_torque = true;
       switch (status_data->motor_data_type)
@@ -1019,18 +1012,18 @@ namespace shadow_robot
 
       this->nh_tilde.setParam("default_control_mode", param_value);
 
-      ros::ServiceClient list_ctrl_client = nh.template serviceClient<pr2_mechanism_msgs::ListControllers>("pr2_controller_manager/list_controllers");
-      pr2_mechanism_msgs::ListControllers controllers_list;
+      ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
+      controller_manager_msgs::ListControllers controllers_list;
 
       if (list_ctrl_client.call(controllers_list))
       {
-        for(unsigned int i=0; i < controllers_list.response.controllers.size(); ++i)
+        for(unsigned int i=0; i < controllers_list.response.controller.size(); ++i)
         {
-          ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controllers.at(i) + "/reset_gains");
+          ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controller[i].name + "/reset_gains");
           std_srvs::Empty empty_message;
           if (!reset_gains_client.call(empty_message))
           {
-            ROS_ERROR_STREAM("Failed to reset gains for controller: " << controllers_list.response.controllers.at(i));
+            ROS_ERROR_STREAM("Failed to reset gains for controller: " << controllers_list.response.controller[i].name);
             return false;
           }
         }

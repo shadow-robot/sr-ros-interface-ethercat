@@ -33,7 +33,7 @@
 
 #include <ros/ros.h>
 
-#include <pr2_mechanism_msgs/ListControllers.h>
+#include <controller_manager_msgs/ListControllers.h>
 
 #define SERIOUS_ERROR_FLAGS PALM_0300_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0300_edc_error_flag_names
@@ -45,7 +45,7 @@ namespace shadow_robot
   const double SrMuscleRobotLib<StatusType, CommandType>::timeout = 5.0;
 
   template <class StatusType, class CommandType>
-  SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(pr2_hardware_interface::HardwareInterface *hw)
+  SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(hardware_interface::HardwareInterface *hw)
     : SrRobotLib<StatusType, CommandType>(hw),
       muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout)
   {
@@ -147,9 +147,7 @@ namespace shadow_robot
 
       boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
 
-      actuator_state->is_enabled_ = 1;
       //actuator_state->device_id_ = muscle_wrapper->muscle_id[0];
-      actuator_state->halted_ = false;
 
       //Fill in the tactiles.
       if( this->tactiles != NULL )
@@ -220,7 +218,7 @@ namespace shadow_robot
             muscle_actuator->state_.last_commanded_valve_[0] = 0;
             muscle_actuator->state_.last_commanded_valve_[1] = 0;
           }
-/*
+
 #ifdef DEBUG_PUBLISHER
           //publish the debug values for the given motors.
           // NB: debug_motor_indexes_and_data is smaller
@@ -251,7 +249,7 @@ namespace shadow_robot
             this->debug_mutex.unlock();
           } //end try_lock
 #endif
-*/
+
         } //end if has_actuator
       } // end for each joint
     } //endif
@@ -484,7 +482,7 @@ namespace shadow_robot
     {
       sr_actuator::SrMuscleActuator* actuator = static_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator);
       shadow_joints::MuscleWrapper* actuator_wrapper = static_cast<shadow_joints::MuscleWrapper*>(joint_tmp->actuator_wrapper.get());
-/*            
+
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
       //publish the debug values for the given motors.
@@ -521,7 +519,7 @@ namespace shadow_robot
         this->debug_mutex.unlock();
       } //end try_lock
 #endif
-*/
+
       //we received the data and it was correct
       unsigned int p1 = 0;
       switch (status_data->muscle_data_type)

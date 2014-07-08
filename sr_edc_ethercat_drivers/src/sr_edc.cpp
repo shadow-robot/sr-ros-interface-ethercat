@@ -32,10 +32,6 @@
 
 #include <sr_edc_ethercat_drivers/sr_edc.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
 #include <realtime_tools/realtime_publisher.h>
 
 #include <math.h>
@@ -120,30 +116,19 @@ const unsigned int       SrEdc::max_retry                  = 20;
  *  and create the Bootloading service.
  */
 SrEdc::SrEdc()
-  : SR0X(),
-    flashing(false),
+  : flashing(false),
     can_message_sent(true),
     can_packet_acked(true),
-    can_bus_(0)
+    can_bus_(0),
+    counter_(0)
 {
   int res = 0;
   check_for_pthread_mutex_init_error(res);
-  counter_ = 0;
 
   res = pthread_mutex_init(&producing, NULL);
   check_for_pthread_mutex_init_error(res);
 
   serviceServer = nodehandle_.advertiseService("SimpleMotorFlasher", &SrEdc::simple_motor_flasher, this);
-}
-
-/** \brief Destructor of the SrEdc driver
- *
- *  This is the Destructor of the driver. it frees the FMMUs and SyncManagers which have been allocated during the construct.
- */
-SrEdc::~SrEdc()
-{
-  delete sh_->get_fmmu_config();
-  delete sh_->get_pd_config();
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs
@@ -179,49 +164,10 @@ SrEdc::~SrEdc()
  * If you need to have several commands like in this SrEdc driver, put the sum of the size, same thing for the status.
  *
  */
-void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address)
-{
-    SR0X::construct(sh, start_address);
-}
-
-/** \brief Construct function, run at startup to set SyncManagers and FMMUs
- *
- *  The role of this function is to setup the SyncManagers and the FMMUs used by this EtherCAT slave.
- *  This slave is using two Mailboxes on two different memory areas.
- *
- *  Here we are setting up the way of communicating between ROS and the PIC32 using the EtherCAT protocol.
- *
- *  We communicate using Shared Memory areas.
- *
- *  The FMMUs are usefull to map the logical memory used by ROS to the Physical memory of the EtherCAT slave chip (ET1200 chip).
- *  So that the chip receiving the packet will know that the data at address 0x10000 is in reality to be written at physical address 0x1000 of the chip memory for example.
- *  It is the mapping between the EtherCAT bus address space and each slave's chip own memory address space.
- *
- *  The SyncManagers are usefull to give a safe way of accessing this Shared Memory, using a consumer / producer model. There are features like interrupts to tell the consumer
- *  that there is something to consume or to tell the producer that the Mailbox is empty and then ready to receive a new message.
- *
- *  - One Mailbox contains the commands, written by ROS, read by the PIC32
- *  - One Mailbox contains the status, written back by the PIC32, read by ROS
- *
- *  That's basically one Mailbox for upstream and one Mailbox for downstream.
- *
- * - The first Mailbox contains in fact two commands, one is the torque demand, the other is a CAN command used in CAN_DIRECT_MODE to communicate with the SimpleMotor for
- *   test purposes, or to reflash a new firmware in bootloading mode.
- *   This Mailbox is at logicial address 0x10000 and mapped via a FMMU to physical address 0x1000 (the first address of user memory)
- * - The second Mailbox contains in fact two status, they are the response of the two previously described commands. One is the status containing the joints data, sensor
- *   data, finger tips data and motor data. The other is the can command response in CAN_DIRECT_MODE. When doing a flashing in bootloading mode this is usually an acknowledgment
- *   from the bootloader. This Mailbox is at logical address 0x10038 and mapped via a FMMU to physical address 0x1038.
- *
- * This function sets the two private members command_size_ and status_size_ to be the size of each Mailbox.
- * It is important for these numbers to be accurate since they are used by the EthercatHardware class when manipulating the buffers.
- * If you need to have several commands like in this SR06 driver, put the sum of the size, same thing for the status.
- *
- */
 void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size, unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
 						 unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address, unsigned int ethercat_can_bridge_data_command_address, unsigned int ethercat_can_bridge_data_status_address)
 {
-    SR0X::construct(sh, start_address);
-
+    sh_ = sh;
     command_base_ = start_address;
     command_size_ = ethercat_command_data_size + ethercat_can_bridge_data_size;
 
@@ -300,17 +246,6 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
     sh->set_pd_config(pd);
 
     ROS_INFO("status_size_ : %d ; command_size_ : %d", status_size_, command_size_);
-}
-
-/**
- *
- */
-int SrEdc::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
-{
-
-  int retval = SR0X::initialize(hw, allow_unprogrammed);
-
-  return retval;
 }
 
 /** \brief Erase the PIC18F Flash memory
@@ -849,8 +784,8 @@ void SrEdc::find_address_range(bfd *fd, unsigned int *smallest_start_address, un
         if (section_addr >= 0x7fff)
           continue;
         section_size = (unsigned int) bfd_section_size (fd, s);
-        *smallest_start_address = min(section_addr, *smallest_start_address);
-        *biggest_end_address = max(*biggest_end_address, section_addr + section_size);
+        *smallest_start_address = std::min(section_addr, *smallest_start_address);
+        *biggest_end_address = std::max(*biggest_end_address, section_addr + section_size);
       }
     }
   }

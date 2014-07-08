@@ -35,7 +35,7 @@
 #include "sr_robot_lib/shadow_PSTs.hpp"
 #include "sr_robot_lib/biotac.hpp"
 #include "sr_robot_lib/UBI0.hpp"
-#include <pr2_mechanism_msgs/ListControllers.h>
+#include <controller_manager_msgs/ListControllers.h>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0200_edc_error_flag_names
@@ -124,10 +124,15 @@ namespace shadow_robot
   };
 
   template <class StatusType, class CommandType>
-  SrRobotLib<StatusType, CommandType>::SrRobotLib(pr2_hardware_interface::HardwareInterface *hw)
+  SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInterface *hw)
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false),
       tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
-      nh_tilde("~")
+      hw_(static_cast<ros_ethercat_model::RobotState*>(hw)),
+      nh_tilde("~"),
+
+      //advertise the service to nullify the demand sent to the motor
+      // this makes it possible to easily stop the controllers.
+      nullify_demand_server_(nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this))
   {
     //read the generic sensor polling frequency from the parameter server
     this->generic_sensor_update_rate_configs_vector = this->read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types);
@@ -142,10 +147,6 @@ namespace shadow_robot
 
     //initialize the calibration map
     this->calibration_map = this->read_joint_calibration();
-
-    //advertise the service to nullify the demand sent to the motor
-    // this makes it possible to easily stop the controllers.
-    nullify_demand_server_ = nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this);
 
     //initialises self tests (false as this is not a simulated hand\)
     self_tests_.reset( new SrSelfTest(false) );
@@ -245,9 +246,6 @@ namespace shadow_robot
     //calibrate the joint and update the position.
     calibrate_joint(joint_tmp, status_data);
 
-    //add the last position to the queue
-    actuator_state->timestamp_ = timestamp;
-
     //filter the position and velocity
     std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(
         actuator_state->position_unfiltered_, timestamp);
@@ -262,11 +260,11 @@ namespace shadow_robot
   {
     sr_actuator::SrActuatorState* actuator_state;
 
-    if (sr_actuator::SrActuator* motor_actuator = dynamic_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator))
+    if (sr_actuator::SrActuator* motor_actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator))
     {
       actuator_state = &motor_actuator->state_;
     }
-    else if (sr_actuator::SrMuscleActuator* muscle_actuator = dynamic_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator))
+    else if (sr_actuator::SrMuscleActuator* muscle_actuator = static_cast<sr_actuator::SrMuscleActuator*>(joint_tmp->actuator_wrapper->actuator))
     {
       actuator_state = &muscle_actuator->state_;
     }

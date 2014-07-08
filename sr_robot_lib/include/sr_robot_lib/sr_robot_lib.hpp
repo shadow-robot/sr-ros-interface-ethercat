@@ -41,6 +41,8 @@
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
 
+#include <ros_ethercat_model/robot_state.hpp>
+
 #include <sr_robot_msgs/NullifyDemand.h>
 #include <sr_robot_msgs/SetDebugData.h>
 
@@ -90,7 +92,7 @@ namespace shadow_robot
   class SrRobotLib
   {
   public:
-    SrRobotLib(pr2_hardware_interface::HardwareInterface *hw);
+    SrRobotLib(hardware_interface::HardwareInterface *hw);
     virtual ~SrRobotLib() {}
 
     /**
@@ -178,6 +180,8 @@ namespace shadow_robot
     ///Current update state of the sensors (initialization, operation..)
     operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
+    ros_ethercat_model::RobotState *hw_;
+
   protected:
     /// The vector containing all the robot joints.
     boost::ptr_vector<shadow_joints::Joint> joints_vector;
@@ -188,11 +192,9 @@ namespace shadow_robot
      * @param joint_names A vector containing all the joint names.
      * @param actuator_ids A vector containing the corresponding actuator ids.
      * @param joint_to_sensors A vector mapping the joint to the sensor index we read from the palm.
-     * @param actuators A vector containing the actuators for the different joints.
      */
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
-                            std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrGenericActuator*> actuators) = 0;
+                            std::vector<shadow_joints::JointToSensor> joint_to_sensors) = 0;
 
     /**
      * Compute the calibrated position for the given joint. This method is called

@@ -27,10 +27,6 @@
 
 #include <sr_edc_ethercat_drivers/sr06.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
 #include <realtime_tools/realtime_publisher.h>
 
 #include <math.h>
@@ -79,8 +75,7 @@ PLUGINLIB_EXPORT_CLASS(SR06, EthercatDevice);
  *  and create the Bootloading service.
  */
 SR06::SR06()
-  : SrEdc(),
-    zero_buffer_read(0),
+  : zero_buffer_read(0),
     cycle_count(0)
 {
 /*
@@ -91,16 +86,6 @@ SR06::SR06()
   ROS_INFO(          "nb_sensors_const = %d", nb_sensors_const           );
   ROS_INFO("nb_publish_by_unpack_const = %d", nb_publish_by_unpack_const );
 */
-}
-
-/** \brief Destructor of the SR06 driver
- *
- *  This is the Destructor of the driver. it frees the FMMUs and SyncManagers which have been allocated during the construct.
- */
-SR06::~SR06()
-{
-  delete sh_->get_fmmu_config();
-  delete sh_->get_pd_config();
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs
@@ -147,10 +132,10 @@ void SR06::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 /**
  *
  */
-int SR06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int SR06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
 
-  int retval = SrEdc::initialize(hw, allow_unprogrammed);
+  int retval = SR0X::initialize(hw, allow_unprogrammed);
 
   if(retval != 0)
     return retval;
@@ -217,7 +202,7 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
  *
  *  This is one of the most important functions of this driver.
  *  This function is called each millisecond (1 kHz freq) by the EthercatHardware::update() function
- *  in the controlLoop() of the pr2_etherCAT node.
+ *  in the controlLoop() of the ros_etherCAT node.
  *
  *  This function is called with a buffer as a parameter, the buffer provided is where we write the commands to send via EtherCAT.
  *

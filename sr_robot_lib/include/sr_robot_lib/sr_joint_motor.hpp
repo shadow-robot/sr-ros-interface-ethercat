@@ -60,11 +60,9 @@ namespace shadow_joints
   public:
     SrActuatorWrapper()
         : actuator(NULL), actuator_ok(false), bad_data(false) {}
-    
-    ~SrActuatorWrapper() {}
 
     //actuator
-    sr_actuator::SrGenericActuator* actuator;
+    ros_ethercat_model::Actuator* actuator;
 
     /**
      * this boolean is set to true as long as we receive the
@@ -83,8 +81,6 @@ namespace shadow_joints
   public:
     MotorWrapper()
         : SrActuatorWrapper(), motor_id(0), msg_motor_id(0) {}
-
-    ~MotorWrapper() {}
 
     //the position of the motor in the motor array
     // coming from the hardware
@@ -126,8 +122,6 @@ namespace shadow_joints
         bad_data(false)
     {}
 
-    ~MuscleDriver() {}
-
     int muscle_driver_id;
     unsigned int pic_firmware_svn_revision_;
     unsigned int server_firmware_svn_revision_;
@@ -163,8 +157,6 @@ namespace shadow_joints
       muscle_driver_id[0] = 0;
       muscle_driver_id[1] = 0;
     }
-
-    ~MuscleWrapper() {}
 
     /// id of the muscle drivers that control the muscles for this joint. These muscles can be driven by different muscle drivers.
     int muscle_driver_id[2];

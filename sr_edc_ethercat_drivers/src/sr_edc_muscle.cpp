@@ -26,10 +26,6 @@
 
 #include <sr_edc_ethercat_drivers/sr_edc_muscle.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
 #include <realtime_tools/realtime_publisher.h>
 
 #include <math.h>
@@ -78,8 +74,7 @@ PLUGINLIB_EXPORT_CLASS(SrEdcMuscle, EthercatDevice);
  *  and create the Bootloading service.
  */
 SrEdcMuscle::SrEdcMuscle()
-  : SrEdc(),
-    zero_buffer_read(0),
+  : zero_buffer_read(0),
     cycle_count(0)
 {
 /*
@@ -90,16 +85,6 @@ SrEdcMuscle::SrEdcMuscle()
   ROS_INFO(          "nb_sensors_const = %d", nb_sensors_const           );
   ROS_INFO("nb_publish_by_unpack_const = %d", nb_publish_by_unpack_const );
 */
-}
-
-/** \brief Destructor of the SrEdcMuscle driver
- *
- *  This is the Destructor of the driver. it frees the FMMUs and SyncManagers which have been allocated during the construct.
- */
-SrEdcMuscle::~SrEdcMuscle()
-{
-  delete sh_->get_fmmu_config();
-  delete sh_->get_pd_config();
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs
@@ -149,10 +134,9 @@ void SrEdcMuscle::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 /**
  *
  */
-int SrEdcMuscle::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int SrEdcMuscle::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
-
-  int retval = SrEdc::initialize(hw, allow_unprogrammed);
+  int retval = SR0X::initialize(hw, allow_unprogrammed);
 
   if(retval != 0)
     return retval;
@@ -219,7 +203,7 @@ void SrEdcMuscle::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &ve
  *
  *  This is one of the most important functions of this driver.
  *  This function is called each millisecond (1 kHz freq) by the EthercatHardware::update() function
- *  in the controlLoop() of the pr2_etherCAT node.
+ *  in the controlLoop() of the ros_etherCAT node.
  *
  *  This function is called with a buffer as a parameter, the buffer provided is where we write the commands to send via EtherCAT.
  *

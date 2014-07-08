@@ -42,8 +42,8 @@ namespace shadow_robot
   class SrMuscleHandLib : public SrMuscleRobotLib<StatusType, CommandType>
   {
   public:
-    SrMuscleHandLib(pr2_hardware_interface::HardwareInterface *hw);
-    ~SrMuscleHandLib();
+    SrMuscleHandLib(hardware_interface::HardwareInterface *hw);
+    virtual ~SrMuscleHandLib() {}
 
 
     /**
@@ -80,11 +80,9 @@ namespace shadow_robot
      * @param joint_names A vector containing all the joint names.
      * @param actuator_ids A vector containing the corresponding actuator ids.
      * @param joint_to_sensors A vector mapping the joint to the sensor index we read from the palm.
-     * @param actuators A vector containing the actuators for the different joints.
      */
     virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
-                            std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrGenericActuator*> actuators);
+                            std::vector<shadow_joints::JointToSensor> joint_to_sensors);
 
     /**
      * Initializes the hand library with the needed values.
@@ -92,11 +90,9 @@ namespace shadow_robot
      * @param joint_names A vector containing all the joint names.
      * @param actuator_ids A vector containing the corresponding actuator ids.
      * @param joint_to_sensors A vector mapping the joint to the sensor index we read from the palm.
-     * @param actuators A vector containing the actuators for the different joints.
      */
     void initialize(std::vector<std::string> joint_names, std::vector<shadow_joints::JointToMuscle> actuator_ids,
-                            std::vector<shadow_joints::JointToSensor> joint_to_sensors,
-                            std::vector<sr_actuator::SrGenericActuator*> actuators);
+                            std::vector<shadow_joints::JointToSensor> joint_to_sensors);
 
   private:
 
@@ -115,9 +111,10 @@ namespace shadow_robot
     static const char* human_readable_muscle_data_types[];
     static const int32u muscle_data_types[];
 
+#ifdef DEBUG_PUBLISHER
     /// a service server for reconfiguring the debug data we want to publish
     ros::ServiceServer debug_service;
-
+#endif
   };
 
 }

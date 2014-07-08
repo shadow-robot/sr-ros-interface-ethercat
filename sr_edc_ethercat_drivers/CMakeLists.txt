@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(sr_edc_ethercat_drivers)
 # Load catkin and all dependencies required for this package
 # TODO: remove all from COMPONENTS that are not catkin packages.
-find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_robot_msgs sr_external_dependencies message_generation)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_robot_msgs sr_external_dependencies message_generation)
 find_package(Boost REQUIRED COMPONENTS )
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
@@ -30,7 +30,7 @@ generate_messages(
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
     DEPENDS binutils
-    CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ethercat_hardware sr_external_dependencies message_runtime
+    CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_external_dependencies message_runtime
     INCLUDE_DIRS include
     LIBRARIES sr_edc_ethercat_drivers
 )
