@@ -260,7 +260,7 @@ namespace shadow_robot
   {
     sr_actuator::SrActuatorState* actuator_state;
 
-    if (sr_actuator::SrActuator* motor_actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator))
+    if (sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*>(joint_tmp->actuator_wrapper->actuator))
     {
       actuator_state = &motor_actuator->state_;
     }
@@ -270,7 +270,7 @@ namespace shadow_robot
     }
     else
     {
-      ROS_FATAL("Unknown actuator type. Known types: sr_actuator::SrActuator, sr_actuator::SrMuscleActuator");
+      ROS_FATAL("Unknown actuator type. Known types: sr_actuator::SrMotorActuator, sr_actuator::SrMuscleActuator");
       exit(EXIT_FAILURE);
     }
 

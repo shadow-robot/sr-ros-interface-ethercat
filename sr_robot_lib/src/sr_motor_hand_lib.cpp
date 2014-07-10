@@ -113,7 +113,7 @@ namespace shadow_robot
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
       joint->actuator_wrapper    = motor_wrapper;
       motor_wrapper->motor_id = actuator_ids[index];
-      motor_wrapper->actuator = static_cast<sr_actuator::SrActuator*>(this->hw_->getActuator(joint->joint_name));
+      motor_wrapper->actuator = static_cast<sr_actuator::SrMotorActuator*>(this->hw_->getActuator(joint->joint_name));
 
       std::stringstream ss;
       ss << "change_force_PID_" << joint_names[index];

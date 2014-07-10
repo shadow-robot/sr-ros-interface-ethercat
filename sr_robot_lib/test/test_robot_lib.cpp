@@ -50,13 +50,13 @@ class HandLibTest
 public:
   ros_ethercat_model::RobotState *hw;
   boost::shared_ptr<HandLibTestProtected> sr_hand_lib;
-  sr_actuator::SrActuator* actuator;
+  sr_actuator::SrMotorActuator* actuator;
 
   HandLibTest()
   {
     hw = new ros_ethercat_model::RobotState(NULL);
     std::string nam("FFJ4");
-    hw->actuators_.insert(nam, new sr_actuator::SrActuator);
+    hw->actuators_.insert(nam, new sr_actuator::SrMotorActuator);
     hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface*>(hw);
     sr_hand_lib= boost::shared_ptr<HandLibTestProtected>( new HandLibTestProtected(ehw) );
   }
@@ -70,7 +70,7 @@ public:
   {
     sr_actuator::SrActuatorState state;
 
-    actuator = static_cast<sr_actuator::SrActuator*>(hw->getActuator(name));
+    actuator = static_cast<sr_actuator::SrMotorActuator*>(hw->getActuator(name));
     state = (actuator->state_);
 
     EXPECT_EQ(state.device_id_ , motor_id);
@@ -143,7 +143,7 @@ TEST(SrRobotLib, UpdateMotor)
       //we updated the even motors
       if(motor_wrapper->motor_id % 2 == 0)
       {
-        const sr_actuator::SrActuator* sr_actuator = static_cast<sr_actuator::SrActuator*>(motor_wrapper->actuator);
+        const sr_actuator::SrMotorActuator* sr_actuator = static_cast<sr_actuator::SrMotorActuator*>(motor_wrapper->actuator);
 
         ROS_ERROR_STREAM("last measured effort: " << sr_actuator->state_.last_measured_effort_ << " actuator: " << motor_wrapper->actuator);
 

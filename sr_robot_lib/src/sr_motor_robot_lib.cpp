@@ -116,7 +116,7 @@ namespace shadow_robot
 
       this->process_position_sensor_data(joint_tmp, status_data, timestamp);
 
-      sr_actuator::SrActuator* motor_actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
+      sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*>(joint_tmp->actuator_wrapper->actuator);
       //filter the effort
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
           motor_actuator->state_.force_unfiltered_, timestamp);
@@ -415,7 +415,7 @@ namespace shadow_robot
 
       if (joint->has_actuator)
       {
-        const sr_actuator::SrActuator* sr_actuator = static_cast<sr_actuator::SrActuator*>(actuator_wrapper->actuator);
+        const sr_actuator::SrMotorActuator* sr_actuator = static_cast<sr_actuator::SrMotorActuator*>(actuator_wrapper->actuator);
         const sr_actuator::SrMotorActuatorState* state = &(sr_actuator->state_);
 
         if (actuator_wrapper->actuator_ok)
@@ -541,7 +541,7 @@ namespace shadow_robot
 
     if (joint_tmp->actuator_wrapper->actuator_ok && !(joint_tmp->actuator_wrapper->bad_data))
     {
-      sr_actuator::SrActuator* actuator = static_cast<sr_actuator::SrActuator*>(joint_tmp->actuator_wrapper->actuator);
+      sr_actuator::SrMotorActuator* actuator = static_cast<sr_actuator::SrMotorActuator*>(joint_tmp->actuator_wrapper->actuator);
       shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
 
 #ifdef DEBUG_PUBLISHER
