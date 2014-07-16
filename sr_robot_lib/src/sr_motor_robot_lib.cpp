@@ -104,6 +104,9 @@ namespace shadow_robot
     boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = this->joints_vector.begin();
     for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
     {
+      if (!joint_tmp->has_actuator)
+        continue;
+
       sr_actuator::SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
 
       boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
@@ -122,10 +125,6 @@ namespace shadow_robot
       std::pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
           motor_actuator->state_.force_unfiltered_, timestamp);
       motor_actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
-
-      //if no motor is associated to this joint, then continue
-      if ((motor_index_full == -1))
-        continue;
 
       //get the remaining information.
       bool read_motor_info = false;
@@ -222,53 +221,53 @@ namespace shadow_robot
       boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = this->joints_vector.begin();
       for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
       {
+        if (!joint_tmp->has_actuator)
+          continue;
+
         boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
 
-        if (joint_tmp->has_actuator)
+        if( !this->nullify_demand_ )
         {
-          if( !this->nullify_demand_ )
-          {
-            //We send the computed demand
-            command->motor_data[motor_wrapper->motor_id] = motor_wrapper->actuator->command_.effort_;
-          }
-          else
-          {
-            //We want to send a demand of 0
-            command->motor_data[motor_wrapper->motor_id] = 0;
-          }
+          //We send the computed demand
+          command->motor_data[motor_wrapper->motor_id] = motor_wrapper->actuator->command_.effort_;
+        }
+        else
+        {
+          //We want to send a demand of 0
+          command->motor_data[motor_wrapper->motor_id] = 0;
+        }
 
 #ifdef DEBUG_PUBLISHER
-          //publish the debug values for the given motors.
-          // NB: debug_motor_indexes_and_data is smaller
-          //     than debug_publishers.
-          int publisher_index = 0;
-          boost::shared_ptr<std::pair<int,int> > debug_pair;
-          if( this->debug_mutex.try_lock() )
+        //publish the debug values for the given motors.
+        // NB: debug_motor_indexes_and_data is smaller
+        //     than debug_publishers.
+        int publisher_index = 0;
+        boost::shared_ptr<std::pair<int,int> > debug_pair;
+        if( this->debug_mutex.try_lock() )
+        {
+          BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
           {
-            BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
+            if( debug_pair != NULL )
             {
-              if( debug_pair != NULL )
+              shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
+              //check if we want to publish some data for the current motor
+              if( debug_pair->first == actuator_wrapper->motor_id )
               {
-                shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
-                //check if we want to publish some data for the current motor
-                if( debug_pair->first == actuator_wrapper->motor_id )
+                //check if it's the correct data
+                if( debug_pair->second == -1 )
                 {
-                  //check if it's the correct data
-                  if( debug_pair->second == -1 )
-                  {
-                    this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
-                    this->debug_publishers[publisher_index].publish(this->msg_debug);
-                  }
+                  this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
+                  this->debug_publishers[publisher_index].publish(this->msg_debug);
                 }
               }
-              publisher_index ++;
             }
+            publisher_index ++;
+          }
 
-            this->debug_mutex.unlock();
-          } //end try_lock
+          this->debug_mutex.unlock();
+        } //end try_lock
 #endif
-          joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
-        } //end if has_actuator
+        joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
       } // end for each joint
     } //endif reconfig_queue.empty()
     else
@@ -320,6 +319,9 @@ namespace shadow_robot
           boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = this->joints_vector.begin();
           for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
           {
+            if (!joint_tmp->has_actuator)
+              continue;
+
             boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
             sr_actuator::SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
 
@@ -412,10 +414,10 @@ namespace shadow_robot
       name << "SRDMotor " << joint->joint_name;
       d.name = name.str();
 
-      boost::shared_ptr<shadow_joints::MotorWrapper> actuator_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper);
-
       if (joint->has_actuator)
       {
+        boost::shared_ptr<shadow_joints::MotorWrapper> actuator_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper);
+
         const sr_actuator::SrMotorActuator* sr_actuator = static_cast<sr_actuator::SrMotorActuator*>(actuator_wrapper->actuator);
         const sr_actuator::SrMotorActuatorState* state = &(sr_actuator->state_);
 
@@ -528,6 +530,9 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data)
   {
+    if (!joint_tmp->has_actuator)
+      return;
+
     //check the masks to see if the CAN messages arrived to the motors
     //the flag should be set to 1 for each motor
     joint_tmp->actuator_wrapper->actuator_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_motor_data_arrived,
@@ -912,15 +917,16 @@ namespace shadow_robot
                                                   sr_robot_msgs::ChangeControlType::Response& response )
   {
     //querying which we're control type we're using currently.
-    if( request.control_type.control_type == sr_robot_msgs::ControlType::QUERY )
+    if (request.control_type.control_type == sr_robot_msgs::ControlType::QUERY)
     {
+      ROS_INFO_STREAM("Already using " << request.control_type);
       response.result = control_type_;
       return true;
     }
 
     //We're not querying the control type
-    if( (request.control_type.control_type != sr_robot_msgs::ControlType::PWM) &&
-        (request.control_type.control_type != sr_robot_msgs::ControlType::FORCE) )
+    if ((request.control_type.control_type != sr_robot_msgs::ControlType::PWM) &&
+        (request.control_type.control_type != sr_robot_msgs::ControlType::FORCE))
     {
       std::string ctrl_type_text = "";
       if(control_type_.control_type == sr_robot_msgs::ControlType::FORCE)
@@ -935,7 +941,7 @@ namespace shadow_robot
       return false;
     }
 
-    if(control_type_.control_type != request.control_type.control_type)
+    if (control_type_.control_type != request.control_type.control_type)
     {
       //Mutual exclusion with the build_command() function. We have to wait until the current motor command has been built.
       boost::mutex::scoped_lock l(*lock_command_sending_);
@@ -961,19 +967,12 @@ namespace shadow_robot
   {
     bool success = true;
     std::string env_variable;
-    std::string param_value;
     ros::NodeHandle nh;
 
-    if( control_type == sr_robot_msgs::ControlType::PWM)
-    {
+    if (control_type == sr_robot_msgs::ControlType::PWM)
       env_variable = "PWM_CONTROL=1";
-      param_value = "PWM";
-    }
     else
-    {
       env_variable = "PWM_CONTROL=0";
-      param_value = "FORCE";
-    }
 
     // Read the namespace of the node.
     // The ns will be passed as an argument to the sr_edc_default_controllers.launch
@@ -981,7 +980,7 @@ namespace shadow_robot
     std::string ns = ros::this_node::getNamespace();
     std::string arguments = "";
 
-    if(ns.compare("/") == 0)
+    if (ns.compare("/") == 0)
     {
       ROS_DEBUG("Using base namespace: %s", ns.c_str());
     }
@@ -1007,19 +1006,19 @@ namespace shadow_robot
 
     int result = system((env_variable + " roslaunch sr_ethercat_hand_config sr_edc_default_controllers.launch" + arguments).c_str());
 
-    if(result == 0)
+    if (result == 0)
     {
       ROS_WARN("New parameters loaded successfully on Parameter Server");
-
-      this->nh_tilde.setParam("default_control_mode", param_value);
 
       ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
       controller_manager_msgs::ListControllers controllers_list;
 
       if (list_ctrl_client.call(controllers_list))
       {
-        for(unsigned int i=0; i < controllers_list.response.controller.size(); ++i)
+        for (unsigned int i=0; i < controllers_list.response.controller.size(); ++i)
         {
+          if (controllers_list.response.controller[i].name.compare("joint_state_controller") == 0)
+            continue;
           ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controller[i].name + "/reset_gains");
           std_srvs::Empty empty_message;
           if (!reset_gains_client.call(empty_message))

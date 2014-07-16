@@ -143,6 +143,9 @@ namespace shadow_robot
     boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = this->joints_vector.begin();
     for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
     {
+      if (!joint_tmp->has_actuator)
+        continue;
+
       sr_actuator::SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
 
       boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
@@ -191,16 +194,16 @@ namespace shadow_robot
       boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = this->joints_vector.begin();
       for (; joint_tmp != this->joints_vector.end(); ++joint_tmp)
       {
-        boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
-        sr_actuator::SrMuscleActuator* muscle_actuator = static_cast<sr_actuator::SrMuscleActuator*>(muscle_wrapper->actuator);
-
-        unsigned int muscle_driver_id_0 = muscle_wrapper->muscle_driver_id[0];
-        unsigned int muscle_driver_id_1 = muscle_wrapper->muscle_driver_id[1];
-        unsigned int muscle_id_0 = muscle_wrapper->muscle_id[0];
-        unsigned int muscle_id_1 = muscle_wrapper->muscle_id[1];
-
         if (joint_tmp->has_actuator)
         {
+          boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint_tmp->actuator_wrapper);
+          sr_actuator::SrMuscleActuator* muscle_actuator = static_cast<sr_actuator::SrMuscleActuator*>(muscle_wrapper->actuator);
+
+          unsigned int muscle_driver_id_0 = muscle_wrapper->muscle_driver_id[0];
+          unsigned int muscle_driver_id_1 = muscle_wrapper->muscle_driver_id[1];
+          unsigned int muscle_id_0 = muscle_wrapper->muscle_id[0];
+          unsigned int muscle_id_1 = muscle_wrapper->muscle_id[1];
+
           if( !this->nullify_demand_ )
           {
             set_valve_demand(&(command->muscle_data[(muscle_driver_id_0 * 10 + muscle_id_0) / 2]), muscle_actuator->command_.valve_[0], ((uint8_t)muscle_id_0) & 0x01);
@@ -332,10 +335,10 @@ namespace shadow_robot
       name << "SRDMotor " << joint->joint_name;
       d.name = name.str();
 
-      boost::shared_ptr<shadow_joints::MuscleWrapper> actuator_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint->actuator_wrapper);
-
       if (joint->has_actuator)
       {
+        boost::shared_ptr<shadow_joints::MuscleWrapper> actuator_wrapper = boost::static_pointer_cast<shadow_joints::MuscleWrapper>(joint->actuator_wrapper);
+
         const sr_actuator::SrMuscleActuator* sr_muscle_actuator = static_cast<sr_actuator::SrMuscleActuator*>(actuator_wrapper->actuator);
         const sr_actuator::SrMuscleActuatorState* state = &(sr_muscle_actuator->state_);
 
@@ -445,6 +448,9 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::read_additional_muscle_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data)
   {
+    if (!joint_tmp->has_actuator)
+      return;
+
     int packet_offset_muscle_0 = 0;
     int packet_offset_muscle_1 = 0;
 

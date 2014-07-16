@@ -270,8 +270,7 @@ namespace shadow_robot
     }
     else
     {
-      ROS_FATAL_STREAM("Unknown actuator type for actuator " << joint_tmp->actuator_wrapper->actuator->name_ << "."
-                       " Known types: sr_actuator::SrMotorActuator, sr_actuator::SrMuscleActuator");
+      ROS_FATAL("Unknown actuator type. Known types: sr_actuator::SrMotorActuator, sr_actuator::SrMuscleActuator");
       exit(EXIT_FAILURE);
     }
 

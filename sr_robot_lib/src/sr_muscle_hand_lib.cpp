@@ -128,18 +128,19 @@ namespace shadow_robot
       joint->joint_name = joint_names[index];
       joint->joint_to_sensor = joint_to_sensors[index];
 
-      if(actuator_ids[index].muscle_driver_id[0] == -1) //no muscles associated to this joint. We only check the driver 0 assuming a joint with -1 will have -1 in the driver 1 as well
-        joint->has_actuator = false;
-      else
+      if(actuator_ids[index].muscle_driver_id[0] != -1)
+      {
         joint->has_actuator = true;
-
-      boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper ( new shadow_joints::MuscleWrapper() );
-      joint->actuator_wrapper    = muscle_wrapper;
-      muscle_wrapper->muscle_driver_id[0] = actuator_ids[index].muscle_driver_id[0];
-      muscle_wrapper->muscle_driver_id[1] = actuator_ids[index].muscle_driver_id[1];
-      muscle_wrapper->muscle_id[0] = actuator_ids[index].muscle_id[0];
-      muscle_wrapper->muscle_id[1] = actuator_ids[index].muscle_id[1];
-      muscle_wrapper->actuator = static_cast<sr_actuator::SrMuscleActuator*>(this->hw_->getActuator(joint->joint_name));
+        boost::shared_ptr<shadow_joints::MuscleWrapper> muscle_wrapper ( new shadow_joints::MuscleWrapper() );
+        joint->actuator_wrapper    = muscle_wrapper;
+        muscle_wrapper->muscle_driver_id[0] = actuator_ids[index].muscle_driver_id[0];
+        muscle_wrapper->muscle_driver_id[1] = actuator_ids[index].muscle_driver_id[1];
+        muscle_wrapper->muscle_id[0] = actuator_ids[index].muscle_id[0];
+        muscle_wrapper->muscle_id[1] = actuator_ids[index].muscle_id[1];
+        muscle_wrapper->actuator = static_cast<sr_actuator::SrMuscleActuator*>(this->hw_->getActuator(joint->joint_name));
+      }
+      else  //no muscles associated to this joint. We only check the driver 0 assuming a joint with -1 will have -1 in the driver 1 as well
+        joint->has_actuator = false;
     } //end for joints.
   }
 

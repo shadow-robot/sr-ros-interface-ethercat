@@ -59,6 +59,11 @@
   </group>
 
   <!-- ros_ethercat -->
+  <group if="$(optenv ROS_ETHERCAT_LOOP_DEBUG 0)">
+       <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="gdb -ex run -args">
+        <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
+      </node>
+  </group>
   <group unless="$(optenv ROS_ETHERCAT_LOOP_DEBUG 0)">
       <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="nice -n -20">
         <param name="image_path" value="$(find sr_movements)/movements/test.png"/>

@@ -80,7 +80,9 @@ namespace shadow_joints
   {
   public:
     MotorWrapper()
-        : SrActuatorWrapper(), motor_id(0), msg_motor_id(0) {}
+      : motor_id(0),
+        msg_motor_id(0)
+      {}
 
     //the position of the motor in the motor array
     // coming from the hardware
@@ -150,13 +152,9 @@ namespace shadow_joints
   {
   public:
     MuscleWrapper()
-        : SrActuatorWrapper()
-    {
-      muscle_id[0] = 0;
-      muscle_id[1] = 0;
-      muscle_driver_id[0] = 0;
-      muscle_driver_id[1] = 0;
-    }
+      : muscle_id(),
+        muscle_driver_id()
+    {}
 
     /// id of the muscle drivers that control the muscles for this joint. These muscles can be driven by different muscle drivers.
     int muscle_driver_id[2];

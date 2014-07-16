@@ -82,6 +82,7 @@ namespace shadow_robot
       joint_names_tmp.push_back(std::string(joint_names[i]));
       shadow_joints::JointToSensor tmp_jts = joint_to_sensor_vect[i];
       joints_to_sensors.push_back(tmp_jts);
+      ROS_DEBUG("SrMotorHandLib  i = %d, joint_name = %s, motor_id = %d", i, joint_names[i], motor_ids[i]);
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
     //Initialize the motor data checker
@@ -105,29 +106,29 @@ namespace shadow_robot
       joint->joint_name = joint_names[index];
       joint->joint_to_sensor = joint_to_sensors[index];
 
-      if(actuator_ids[index] == -1) //no motor associated to this joint
-        joint->has_actuator = false;
-      else
+      if (actuator_ids[index] != -1)
+      {
         joint->has_actuator = true;
+        boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper(new shadow_joints::MotorWrapper());
+        joint->actuator_wrapper = motor_wrapper;
+        motor_wrapper->motor_id = actuator_ids[index];
+        motor_wrapper->actuator = static_cast<sr_actuator::SrMotorActuator*> (this->hw_->getActuator(joint->joint_name));
 
-      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper ( new shadow_joints::MotorWrapper() );
-      joint->actuator_wrapper    = motor_wrapper;
-      motor_wrapper->motor_id = actuator_ids[index];
-      motor_wrapper->actuator = static_cast<sr_actuator::SrMotorActuator*>(this->hw_->getActuator(joint->joint_name));
+        std::stringstream ss;
+        ss << "change_force_PID_" << joint_names[index];
+        //initialize the force pid service
+        //NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that we are using an explicit template function inside this template class
+        motor_wrapper->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>(ss.str().c_str(),
+                                                                                                                                                                       boost::bind(&SrMotorHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id));
 
-      std::stringstream ss;
-      ss << "change_force_PID_" << joint_names[index];
-      //initialize the force pid service
-      //NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that we are using an explicit template function inside this template class
-      motor_wrapper->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>( ss.str().c_str(),
-                                                                                                                                                            boost::bind( &SrMotorHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id) );
-
-      ss.str("");
-      ss << "reset_motor_" << joint_names[index];
-      //initialize the reset motor service
-      motor_wrapper->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>( ss.str().c_str(),
-                                                                                                                                boost::bind( &SrMotorHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int,std::string>(motor_wrapper->motor_id, joint->joint_name) ) );
-
+        ss.str("");
+        ss << "reset_motor_" << joint_names[index];
+        //initialize the reset motor service
+        motor_wrapper->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(ss.str().c_str(),
+                                                                                                                                           boost::bind(&SrMotorHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int, std::string>(motor_wrapper->motor_id, joint->joint_name)));
+      }
+      else  //no motor associated to this joint
+        joint->has_actuator = false;
     } //end for joints.
   }
 
@@ -349,14 +350,12 @@ namespace shadow_robot
   template <class StatusType, class CommandType>
   std::string SrMotorHandLib<StatusType, CommandType>::find_joint_name(int motor_index)
   {
-    for( boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
-        joint != this->joints_vector.end(); ++joint )
+    for (boost::ptr_vector<shadow_joints::Joint>::iterator joint = this->joints_vector.begin();
+         joint != this->joints_vector.end();
+         ++joint)
     {
-      if( !boost::is_null(joint) ) // check for validity
-      {
-        if(boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper)->motor_id == motor_index)
-          return joint->joint_name;
-      }
+      if (joint->has_actuator && boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper)->motor_id == motor_index)
+        return joint->joint_name;
     }
     ROS_ERROR("Could not find joint name for motor index: %d", motor_index);
     return "";
