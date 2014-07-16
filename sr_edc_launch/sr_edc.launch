@@ -11,12 +11,12 @@
   <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
   <arg name="calibration_controllers" default="1" />
 
-  <!-- Defines the sub-directory used in 
+  <!-- Defines the sub-directory used in
        $(find sr_ethercat_hand_config)/mappings/
-       and $(find sr_ethercat_hand_config)/calibrations/ 
+       and $(find sr_ethercat_hand_config)/calibrations/
        and $(find sr_ethercat_hand_config)/controls/host/
        to know where to find the parameters for a certain hand.
-       In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories  
+       In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
        If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
   <arg name="config_dir" default="" />
   <!-- We set this argument as a parameter in the parameter server (it is relative so it will be pushed to a namespace if we use a ns), to be able to access it from serveral places:
@@ -59,11 +59,11 @@
   </group>
 
   <!-- ros_ethercat -->
-  <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen"  launch-prefix="nice -n -20"> <!-- launch-prefix="gdb -ex run -args" launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
-    <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
-    <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
-    <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
-  </node>
+  <group unless="$(optenv ROS_ETHERCAT_LOOP_DEBUG 0)">
+      <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="nice -n -20">
+        <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
+      </node>
+  </group>
 
   <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
 
@@ -82,7 +82,7 @@
   <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
     <rosparam command="load"  file="$(find sr_ethercat_hand_config)/diagnostic_analyzer.yaml"/>
   </node>
-  
+
   <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch"/>
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
@@ -94,4 +94,3 @@
   </node>
 
 </launch>
-

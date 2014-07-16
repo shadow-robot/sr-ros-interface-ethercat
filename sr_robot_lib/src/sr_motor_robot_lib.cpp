@@ -30,6 +30,7 @@
 #include <boost/foreach.hpp>
 
 #include <sys/time.h>
+#include <cstdlib>
 
 #include <ros/ros.h>
 
@@ -54,17 +55,17 @@ namespace shadow_robot
 
     //reading the parameters to check for a specified default control type
     // using FORCE control if no parameters are set
-    control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
-    std::string default_control_mode;
-    this->nh_tilde.template param<std::string>("default_control_mode", default_control_mode, "FORCE");
-    if( default_control_mode.compare("PWM") == 0 )
+
+    const char* environ_control_mode = std::getenv("PWM_CONTROL");
+    if (environ_control_mode == NULL || strcmp(environ_control_mode, "") == 0 || strcmp(environ_control_mode, "0") == 0)
     {
-      ROS_INFO("Using PWM control.");
-      control_type_.control_type = sr_robot_msgs::ControlType::PWM;
+      control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
+      ROS_INFO("Using TORQUE control.");
     }
     else
     {
-      ROS_INFO("Using TORQUE control.");
+      control_type_.control_type = sr_robot_msgs::ControlType::PWM;
+      ROS_INFO("Using PWM control.");
     }
 
 #ifdef DEBUG_PUBLISHER
@@ -558,7 +559,7 @@ namespace shadow_robot
           if( debug_pair != NULL )
           {
             shadow_joints::MotorWrapper* actuator_wrapper = static_cast<shadow_joints::MotorWrapper*>(joint_tmp->actuator_wrapper.get());
-            
+
             //check if we want to publish some data for the current motor
             if( debug_pair->first == actuator_wrapper->motor_id )
             {
