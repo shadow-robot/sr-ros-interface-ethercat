@@ -49,23 +49,22 @@ namespace shadow_robot
       config_index(MOTOR_CONFIG_FIRST_VALUE),
       control_type_changed_flag_(false),
       change_control_type_(this->nh_tilde.advertiseService( "change_control_type", &SrMotorRobotLib::change_control_type_callback_, this)),
-      motor_system_control_server_(this->nh_tilde.advertiseService( "change_motor_system_controls", &SrMotorRobotLib::motor_system_controls_callback_, this))
+      motor_system_control_server_(this->nh_tilde.advertiseService( "change_motor_system_controls", &SrMotorRobotLib::motor_system_controls_callback_, this)),
+      lock_command_sending_(new boost::mutex())
   {
-    lock_command_sending_ = boost::shared_ptr<boost::mutex>(new boost::mutex());
-
     //reading the parameters to check for a specified default control type
     // using FORCE control if no parameters are set
-
-    const char* environ_control_mode = std::getenv("PWM_CONTROL");
-    if (environ_control_mode == NULL || strcmp(environ_control_mode, "") == 0 || strcmp(environ_control_mode, "0") == 0)
-    {
-      control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
-      ROS_INFO("Using TORQUE control.");
-    }
-    else
+    std::string default_control_mode;
+    this->nh_tilde.template param<std::string>("default_control_mode", default_control_mode, "FORCE");
+    if( default_control_mode.compare("PWM") == 0 )
     {
       control_type_.control_type = sr_robot_msgs::ControlType::PWM;
       ROS_INFO("Using PWM control.");
+    }
+    else
+    {
+      control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
+      ROS_INFO("Using TORQUE control.");
     }
 
 #ifdef DEBUG_PUBLISHER
@@ -919,7 +918,6 @@ namespace shadow_robot
     //querying which we're control type we're using currently.
     if (request.control_type.control_type == sr_robot_msgs::ControlType::QUERY)
     {
-      ROS_INFO_STREAM("Already using " << request.control_type);
       response.result = control_type_;
       return true;
     }
@@ -967,12 +965,19 @@ namespace shadow_robot
   {
     bool success = true;
     std::string env_variable;
+    std::string param_value;
     ros::NodeHandle nh;
 
     if (control_type == sr_robot_msgs::ControlType::PWM)
+    {
       env_variable = "PWM_CONTROL=1";
+      param_value = "PWM";
+    }
     else
+    {
       env_variable = "PWM_CONTROL=0";
+      param_value = "FORCE";
+    }
 
     // Read the namespace of the node.
     // The ns will be passed as an argument to the sr_edc_default_controllers.launch
@@ -1009,6 +1014,8 @@ namespace shadow_robot
     if (result == 0)
     {
       ROS_WARN("New parameters loaded successfully on Parameter Server");
+
+      this->nh_tilde.setParam("default_control_mode", param_value);
 
       ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
       controller_manager_msgs::ListControllers controllers_list;

@@ -60,14 +60,18 @@
 
   <!-- ros_ethercat -->
   <group if="$(optenv ROS_ETHERCAT_LOOP_DEBUG 0)">
-       <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="gdb -ex run -args">
-        <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
-      </node>
+    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="gdb -ex run -args">
+      <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
+      <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
+      <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
+    </node>
   </group>
   <group unless="$(optenv ROS_ETHERCAT_LOOP_DEBUG 0)">
-      <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="nice -n -20">
-        <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
-      </node>
+    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="nice -n -20">
+      <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
+      <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
+      <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
+    </node>
   </group>
 
   <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->

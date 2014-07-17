@@ -77,12 +77,11 @@ namespace shadow_robot
     ROS_ASSERT(motor_ids.size() == JOINTS_NUM_0220);
     ROS_ASSERT(joint_to_sensor_vect.size() == JOINTS_NUM_0220);
 
-    for(unsigned int i=0; i< JOINTS_NUM_0220; ++i)
+    for (unsigned int i=0; i< JOINTS_NUM_0220; ++i)
     {
       joint_names_tmp.push_back(std::string(joint_names[i]));
       shadow_joints::JointToSensor tmp_jts = joint_to_sensor_vect[i];
       joints_to_sensors.push_back(tmp_jts);
-      ROS_DEBUG("SrMotorHandLib  i = %d, joint_name = %s, motor_id = %d", i, joint_names[i], motor_ids[i]);
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
     //Initialize the motor data checker
@@ -94,7 +93,7 @@ namespace shadow_robot
                              std::vector<int> actuator_ids,
                              std::vector<shadow_joints::JointToSensor> joint_to_sensors)
   {
-    for(unsigned int index = 0; index < joint_names.size(); ++index)
+    for (unsigned int index = 0; index < joint_names.size(); ++index)
     {
       //add the joint and the vector of joints.
       this->joints_vector.push_back( new shadow_joints::Joint() );
@@ -116,16 +115,36 @@ namespace shadow_robot
 
         std::stringstream ss;
         ss << "change_force_PID_" << joint_names[index];
-        //initialize the force pid service
-        //NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that we are using an explicit template function inside this template class
-        motor_wrapper->force_pid_service = this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request, sr_robot_msgs::ForceController::Response>(ss.str().c_str(),
-                                                                                                                                                                       boost::bind(&SrMotorHandLib<StatusType, CommandType>::force_pid_callback, this, _1, _2, motor_wrapper->motor_id));
+        // initialize the force pid service
+        // NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that
+        // we are using an explicit template function inside this template class
+        motor_wrapper->force_pid_service =
+          this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request,
+                                                   sr_robot_msgs::ForceController::Response>(
+                                                     ss.str().c_str(),
+                                                     boost::bind(
+                                                       &SrMotorHandLib<StatusType, CommandType>::force_pid_callback,
+                                                       this, _1, _2,
+                                                       motor_wrapper->motor_id
+                                                     )
+                                                   );
 
         ss.str("");
         ss << "reset_motor_" << joint_names[index];
         //initialize the reset motor service
-        motor_wrapper->reset_motor_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(ss.str().c_str(),
-                                                                                                                                           boost::bind(&SrMotorHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2, std::pair<int, std::string>(motor_wrapper->motor_id, joint->joint_name)));
+        motor_wrapper->reset_motor_service =
+          this->nh_tilde.template advertiseService<std_srvs::Empty::Request,
+                                                   std_srvs::Empty::Response>(
+                                                     ss.str().c_str(),
+                                                     boost::bind(
+                                                       &SrMotorHandLib<StatusType, CommandType>::reset_motor_callback,
+                                                       this, _1, _2,
+                                                       std::pair<int, std::string>(
+                                                         motor_wrapper->motor_id,
+                                                         joint->joint_name
+                                                       )
+                                                     )
+                                                   );
       }
       else  //no motor associated to this joint
         joint->has_actuator = false;
@@ -143,15 +162,10 @@ namespace shadow_robot
 
     //wait a few secs for the reset to be sent then resend the pids
     std::string joint_name = joint.second;
-/*
-    ros::Duration(5.0).sleep();
-    resend_pids(joint_name, joint.first);
-*/
 
     pid_timers[ joint_name ] = this->nh_tilde.createTimer( ros::Duration(3.0),
                                                      boost::bind(&SrMotorHandLib::resend_pids, this, joint_name, joint.first),
                                                      true );
-
 
     return true;
   }
