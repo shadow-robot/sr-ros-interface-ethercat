@@ -47,7 +47,6 @@ namespace shadow_robot
   {
   public:
     SrMotorRobotLib(hardware_interface::HardwareInterface *hw);
-    virtual ~SrMotorRobotLib() {}
 
     /**
      * This function is called each time a new etherCAT message
@@ -103,7 +102,7 @@ namespace shadow_robot
      * @param joint_tmp The joint we want to read the data for.
      * @param status_data The status information that comes from the robot
      */
-    void read_additional_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
+    void read_additional_data(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
 
     /**
      * Transforms the incoming flag as a human
@@ -134,6 +133,18 @@ namespace shadow_robot
     void generate_force_control_config(int motor_index, int max_pwm, int sg_left, int sg_right,
                                        int f, int p, int i, int d, int imax,
                                        int deadband, int sign);
+
+    /**
+     * Returns a pointer to the actuator state for a certain joint.
+     *
+     * @param joint_tmp The joint we want to get the actuator state from.
+     *
+     * @return a pointer to the actuator state
+     */
+    sr_actuator::SrMotorActuatorState* get_joint_actuator_state(std::vector<shadow_joints::Joint>::iterator joint_tmp)
+    {
+      return &static_cast<sr_actuator::SrMotorActuator*> (joint_tmp->actuator_wrapper->actuator)->state_;
+    }
 
     /**
      * The motor updater is used to create a correct command to send to the motor.

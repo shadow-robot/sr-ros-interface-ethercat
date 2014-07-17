@@ -134,7 +134,7 @@ TEST(SrRobotLib, UpdateMotor)
   EXPECT_EQ(lib_test->sr_hand_lib->main_pic_idle_time_min, 1);
 
   //check the sensors etc..
-  boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp = lib_test->sr_hand_lib->joints_vector.begin();
+  std::vector<shadow_joints::Joint>::iterator joint_tmp = lib_test->sr_hand_lib->joints_vector.begin();
   for(;joint_tmp != lib_test->sr_hand_lib->joints_vector.end(); ++joint_tmp)
   {
     if(joint_tmp->has_actuator)

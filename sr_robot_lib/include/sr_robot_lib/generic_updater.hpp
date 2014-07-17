@@ -78,7 +78,7 @@ namespace generic_updater
   {
   public:
     GenericUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    virtual ~GenericUpdater();
+    virtual ~GenericUpdater() {}
 
     /**
      * Building the motor command. This function is called at each packCommand() call.

@@ -61,7 +61,6 @@ namespace generic_updater
   {
   public:
     MuscleUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    ~MuscleUpdater();
 
     /**
      * Building the motor initialization command. This function is called at each packCommand() call.

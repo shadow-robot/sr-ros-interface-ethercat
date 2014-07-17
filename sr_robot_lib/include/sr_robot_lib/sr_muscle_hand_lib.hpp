@@ -43,8 +43,6 @@ namespace shadow_robot
   {
   public:
     SrMuscleHandLib(hardware_interface::HardwareInterface *hw);
-    virtual ~SrMuscleHandLib() {}
-
 
     /**
      * Reset the muscle driver at motor index.

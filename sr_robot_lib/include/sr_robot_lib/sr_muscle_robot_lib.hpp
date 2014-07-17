@@ -41,7 +41,6 @@ namespace shadow_robot
   {
   public:
     SrMuscleRobotLib(hardware_interface::HardwareInterface *hw);
-    virtual ~SrMuscleRobotLib() {}
 
     /**
      * This function is called each time a new etherCAT message
@@ -111,7 +110,7 @@ namespace shadow_robot
      * @param joint_tmp The joint we want to read the data for.
      * @param status_data The status information that comes from the robot
      */
-    void read_additional_muscle_data(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
+    void read_additional_muscle_data(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
 
     /**
      * Read additional data from the latest message and stores it into the
@@ -120,7 +119,7 @@ namespace shadow_robot
      * @param muscle_driver_tmp The muscle we want to read the data for.
      * @param status_data The status information that comes from the robot
      */
-    void read_muscle_driver_data(boost::ptr_vector<shadow_joints::MuscleDriver>::iterator muscle_driver_tmp, StatusType* status_data);
+    void read_muscle_driver_data(std::vector<shadow_joints::MuscleDriver>::iterator muscle_driver_tmp, StatusType* status_data);
 
     /**
      * Transforms the incoming flag as a human
@@ -157,7 +156,19 @@ namespace shadow_robot
      */
     void init_timer_callback(const ros::TimerEvent& event);
 
-    boost::ptr_vector<shadow_joints::MuscleDriver> muscle_drivers_vector_;
+    /**
+     * Returns a pointer to the actuator state for a certain joint.
+     *
+     * @param joint_tmp The joint we want to get the actuator state from.
+     *
+     * @return a pointer to the actuator state
+     */
+    sr_actuator::SrMuscleActuatorState* get_joint_actuator_state(std::vector<shadow_joints::Joint>::iterator joint_tmp)
+    {
+      return &static_cast<sr_actuator::SrMuscleActuator*> (joint_tmp->actuator_wrapper->actuator)->state_;
+    }
+
+    std::vector<shadow_joints::MuscleDriver> muscle_drivers_vector_;
 
 
     /**
@@ -189,7 +200,7 @@ namespace shadow_robot
     static const double timeout;
     ros::Duration init_max_duration;
 
-    ///A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
+    ///A mutual exclusion object to ensure that the initialization timeout event does work without threading issues
     boost::shared_ptr<boost::mutex> lock_init_timeout_;
   };//end class
 }//end namespace

@@ -16,10 +16,10 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import roslib; roslib.load_manifest('sr_robot_lib')
 import rospy
 
-import time, math
+import time
+import math
 import re
 
 from std_msgs.msg import Float64

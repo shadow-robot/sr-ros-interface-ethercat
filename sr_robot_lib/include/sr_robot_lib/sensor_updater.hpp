@@ -61,7 +61,6 @@ namespace generic_updater
   {
   public:
     SensorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    ~SensorUpdater();
 
     /**
      * Updates the initialization command to send to the hand. This function is called

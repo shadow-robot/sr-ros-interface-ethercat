@@ -2,22 +2,22 @@
  * @file   sr_edc_muscle.h
  * @author Hugo Elias <hugo@shadowrobot.com>, Ugo Cupcic <ugo@shadowrobot.com>,
  *         Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
-*
-* Copyright 2013 Shadow Robot Company Ltd.
-*
-* This program is free software: you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
+ *
+ * Copyright 2013 Shadow Robot Company Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  * @brief This is a ROS driver for Shadow Robot EtherCAT dual CAN muscle hand
  *
  *
@@ -47,9 +47,8 @@
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
-  #include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
 }
-
 
 class SrEdcMuscle : public SrEdc
 {
@@ -57,7 +56,7 @@ public:
   SrEdcMuscle();
 
   virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address);
-  virtual int  initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
+  virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed = true);
   virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
 
   virtual void packCommand(unsigned char *buffer, bool halt, bool reset);
@@ -66,7 +65,7 @@ public:
 protected:
 
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
-  std::vector< boost::shared_ptr<rt_pub_int16_t> >   realtime_pub_;
+  std::vector< boost::shared_ptr<rt_pub_int16_t> > realtime_pub_;
 
   /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
@@ -89,7 +88,7 @@ private:
   //std::string                      firmware_file_name;
 
   ///counter for the number of empty buffer we're reading.
-  unsigned int                     zero_buffer_read;
+  unsigned int zero_buffer_read;
 
   boost::shared_ptr<shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> > sr_hand_lib;
 
@@ -110,7 +109,7 @@ private:
 Local Variables:
    c-basic-offset: 2
 End:
-*/
+ */
 
 
 #endif /* SR_EDC_MUSCLE_H */
