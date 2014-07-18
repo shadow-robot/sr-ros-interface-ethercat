@@ -208,18 +208,7 @@ protected:
    * @param joint_tmp The joint we want to calibrate.
    * @param status_data The status information that comes from the robot
    */
-  void calibrate_joint(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data);
-
-
-  /**
-   * Calibrates and filters the position information (and computes velocity) for a give joint.
-   * This method is called from the update method, each time a new message is received.
-   *
-   * @param joint_tmp The joint we process data from.
-   * @param status_data The status information that comes from the robot
-   * @param timestamp Timestamp of the data acquisition time
-   */
-  void process_position_sensor_data(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data, double timestamp);
+  virtual void calibrate_joint(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType* status_data) = 0;
 
   /**
    * Returns a pointer to the actuator state for a certain joint.
@@ -230,7 +219,7 @@ protected:
    *
    * @return a pointer to the actuator state
    */
-  virtual sr_actuator::SrActuatorState* get_joint_actuator_state(std::vector<shadow_joints::Joint>::iterator joint_tmp) = 0;
+  virtual ros_ethercat_model::Actuator* get_joint_actuator(std::vector<shadow_joints::Joint>::iterator joint_tmp) = 0;
 
   /**
    * Reads the mapping between the sensors and the joints from the parameter server.

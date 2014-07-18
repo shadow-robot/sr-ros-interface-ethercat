@@ -62,7 +62,7 @@ SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(hardware_interface::
   pressure_calibration_map_(read_pressure_calibration())
 {
 #ifdef DEBUG_PUBLISHER
-  this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
+  this->debug_muscle_indexes_and_data.resize(this->nb_debug_publishers_const);
   for (int i = 0; i < this->nb_debug_publishers_const; ++i)
   {
     ostringstream ss;
@@ -154,15 +154,12 @@ void SrMuscleRobotLib<StatusType, CommandType>::update(StatusType* status_data)
     if (!joint_tmp->has_actuator)
       continue;
 
-    SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
-
+    SrMuscleActuator* actuator = this->get_joint_actuator(joint_tmp);
     shared_ptr<MuscleWrapper> muscle_wrapper = static_pointer_cast<MuscleWrapper>(joint_tmp->actuator_wrapper);
-
-    //actuator_state->device_id_ = muscle_wrapper->muscle_id[0];
 
     //Fill in the tactiles.
     if (this->tactiles != NULL)
-      actuator_state->tactiles_ = this->tactiles->get_tactile_data();
+      actuator->muscle_state_.tactiles_ = this->tactiles->get_tactile_data();
 
     this->process_position_sensor_data(joint_tmp, status_data, timestamp);
 
@@ -183,7 +180,7 @@ void SrMuscleRobotLib<StatusType, CommandType>::build_command(CommandType* comma
   }
   else
   {
-    //build the motor command
+    //build the muscle command
     muscle_current_state = muscle_updater_->build_command(command);
   }
 
@@ -198,7 +195,7 @@ void SrMuscleRobotLib<StatusType, CommandType>::build_command(CommandType* comma
   {
     command->to_muscle_data_type = MUSCLE_DEMAND_VALVES;
 
-    //loop on all the joints and update their motor: we're sending commands to all the motors.
+    //loop on all the joints and update their muscle: we're sending commands to all the muscles.
     for (vector<Joint>::iterator joint_tmp = this->joints_vector.begin();
          joint_tmp != this->joints_vector.end();
          ++joint_tmp)
@@ -215,11 +212,11 @@ void SrMuscleRobotLib<StatusType, CommandType>::build_command(CommandType* comma
 
         if (!this->nullify_demand_)
         {
-          set_valve_demand(&(command->muscle_data[(muscle_driver_id_0 * 10 + muscle_id_0) / 2]), muscle_actuator->command_.valve_[0], ((uint8_t) muscle_id_0) & 0x01);
-          set_valve_demand(&(command->muscle_data[(muscle_driver_id_1 * 10 + muscle_id_1) / 2]), muscle_actuator->command_.valve_[1], ((uint8_t) muscle_id_1) & 0x01);
+          set_valve_demand(&(command->muscle_data[(muscle_driver_id_0 * 10 + muscle_id_0) / 2]), muscle_actuator->muscle_command_.valve_[0], ((uint8_t) muscle_id_0) & 0x01);
+          set_valve_demand(&(command->muscle_data[(muscle_driver_id_1 * 10 + muscle_id_1) / 2]), muscle_actuator->muscle_command_.valve_[1], ((uint8_t) muscle_id_1) & 0x01);
 
-          muscle_actuator->state_.last_commanded_valve_[0] = muscle_actuator->command_.valve_[0];
-          muscle_actuator->state_.last_commanded_valve_[1] = muscle_actuator->command_.valve_[1];
+          muscle_actuator->muscle_state_.last_commanded_valve_[0] = muscle_actuator->muscle_command_.valve_[0];
+          muscle_actuator->muscle_state_.last_commanded_valve_[1] = muscle_actuator->muscle_command_.valve_[1];
         }
         else
         {
@@ -227,25 +224,25 @@ void SrMuscleRobotLib<StatusType, CommandType>::build_command(CommandType* comma
           set_valve_demand(&(command->muscle_data[(muscle_driver_id_0 * 10 + muscle_id_0) / 2]), 0, ((uint8_t) muscle_id_0) & 0x01);
           set_valve_demand(&(command->muscle_data[(muscle_driver_id_1 * 10 + muscle_id_1) / 2]), 0, ((uint8_t) muscle_id_1) & 0x01);
 
-          muscle_actuator->state_.last_commanded_valve_[0] = 0;
-          muscle_actuator->state_.last_commanded_valve_[1] = 0;
+          muscle_actuator->muscle_state_.last_commanded_valve_[0] = 0;
+          muscle_actuator->muscle_state_.last_commanded_valve_[1] = 0;
         }
 
 #ifdef DEBUG_PUBLISHER
-        //publish the debug values for the given motors.
-        // NB: debug_motor_indexes_and_data is smaller
+        //publish the debug values for the given muscles.
+        // NB: debug_muscle_indexes_and_data is smaller
         //     than debug_publishers.
         int publisher_index = 0;
         shared_ptr<pair<int, int> > debug_pair;
         if (this->debug_mutex.try_lock())
         {
 
-          BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
+          BOOST_FOREACH(debug_pair, this->debug_muscle_indexes_and_data)
           {
             if (debug_pair != NULL)
             {
               MuscleWrapper* actuator_wrapper = static_cast<MuscleWrapper*> (joint_tmp->actuator_wrapper.get());
-              //check if we want to publish some data for the current motor
+              //check if we want to publish some data for the current muscle
               if (debug_pair->first == actuator_wrapper->muscle_id[0])
               {
                 //check if it's the correct data
@@ -343,15 +340,13 @@ void SrMuscleRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnosti
        ++joint)
   {
     ostringstream name("");
-    name << "SRDMotor " << joint->joint_name;
+    name << "SRDMuscle " << joint->joint_name;
     d.name = name.str();
 
     if (joint->has_actuator)
     {
       shared_ptr<MuscleWrapper> actuator_wrapper = static_pointer_cast<MuscleWrapper>(joint->actuator_wrapper);
-
-      const SrMuscleActuator* sr_muscle_actuator = static_cast<SrMuscleActuator*> (actuator_wrapper->actuator);
-      const SrMuscleActuatorState* state = &(sr_muscle_actuator->state_);
+      SrMuscleActuator* actuator = get_joint_actuator(joint);
 
       if (actuator_wrapper->actuator_ok)
       {
@@ -375,20 +370,20 @@ void SrMuscleRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnosti
           d.addf("Muscle ID 1", "%d", actuator_wrapper->muscle_id[1]);
           d.addf("Muscle driver ID 1", "%d", actuator_wrapper->muscle_driver_id[1]);
 
-          d.addf("Unfiltered position", "%f", state->position_unfiltered_);
+          d.addf("Unfiltered position", "%f", actuator->muscle_state_.position_unfiltered_);
 
-          d.addf("Last Commanded Valve 0", "%d", state->last_commanded_valve_[0]);
-          d.addf("Last Commanded Valve 1", "%d", state->last_commanded_valve_[1]);
+          d.addf("Last Commanded Valve 0", "%d", actuator->muscle_state_.last_commanded_valve_[0]);
+          d.addf("Last Commanded Valve 1", "%d", actuator->muscle_state_.last_commanded_valve_[1]);
 
-          d.addf("Unfiltered Pressure 0", "%u", state->pressure_[0]);
-          d.addf("Unfiltered Pressure 1", "%u", state->pressure_[1]);
+          d.addf("Unfiltered Pressure 0", "%u", actuator->muscle_state_.pressure_[0]);
+          d.addf("Unfiltered Pressure 1", "%u", actuator->muscle_state_.pressure_[1]);
 
-          d.addf("Position", "%f", state->position_);
+          d.addf("Position", "%f", actuator->state_.position_);
         }
       }
       else
       {
-        d.summary(d.ERROR, "Motor error");
+        d.summary(d.ERROR, "Muscle error");
         d.clear();
         d.addf("Muscle ID 0", "%d", actuator_wrapper->muscle_id[0]);
         d.addf("Muscle driver ID 0", "%d", actuator_wrapper->muscle_driver_id[0]);
@@ -398,7 +393,7 @@ void SrMuscleRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnosti
     }
     else
     {
-      d.summary(d.OK, "No motor associated to this joint");
+      d.summary(d.OK, "No muscle associated to this joint");
       d.clear();
     }
     vec.push_back(d);
@@ -500,19 +495,19 @@ void SrMuscleRobotLib<StatusType, CommandType>::read_additional_muscle_data(vect
 
 #ifdef DEBUG_PUBLISHER
     int publisher_index = 0;
-    //publish the debug values for the given motors.
-    // NB: debug_motor_indexes_and_data is smaller
+    //publish the debug values for the given muscles.
+    // NB: debug_muscle_indexes_and_data is smaller
     //     than debug_publishers.
     shared_ptr<pair<int, int> > debug_pair;
 
     if (this->debug_mutex.try_lock())
     {
 
-      BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
+      BOOST_FOREACH(debug_pair, this->debug_muscle_indexes_and_data)
       {
         if (debug_pair != NULL)
         {
-          //check if we want to publish some data for the current motor
+          //check if we want to publish some data for the current muscle
           if (debug_pair->first == actuator_wrapper->muscle_id[0])
           {
             //if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
@@ -552,7 +547,7 @@ void SrMuscleRobotLib<StatusType, CommandType>::read_additional_muscle_data(vect
           double bar = pressure_calibration_tmp_->compute(static_cast<double> (p1));
           if (bar < 0.0)
             bar = 0.0;
-          actuator->state_.pressure_[i] = static_cast<int16u> (bar);
+          actuator->muscle_state_.pressure_[i] = static_cast<int16u> (bar);
         }
         // Raw values
         //actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0], status_data));
@@ -674,7 +669,7 @@ void SrMuscleRobotLib<StatusType, CommandType>::read_muscle_driver_data(vector<M
 
       case MUSCLE_DATA_SLOW_MISC:
         //We received a slow data:
-        // the slow data type is not transmitted anymore (as it was in the motor hand protocol)
+        // the slow data type is not transmitted anymore (as it was in the muscle hand protocol)
         // Instead, all the information (of every data type) is contained in the 2 packets that come from every muscle driver
         // So in fact this message is not "slow" anymore.
         muscle_driver_tmp->pic_firmware_svn_revision_ = static_cast<unsigned int> (status_data->muscle_data_packet[muscle_driver_tmp->muscle_driver_id * 2].slow_0.SVN_revision);
@@ -735,6 +730,88 @@ inline bool SrMuscleRobotLib<StatusType, CommandType>::check_muscle_driver_data_
       return false;
   }
   return true;
+}
+
+template <class StatusType, class CommandType>
+void SrMuscleRobotLib<StatusType, CommandType>::calibrate_joint(vector<Joint>::iterator joint_tmp, StatusType* status_data)
+{
+  SrMuscleActuator *actuator = get_joint_actuator(joint_tmp);
+
+  actuator->muscle_state_.raw_sensor_values_.clear();
+  actuator->muscle_state_.calibrated_sensor_values_.clear();
+
+  if (joint_tmp->joint_to_sensor.calibrate_after_combining_sensors)
+  {
+    //first we combine the different sensors and then we
+    // calibrate the value we obtained. This is used for
+    // some compound sensors ( THJ5 = cal(THJ5A + THJ5B))
+    double raw_position = 0.0;
+    //when combining the values, we use the coefficient imported
+    // from the sensor_to_joint.yaml file (in sr_edc_launch/config)
+
+    BOOST_FOREACH(PartialJointToSensor joint_to_sensor, joint_tmp->joint_to_sensor.joint_to_sensor_vector)
+    {
+      int tmp_raw = status_data->sensors[joint_to_sensor.sensor_id];
+      actuator->muscle_state_.raw_sensor_values_.push_back(tmp_raw);
+      raw_position += static_cast<double> (tmp_raw) * joint_to_sensor.coeff;
+    }
+
+    //and now we calibrate
+    this->calibration_tmp = this->calibration_map.find(joint_tmp->joint_name);
+    actuator->muscle_state_.position_unfiltered_ = this->calibration_tmp->compute(static_cast<double> (raw_position));
+  }
+  else
+  {
+    //we calibrate the different sensors first and we combine the calibrated
+    //values. This is used in the joint 0s for example ( J0 = cal(J1)+cal(J2) )
+    double calibrated_position = 0.0;
+    PartialJointToSensor joint_to_sensor;
+    string sensor_name;
+
+    ROS_DEBUG_STREAM("Combining actuator " << joint_tmp->joint_name);
+
+    for (unsigned int index_joint_to_sensor = 0;
+         index_joint_to_sensor < joint_tmp->joint_to_sensor.joint_to_sensor_vector.size();
+         ++index_joint_to_sensor)
+    {
+      joint_to_sensor = joint_tmp->joint_to_sensor.joint_to_sensor_vector[index_joint_to_sensor];
+      sensor_name = joint_tmp->joint_to_sensor.sensor_names[index_joint_to_sensor];
+
+      //get the raw position
+      int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
+      //push the new raw values
+      actuator->muscle_state_.raw_sensor_values_.push_back(raw_pos);
+
+      //calibrate and then combine
+      this->calibration_tmp = this->calibration_map.find(sensor_name);
+      double tmp_cal_value = this->calibration_tmp->compute(static_cast<double> (raw_pos));
+
+      //push the new calibrated values.
+      actuator->muscle_state_.calibrated_sensor_values_.push_back(tmp_cal_value);
+
+      calibrated_position += tmp_cal_value * joint_to_sensor.coeff;
+
+      ROS_DEBUG_STREAM("      -> " << sensor_name << " raw = " << raw_pos << " calibrated = " << calibrated_position);
+    }
+    actuator->muscle_state_.position_unfiltered_ = calibrated_position;
+    ROS_DEBUG_STREAM("          => " << actuator->muscle_state_.position_unfiltered_);
+  }
+} //end calibrate_joint()
+
+template <class StatusType, class CommandType>
+void SrMuscleRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp, StatusType* status_data, double timestamp)
+{
+  SrMuscleActuator* actuator = get_joint_actuator(joint_tmp);
+
+  //calibrate the joint and update the position.
+  calibrate_joint(joint_tmp, status_data);
+
+  //filter the position and velocity
+  pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(actuator->muscle_state_.position_unfiltered_, timestamp);
+  //reset the position to the filtered value
+  actuator->state_.position_ = pos_and_velocity.first;
+  //set the velocity to the filtered velocity
+  actuator->state_.velocity_ = pos_and_velocity.second;
 }
 
 template <class StatusType, class CommandType>

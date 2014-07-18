@@ -79,7 +79,7 @@ namespace shadow_robot
      * at full speed in the debug topics.
      *
      * @param request Contains the motor index and the MOTOR_DATA type
-     * @param response True if succeedded.
+     * @param response True if succeeded.
      *
      * @return true if succeeded.
      */

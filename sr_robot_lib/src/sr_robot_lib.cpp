@@ -167,72 +167,6 @@ SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInte
 }
 
 template <class StatusType, class CommandType>
-void SrRobotLib<StatusType, CommandType>::calibrate_joint(vector<Joint>::iterator joint_tmp, StatusType* status_data)
-{
-  SrActuatorState* actuator_state = get_joint_actuator_state(joint_tmp);
-
-  actuator_state->raw_sensor_values_.clear();
-  actuator_state->calibrated_sensor_values_.clear();
-
-  if (joint_tmp->joint_to_sensor.calibrate_after_combining_sensors)
-  {
-    //first we combine the different sensors and then we
-    // calibrate the value we obtained. This is used for
-    // some compound sensors ( THJ5 = cal(THJ5A + THJ5B))
-    double raw_position = 0.0;
-    //when combining the values, we use the coefficient imported
-    // from the sensor_to_joint.yaml file (in sr_edc_launch/config)
-
-    BOOST_FOREACH(PartialJointToSensor joint_to_sensor, joint_tmp->joint_to_sensor.joint_to_sensor_vector)
-    {
-      int tmp_raw = status_data->sensors[joint_to_sensor.sensor_id];
-      actuator_state->raw_sensor_values_.push_back(tmp_raw);
-      raw_position += static_cast<double> (tmp_raw) * joint_to_sensor.coeff;
-    }
-
-    //and now we calibrate
-    calibration_tmp = calibration_map.find(joint_tmp->joint_name);
-    actuator_state->position_unfiltered_ = calibration_tmp->compute(static_cast<double> (raw_position));
-  }
-  else
-  {
-    //we calibrate the different sensors first and we combine the calibrated
-    //values. This is used in the joint 0s for example ( J0 = cal(J1)+cal(J2) )
-    double calibrated_position = 0.0;
-    PartialJointToSensor joint_to_sensor;
-    string sensor_name;
-
-    ROS_DEBUG_STREAM("Combining actuator " << joint_tmp->joint_name);
-
-    for (unsigned int index_joint_to_sensor = 0;
-         index_joint_to_sensor < joint_tmp->joint_to_sensor.joint_to_sensor_vector.size();
-         ++index_joint_to_sensor)
-    {
-      joint_to_sensor = joint_tmp->joint_to_sensor.joint_to_sensor_vector[index_joint_to_sensor];
-      sensor_name = joint_tmp->joint_to_sensor.sensor_names[index_joint_to_sensor];
-
-      //get the raw position
-      int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
-      //push the new raw values
-      actuator_state->raw_sensor_values_.push_back(raw_pos);
-
-      //calibrate and then combine
-      calibration_tmp = calibration_map.find(sensor_name);
-      double tmp_cal_value = calibration_tmp->compute(static_cast<double> (raw_pos));
-
-      //push the new calibrated values.
-      actuator_state->calibrated_sensor_values_.push_back(tmp_cal_value);
-
-      calibrated_position += tmp_cal_value * joint_to_sensor.coeff;
-
-      ROS_DEBUG_STREAM("      -> " << sensor_name << " raw = " << raw_pos << " calibrated = " << calibrated_position);
-    }
-    actuator_state->position_unfiltered_ = calibrated_position;
-    ROS_DEBUG_STREAM("          => " << actuator_state->position_unfiltered_);
-  }
-} //end calibrate_joint()
-
-template <class StatusType, class CommandType>
 void SrRobotLib<StatusType, CommandType>::reinitialize_sensors()
 {
   //Create a new GenericTactiles object
@@ -251,22 +185,6 @@ bool SrRobotLib<StatusType, CommandType>::nullify_demand_callback(sr_robot_msgs:
 
   nullify_demand_ = request.nullify_demand;
   return true;
-}
-
-template <class StatusType, class CommandType>
-void SrRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp, StatusType* status_data, double timestamp)
-{
-  SrActuatorState* actuator_state = get_joint_actuator_state(joint_tmp);
-
-  //calibrate the joint and update the position.
-  calibrate_joint(joint_tmp, status_data);
-
-  //filter the position and velocity
-  pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(actuator_state->position_unfiltered_, timestamp);
-  //reset the position to the filtered value
-  actuator_state->position_ = pos_and_velocity.first;
-  //set the velocity to the filtered velocity
-  actuator_state->velocity_ = pos_and_velocity.second;
 }
 
 template <class StatusType, class CommandType>

@@ -98,15 +98,11 @@ void SrMotorRobotLib<StatusType, CommandType>::update(StatusType* status_data)
   struct timeval tv;
   double timestamp = 0.0;
   if (gettimeofday(&tv, NULL))
-  {
     ROS_WARN("SrMotorRobotLib: Failed to get system time, timestamp in state will be zero");
-  }
   else
-  {
     timestamp = double(tv.tv_sec) + double(tv.tv_usec) / 1.0e+6;
-  }
 
-  //First we read the joints informations
+  //First we read the joints information
   for (vector<Joint>::iterator joint_tmp = this->joints_vector.begin();
        joint_tmp != this->joints_vector.end();
        ++joint_tmp)
@@ -114,23 +110,21 @@ void SrMotorRobotLib<StatusType, CommandType>::update(StatusType* status_data)
     if (!joint_tmp->has_actuator)
       continue;
 
-    SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
+    SrMotorActuator* motor_actuator = this->get_joint_actuator(joint_tmp);
 
     shared_ptr<MotorWrapper> motor_wrapper = static_pointer_cast<MotorWrapper>(joint_tmp->actuator_wrapper);
 
     motor_index_full = motor_wrapper->motor_id;
-    actuator_state->device_id_ = motor_index_full;
+    motor_actuator->state_.device_id_ = motor_index_full;
 
     //Fill in the tactiles.
     if (this->tactiles != NULL)
-      actuator_state->tactiles_ = this->tactiles->get_tactile_data();
+      motor_actuator->motor_state_.tactiles_ = this->tactiles->get_tactile_data();
 
     this->process_position_sensor_data(joint_tmp, status_data, timestamp);
 
-    SrMotorActuator* motor_actuator = static_cast<SrMotorActuator*> (joint_tmp->actuator_wrapper->actuator);
-
     //filter the effort
-    pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(motor_actuator->state_.force_unfiltered_, timestamp);
+    pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(motor_actuator->motor_state_.force_unfiltered_, timestamp);
     motor_actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
 
     //get the remaining information.
@@ -160,7 +154,7 @@ void SrMotorRobotLib<StatusType, CommandType>::update(StatusType* status_data)
     // we'll print that in the diagnostics.
     motor_wrapper->msg_motor_id = index_motor_in_msg;
 
-    //ok now we read the info and add it to the actuator state
+    //OK now we read the info and add it to the actuator state
     if (read_motor_info)
       read_additional_data(joint_tmp, status_data);
   } //end for joint
@@ -279,7 +273,7 @@ void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType* comman
       } //end try_lock
 #endif
     } // end for each joint
-  } //endif reconfig_queue.empty()
+  } //end if reconfig_queue.empty()
   else
   {
     if (!motor_system_control_flags_.empty())
@@ -336,12 +330,12 @@ void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType* comman
             continue;
 
           shared_ptr<MotorWrapper> motor_wrapper = static_pointer_cast<MotorWrapper>(joint_tmp->actuator_wrapper);
-          SrActuatorState* actuator_state = this->get_joint_actuator_state(joint_tmp);
+          SrMotorActuator* actuator = this->get_joint_actuator(joint_tmp);
 
           if (motor_wrapper->motor_id == motor_id)
           {
-            actuator_state->can_msgs_transmitted_ = 0;
-            actuator_state->can_msgs_received_ = 0;
+            actuator->motor_state_.can_msgs_transmitted_ = 0;
+            actuator->motor_state_.can_msgs_received_ = 0;
           }
         }
 
@@ -412,7 +406,7 @@ void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType* comman
         } //end if reconfig queue not empty
       } // end else reset_queue.empty
     } // end else motor_system_control_flags_.empty
-  } //endelse reconfig_queue.empty() && reset_queue.empty()
+  } //end else reconfig_queue.empty() && reset_queue.empty()
 }
 
 template <class StatusType, class CommandType>
@@ -430,9 +424,7 @@ void SrMotorRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnostic
     if (joint->has_actuator)
     {
       shared_ptr<MotorWrapper> actuator_wrapper = static_pointer_cast<MotorWrapper>(joint->actuator_wrapper);
-
-      const SrMotorActuator* sr_actuator = static_cast<SrMotorActuator*> (actuator_wrapper->actuator);
-      const SrMotorActuatorState* state = &(sr_actuator->state_);
+      SrMotorActuator *actuator = this->get_joint_actuator(joint);
 
       if (actuator_wrapper->actuator_ok)
       {
@@ -450,20 +442,23 @@ void SrMotorRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnostic
           d.clear();
           d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
           d.addf("Motor ID in message", "%d", actuator_wrapper->msg_motor_id);
-          d.addf("Serial Number", "%d", state->serial_number);
-          d.addf("Assembly date", "%d / %d / %d", state->assembly_data_day, state->assembly_data_month, state->assembly_data_year);
+          d.addf("Serial Number", "%d", actuator->motor_state_.serial_number);
+          d.addf("Assembly date", "%d / %d / %d",
+                 actuator->motor_state_.assembly_data_day,
+                 actuator->motor_state_.assembly_data_month,
+                 actuator->motor_state_.assembly_data_year);
 
-          d.addf("Strain Gauge Left", "%d", state->strain_gauge_left_);
-          d.addf("Strain Gauge Right", "%d", state->strain_gauge_right_);
+          d.addf("Strain Gauge Left", "%d", actuator->motor_state_.strain_gauge_left_);
+          d.addf("Strain Gauge Right", "%d", actuator->motor_state_.strain_gauge_right_);
 
           //if some flags are set
           ostringstream ss;
-          if (state->flags_.size() > 0)
+          if (actuator->motor_state_.flags_.size() > 0)
           {
             int flags_seriousness = d.OK;
             pair < string, bool> flag;
 
-            BOOST_FOREACH(flag, state->flags_)
+            BOOST_FOREACH(flag, actuator->motor_state_.flags_)
             {
               //Serious error flag
               if (flag.second)
@@ -479,47 +474,47 @@ void SrMotorRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnostic
             ss << " None";
           d.addf("Motor Flags", "%s", ss.str().c_str());
 
-          d.addf("Measured PWM", "%d", state->pwm_);
-          d.addf("Measured Current", "%f", state->last_measured_current_);
-          d.addf("Measured Voltage", "%f", state->motor_voltage_);
-          d.addf("Measured Effort", "%f", state->last_measured_effort_);
-          d.addf("Temperature", "%f", state->temperature_);
+          d.addf("Measured PWM", "%d", actuator->motor_state_.pwm_);
+          d.addf("Measured Current", "%f", actuator->state_.last_measured_current_);
+          d.addf("Measured Voltage", "%f", actuator->state_.motor_voltage_);
+          d.addf("Measured Effort", "%f", actuator->state_.last_measured_effort_);
+          d.addf("Temperature", "%f", actuator->motor_state_.temperature_);
 
-          d.addf("Unfiltered position", "%f", state->position_unfiltered_);
-          d.addf("Unfiltered force", "%f", state->force_unfiltered_);
+          d.addf("Unfiltered position", "%f", actuator->motor_state_.position_unfiltered_);
+          d.addf("Unfiltered force", "%f", actuator->motor_state_.force_unfiltered_);
 
-          d.addf("Gear Ratio", "%d", state->motor_gear_ratio);
+          d.addf("Gear Ratio", "%d", actuator->motor_state_.motor_gear_ratio);
 
-          d.addf("Number of CAN messages received", "%lld", state->can_msgs_received_);
-          d.addf("Number of CAN messages transmitted", "%lld", state->can_msgs_transmitted_);
+          d.addf("Number of CAN messages received", "%lld", actuator->motor_state_.can_msgs_received_);
+          d.addf("Number of CAN messages transmitted", "%lld", actuator->motor_state_.can_msgs_transmitted_);
 
-          d.addf("Force control Pterm", "%d", state->force_control_pterm);
-          d.addf("Force control Iterm", "%d", state->force_control_iterm);
-          d.addf("Force control Dterm", "%d", state->force_control_dterm);
+          d.addf("Force control Pterm", "%d", actuator->motor_state_.force_control_pterm);
+          d.addf("Force control Iterm", "%d", actuator->motor_state_.force_control_iterm);
+          d.addf("Force control Dterm", "%d", actuator->motor_state_.force_control_dterm);
 
-          d.addf("Force control F", "%d", state->force_control_f_);
-          d.addf("Force control P", "%d", state->force_control_p_);
-          d.addf("Force control I", "%d", state->force_control_i_);
-          d.addf("Force control D", "%d", state->force_control_d_);
-          d.addf("Force control Imax", "%d", state->force_control_imax_);
-          d.addf("Force control Deadband", "%d", state->force_control_deadband_);
-          d.addf("Force control Frequency", "%d", state->force_control_frequency_);
+          d.addf("Force control F", "%d", actuator->motor_state_.force_control_f_);
+          d.addf("Force control P", "%d", actuator->motor_state_.force_control_p_);
+          d.addf("Force control I", "%d", actuator->motor_state_.force_control_i_);
+          d.addf("Force control D", "%d", actuator->motor_state_.force_control_d_);
+          d.addf("Force control Imax", "%d", actuator->motor_state_.force_control_imax_);
+          d.addf("Force control Deadband", "%d", actuator->motor_state_.force_control_deadband_);
+          d.addf("Force control Frequency", "%d", actuator->motor_state_.force_control_frequency_);
 
-          if (state->force_control_sign_ == 0)
+          if (actuator->motor_state_.force_control_sign_ == 0)
             d.addf("Force control Sign", "+");
           else
             d.addf("Force control Sign", "-");
 
-          d.addf("Last Commanded Effort", "%f", state->last_commanded_effort_);
+          d.addf("Last Commanded Effort", "%f", actuator->state_.last_commanded_effort_);
 
-          d.addf("Encoder Position", "%f", state->position_);
+          d.addf("Encoder Position", "%f", actuator->state_.position_);
 
-          if (state->firmware_modified_)
+          if (actuator->motor_state_.firmware_modified_)
             d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / True",
-                   state->server_firmware_svn_revision_, state->pic_firmware_svn_revision_);
+                   actuator->motor_state_.server_firmware_svn_revision_, actuator->motor_state_.pic_firmware_svn_revision_);
           else
             d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False",
-                   state->server_firmware_svn_revision_, state->pic_firmware_svn_revision_);
+                   actuator->motor_state_.server_firmware_svn_revision_, actuator->motor_state_.pic_firmware_svn_revision_);
         }
       }
       else
@@ -606,46 +601,46 @@ void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(vector<Joint
     switch (status_data->motor_data_type)
     {
       case MOTOR_DATA_SGL:
-        actuator->state_.strain_gauge_left_ =
+        actuator->motor_state_.strain_gauge_left_ =
           static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc);
 
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
         {
-          //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
-          this->msg_debug.data = actuator->state_.strain_gauge_left_;
+          //ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
+          this->msg_debug.data = actuator->motor_state_.strain_gauge_left_;
           this->debug_publishers[0].publish(this->msg_debug);
         }
 #endif
         break;
       case MOTOR_DATA_SGR:
-        actuator->state_.strain_gauge_right_ =
+        actuator->motor_state_.strain_gauge_right_ =
           static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc);
 
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
         {
-          //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
-          this->msg_debug.data = actuator->state_.strain_gauge_right_;
+          //ROS_ERROR_STREAM("SGR " <<actuator->motor_state_.strain_gauge_right_);
+          this->msg_debug.data = actuator->motor_state_.strain_gauge_right_;
           this->debug_publishers[1].publish(this->msg_debug);
         }
 #endif
         break;
       case MOTOR_DATA_PWM:
-        actuator->state_.pwm_ =
+        actuator->motor_state_.pwm_ =
           static_cast<int> (static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc));
 
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
         {
-          //ROS_ERROR_STREAM("SGR " <<actuator->state_.strain_gauge_right_);
-          this->msg_debug.data = actuator->state_.pwm_;
+          //ROS_ERROR_STREAM("SGR " <<actuator->motor_state_.strain_gauge_right_);
+          this->msg_debug.data = actuator->motor_state_.pwm_;
           this->debug_publishers[2].publish(this->msg_debug);
         }
 #endif
         break;
       case MOTOR_DATA_FLAGS:
-        actuator->state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
+        actuator->motor_state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
         break;
       case MOTOR_DATA_CURRENT:
         //we're receiving the current in milli amps
@@ -656,7 +651,7 @@ void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(vector<Joint
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
         {
-          //ROS_ERROR_STREAM("Current " <<actuator->state_.last_measured_current_);
+          //ROS_ERROR_STREAM("Current " <<actuator->motor_state_.last_measured_current_);
           this->msg_debug.data = static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc);
           this->debug_publishers[3].publish(this->msg_debug);
         }
@@ -669,27 +664,27 @@ void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(vector<Joint
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
         {
-          //ROS_ERROR_STREAM("Voltage " <<actuator->state_.motor_voltage_);
+          //ROS_ERROR_STREAM("Voltage " <<actuator->motor_state_.motor_voltage_);
           this->msg_debug.data = static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc);
           this->debug_publishers[4].publish(this->msg_debug);
         }
 #endif
         break;
       case MOTOR_DATA_TEMPERATURE:
-        actuator->state_.temperature_ =
+        actuator->motor_state_.temperature_ =
           static_cast<double> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)) / 256.0;
         break;
       case MOTOR_DATA_CAN_NUM_RECEIVED:
         // those are 16 bits values and will overflow -> we compute the real value.
         // This needs to be updated faster than the overflowing period (which should be roughly every 30s)
-        actuator->state_.can_msgs_received_ = sr_math_utils::counter_with_overflow(actuator->state_.can_msgs_received_,
-                                                                                   static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+        actuator->motor_state_.can_msgs_received_ = sr_math_utils::counter_with_overflow(actuator->motor_state_.can_msgs_received_,
+                                                                                         static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
         break;
       case MOTOR_DATA_CAN_NUM_TRANSMITTED:
         // those are 16 bits values and will overflow -> we compute the real value.
         // This needs to be updated faster than the overflowing period (which should be roughly every 30s)
-        actuator->state_.can_msgs_transmitted_ = sr_math_utils::counter_with_overflow(actuator->state_.can_msgs_transmitted_,
-                                                                                      static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+        actuator->motor_state_.can_msgs_transmitted_ = sr_math_utils::counter_with_overflow(actuator->motor_state_.can_msgs_transmitted_,
+                                                                                            static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
         break;
 
       case MOTOR_DATA_SLOW_MISC:
@@ -702,66 +697,66 @@ void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(vector<Joint
         switch (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].torque))
         {
           case MOTOR_SLOW_DATA_SVN_REVISION:
-            actuator->state_.pic_firmware_svn_revision_ =
+            actuator->motor_state_.pic_firmware_svn_revision_ =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_SVN_SERVER_REVISION:
-            actuator->state_.server_firmware_svn_revision_ =
+            actuator->motor_state_.server_firmware_svn_revision_ =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_SVN_MODIFIED:
-            actuator->state_.firmware_modified_ =
+            actuator->motor_state_.firmware_modified_ =
               static_cast<bool> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW:
-            actuator->state_.set_serial_number_low(static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)));
+            actuator->motor_state_.set_serial_number_low(static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)));
             break;
           case MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH:
-            actuator->state_.set_serial_number_high(static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)));
+            actuator->motor_state_.set_serial_number_high(static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)));
             break;
           case MOTOR_SLOW_DATA_GEAR_RATIO:
-            actuator->state_.motor_gear_ratio =
+            actuator->motor_state_.motor_gear_ratio =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_ASSEMBLY_DATE_YYYY:
-            actuator->state_.assembly_data_year =
+            actuator->motor_state_.assembly_data_year =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_ASSEMBLY_DATE_MMDD:
-            actuator->state_.assembly_data_month =
+            actuator->motor_state_.assembly_data_month =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)
                                          >> 8);
-            actuator->state_.assembly_data_day =
+            actuator->motor_state_.assembly_data_day =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)
                                          && 0x00FF);
             break;
           case MOTOR_SLOW_DATA_CONTROLLER_F:
-            actuator->state_.force_control_f_ =
+            actuator->motor_state_.force_control_f_ =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_CONTROLLER_P:
-            actuator->state_.force_control_p_ =
+            actuator->motor_state_.force_control_p_ =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_CONTROLLER_I:
-            actuator->state_.force_control_i_ =
+            actuator->motor_state_.force_control_i_ =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_CONTROLLER_D:
-            actuator->state_.force_control_d_ =
+            actuator->motor_state_.force_control_d_ =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_CONTROLLER_IMAX:
-            actuator->state_.force_control_imax_ =
+            actuator->motor_state_.force_control_imax_ =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
           case MOTOR_SLOW_DATA_CONTROLLER_DEADSIGN:
             tmp_value.word = status_data->motor_data_packet[index_motor_in_msg].misc;
-            actuator->state_.force_control_deadband_ = static_cast<int> (tmp_value.byte[0]);
-            actuator->state_.force_control_sign_ = static_cast<int> (tmp_value.byte[1]);
+            actuator->motor_state_.force_control_deadband_ = static_cast<int> (tmp_value.byte[0]);
+            actuator->motor_state_.force_control_sign_ = static_cast<int> (tmp_value.byte[1]);
             break;
           case MOTOR_SLOW_DATA_CONTROLLER_FREQUENCY:
-            actuator->state_.force_control_frequency_ =
+            actuator->motor_state_.force_control_frequency_ =
               static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
             break;
 
@@ -771,19 +766,19 @@ void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(vector<Joint
         break;
 
       case MOTOR_DATA_CAN_ERROR_COUNTERS:
-        actuator->state_.can_error_counters =
+        actuator->motor_state_.can_error_counters =
           static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc);
         break;
       case MOTOR_DATA_PTERM:
-        actuator->state_.force_control_pterm =
+        actuator->motor_state_.force_control_pterm =
           static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc);
         break;
       case MOTOR_DATA_ITERM:
-        actuator->state_.force_control_iterm =
+        actuator->motor_state_.force_control_iterm =
           static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc);
         break;
       case MOTOR_DATA_DTERM:
-        actuator->state_.force_control_dterm =
+        actuator->motor_state_.force_control_dterm =
           static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc);
         break;
 
@@ -793,7 +788,7 @@ void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(vector<Joint
 
     if (read_torque)
     {
-      actuator->state_.force_unfiltered_ =
+      actuator->motor_state_.force_unfiltered_ =
         static_cast<double> (static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].torque));
 
 #ifdef DEBUG_PUBLISHER
@@ -819,6 +814,88 @@ void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(vector<Joint
       }
     }
   }
+}
+
+template <class StatusType, class CommandType>
+void SrMotorRobotLib<StatusType, CommandType>::calibrate_joint(vector<Joint>::iterator joint_tmp, StatusType* status_data)
+{
+  SrMotorActuator *actuator = get_joint_actuator(joint_tmp);
+
+  actuator->motor_state_.raw_sensor_values_.clear();
+  actuator->motor_state_.calibrated_sensor_values_.clear();
+
+  if (joint_tmp->joint_to_sensor.calibrate_after_combining_sensors)
+  {
+    //first we combine the different sensors and then we
+    // calibrate the value we obtained. This is used for
+    // some compound sensors ( THJ5 = cal(THJ5A + THJ5B))
+    double raw_position = 0.0;
+    //when combining the values, we use the coefficient imported
+    // from the sensor_to_joint.yaml file (in sr_edc_launch/config)
+
+    BOOST_FOREACH(PartialJointToSensor joint_to_sensor, joint_tmp->joint_to_sensor.joint_to_sensor_vector)
+    {
+      int tmp_raw = status_data->sensors[joint_to_sensor.sensor_id];
+      actuator->motor_state_.raw_sensor_values_.push_back(tmp_raw);
+      raw_position += static_cast<double> (tmp_raw) * joint_to_sensor.coeff;
+    }
+
+    //and now we calibrate
+    this->calibration_tmp = this->calibration_map.find(joint_tmp->joint_name);
+    actuator->motor_state_.position_unfiltered_ = this->calibration_tmp->compute(static_cast<double> (raw_position));
+  }
+  else
+  {
+    //we calibrate the different sensors first and we combine the calibrated
+    //values. This is used in the joint 0s for example ( J0 = cal(J1)+cal(J2) )
+    double calibrated_position = 0.0;
+    PartialJointToSensor joint_to_sensor;
+    string sensor_name;
+
+    ROS_DEBUG_STREAM("Combining actuator " << joint_tmp->joint_name);
+
+    for (unsigned int index_joint_to_sensor = 0;
+         index_joint_to_sensor < joint_tmp->joint_to_sensor.joint_to_sensor_vector.size();
+         ++index_joint_to_sensor)
+    {
+      joint_to_sensor = joint_tmp->joint_to_sensor.joint_to_sensor_vector[index_joint_to_sensor];
+      sensor_name = joint_tmp->joint_to_sensor.sensor_names[index_joint_to_sensor];
+
+      //get the raw position
+      int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
+      //push the new raw values
+      actuator->motor_state_.raw_sensor_values_.push_back(raw_pos);
+
+      //calibrate and then combine
+      this->calibration_tmp = this->calibration_map.find(sensor_name);
+      double tmp_cal_value = this->calibration_tmp->compute(static_cast<double> (raw_pos));
+
+      //push the new calibrated values.
+      actuator->motor_state_.calibrated_sensor_values_.push_back(tmp_cal_value);
+
+      calibrated_position += tmp_cal_value * joint_to_sensor.coeff;
+
+      ROS_DEBUG_STREAM("      -> " << sensor_name << " raw = " << raw_pos << " calibrated = " << calibrated_position);
+    }
+    actuator->motor_state_.position_unfiltered_ = calibrated_position;
+    ROS_DEBUG_STREAM("          => " << actuator->motor_state_.position_unfiltered_);
+  }
+} //end calibrate_joint()
+
+template <class StatusType, class CommandType>
+void SrMotorRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp, StatusType* status_data, double timestamp)
+{
+  SrMotorActuator* actuator = get_joint_actuator(joint_tmp);
+
+  //calibrate the joint and update the position.
+  calibrate_joint(joint_tmp, status_data);
+
+  //filter the position and velocity
+  pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(actuator->motor_state_.position_unfiltered_, timestamp);
+  //reset the position to the filtered value
+  actuator->state_.position_ = pos_and_velocity.first;
+  //set the velocity to the filtered velocity
+  actuator->state_.velocity_ = pos_and_velocity.second;
 }
 
 template <class StatusType, class CommandType>
@@ -849,7 +926,17 @@ template <class StatusType, class CommandType>
 void SrMotorRobotLib<StatusType, CommandType>::generate_force_control_config(int motor_index, int max_pwm, int sg_left, int sg_right, int f, int p,
                                                                              int i, int d, int imax, int deadband, int sign)
 {
-  ROS_INFO_STREAM("Setting new pid values for motor" << motor_index << ": max_pwm=" << max_pwm << " sgleftref=" << sg_left << " sgrightref=" << sg_right << " f=" << f << " p=" << p << " i=" << i << " d=" << d << " imax=" << imax << " deadband=" << deadband << " sign=" << sign);
+  ROS_INFO_STREAM("Setting new pid values for motor" << motor_index <<
+                  ": max_pwm=" << max_pwm <<
+                  " sgleftref=" << sg_left <<
+                  " sgrightref=" << sg_right <<
+                  " f=" << f <<
+                  " p=" << p <<
+                  " i=" << i <<
+                  " d=" << d <<
+                  " imax=" << imax <<
+                  " deadband=" << deadband <<
+                  " sign=" << sign);
 
   //the vector is of the size of the TO_MOTOR_DATA_TYPE enum.
   //the value of the element at a given index is the value
