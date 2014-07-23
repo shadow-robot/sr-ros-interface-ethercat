@@ -25,6 +25,7 @@
  */
 
 #include "sr_robot_lib/sr_motor_hand_lib.hpp"
+#include <sr_mechanism_model/simple_transmission.hpp>
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
@@ -37,9 +38,6 @@ class HandLibTestProtected : public shadow_robot::SrMotorHandLib<STATUS_TYPE, CO
 public:
   HandLibTestProtected(hardware_interface::HardwareInterface *hw)
     : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw)
-  {};
-
-  ~HandLibTestProtected()
   {};
 
 public: using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::joints_vector;
@@ -56,9 +54,14 @@ public:
   {
     hw = new ros_ethercat_model::RobotState(NULL);
     std::string nam("FFJ4");
-    hw->actuators_.insert(nam, new sr_actuator::SrMotorActuator);
+    hw->transmissions_.push_back(new sr_mechanism_model::SimpleTransmission());
+    hw->transmissions_.front().joint_ = hw->getJointState(nam);
+    hw->transmissions_.front().actuator_ = new sr_actuator::SrMotorActuator();
+    hw->transmissions_.front().actuator_->name_ = nam;
+    hw->transmissions_.front().actuator_->command_.enable_ = true;
+
     hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface*>(hw);
-    sr_hand_lib= boost::shared_ptr<HandLibTestProtected>( new HandLibTestProtected(ehw) );
+    sr_hand_lib.reset(new HandLibTestProtected(ehw));
   }
 
   ~HandLibTest()
@@ -68,12 +71,9 @@ public:
 
   void check_hw_actuator(std::string name, int motor_id, int id_in_enum, double expected_pos)
   {
-    sr_actuator::SrActuatorState state;
-
     actuator = static_cast<sr_actuator::SrMotorActuator*>(hw->getActuator(name));
-    state = (actuator->state_);
 
-    EXPECT_EQ(state.device_id_ , motor_id);
+    EXPECT_EQ(actuator->state_.device_id_ , motor_id);
     //EXPECT_EQ(state.position_ , expected_pos);
   }
 
@@ -147,8 +147,8 @@ TEST(SrRobotLib, UpdateMotor)
 
         ROS_ERROR_STREAM("last measured effort: " << sr_actuator->state_.last_measured_effort_ << " actuator: " << motor_wrapper->actuator);
 
-        EXPECT_FLOAT_EQ(sr_actuator->state_.force_unfiltered_ , 4.0);//(double)motor_wrapper->motor_id/2.0);
-        EXPECT_EQ(sr_actuator->state_.strain_gauge_right_, motor_wrapper->motor_id);
+        EXPECT_FLOAT_EQ(sr_actuator->motor_state_.force_unfiltered_ , 4.0);//(double)motor_wrapper->motor_id/2.0);
+        EXPECT_EQ(sr_actuator->motor_state_.strain_gauge_right_, motor_wrapper->motor_id);
       }
     }
   }
@@ -156,7 +156,7 @@ TEST(SrRobotLib, UpdateMotor)
 
 /**
  * Tests the update of the actuators
- * which are in the pr2_hardware_interface hw*
+ * which are in the hw*
  */
 
 TEST(SrRobotLib, UpdateActuators)
