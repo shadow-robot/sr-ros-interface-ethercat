@@ -1,15 +1,17 @@
 <launch>
   <!-- Allows to specify the ethernet interface to be used. It defaults to the value of the env var ETHERCAT_PORT -->
-  <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)" />
+  <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)"/>
   <!-- Set to 0 if the hand description will not be specified with the argument hand_description. In which case it depends on the environment variables -->
-  <arg name="set_description" default="0" />
+  <arg name="set_description" default="0"/>
   <!-- Xacro file containing the robot description we want to load. Only taken into acount if the set_description arg is set to 1
        the default value -->
-  <arg name="hand_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro" />
+  <arg name="hand_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro"/>
   <!-- The prefix used by the robot_state_publisher -->
-  <arg name="tf_prefix" default="" />
+  <arg name="tf_prefix" default=""/>
   <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
-  <arg name="calibration_controllers" default="1" />
+  <arg name="calibration_controllers" default="1"/>
+  <!-- Set to true for debugging -->
+  <arg name="debug" default="false"/>
 
   <!-- Defines the sub-directory used in
        $(find sr_ethercat_hand_config)/mappings/
@@ -18,7 +20,7 @@
        to know where to find the parameters for a certain hand.
        In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
        If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
-  <arg name="config_dir" default="" />
+  <arg name="config_dir" default=""/>
   <!-- We set this argument as a parameter in the parameter server (it is relative so it will be pushed to a namespace if we use a ns), to be able to access it from serveral places:
        - the change control mode service inside the realtime loop will use it
        - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
@@ -59,14 +61,14 @@
   </group>
 
   <!-- ros_ethercat -->
-  <group if="$(optenv ROS_ETHERCAT_LOOP_DEBUG 0)">
+  <group if="$(arg debug)">
     <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="gdb -ex run -args">
       <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
       <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
       <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
     </node>
   </group>
-  <group unless="$(optenv ROS_ETHERCAT_LOOP_DEBUG 0)">
+  <group unless="$(arg debug)">
     <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="nice -n -20">
       <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
       <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
@@ -78,11 +80,11 @@
 
   <group if="$(arg calibration_controllers)">
     <group if="$(optenv THREE_FINGER 0)">
-      <node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate.py" output="screen"
+      <node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
 	    args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
     </group>
     <group unless="$(optenv THREE_FINGER 0)">
-      <node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate.py" output="screen"
+      <node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
 	    args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_mfj0 cal_sh_mfj3 cal_sh_mfj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_lfj0 cal_sh_lfj3 cal_sh_lfj4 cal_sh_lfj5 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
     </group>
   </group>
