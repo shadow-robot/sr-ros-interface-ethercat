@@ -16,10 +16,10 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import roslib; roslib.load_manifest('sr_robot_lib')
 import rospy
 
-import time, math
+import time
+import math
 import re
 
 from std_msgs.msg import Float64
@@ -63,9 +63,15 @@ class EtherCAT_Hand_Lib(object):
 
         joint_to_sensor_mapping = []
         try:
-            joint_to_sensor_mapping = rospy.get_param("joint_to_sensor_mapping")
+            rospy.wait_for_message("debug_etherCAT_data", EthercatDebug, timeout = 0.2)
+            try:
+                joint_to_sensor_mapping = rospy.get_param("joint_to_sensor_mapping")
+            except:
+                rospy.logwarn("The parameter joint_to_sensor_mapping was not found,\
+                        you won't be able to get the raw values from the EtherCAT compound sensors.")
         except:
-            rospy.logwarn("The parameter joint_to_sensor_mapping was not found, you won't be able to get the raw values from the the EtherCAT compound sensors.")
+            pass
+
 
         for mapping in joint_to_sensor_mapping:
             if mapping[0] is 1:
@@ -217,11 +223,7 @@ class EtherCAT_Hand_Lib(object):
             rospy.wait_for_message("joint_states", JointState, timeout = 0.2)
             self.joint_state_subscriber = rospy.Subscriber("joint_states", JointState, self.joint_state_callback)
         except:
-            try:
-                rospy.wait_for_message("gazebo/joint_states", JointState, timeout = 0.2)
-                self.joint_state_subscriber = rospy.Subscriber("gazebo/joint_states", JointState, self.joint_state_callback)
-            except:
-                return False
+            return False
 
         return True
 

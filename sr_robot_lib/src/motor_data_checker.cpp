@@ -30,7 +30,7 @@ namespace generic_updater
 {
   const double MotorDataChecker::timeout = 5.0;
 
-  MotorDataChecker::MotorDataChecker(boost::ptr_vector<shadow_joints::Joint> joints_vector,
+  MotorDataChecker::MotorDataChecker(std::vector<shadow_joints::Joint> joints_vector,
                                      std::vector<UpdateConfig> initialization_configs_vector)
       : nh_tilde("~"), update_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout)
   {
@@ -48,7 +48,7 @@ namespace generic_updater
     }
   }
 
-  void MotorDataChecker::init(boost::ptr_vector<shadow_joints::Joint> joints_vector,
+  void MotorDataChecker::init(std::vector<shadow_joints::Joint> joints_vector,
                               std::vector<UpdateConfig> initialization_configs_vector)
   {
     //Create a one-shot timer
@@ -62,8 +62,9 @@ namespace generic_updater
     for (msg_it = initialization_configs_vector.begin(); msg_it < initialization_configs_vector.end(); msg_it++)
     {
       MessageChecker tmp_msg_checker( static_cast<FROM_MOTOR_DATA_TYPE>(msg_it->what_to_update) );
-      boost::ptr_vector<shadow_joints::Joint>::iterator joint;
-      for (joint = joints_vector.begin(); joint < joints_vector.end(); joint++)
+      for (std::vector<shadow_joints::Joint>::iterator joint = joints_vector.begin();
+           joint != joints_vector.end();
+           ++joint)
       {
         if (joint->has_actuator)
         {
@@ -82,7 +83,7 @@ namespace generic_updater
     }
   }
 
-  bool MotorDataChecker::check_message(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp,
+  bool MotorDataChecker::check_message(std::vector<shadow_joints::Joint>::iterator joint_tmp,
                                        FROM_MOTOR_DATA_TYPE motor_data_type, int16u motor_slow_data_type)
   {
     int index_motor_data_type = 0;

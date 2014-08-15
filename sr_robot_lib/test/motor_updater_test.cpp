@@ -1,5 +1,5 @@
 /**
- * @file   sr_edc_ethercat_drivers_test.cpp
+ * @file   motor_updater_test.cpp
  * @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
  * @date   Tue Jun  7 09:15:21 2011
  *

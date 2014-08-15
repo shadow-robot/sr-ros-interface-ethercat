@@ -1,0 +1,28 @@
+<package>
+  <name>sr_external_dependencies</name>
+  <version>1.3.3</version>
+  <description>sr_external_dependencies package is a "dummy" package used to synchronize the includes for the protocol communication between the host and the PIC for Shadow's EtherCAT hardware. It contains a script that automatically downloads the latest h file from our pic32 svn.</description>
+  <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
+
+  <license>GPL</license>
+
+  <url type="website">http://ros.org/wiki/sr_external_dependencies</url>
+  <url type="website">http://www.shadowrobot.com/products/dexterous-hand/</url>
+  <url type="repository">https://github.com/shadow-robot/sr-ros-interface-ethercat</url>
+  <url type="bugtracker">https://github.com/shadow-robot/sr-ros-interface-ethercat/issues</url>
+
+  <author>Ugo Cupcic</author>
+
+  <!-- Dependencies which this package needs to build itself. -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Dependencies needed to compile this package. -->
+
+  <!-- Dependencies needed after this package is compiled. -->
+
+  <!-- Dependencies needed only for running tests. -->
+
+  <export>
+    <rosdoc config="rosdoc.yaml" />
+  </export>
+</package>

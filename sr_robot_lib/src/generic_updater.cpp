@@ -71,11 +71,6 @@ namespace generic_updater
   }
 
   template <class CommandType>
-  GenericUpdater<CommandType>::~GenericUpdater()
-  {
-  }
-
-  template <class CommandType>
   void GenericUpdater<CommandType>::timer_callback(const ros::TimerEvent& event, int32u data_type)
   {
     if (update_state == operation_mode::device_update_state::OPERATION)

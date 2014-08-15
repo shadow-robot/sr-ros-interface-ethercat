@@ -36,181 +36,159 @@
 
 namespace shadow_joints
 {
-  struct PartialJointToSensor
+
+struct PartialJointToSensor
+{
+  int sensor_id;
+  double coeff;
+};
+
+struct JointToSensor
+{
+  std::vector<std::string> sensor_names;
+  std::vector<PartialJointToSensor> joint_to_sensor_vector;
+  bool calibrate_after_combining_sensors;
+};
+
+struct JointToMuscle
+{
+  int muscle_driver_id[2];
+  int muscle_id[2];
+};
+
+class SrActuatorWrapper
+{
+public:
+  SrActuatorWrapper()
+    : actuator(NULL),
+    actuator_ok(false),
+    bad_data(false)
   {
-    int sensor_id;
-    double coeff;
-  };
+  }
 
-  struct JointToSensor
+  //actuator
+  ros_ethercat_model::Actuator* actuator;
+
+  /**
+   * this boolean is set to true as long as we receive the
+   * data from the actuator.
+   */
+  bool actuator_ok;
+  /**
+   * this boolean is set to true if the data coming from the actuator
+   * through the CAN bus are messed up.
+   */
+  bool bad_data;
+};
+
+class MotorWrapper : public SrActuatorWrapper
+{
+public:
+  MotorWrapper()
+    : motor_id(0),
+    msg_motor_id(0)
   {
-    std::vector<std::string> sensor_names;
-    std::vector<PartialJointToSensor> joint_to_sensor_vector;
-    bool calibrate_after_combining_sensors;
-  };
+  }
 
-  struct JointToMuscle
+  //the position of the motor in the motor array
+  // coming from the hardware
+  int motor_id;
+
+  //the position of the motor in the message array
+  int msg_motor_id;
+
+  /**
+   * A service used to set the force PID settings on the
+   * motor.
+   */
+  ros::ServiceServer force_pid_service;
+
+  /**
+   * A service used to reset the
+   * motors.
+   */
+  ros::ServiceServer reset_motor_service;
+};
+
+class MuscleDriver
+{
+public:
+  MuscleDriver(int id = 0)
+    : muscle_driver_id(id),
+    can_msgs_received_(0),
+    can_msgs_transmitted_(0),
+    pic_firmware_svn_revision_(0),
+    server_firmware_svn_revision_(0),
+    firmware_modified_(0),
+    serial_number(0),
+    assembly_date_year(0),
+    assembly_date_month(0),
+    assembly_date_day(0),
+    can_err_tx(0),
+    can_err_rx(0),
+    driver_ok(false),
+    bad_data(false)
   {
-    int muscle_driver_id[2];
-    int muscle_id[2];
-  };
+  }
 
-  class SrActuatorWrapper
+  int muscle_driver_id;
+  unsigned int pic_firmware_svn_revision_;
+  unsigned int server_firmware_svn_revision_;
+  bool firmware_modified_;
+  unsigned int serial_number;
+  unsigned int assembly_date_year;
+  unsigned int assembly_date_month;
+  unsigned int assembly_date_day;
+
+  unsigned int can_err_tx;
+  unsigned int can_err_rx;
+  uint64_t can_msgs_transmitted_;
+  uint64_t can_msgs_received_;
+
+  bool driver_ok;
+  bool bad_data;
+
+  /**
+   * A service used to reset the HW
+   * muscle controller
+   */
+  ros::ServiceServer reset_driver_service;
+};
+
+class MuscleWrapper : public SrActuatorWrapper
+{
+public:
+  MuscleWrapper()
+    : muscle_id(),
+    muscle_driver_id()
   {
-  public:
-    SrActuatorWrapper()
-        : actuator(NULL), actuator_ok(false), bad_data(false)
-    {
-    }
-    ;
+  }
 
-    ~SrActuatorWrapper()
-    {
-    }
-    ;
+  /// id of the muscle drivers that control the muscles for this joint. These muscles can be driven by different muscle drivers.
+  int muscle_driver_id[2];
+  /// id of the muscles for this joint (the id indicates the order from 0 to 9 of the muscle in its muscle driver)
+  int muscle_id[2];
+};
 
+struct Joint
+{
+  std::string joint_name;
 
-    //actuator
-    sr_actuator::SrGenericActuator* actuator;
+  //the indexes of the joints in the joint array
+  // coming from the hardware which are used to
+  // compute the joint data.
+  JointToSensor joint_to_sensor;
 
-    /**
-     * this boolean is set to true as long as we receive the
-     * data from the actuator.
-     */
-    bool actuator_ok;
-    /**
-     * this boolean is set to true if the data coming from the actuator
-     * through the CAN bus are messed up.
-     */
-    bool bad_data;
-  };
+  //used to filter the position and the velocity
+  sr_math_utils::filters::LowPassFilter pos_filter;
+  //used to filter the effort
+  sr_math_utils::filters::LowPassFilter effort_filter;
 
-  class MotorWrapper : public SrActuatorWrapper
-  {
-  public:
-    MotorWrapper()
-        : SrActuatorWrapper(), motor_id(0), msg_motor_id(0)
-    {
-    }
-    ;
+  bool has_actuator;
+  boost::shared_ptr<SrActuatorWrapper> actuator_wrapper;
+};
 
-    ~MotorWrapper()
-    {
-    }
-    ;
-
-    //the position of the motor in the motor array
-    // coming from the hardware
-    int motor_id;
-
-    //the position of the motor in the message array
-    int msg_motor_id;
-
-    /**
-     * A service used to set the force PID settings on the
-     * motor.
-     */
-    ros::ServiceServer force_pid_service;
-
-    /**
-     * A service used to reset the
-     * motors.
-     */
-    ros::ServiceServer reset_motor_service;
-  };
-
-  class MuscleDriver
-  {
-  public:
-    MuscleDriver(int id=0)
-      : muscle_driver_id(id),
-        can_msgs_received_(0),
-        can_msgs_transmitted_(0),
-        pic_firmware_svn_revision_(0),
-        server_firmware_svn_revision_(0),
-        firmware_modified_(0),
-        serial_number(0),
-        assembly_date_year(0),
-        assembly_date_month(0),
-        assembly_date_day(0),
-        can_err_tx(0),
-        can_err_rx(0),
-        driver_ok(false),
-        bad_data(false)
-    {
-    };
-
-    ~MuscleDriver()
-    {
-    };
-
-    int muscle_driver_id;
-    unsigned int pic_firmware_svn_revision_;
-    unsigned int server_firmware_svn_revision_;
-    bool firmware_modified_;
-    unsigned int serial_number;
-    unsigned int assembly_date_year;
-    unsigned int assembly_date_month;
-    unsigned int assembly_date_day;
-
-    unsigned int        can_err_tx;
-    unsigned int        can_err_rx;
-    uint64_t              can_msgs_transmitted_;
-    uint64_t              can_msgs_received_;
-
-    bool driver_ok;
-    bool bad_data;
-
-    /**
-     * A service used to reset the HW
-     * muscle controller
-     */
-    ros::ServiceServer reset_driver_service;
-  };
-
-  class MuscleWrapper : public SrActuatorWrapper
-  {
-  public:
-    MuscleWrapper()
-        : SrActuatorWrapper()
-    {
-      muscle_id[0] = 0;
-      muscle_id[1] = 0;
-      muscle_driver_id[0] = 0;
-      muscle_driver_id[1] = 0;
-    }
-    ;
-
-    ~MuscleWrapper()
-    {
-    }
-    ;
-
-    /// id of the muscle drivers that control the muscles for this joint. These muscles can be driven by different muscle drivers.
-    int muscle_driver_id[2];
-    /// id of the muscles for this joint (the id indicates the order from 0 to 9 of the muscle in its muscle driver)
-    int muscle_id[2];
-  };
-
-  struct Joint
-  {
-    std::string joint_name;
-
-    //the indexes of the joints in the joint array
-    // coming from the hardware which are used to
-    // compute the joint data.
-    JointToSensor joint_to_sensor;
-
-    //used to filter the position and the velocity
-    sr_math_utils::filters::LowPassFilter pos_filter;
-    //used to filter the effort
-    sr_math_utils::filters::LowPassFilter effort_filter;
-
-    bool has_actuator;
-    boost::shared_ptr<SrActuatorWrapper> actuator_wrapper;
-  };
-
-  typedef threadsafe::Map<boost::shared_ptr<shadow_robot::JointCalibration> > CalibrationMap;
+typedef threadsafe::Map<boost::shared_ptr<shadow_robot::JointCalibration> > CalibrationMap;
 }
 
 /* For the emacs weenies in the crowd.

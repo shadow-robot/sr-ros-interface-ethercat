@@ -39,11 +39,6 @@ namespace generic_updater
   }
 
   template <class CommandType>
-  MuscleUpdater<CommandType>::~MuscleUpdater()
-  {
-  }
-
-  template <class CommandType>
   operation_mode::device_update_state::DeviceUpdateState MuscleUpdater<CommandType>::build_init_command(CommandType* command)
   {
     if(!this->mutex->try_lock())

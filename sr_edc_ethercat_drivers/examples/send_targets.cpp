@@ -43,7 +43,7 @@ public:
   TargetSender()
   {
     /**
-     * This array of joints could also be guessed either using the pr2_controller
+     * This array of joints could also be guessed either using the controller
      * or listening to the joint_states topic.
      */
     static const std::string joints[20] = {"ffj0", "ffj3", "ffj4",

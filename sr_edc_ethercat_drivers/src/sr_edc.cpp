@@ -3,22 +3,22 @@
  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
  *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
  * @date   Fri Mar 8 13:33:30 2013
-*
-* Copyright 2013 Shadow Robot Company Ltd.
-*
-* This program is free software: you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
+ *
+ * Copyright 2013 Shadow Robot Company Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  * @brief This is a parent class for the ROS drivers for any
  * Shadow Robot EtherCAT Dual CAN Slave.
  * It provides the tools to reprogram the Firmware of the microcontrollers
@@ -32,10 +32,6 @@
 
 #include <sr_edc_ethercat_drivers/sr_edc.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
 #include <realtime_tools/realtime_publisher.h>
 
 #include <math.h>
@@ -56,18 +52,18 @@ using namespace std;
 #include <sr_external_dependencies/types_for_external.h>
 extern "C"
 {
-  #include <sr_external_dependencies/external/simplemotor-bootloader/bootloader.h>
+#include <sr_external_dependencies/external/simplemotor-bootloader/bootloader.h>
 }
 
 #include <boost/static_assert.hpp>
 namespace is_edc_command_32_bits
 {
-  //check is the EDC_COMMAND is 32bits on the computer
-  //if not, fails
-  BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
+//check is the EDC_COMMAND is 32bits on the computer
+//if not, fails
+BOOST_STATIC_ASSERT(sizeof (EDC_COMMAND) == 4);
 } // namespace is_edc_command_32_bits
 
-const unsigned int       SrEdc::max_retry                  = 20;
+const unsigned int SrEdc::max_retry = 20;
 
 #define ETHERCAT_CAN_BRIDGE_DATA_SIZE sizeof(ETHERCAT_CAN_BRIDGE_DATA)
 
@@ -112,7 +108,6 @@ const unsigned int       SrEdc::max_retry                  = 20;
     exit(1);                                                    \
   }
 
-
 /** \brief Constructor of the SrEdc driver
  *
  *  This is the Constructor of the driver. We
@@ -120,30 +115,19 @@ const unsigned int       SrEdc::max_retry                  = 20;
  *  and create the Bootloading service.
  */
 SrEdc::SrEdc()
-  : SR0X(),
-    flashing(false),
-    can_message_sent(true),
-    can_packet_acked(true),
-    can_bus_(0)
+  : flashing(false),
+  can_message_sent(true),
+  can_packet_acked(true),
+  can_bus_(0),
+  counter_(0)
 {
   int res = 0;
   check_for_pthread_mutex_init_error(res);
-  counter_ = 0;
 
   res = pthread_mutex_init(&producing, NULL);
   check_for_pthread_mutex_init_error(res);
 
   serviceServer = nodehandle_.advertiseService("SimpleMotorFlasher", &SrEdc::simple_motor_flasher, this);
-}
-
-/** \brief Destructor of the SrEdc driver
- *
- *  This is the Destructor of the driver. it frees the FMMUs and SyncManagers which have been allocated during the construct.
- */
-SrEdc::~SrEdc()
-{
-  delete sh_->get_fmmu_config();
-  delete sh_->get_pd_config();
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs
@@ -179,138 +163,88 @@ SrEdc::~SrEdc()
  * If you need to have several commands like in this SrEdc driver, put the sum of the size, same thing for the status.
  *
  */
-void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address)
-{
-    SR0X::construct(sh, start_address);
-}
-
-/** \brief Construct function, run at startup to set SyncManagers and FMMUs
- *
- *  The role of this function is to setup the SyncManagers and the FMMUs used by this EtherCAT slave.
- *  This slave is using two Mailboxes on two different memory areas.
- *
- *  Here we are setting up the way of communicating between ROS and the PIC32 using the EtherCAT protocol.
- *
- *  We communicate using Shared Memory areas.
- *
- *  The FMMUs are usefull to map the logical memory used by ROS to the Physical memory of the EtherCAT slave chip (ET1200 chip).
- *  So that the chip receiving the packet will know that the data at address 0x10000 is in reality to be written at physical address 0x1000 of the chip memory for example.
- *  It is the mapping between the EtherCAT bus address space and each slave's chip own memory address space.
- *
- *  The SyncManagers are usefull to give a safe way of accessing this Shared Memory, using a consumer / producer model. There are features like interrupts to tell the consumer
- *  that there is something to consume or to tell the producer that the Mailbox is empty and then ready to receive a new message.
- *
- *  - One Mailbox contains the commands, written by ROS, read by the PIC32
- *  - One Mailbox contains the status, written back by the PIC32, read by ROS
- *
- *  That's basically one Mailbox for upstream and one Mailbox for downstream.
- *
- * - The first Mailbox contains in fact two commands, one is the torque demand, the other is a CAN command used in CAN_DIRECT_MODE to communicate with the SimpleMotor for
- *   test purposes, or to reflash a new firmware in bootloading mode.
- *   This Mailbox is at logicial address 0x10000 and mapped via a FMMU to physical address 0x1000 (the first address of user memory)
- * - The second Mailbox contains in fact two status, they are the response of the two previously described commands. One is the status containing the joints data, sensor
- *   data, finger tips data and motor data. The other is the can command response in CAN_DIRECT_MODE. When doing a flashing in bootloading mode this is usually an acknowledgment
- *   from the bootloader. This Mailbox is at logical address 0x10038 and mapped via a FMMU to physical address 0x1038.
- *
- * This function sets the two private members command_size_ and status_size_ to be the size of each Mailbox.
- * It is important for these numbers to be accurate since they are used by the EthercatHardware class when manipulating the buffers.
- * If you need to have several commands like in this SR06 driver, put the sum of the size, same thing for the status.
- *
- */
 void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size, unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
-						 unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address, unsigned int ethercat_can_bridge_data_command_address, unsigned int ethercat_can_bridge_data_status_address)
+                      unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address, unsigned int ethercat_can_bridge_data_command_address, unsigned int ethercat_can_bridge_data_status_address)
 {
-    SR0X::construct(sh, start_address);
+  sh_ = sh;
+  command_base_ = start_address;
+  command_size_ = ethercat_command_data_size + ethercat_can_bridge_data_size;
 
-    command_base_ = start_address;
-    command_size_ = ethercat_command_data_size + ethercat_can_bridge_data_size;
+  start_address += command_size_;
 
-    start_address += command_size_;
+  status_base_ = start_address;
+  status_size_ = ethercat_status_data_size + ethercat_can_bridge_data_size;
 
-    status_base_ = start_address;
-    status_size_ = ethercat_status_data_size + ethercat_can_bridge_data_size;
+  start_address += status_size_;
 
-    start_address += status_size_;
-
-    // ETHERCAT_COMMAND_DATA
-    //
-    // This is for data going TO the palm
-    //
-    ROS_INFO("First FMMU (command) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", command_base_, command_size_,
-	     static_cast<int>(ethercat_command_data_address) );
-    EC_FMMU *commandFMMU = new EC_FMMU( command_base_,                                                  // Logical Start Address    (in ROS address space?)
-                                        command_size_,
-                                        0x00,                                                           // Logical Start Bit
-                                        0x07,                                                           // Logical End Bit
-                                        ethercat_command_data_address,                                  // Physical Start Address   (in ET1200 address space?)
-                                        0x00,                                                           // Physical Start Bit
-                                        false,                                                          // Read Enable
-                                        true,                                                           // Write Enable
-                                        true                                                            // Channel Enable
-                                       );
-
+  // ETHERCAT_COMMAND_DATA
+  //
+  // This is for data going TO the palm
+  //
+  ROS_INFO("First FMMU (command) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", command_base_, command_size_,
+           static_cast<int> (ethercat_command_data_address));
+  EC_FMMU *commandFMMU = new EC_FMMU(command_base_, // Logical Start Address    (in ROS address space?)
+                                     command_size_,
+                                     0x00, // Logical Start Bit
+                                     0x07, // Logical End Bit
+                                     ethercat_command_data_address, // Physical Start Address   (in ET1200 address space?)
+                                     0x00, // Physical Start Bit
+                                     false, // Read Enable
+                                     true, // Write Enable
+                                     true // Channel Enable
+                                     );
 
 
 
-    // ETHERCAT_STATUS_DATA
-    //
-    // This is for data coming FROM the palm
-    //
-    ROS_INFO("Second FMMU (status) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", status_base_, status_size_,
-	     static_cast<int>(ethercat_status_data_address) );
-    EC_FMMU *statusFMMU = new EC_FMMU(  status_base_,
-                                        status_size_,
-                                        0x00,
-                                        0x07,
-                                        ethercat_status_data_address,
-                                        0x00,
-                                        true,
-                                        false,
-                                        true);
+
+  // ETHERCAT_STATUS_DATA
+  //
+  // This is for data coming FROM the palm
+  //
+  ROS_INFO("Second FMMU (status) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", status_base_, status_size_,
+           static_cast<int> (ethercat_status_data_address));
+  EC_FMMU *statusFMMU = new EC_FMMU(status_base_,
+                                    status_size_,
+                                    0x00,
+                                    0x07,
+                                    ethercat_status_data_address,
+                                    0x00,
+                                    true,
+                                    false,
+                                    true);
 
 
 
-    EtherCAT_FMMU_Config *fmmu = new EtherCAT_FMMU_Config(2);
+  EtherCAT_FMMU_Config *fmmu = new EtherCAT_FMMU_Config(2);
 
-    (*fmmu)[0] = *commandFMMU;
-    (*fmmu)[1] = *statusFMMU;
+  (*fmmu)[0] = *commandFMMU;
+  (*fmmu)[1] = *statusFMMU;
 
-    sh->set_fmmu_config(fmmu);
+  sh->set_fmmu_config(fmmu);
 
-    EtherCAT_PD_Config *pd = new EtherCAT_PD_Config(4);
+  EtherCAT_PD_Config *pd = new EtherCAT_PD_Config(4);
 
-    (*pd)[0] = EC_SyncMan(ethercat_command_data_address,             ethercat_command_data_size,    EC_QUEUED, EC_WRITTEN_FROM_MASTER);
-    (*pd)[1] = EC_SyncMan(ethercat_can_bridge_data_command_address,  ethercat_can_bridge_data_size, EC_QUEUED, EC_WRITTEN_FROM_MASTER);
-    (*pd)[2] = EC_SyncMan(ethercat_status_data_address,              ethercat_status_data_size,     EC_QUEUED);
-    (*pd)[3] = EC_SyncMan(ethercat_can_bridge_data_status_address,   ethercat_can_bridge_data_size, EC_QUEUED);
+  (*pd)[0] = EC_SyncMan(ethercat_command_data_address, ethercat_command_data_size, EC_QUEUED, EC_WRITTEN_FROM_MASTER);
+  (*pd)[1] = EC_SyncMan(ethercat_can_bridge_data_command_address, ethercat_can_bridge_data_size, EC_QUEUED, EC_WRITTEN_FROM_MASTER);
+  (*pd)[2] = EC_SyncMan(ethercat_status_data_address, ethercat_status_data_size, EC_QUEUED);
+  (*pd)[3] = EC_SyncMan(ethercat_can_bridge_data_status_address, ethercat_can_bridge_data_size, EC_QUEUED);
 
-    status_size_ = ethercat_status_data_size + ethercat_can_bridge_data_size;
+  status_size_ = ethercat_status_data_size + ethercat_can_bridge_data_size;
 
-    (*pd)[0].ChannelEnable = true;
-    (*pd)[0].ALEventEnable = true;
-    (*pd)[0].WriteEvent    = true;
+  (*pd)[0].ChannelEnable = true;
+  (*pd)[0].ALEventEnable = true;
+  (*pd)[0].WriteEvent = true;
 
-    (*pd)[1].ChannelEnable = true;
-    (*pd)[1].ALEventEnable = true;
-    (*pd)[1].WriteEvent    = true;
+  (*pd)[1].ChannelEnable = true;
+  (*pd)[1].ALEventEnable = true;
+  (*pd)[1].WriteEvent = true;
 
-    (*pd)[2].ChannelEnable = true;
-    (*pd)[3].ChannelEnable = true;
+  (*pd)[2].ChannelEnable = true;
+  (*pd)[3].ChannelEnable = true;
 
-    sh->set_pd_config(pd);
+  sh->set_pd_config(pd);
 
-    ROS_INFO("status_size_ : %d ; command_size_ : %d", status_size_, command_size_);
-}
-
-/**
- *
- */
-int SrEdc::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
-{
-
-  int retval = SR0X::initialize(hw, allow_unprogrammed);
-
-  return retval;
+  ROS_INFO("status_size_ : %d ; command_size_ : %d", status_size_, command_size_);
 }
 
 /** \brief Erase the PIC18F Flash memory
@@ -326,13 +260,14 @@ void SrEdc::erase_flash(void)
   unsigned int timeout;
   int err;
 
-  do {
+  do
+  {
     ROS_INFO("Erasing FLASH");
     // First we send the erase command
     cmd_sent = 0;
-    while (! cmd_sent )
+    while (!cmd_sent)
     {
-      if ( !(err = pthread_mutex_trylock(&producing)) )
+      if (!(err = pthread_mutex_trylock(&producing)))
       {
         can_message_.message_length = 1;
         can_message_.can_bus = can_bus_;
@@ -350,7 +285,7 @@ void SrEdc::erase_flash(void)
     can_message_sent = false;
     can_packet_acked = false;
     timedout = false;
-    while ( !can_packet_acked )
+    while (!can_packet_acked)
     {
       usleep(1000);
       if (wait_time > timeout)
@@ -365,7 +300,8 @@ void SrEdc::erase_flash(void)
     {
       ROS_ERROR("ERASE command timedout, resending it !");
     }
-  } while (timedout);
+  }
+  while (timedout);
 }
 
 /** \brief Function that reads back 8 bytes from PIC18F program memory
@@ -392,9 +328,9 @@ bool SrEdc::read_flash(unsigned int offset, unsigned int baddr)
   bool timedout;
   unsigned int timeout;
   cmd_sent = 0;
-  while ( !cmd_sent )
+  while (!cmd_sent)
   {
-    if ( !(err = pthread_mutex_trylock(&producing)) )
+    if (!(err = pthread_mutex_trylock(&producing)))
     {
       ROS_DEBUG("Sending READ data ... position : %03x", pos);
       can_message_.can_bus = can_bus_;
@@ -417,7 +353,7 @@ bool SrEdc::read_flash(unsigned int offset, unsigned int baddr)
   timeout = 100;
   can_message_sent = false;
   can_packet_acked = false;
-  while ( !can_packet_acked )
+  while (!can_packet_acked)
   {
     usleep(1000);
     if (wait_time > timeout)
@@ -498,9 +434,9 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   }
 
   //Check that bfd recognises the file as a correctly formatted object file
-  if (!bfd_check_format (fd, bfd_object))
+  if (!bfd_check_format(fd, bfd_object))
   {
-    if (bfd_get_error () != bfd_error_file_ambiguously_recognized)
+    if (bfd_get_error() != bfd_error_file_ambiguously_recognized)
     {
       ROS_ERROR("Incompatible format");
       res.value = res.FAIL;
@@ -515,13 +451,13 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   ROS_DEBUG("Sending dummy packet");
   send_CAN_msg(can_bus_, 0, 0, NULL, 1, &timedout);
 
-  ROS_INFO_STREAM("Switching motor "<< motor_being_flashed << " on CAN bus " << can_bus_ << " into bootloader mode");
+  ROS_INFO_STREAM("Switching motor " << motor_being_flashed << " on CAN bus " << can_bus_ << " into bootloader mode");
   //Send the magic packet that will force the microcontroller to go into bootloader mode
   int8u magic_packet[] = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA};
   send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | 0b1010, 8, magic_packet, 100, &timedout);
 
   //Send a second magic packet if the first one wasn't acknowledged
-  if ( timedout )
+  if (timedout)
   {
     ROS_WARN("First magic CAN packet timedout");
     ROS_WARN("Sending another magic CAN packet to put the motor in bootloading mode");
@@ -551,7 +487,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   //Allocate the memory space to store the data to be flashed
   //This could be done with new bfd_byte[total_size+8] and delete() instead of malloc() and free() but will stay this way for the moment
-  binary_content = (bfd_byte *)malloc(total_size+8);
+  binary_content = (bfd_byte *) malloc(total_size + 8);
   if (binary_content == NULL)
   {
     ROS_ERROR("Error allocating memory for binary_content");
@@ -563,10 +499,10 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   //Set all the bytes in the binary_content to 0xFF initially (i.e. before reading the content from the hex file)
   //This way we make sure that any byte in the region between smallest_start_address and biggest_end_address
   //that is not included in any section of the hex file, will be written with a 0xFF value, which is the default in the PIC
-  memset(binary_content, 0xFF, total_size+8);
+  memset(binary_content, 0xFF, total_size + 8);
 
   //The content of the firmware is read from the .hex file pointed by fd, to a memory region pointed by binary_content
-  if(!read_content_from_object_file(fd, binary_content, base_addr))
+  if (!read_content_from_object_file(fd, binary_content, base_addr))
   {
     ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
     res.value = res.FAIL;
@@ -579,7 +515,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   bfd_close(fd);
 
   //The firmware is actually written to the flash memory of the PIC18
-  if(!write_flash_data(base_addr, total_size))
+  if (!write_flash_data(base_addr, total_size))
   {
     res.value = res.FAIL;
     free(binary_content);
@@ -590,7 +526,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   ROS_INFO("Verifying");
   // Now we have to read back the flash content
-  if( !read_back_and_check_flash(base_addr, total_size))
+  if (!read_back_and_check_flash(base_addr, total_size))
   {
     res.value = res.FAIL;
     free(binary_content);
@@ -603,9 +539,11 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   ROS_INFO("Resetting microcontroller.");
   // Then we send the RESET command to PIC18F
-  do {
+  do
+  {
     send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | RESET_COMMAND, 0, NULL, 1000, &timedout);
-  } while ( timedout );
+  }
+  while (timedout);
 
 
   flashing = false;
@@ -626,12 +564,12 @@ void SrEdc::build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message)
 
   if (flashing && !can_packet_acked && !can_message_sent)
   {
-    if ( !(res = pthread_mutex_trylock(&producing)) )
+    if (!(res = pthread_mutex_trylock(&producing)))
     {
-      ROS_DEBUG_STREAM("Ethercat bridge data size: "<< ETHERCAT_CAN_BRIDGE_DATA_SIZE);
+      ROS_DEBUG_STREAM("Ethercat bridge data size: " << ETHERCAT_CAN_BRIDGE_DATA_SIZE);
 
       ROS_DEBUG("We're sending a CAN message for flashing.");
-      memcpy(message, &can_message_, sizeof(can_message_));
+      memcpy(message, &can_message_, sizeof (can_message_));
       can_message_sent = true;
 
       ROS_DEBUG("Sending : SID : 0x%04X ; bus : 0x%02X ; length : 0x%02X ; data : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
@@ -657,8 +595,8 @@ void SrEdc::build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message)
   }
   else
   {
-    message->can_bus        = can_bus_;
-    message->message_id     = 0x00;
+    message->can_bus = can_bus_;
+    message->message_id = 0x00;
     message->message_length = 0;
   }
 }
@@ -684,7 +622,7 @@ bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
   ROS_DEBUG("ack sid : %04X", packet->message_id);
 
   // Is this a reply to a READ request?
-  if ( (packet->message_id & 0b0000011111111111) == (0x0600 | (motor_being_flashed << 5) | 0x10 | READ_FLASH_COMMAND))
+  if ((packet->message_id & 0b0000011111111111) == (0x0600 | (motor_being_flashed << 5) | 0x10 | READ_FLASH_COMMAND))
   {
     ROS_DEBUG("READ reply  %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", packet->message_data[0],
               packet->message_data[1],
@@ -693,26 +631,26 @@ bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
               packet->message_data[4],
               packet->message_data[5],
               packet->message_data[6],
-              packet->message_data[7]  );
-    ROS_DEBUG("Should be   %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", binary_content[pos+0],
-              binary_content[pos+1],
-              binary_content[pos+2],
-              binary_content[pos+3],
-              binary_content[pos+4],
-              binary_content[pos+5],
-              binary_content[pos+6],
-              binary_content[pos+7]  );
+              packet->message_data[7]);
+    ROS_DEBUG("Should be   %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", binary_content[pos + 0],
+              binary_content[pos + 1],
+              binary_content[pos + 2],
+              binary_content[pos + 3],
+              binary_content[pos + 4],
+              binary_content[pos + 5],
+              binary_content[pos + 6],
+              binary_content[pos + 7]);
 
-      if ( !memcmp(packet->message_data, binary_content + pos, 8) )
-      {
-        ROS_DEBUG("data is good");
-        return true;
-      }
-      else
-      {
-        ROS_DEBUG("data is bad");
-        return false;
-      }
+    if (!memcmp(packet->message_data, binary_content + pos, 8))
+    {
+      ROS_DEBUG("data is good");
+      return true;
+    }
+    else
+    {
+      ROS_DEBUG("data is bad");
+      return false;
+    }
   }
 
   if (packet->message_length != can_message_.message_length)
@@ -723,7 +661,7 @@ bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
 
   ROS_DEBUG("Length is OK");
 
-  for (i = 0 ; i < packet->message_length ; ++i)
+  for (i = 0; i < packet->message_length; ++i)
   {
     ROS_DEBUG("packet sent, data[%d] : %02X ; ack, data[%d] : %02X", i, can_message_.message_data[i], i, packet->message_data[i]);
     if (packet->message_data[i] != can_message_.message_data[i])
@@ -731,12 +669,12 @@ bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
   }
   ROS_DEBUG("Data is OK");
 
-  if ( !(0x0010 & packet->message_id))
+  if (!(0x0010 & packet->message_id))
     return false;
 
   ROS_DEBUG("This is an ACK");
 
-  if ( (packet->message_id & 0b0000000111101111) != (can_message_.message_id & 0b0000000111101111) )
+  if ((packet->message_id & 0b0000000111101111) != (can_message_.message_id & 0b0000000111101111))
   {
     ROS_WARN_STREAM("Bad packet id: " << packet->message_id);
     return false;
@@ -748,7 +686,6 @@ bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
   return true;
 }
 
-
 void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u msg_data[], int timeout, bool *timedout)
 {
   int err;
@@ -756,9 +693,9 @@ void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u m
   int wait_time;
 
   cmd_sent = 0;
-  while ( !cmd_sent )
+  while (!cmd_sent)
   {
-    if ( !(err = pthread_mutex_trylock(&producing)) )
+    if (!(err = pthread_mutex_trylock(&producing)))
     {
       can_message_.message_length = msg_length;
       can_message_.can_bus = can_bus;
@@ -766,7 +703,7 @@ void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u m
 
       if (msg_data != NULL)
       {
-        for(unsigned int i = 0; i<msg_length; i++)
+        for (unsigned int i = 0; i < msg_length; i++)
         {
           can_message_.message_data[i] = msg_data[i];
         }
@@ -784,11 +721,12 @@ void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u m
   *timedout = false;
   can_message_sent = false;
   can_packet_acked = false;
-  while ( !can_packet_acked )
+  while (!can_packet_acked)
   {
     usleep(1000); // 1 ms
     wait_time++;
-    if (wait_time > timeout) {
+    if (wait_time > timeout)
+    {
       *timedout = true;
       break;
     }
@@ -808,9 +746,10 @@ bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_siz
   while (pos < total_size)
   {
     retry = 0;
-    do {
+    do
+    {
       timedout = read_flash(pos, baddr);
-      if ( ! timedout )
+      if (!timedout)
         pos += 8;
       retry++;
       if (retry > max_retry)
@@ -818,7 +757,8 @@ bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_siz
         ROS_ERROR("Too much retry for READ back, try flashing again");
         return false;
       }
-    } while ( timedout );
+    }
+    while (timedout);
   }
   return true;
 }
@@ -836,21 +776,21 @@ void SrEdc::find_address_range(bfd *fd, unsigned int *smallest_start_address, un
   //To understand the structure (sections) of the object file containing the firmware (usually a .hex) the following commands can be useful:
   //  \code objdump -x simplemotor.hex \endcode
   //  \code objdump -s simplemotor.hex \endcode
-  for (s = fd->sections ; s ; s = s->next)
+  for (s = fd->sections; s; s = s->next)
   {
     //Only the sections with the LOAD flag on will be considered
-    if (bfd_get_section_flags (fd, s) & (SEC_LOAD))
+    if (bfd_get_section_flags(fd, s) & (SEC_LOAD))
     {
       //Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
       //http://www.delorie.com/gnu/docs/binutils/ld_7.html
-      if (bfd_section_lma (fd, s) == bfd_section_vma (fd, s))
+      if (bfd_section_lma(fd, s) == bfd_section_vma(fd, s))
       {
-        section_addr = (unsigned int) bfd_section_lma (fd, s);
+        section_addr = (unsigned int) bfd_section_lma(fd, s);
         if (section_addr >= 0x7fff)
           continue;
-        section_size = (unsigned int) bfd_section_size (fd, s);
-        *smallest_start_address = min(section_addr, *smallest_start_address);
-        *biggest_end_address = max(*biggest_end_address, section_addr + section_size);
+        section_size = (unsigned int) bfd_section_size(fd, s);
+        *smallest_start_address = std::min(section_addr, *smallest_start_address);
+        *biggest_end_address = std::max(*biggest_end_address, section_addr + section_size);
       }
     }
   }
@@ -862,21 +802,21 @@ bool SrEdc::read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned i
   unsigned int section_size = 0;
   unsigned int section_addr = 0;
 
-  for (s = fd->sections ; s ; s = s->next)
+  for (s = fd->sections; s; s = s->next)
   {
     //Only the sections with the LOAD flag on will be considered
-    if (bfd_get_section_flags (fd, s) & (SEC_LOAD))
+    if (bfd_get_section_flags(fd, s) & (SEC_LOAD))
     {
       //Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
       //http://www.delorie.com/gnu/docs/binutils/ld_7.html
-      if (bfd_section_lma (fd, s) == bfd_section_vma (fd, s))
+      if (bfd_section_lma(fd, s) == bfd_section_vma(fd, s))
       {
-        section_addr = (unsigned int) bfd_section_lma (fd, s);
+        section_addr = (unsigned int) bfd_section_lma(fd, s);
         //The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
         //(they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
         if (section_addr >= 0x7fff)
           continue;
-        section_size = (unsigned int) bfd_section_size (fd, s);
+        section_size = (unsigned int) bfd_section_size(fd, s);
         bfd_get_section_contents(fd, s, content + (section_addr - base_addr), 0, section_size);
       }
       else
@@ -902,18 +842,19 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
   pos = 0;
   unsigned int packet = 0;
   ROS_INFO("Sending the firmware data");
-  while ( pos < ((total_size % 32) == 0 ? total_size : (total_size + 32 - (total_size % 32))) )
+  while (pos < ((total_size % 32) == 0 ? total_size : (total_size + 32 - (total_size % 32))))
   {
     //For every WRITE_FLASH_ADDRESS_COMMAND we write 32 bytes of data to flash
     //and this is done by sending 4 WRITE_FLASH_DATA_COMMAND packets, every one containing 8 bytes of data to be written
     if ((pos % 32) == 0)
     {
       packet = 0;
-      do {
+      do
+      {
         cmd_sent = 0;
-        while (! cmd_sent )
+        while (!cmd_sent)
         {
-          if ( !(err = pthread_mutex_trylock(&producing)) )
+          if (!(err = pthread_mutex_trylock(&producing)))
           {
             can_message_.message_length = 3;
             can_message_.can_bus = can_bus_;
@@ -935,7 +876,7 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
         timeout = 100;
         can_message_sent = false;
         can_packet_acked = false;
-        while ( !can_packet_acked )
+        while (!can_packet_acked)
         {
           usleep(1000);
           if (wait_time > timeout)
@@ -949,19 +890,20 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
         {
           ROS_ERROR("WRITE ADDRESS timedout ");
         }
-      } while ( timedout );
+      }
+      while (timedout);
     }
     cmd_sent = 0;
-    while (! cmd_sent )
+    while (!cmd_sent)
     {
-      if ( !(err = pthread_mutex_trylock(&producing)) )
+      if (!(err = pthread_mutex_trylock(&producing)))
       {
         ROS_DEBUG("Sending data ... position == %d", pos);
         can_message_.message_length = 8;
         can_message_.can_bus = can_bus_;
         can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_DATA_COMMAND;
         bzero(can_message_.message_data, 8);
-        for (unsigned char j = 0 ; j < 8 ; ++j)
+        for (unsigned char j = 0; j < 8; ++j)
           can_message_.message_data[j] = (pos > total_size) ? 0xFF : *(binary_content + pos + j);
 
         pos += 8;
@@ -979,7 +921,7 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
     timeout = 100;
     can_message_sent = false;
     can_packet_acked = false;
-    while ( !can_packet_acked )
+    while (!can_packet_acked)
     {
       usleep(1000);
       if (wait_time > timeout)
@@ -989,10 +931,10 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
       }
       wait_time++;
     }
-    if ( timedout )
+    if (timedout)
     {
-      ROS_ERROR("A WRITE data packet has been lost at pos=%u, resending the 32 bytes block at pos=%u  !", pos, (pos - packet*8));
-      pos -= packet*8;
+      ROS_ERROR("A WRITE data packet has been lost at pos=%u, resending the 32 bytes block at pos=%u  !", pos, (pos - packet * 8));
+      pos -= packet * 8;
     }
   }
   return true;
@@ -1003,4 +945,4 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
    Local Variables:
    c-basic-offset: 2
    End:
-*/
+ */

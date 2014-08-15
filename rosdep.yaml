@@ -1,5 +1,0 @@
-binutils:
-  debian: binutils-dev
-  ubuntu: binutils-dev
-tinyxml:
-  ubuntu: libtinyxml-dev

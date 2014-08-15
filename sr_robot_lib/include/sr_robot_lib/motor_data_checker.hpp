@@ -48,10 +48,10 @@ namespace generic_updater
   public:
     MessageFromMotorChecker(int id)
         : motor_id_(id), received_(false)
-    {};
+    {}
 
-    ~MessageFromMotorChecker()
-    {};
+    virtual ~MessageFromMotorChecker()
+    {}
 
     int motor_id_;
     virtual void set_received();
@@ -65,8 +65,6 @@ namespace generic_updater
   {
   public:
     SlowMessageFromMotorChecker(int id);
-    ~SlowMessageFromMotorChecker()
-    {};
 
     boost::array<bool, MOTOR_SLOW_DATA_LAST + 1> slow_data_received;
 
@@ -78,10 +76,7 @@ namespace generic_updater
   public:
     MessageChecker(FROM_MOTOR_DATA_TYPE msg_type)
         : msg_type(msg_type)
-    {};
-
-    ~MessageChecker()
-    {};
+    {}
 
     FROM_MOTOR_DATA_TYPE msg_type;
     std::vector<MessageFromMotorChecker*> msg_from_motor_checkers;
@@ -96,7 +91,7 @@ namespace generic_updater
   class MotorDataChecker
   {
   public:
-    MotorDataChecker(boost::ptr_vector<shadow_joints::Joint> joints_vector,
+    MotorDataChecker(std::vector<shadow_joints::Joint> joints_vector,
                      std::vector<UpdateConfig> initialization_configs_vector);
     ~MotorDataChecker();
 
@@ -106,22 +101,22 @@ namespace generic_updater
      * Checks a certain message coming from a certain joint (motor)
      * Joints without a motor are not expected to provide any information
      *
-     * @joint_tmp joint iterator containing the data of the joint
-     * @motor_data_type the type of the received data
-     * @motor_slow_data_type the type of the received sub-data (used if the motor_data_type is MOTOR_DATA_SLOW_MISC)
+     * @param joint_tmp joint iterator containing the data of the joint
+     * @param motor_data_type the type of the received data
+     * @param motor_slow_data_type the type of the received sub-data (used if the motor_data_type is MOTOR_DATA_SLOW_MISC)
      * @return true if all expected messages have already been received
      */
-    bool check_message(boost::ptr_vector<shadow_joints::Joint>::iterator joint_tmp,
+    bool check_message(std::vector<shadow_joints::Joint>::iterator joint_tmp,
                        FROM_MOTOR_DATA_TYPE motor_data_type, int16u motor_slow_data_type);
 
     /**
      * Initializes the Motor Data Checker to the not received state for each message
      * Should be used when reinitializing
      *
-     * @joints_vector the vector with the joints (motors) from which information is coming
-     * @initialization_configs_vector vector containing the initialization commands whose answers need to be checked
+     * @param joints_vector the vector with the joints (motors) from which information is coming
+     * @param initialization_configs_vector vector containing the initialization commands whose answers need to be checked
      */
-    void init(boost::ptr_vector<shadow_joints::Joint> joints_vector,
+    void init(std::vector<shadow_joints::Joint> joints_vector,
               std::vector<UpdateConfig> initialization_configs_vector);
 
   protected:
