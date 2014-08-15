@@ -69,7 +69,7 @@
     </node>
   </group>
   <group unless="$(arg debug)">
-    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="pr2-grant nice -n -20">
+    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="pr2-grant">
       <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
       <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
       <param name="image_path" value="$(find sr_movements)/movements/test.png"/>

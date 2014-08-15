@@ -249,7 +249,6 @@ void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType* comman
       shared_ptr<pair<int, int> > debug_pair;
       if (this->debug_mutex.try_lock())
       {
-        boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
 
         BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
         {

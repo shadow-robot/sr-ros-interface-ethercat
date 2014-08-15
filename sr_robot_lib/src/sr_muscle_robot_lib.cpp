@@ -47,7 +47,6 @@ using boost::static_pointer_cast;
 
 namespace shadow_robot
 {
-
 template <class StatusType, class CommandType>
 const double SrMuscleRobotLib<StatusType, CommandType>::timeout = 5.0;
 
@@ -379,6 +378,7 @@ void SrMuscleRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnosti
           d.addf("Unfiltered Pressure 0", "%u", actuator->muscle_state_.pressure_[0]);
           d.addf("Unfiltered Pressure 1", "%u", actuator->muscle_state_.pressure_[1]);
 
+          d.addf("Position", "%f", actuator->state_.position_);
         }
       }
       else

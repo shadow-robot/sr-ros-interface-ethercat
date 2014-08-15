@@ -86,6 +86,14 @@ namespace tactiles
         {
           tactiles_vector->at(id_sensor).distal[i] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[i]) );
         }
+        for( unsigned int i = 0; i < tactiles_vector->at(id_sensor).middle.size(); ++i)
+        {
+          tactiles_vector->at(id_sensor).middle[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.middle[i]) );
+        }
+        for( unsigned int i = 0; i < tactiles_vector->at(id_sensor).proximal.size(); ++i)
+        {
+          tactiles_vector->at(id_sensor).proximal[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.proximal[i]) );
+        }
         break;
 
         //COMMON DATA
@@ -132,15 +140,6 @@ namespace tactiles
         break;
 
       } //end switch
-
-      for( unsigned int i = 0; i < tactiles_vector->at(id_sensor).middle.size(); ++i)
-      {
-        tactiles_vector->at(id_sensor).middle[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.middle[i]) );
-      }
-      for( unsigned int i = 0; i < tactiles_vector->at(id_sensor).proximal.size(); ++i)
-      {
-        tactiles_vector->at(id_sensor).proximal[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.proximal[i]) );
-      }
     } //end for tactile
 
     for( unsigned int i = 0; i < palm_tactiles->palm.size(); ++i)
