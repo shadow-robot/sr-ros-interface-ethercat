@@ -309,17 +309,17 @@ protected:
   void checkSelfTests();
 
 public:
-  boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> > tactiles_init;
 
   /// Timeout handling variables for UBI sensors  
-  ros::Timer tactile_check_init_timeout_timer;
   static const double tactile_timeout;
   ros::Duration tactile_init_max_duration;
-  
+  ros::Timer tactile_check_init_timeout_timer;
   
   /// A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
   boost::shared_ptr<boost::mutex> lock_tactile_init_timeout_;
   
+  boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> > tactiles_init;
+
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
 
