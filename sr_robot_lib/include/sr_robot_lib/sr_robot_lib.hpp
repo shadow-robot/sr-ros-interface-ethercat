@@ -250,6 +250,10 @@ protected:
    */
   std::vector<generic_updater::UpdateConfig> read_update_rate_configs(std::string base_param, int nb_data_defined, const char* human_readable_data_types[], const int32u data_types[]);
 
+  /**
+   * Calback for the timer that controls the timeout for the tactile initialization period
+   */
+  void tactile_init_timer_callback(const ros::TimerEvent& event);
 
   /// A temporary calibration for a given joint.
   boost::shared_ptr<shadow_robot::JointCalibration> calibration_tmp;
@@ -297,7 +301,6 @@ protected:
   ///The update rate for each sensor information type
   std::vector<generic_updater::UpdateConfig> ubi0_sensor_update_rate_configs_vector;
 
-
   static const int nb_sensor_data;
   static const char* human_readable_sensor_data_types[];
   static const int32u sensor_data_types[];
@@ -306,11 +309,21 @@ protected:
   void checkSelfTests();
 
 public:
+
+  /// Timeout handling variables for UBI sensors  
+  static const double tactile_timeout;
+  ros::Duration tactile_init_max_duration;
+  ros::Timer tactile_check_init_timeout_timer;
+  
+  /// A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
+  boost::shared_ptr<boost::mutex> lock_tactile_init_timeout_;
+  
   boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> > tactiles_init;
 
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
-}; //end class
+
+};//end class
 }//end namespace
 
 /* For the emacs weenies in the crowd.
