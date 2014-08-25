@@ -1,0 +1,3 @@
+sr_ubi_tactile_sensor_controller:
+  type: sr_tactile_sensor_controller/SrUbiTactileSensorController
+  publish_rate: 100
