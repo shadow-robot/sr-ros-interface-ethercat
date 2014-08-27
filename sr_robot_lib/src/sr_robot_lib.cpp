@@ -60,9 +60,6 @@ const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
 #endif
 
 template <class StatusType, class CommandType>
-const double SrRobotLib<StatusType, CommandType>::tactile_timeout = 10.0;
-
-template <class StatusType, class CommandType>
 const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 32;
 
 template <class StatusType, class CommandType>
@@ -134,10 +131,13 @@ const int32u SrRobotLib<StatusType, CommandType>::sensor_data_types[nb_sensor_da
                                                                                        TACTILE_SENSOR_TYPE_UBI0_TACTILE};
 
 template <class StatusType, class CommandType>
+const double SrRobotLib<StatusType, CommandType>::tactile_timeout = 10.0;
+
+template <class StatusType, class CommandType>
 SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInterface *hw)
   : main_pic_idle_time(0),
   main_pic_idle_time_min(1000),
-  tactile_current_state(operation_mode::device_update_state::INITIALIZATION), tactile_init_max_duration(tactile_timeout),
+  tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
   hw_(static_cast<RobotState*> (hw)),
   nullify_demand_(false),
   nh_tilde("~"),
@@ -152,11 +152,6 @@ SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInte
 
   //read the generic sensor polling frequency from the parameter server
   generic_sensor_update_rate_configs_vector(read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types)),
-
-  lock_tactile_init_timeout_ (boost::shared_ptr<boost::mutex>(new boost::mutex())), 
-  //Create a one-shot timer
-  tactile_check_init_timeout_timer (this->nh_tilde.createTimer(tactile_init_max_duration,
-                                               boost::bind(&SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback, this, _1), true)),
      
   //read the pst3 sensor polling frequency from the parameter server
   pst3_sensor_update_rate_configs_vector(read_update_rate_configs("pst3_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types)),
@@ -167,6 +162,12 @@ SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInte
   //read the UBI0 sensor polling frequency from the parameter server
   ubi0_sensor_update_rate_configs_vector(read_update_rate_configs("ubi0_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types)),
 
+  tactile_init_max_duration(tactile_timeout),
+  
+  //Create a one-shot timer
+  tactile_check_init_timeout_timer (this->nh_tilde.createTimer(tactile_init_max_duration,
+                                               boost::bind(&SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback, this, _1), true)),
+  lock_tactile_init_timeout_ (boost::shared_ptr<boost::mutex>(new boost::mutex())), 
   tactiles_init(shared_ptr<GenericTactiles<StatusType, CommandType> >(new GenericTactiles<StatusType, CommandType>(generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION))),
 
   //initialize the calibration map
