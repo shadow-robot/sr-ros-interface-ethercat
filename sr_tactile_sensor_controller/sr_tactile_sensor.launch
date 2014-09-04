@@ -1,13 +1,10 @@
 <launch>
-  <!-- for easy right hand / left hand namespacing -->
-  <arg name="ns" default="/"/>
-
   <!-- load configuration -->
   <group if="$(optenv BIOTAC_HAND 0)">
       <rosparam command="load" file="$(find sr_tactile_sensor_controller)/sr_biotac_tactile_sensor_controller.yaml" />
 
       <!-- spawn controller -->
-      <node name="sr_tactile_sensor_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="sr_biotac_tactile_sensor_controller" ns="$(arg ns)"/>
+      <node name="sr_tactile_sensor_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="sr_biotac_tactile_sensor_controller" />
   </group> <!-- BIOTACS -->
 
   <group unless="$(optenv BIOTAC_HAND 0)">
@@ -15,14 +12,14 @@
       <rosparam command="load" file="$(find sr_tactile_sensor_controller)/sr_ubi_tactile_sensor_controller.yaml" />
 
       <!-- spawn controller -->
-      <node name="sr_tactile_sensor_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="sr_ubi_tactile_sensor_controller" ns="$(arg ns)"/>
+      <node name="sr_tactile_sensor_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="sr_ubi_tactile_sensor_controller" />
     </group> <!-- UBI -->
 
     <group unless="$(optenv UBI_HAND 0)">
       <rosparam command="load" file="$(find sr_tactile_sensor_controller)/sr_pst_tactile_sensor_controller.yaml" />
 
       <!-- spawn controller -->
-      <node name="sr_tactile_sensor_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="sr_pst_tactile_sensor_controller" ns="$(arg ns)"/>
+      <node name="sr_tactile_sensor_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="sr_pst_tactile_sensor_controller" />
     </group> <!-- PSTS -->
   </group>
 </launch>
