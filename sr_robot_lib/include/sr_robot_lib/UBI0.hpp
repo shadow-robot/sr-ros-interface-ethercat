@@ -86,10 +86,6 @@ namespace tactiles
     /// the object containing the data from the palm sensors
     boost::shared_ptr< UBI0PalmData > palm_tactiles;
 
-    // Distal tactile sensor real time publisher
-    boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> > tactile_publisher;
-    // Middle and proximal tactile sensor real time publisher
-    boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> > mid_prox_publisher;
     // Auxiliar Spi data (sometimes it is a palm tactile sensor) real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData> > aux_spi_publisher;
   };//end class

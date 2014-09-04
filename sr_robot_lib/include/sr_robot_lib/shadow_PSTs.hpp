@@ -76,9 +76,6 @@ namespace tactiles
     virtual std::vector<AllTactileData>* get_tactile_data();
 
   protected:
-
-    // Tactile sensor real time publisher
-    boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> > tactile_publisher;
   };//end class
 }//end namespace
 

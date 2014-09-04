@@ -55,9 +55,6 @@ namespace tactiles
   template <class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
   {
-    // Tactile sensor real time publisher
-    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> >( new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(this->nodehandle_, "tactile", 4));
-
     //initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr< std::vector<BiotacData> >( new std::vector<BiotacData>(this->nb_tactiles) );
     this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >( new std::vector<AllTactileData>(this->nb_tactiles) );
@@ -223,32 +220,7 @@ namespace tactiles
   template <class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::publish()
   {
-    if(tactile_publisher->trylock())
-    {
-      //for the time being, we only have PSTs tactile sensors
-      sr_robot_msgs::BiotacAll tactiles;
-      tactiles.header.stamp = ros::Time::now();
-
-      for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
-      {
-        sr_robot_msgs::Biotac tactile_tmp;
-
-        tactile_tmp.pac0 = static_cast<int16u>(tactiles_vector->at(id_tact).pac0);
-        tactile_tmp.pac1 = static_cast<int16u>(tactiles_vector->at(id_tact).pac1);
-
-        tactile_tmp.pdc = static_cast<int16u>(tactiles_vector->at(id_tact).pdc);
-        tactile_tmp.tac = static_cast<int16u>(tactiles_vector->at(id_tact).tac);
-        tactile_tmp.tdc = static_cast<int16u>(tactiles_vector->at(id_tact).tdc);
-
-        tactile_tmp.electrodes = tactiles_vector->at(id_tact).electrodes;
-
-        tactiles.tactiles[id_tact] = tactile_tmp;
-      }
-
-      tactile_publisher->msg_ = tactiles;
-      tactile_publisher->unlockAndPublish();
-    }
-
+    //left empty, this is published from the controller publisher
   }//end publish
 
   template <class StatusType, class CommandType>
@@ -296,5 +268,3 @@ namespace tactiles
    c-basic-offset: 2
    End:
 */
-
-
