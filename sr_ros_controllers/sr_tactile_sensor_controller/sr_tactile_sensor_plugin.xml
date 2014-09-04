@@ -1,0 +1,7 @@
+<library path="lib/libsr_tactile_sensor_controller">
+  <class name="sr_tactile_sensor_controller/SrUbiTactileSensorController" type="controller::SrUbiTactileSensorController" base_class_type="controller_interface::ControllerBase">
+    <description>
+    This controller publishes the readings of all available tactile sensors as sr_robot_msgs/UBI0All and sr_robot_msgs/MidProxDataAll messages. The controller expects a RobotState type of hardware interface.
+    </description>
+  </class>
+</library>

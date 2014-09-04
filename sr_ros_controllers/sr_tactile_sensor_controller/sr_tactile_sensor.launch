@@ -1,0 +1,9 @@
+<launch>
+  <group ns="rh">
+  <!-- load configuration -->
+  <rosparam command="load" file="$(find sr_tactile_sensor_controller)/sr_ubi_tactile_sensor_controller.yaml" />
+
+  <!-- spawn controller -->
+  <node name="sr_tactile_sensor_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="sr_ubi_tactile_sensor_controller" />
+  </group>
+</launch>
