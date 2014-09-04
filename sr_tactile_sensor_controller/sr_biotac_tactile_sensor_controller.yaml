@@ -1,0 +1,3 @@
+sr_biotac_tactile_sensor_controller:
+  type: sr_tactile_sensor_controller/SrBiotacTactileSensorController
+  publish_rate: 100

@@ -7,7 +7,7 @@
  * @brief  Publishes ubi tactile state
  *
  */
- 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 2012, hiDOF INC.
 // Copyright (C) 2013, PAL Robotics S.L.
@@ -45,7 +45,6 @@
 #include <realtime_tools/realtime_publisher.h>
 #include <sr_robot_msgs/UBI0All.h>
 #include <sr_robot_msgs/MidProxDataAll.h>
-#include <pluginlib/class_list_macros.h>
 
 namespace controller
 {
@@ -58,7 +57,7 @@ namespace controller
     virtual void update(const ros::Time& time, const ros::Duration& period);
 
   private:
-   
+
     typedef boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> > UbiPublisherPtr;
     typedef boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> > MidProxPublisherPtr;
     UbiPublisherPtr ubi_realtime_pub_;

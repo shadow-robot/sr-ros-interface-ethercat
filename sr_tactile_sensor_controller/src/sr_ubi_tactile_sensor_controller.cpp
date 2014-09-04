@@ -38,12 +38,13 @@
 /// Original author of ImuSensorController : Adolfo Rodriguez Tsouroukdissian
 
 #include "sr_tactile_sensor_controller/sr_ubi_tactile_sensor_controller.hpp"
+#include <pluginlib/class_list_macros.h>
 
 using namespace std;
 
 namespace controller
 {
-  bool SrUbiTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh) 
+  bool SrUbiTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
   {
     bool ret=SrTactileSensorController::init(hw, root_nh, controller_nh);
     if (ret)
@@ -72,14 +73,14 @@ namespace controller
         // data
         for (unsigned i=0; i<sensors_->size(); i++){
           sr_robot_msgs::UBI0 tactile_tmp;
-         
+
           tactile_tmp.distal = sensors_->at(i).ubi0.distal;
           ubi_realtime_pub_->msg_.tactiles[i] = tactile_tmp;
         }
         ubi_realtime_pub_->unlockAndPublish();
-        
-      }     
-      
+
+      }
+
        // try to publish
       if (midprox_realtime_pub_->trylock()){
         // we're actually publishing, so increment time
@@ -91,13 +92,13 @@ namespace controller
         // data
         for (unsigned i=0; i<sensors_->size(); i++){
           sr_robot_msgs::MidProxData midprox_tmp;
-          
+
           midprox_tmp.middle = sensors_->at(i).ubi0.middle;
           midprox_tmp.proximal = sensors_->at(i).ubi0.proximal;
           midprox_realtime_pub_->msg_.sensors[i] = midprox_tmp;
         }
-        midprox_realtime_pub_->unlockAndPublish();       
-      }   
+        midprox_realtime_pub_->unlockAndPublish();
+      }
     }
   }
 }
@@ -110,5 +111,3 @@ Local Variables:
    c-basic-offset: 2
 End:
  */
-
-
