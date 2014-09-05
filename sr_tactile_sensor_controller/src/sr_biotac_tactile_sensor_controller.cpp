@@ -21,7 +21,7 @@ namespace controller
     if (ret)
     {
       // realtime publisher
-      biotac_realtime_pub_ = BiotacPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(root_nh, "biotac_tactile", 4));
+      biotac_realtime_pub_ = BiotacPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(root_nh, "tactile", 4));
     }
     return ret;
   }

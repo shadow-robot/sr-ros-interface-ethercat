@@ -50,7 +50,7 @@ namespace controller
     if (ret)
     {
       // realtime publisher
-      ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(root_nh, "ubi_tactile", 4));
+      ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(root_nh, "tactile", 4));
       midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(root_nh, "mid_prox_tactile", 4));
     }
     return ret;

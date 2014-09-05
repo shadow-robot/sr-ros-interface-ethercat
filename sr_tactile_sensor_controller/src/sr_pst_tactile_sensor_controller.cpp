@@ -21,7 +21,7 @@ namespace controller
     if (ret)
     {
       // realtime publisher
-      pst_realtime_pub_ = PSTPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(root_nh, "pst_tactile", 4));
+      pst_realtime_pub_ = PSTPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(root_nh, "tactile", 4));
     }
     return ret;
   }
