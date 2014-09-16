@@ -44,12 +44,12 @@ int SRBridge::initialize(hardware_interface::HardwareInterface *hw, bool allow_u
 
   assert(sh_->get_product_code() == PRODUCT_CODE);
 
-  EthercatDirectCom com(EtherCAT_DataLinkLayer::instance());
+  EthercatDirectCom com(sh_->m_router_instance->m_al_instance->m_dll_instance);
   uint16_t data, new_data;
   int rv;
 
   rv = readData(&com, (uint16_t) EC_Slave_RD[PDI_Conf_reg].ado, &data, 2, FIXED_ADDR);
-  ROS_INFO("bridge port type: %s\n", data&1?"MII":"EBUS");
+  ROS_INFO("bridge port type: %s", data&1?"MII":"EBUS");
 
   rv = readData(&com, 0x100, &data, 2, FIXED_ADDR);
   if (rv != 0) ROS_ERROR("can't read open status");
