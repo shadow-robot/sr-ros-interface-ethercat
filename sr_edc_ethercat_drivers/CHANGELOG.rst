@@ -2,8 +2,8 @@
 Changelog for package sr_edc_ethercat_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.4 (2014-09-19)
+------------------
 * remove redundant message
 
 1.3.3 (2014-09-19)
