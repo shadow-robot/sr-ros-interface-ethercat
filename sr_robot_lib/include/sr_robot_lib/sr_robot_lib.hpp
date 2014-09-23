@@ -95,7 +95,7 @@ template <class StatusType, class CommandType>
 class SrRobotLib
 {
 public:
-  SrRobotLib(hardware_interface::HardwareInterface *hw);
+  SrRobotLib(hardware_interface::HardwareInterface *hw, std::string ns_prefix, std::string joint_prefix);
   virtual ~SrRobotLib()
   {
   }

@@ -134,7 +134,7 @@ template <class StatusType, class CommandType>
 const double SrRobotLib<StatusType, CommandType>::tactile_timeout = 10.0;
 
 template <class StatusType, class CommandType>
-SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInterface *hw)
+SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInterface *hw, string ns_prefix, string joint_prefix)
   : main_pic_idle_time(0),
   main_pic_idle_time_min(1000),
   tactile_current_state(operation_mode::device_update_state::INITIALIZATION),

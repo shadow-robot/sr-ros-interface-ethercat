@@ -50,8 +50,8 @@ namespace shadow_robot
 {
 
 template <class StatusType, class CommandType>
-SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(hardware_interface::HardwareInterface *hw)
-  : SrRobotLib<StatusType, CommandType>(hw),
+SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(hardware_interface::HardwareInterface *hw, string ns_prefix, string joint_prefix)
+  : SrRobotLib<StatusType, CommandType>(hw, ns_prefix, joint_prefix),
   motor_current_state(operation_mode::device_update_state::INITIALIZATION),
   config_index(MOTOR_CONFIG_FIRST_VALUE),
   control_type_changed_flag_(false),

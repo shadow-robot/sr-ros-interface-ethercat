@@ -51,8 +51,8 @@ template <class StatusType, class CommandType>
 const double SrMuscleRobotLib<StatusType, CommandType>::timeout = 5.0;
 
 template <class StatusType, class CommandType>
-SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(hardware_interface::HardwareInterface *hw)
-  : SrRobotLib<StatusType, CommandType>(hw),
+SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(hardware_interface::HardwareInterface *hw, string ns_prefix, string joint_prefix)
+  : SrRobotLib<StatusType, CommandType>(hw, ns_prefix, joint_prefix),
   muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout),
   lock_init_timeout_(shared_ptr<boost::mutex>(new boost::mutex())),
 
