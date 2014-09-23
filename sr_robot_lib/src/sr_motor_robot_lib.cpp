@@ -50,8 +50,8 @@ namespace shadow_robot
 {
 
 template <class StatusType, class CommandType>
-SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(hardware_interface::HardwareInterface *hw, string ns_prefix, string joint_prefix)
-  : SrRobotLib<StatusType, CommandType>(hw, ns_prefix, joint_prefix),
+SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, string device_id, string joint_prefix)
+  : SrRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix),
   motor_current_state(operation_mode::device_update_state::INITIALIZATION),
   config_index(MOTOR_CONFIG_FIRST_VALUE),
   control_type_changed_flag_(false),
@@ -418,7 +418,8 @@ void SrMotorRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnostic
        ++joint)
   {
     ostringstream name("");
-    name << "SRDMotor " << joint->joint_name;
+    string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + "/");
+    name << prefix << "SRDMotor " << joint->joint_name;
     d.name = name.str();
 
     if (joint->has_actuator)
@@ -1062,7 +1063,6 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
   bool success = true;
   string env_variable;
   string param_value;
-  ros::NodeHandle nh;
 
   if (control_type == sr_robot_msgs::ControlType::PWM)
   {
@@ -1075,32 +1075,16 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
     param_value = "FORCE";
   }
 
-  // Read the namespace of the node.
-  // The ns will be passed as an argument to the sr_edc_default_controllers.launch
-  // so that the parameters in it will be loaded inside the correct namespace
-  string ns = ros::this_node::getNamespace();
+  // Passing the ns to sr_edc_default_controllers.launch
+  // is not necessary any more (now the ns is inherited by the process we launch with the system call)
   string arguments = "";
 
-  if (ns.compare("/") == 0)
-  {
-    ROS_DEBUG("Using base namespace: %s", ns.c_str());
-  }
-  else if (ns.find("//") == 0)
-  {
-    ns.erase(0, 2);
-    ROS_DEBUG("Node namespace: %s", ns.c_str());
-    arguments += " set_namespace:=1 namespace:=" + ns;
-  }
-  else
-  {
-    ROS_ERROR("Node namespace: %s", ns.c_str());
-  }
   arguments = " set_namespace:=0";
   // Read the config_dir prefix from the parameter server
   // The config_dir will be passed as an argument to the sr_edc_default_controllers.launch
   // so that the parameters in it will be read from the correct files
   string config_dir = "";
-  nh.template param<string>("config_dir", config_dir, "");
+  this->nodehandle_.template param<string>("config_dir", config_dir, "");
   ROS_DEBUG("config_dir: %s", config_dir.c_str());
   arguments += " config_dir:=" + config_dir;
   ROS_INFO("arguments: %s", arguments.c_str());
@@ -1113,7 +1097,7 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
 
     this->nh_tilde.setParam("default_control_mode", param_value);
 
-    ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
+    ros::ServiceClient list_ctrl_client = this->nodehandle_.template serviceClient<controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
     controller_manager_msgs::ListControllers controllers_list;
 
     if (list_ctrl_client.call(controllers_list))
@@ -1122,7 +1106,7 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
       {
         if (controllers_list.response.controller[i].name.compare("joint_state_controller") == 0)
           continue;
-        ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controller[i].name + "/reset_gains");
+        ros::ServiceClient reset_gains_client = this->nodehandle_.template serviceClient<std_srvs::Empty>(controllers_list.response.controller[i].name + "/reset_gains");
         std_srvs::Empty empty_message;
         if (!reset_gains_client.call(empty_message))
         {

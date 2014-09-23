@@ -56,8 +56,8 @@ const int32u SrMuscleHandLib<StatusType, CommandType>::muscle_data_types[nb_musc
                                                                                             MUSCLE_DATA_SLOW_MISC};
 
 template <class StatusType, class CommandType>
-SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(hardware_interface::HardwareInterface *hw, string ns_prefix, string joint_prefix) :
-  SrMuscleRobotLib<StatusType, CommandType>(hw, ns_prefix, joint_prefix)
+SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, string device_id, string joint_prefix) :
+  SrMuscleRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
 #ifdef DEBUG_PUBLISHER
   //advertise the debug service, used to set which data we want to publish on the debug topics
   , debug_service(nh_tilde.advertiseService("set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this))

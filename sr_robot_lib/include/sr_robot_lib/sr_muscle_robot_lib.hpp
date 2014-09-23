@@ -41,7 +41,7 @@ template <class StatusType, class CommandType>
 class SrMuscleRobotLib : public SrRobotLib<StatusType, CommandType>
 {
 public:
-  SrMuscleRobotLib(hardware_interface::HardwareInterface *hw, std::string ns_prefix, std::string joint_prefix);
+  SrMuscleRobotLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, std::string device_id, std::string joint_prefix);
 
   /**
    * This function is called each time a new etherCAT message

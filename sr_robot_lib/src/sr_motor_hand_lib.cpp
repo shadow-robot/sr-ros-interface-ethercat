@@ -65,8 +65,8 @@ const int32u SrMotorHandLib<StatusType, CommandType>::motor_data_types[nb_motor_
                                                                                          MOTOR_DATA_DTERM};
 
 template <class StatusType, class CommandType>
-SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(hardware_interface::HardwareInterface *hw, string ns_prefix, string joint_prefix) :
-  SrMotorRobotLib<StatusType, CommandType>(hw, ns_prefix, joint_prefix)
+SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, string device_id, string joint_prefix) :
+  SrMotorRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
 {
   //read the motor polling frequency from the parameter server
   this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data, human_readable_motor_data_types, motor_data_types);

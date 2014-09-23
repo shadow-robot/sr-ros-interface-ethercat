@@ -134,13 +134,16 @@ template <class StatusType, class CommandType>
 const double SrRobotLib<StatusType, CommandType>::tactile_timeout = 10.0;
 
 template <class StatusType, class CommandType>
-SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInterface *hw, string ns_prefix, string joint_prefix)
+SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, string device_id, string joint_prefix)
   : main_pic_idle_time(0),
   main_pic_idle_time_min(1000),
   tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
   hw_(static_cast<RobotState*> (hw)),
+  device_id_(device_id),
+  joint_prefix_(joint_prefix),
   nullify_demand_(false),
-  nh_tilde("~"),
+  nodehandle_(nh),
+  nh_tilde(nhtilde),
 
   //advertise the service to nullify the demand sent to the motor
   // this makes it possible to easily stop the controllers.

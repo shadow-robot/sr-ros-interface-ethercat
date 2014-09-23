@@ -172,16 +172,17 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   if( ros::param::get(path_to_alias, alias))
   {
     device_id_ = alias;
-    device_ns_prefix_ = device_id_ + "/";
   }
   else
   {
     //no alias found, using empty device_id_
     //Using the serial number as we do in ronex is probably a worse option here.
     device_id_ = "" ;
-    device_ns_prefix_ = device_id_;
   }
-  serviceServer = nodehandle_.advertiseService(device_ns_prefix_ + "SimpleMotorFlasher", &SrEdc::simple_motor_flasher, this);
+
+  nodehandle_ = ros::NodeHandle(device_id_);
+  nh_tilde_ = ros::NodeHandle(ros::NodeHandle("~"), device_id_);
+  serviceServer = nodehandle_.advertiseService("SimpleMotorFlasher", &SrEdc::simple_motor_flasher, this);
 
   //get the alias from the parameter server if it exists
   std::string path_to_prefix, prefix;
