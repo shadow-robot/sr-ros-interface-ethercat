@@ -171,7 +171,7 @@ SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInte
   tactile_check_init_timeout_timer (this->nh_tilde.createTimer(tactile_init_max_duration,
                                                boost::bind(&SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback, this, _1), true)),
   lock_tactile_init_timeout_ (boost::shared_ptr<boost::mutex>(new boost::mutex())), 
-  tactiles_init(shared_ptr<GenericTactiles<StatusType, CommandType> >(new GenericTactiles<StatusType, CommandType>(generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION))),
+  tactiles_init(shared_ptr<GenericTactiles<StatusType, CommandType> >(new GenericTactiles<StatusType, CommandType>(nodehandle_, device_id_, generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION))),
 
   //initialize the calibration map
   calibration_map(read_joint_calibration())
@@ -182,7 +182,7 @@ template <class StatusType, class CommandType>
 void SrRobotLib<StatusType, CommandType>::reinitialize_sensors()
 {
   //Create a new GenericTactiles object
-  tactiles_init = shared_ptr<GenericTactiles<StatusType, CommandType> >(new GenericTactiles<StatusType, CommandType>(generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
+  tactiles_init = shared_ptr<GenericTactiles<StatusType, CommandType> >(new GenericTactiles<StatusType, CommandType>(nodehandle_, device_id_, generic_sensor_update_rate_configs_vector, operation_mode::device_update_state::INITIALIZATION));
   tactile_current_state = operation_mode::device_update_state::INITIALIZATION;
 }
 
@@ -217,7 +217,7 @@ void SrRobotLib<StatusType, CommandType>::build_tactile_command(CommandType* com
       switch (tactiles_init->tactiles_vector->at(0).which_sensor)
       {
         case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
-          tactiles = shared_ptr<ShadowPSTs<StatusType, CommandType> >(new ShadowPSTs<StatusType, CommandType>(pst3_sensor_update_rate_configs_vector,
+          tactiles = shared_ptr<ShadowPSTs<StatusType, CommandType> >(new ShadowPSTs<StatusType, CommandType>(nodehandle_, device_id_, pst3_sensor_update_rate_configs_vector,
                                                                                                               operation_mode::device_update_state::OPERATION,
                                                                                                               tactiles_init->tactiles_vector));
 
@@ -225,14 +225,14 @@ void SrRobotLib<StatusType, CommandType>::build_tactile_command(CommandType* com
           break;
 
         case TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3:
-          tactiles = shared_ptr<Biotac<StatusType, CommandType> >(new Biotac<StatusType, CommandType>(biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+          tactiles = shared_ptr<Biotac<StatusType, CommandType> >(new Biotac<StatusType, CommandType>(nodehandle_, device_id_, biotac_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
                                                                                                       tactiles_init->tactiles_vector));
 
           ROS_INFO("Biotac tactiles initialized");
           break;
 
         case TACTILE_SENSOR_PROTOCOL_TYPE_UBI0:
-          tactiles = shared_ptr<UBI0<StatusType, CommandType> >(new UBI0<StatusType, CommandType>(ubi0_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+          tactiles = shared_ptr<UBI0<StatusType, CommandType> >(new UBI0<StatusType, CommandType>(nodehandle_, device_id_, ubi0_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
                                                                                                   tactiles_init->tactiles_vector));
 
           ROS_INFO("UBI0 tactiles initialized");
@@ -412,7 +412,7 @@ template <class StatusType, class CommandType>
     {
       tactile_current_state = operation_mode::device_update_state::OPERATION;
       tactiles = boost::shared_ptr<tactiles::UBI0<StatusType, CommandType> >(
-            new tactiles::UBI0<StatusType, CommandType>(ubi0_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
+            new tactiles::UBI0<StatusType, CommandType>(nodehandle_, device_id_, ubi0_sensor_update_rate_configs_vector, operation_mode::device_update_state::OPERATION,
                                tactiles_init->tactiles_vector));
       ROS_ERROR_STREAM("Tactile Initialization Timeout: considering UBI0 tactiles");
      }
