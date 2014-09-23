@@ -111,7 +111,7 @@ void SrMotorHandLib<StatusType, CommandType>::initialize(vector<string> joint_na
       shared_ptr<MotorWrapper> motor_wrapper(new MotorWrapper());
       joint.actuator_wrapper = motor_wrapper;
       motor_wrapper->motor_id = actuator_ids[index];
-      motor_wrapper->actuator = static_cast<SrMotorActuator*> (this->hw_->getActuator(joint_prefix_ + joint.joint_name));
+      motor_wrapper->actuator = static_cast<SrMotorActuator*> (this->hw_->getActuator(this->joint_prefix_ + joint.joint_name));
 
       ostringstream ss;
       ss << "change_force_PID_" << joint_names[index];
