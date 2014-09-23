@@ -168,7 +168,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
 
   //get the alias from the parameter server if it exists
   std::string path_to_alias, alias;
-  path_to_alias = "/hand/mapping/" + sh_->get_serial();
+  path_to_alias = "/hand/mapping/" + boost::lexical_cast<std::string>(sh_->get_serial());
   if( ros::param::get(path_to_alias, alias))
   {
     device_id_ = alias;
