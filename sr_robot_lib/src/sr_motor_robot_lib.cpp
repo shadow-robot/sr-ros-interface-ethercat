@@ -1075,11 +1075,8 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
     param_value = "FORCE";
   }
 
-  // Passing the ns to sr_edc_default_controllers.launch
-  // is not necessary any more (now the ns is inherited by the process we launch with the system call)
   string arguments = "";
 
-  arguments = " set_namespace:=0";
   // Read the config_dir prefix from the parameter server
   // The config_dir will be passed as an argument to the sr_edc_default_controllers.launch
   // so that the parameters in it will be read from the correct files
