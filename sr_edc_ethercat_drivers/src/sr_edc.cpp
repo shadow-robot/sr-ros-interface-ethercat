@@ -169,6 +169,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   //get the alias from the parameter server if it exists
   std::string path_to_alias, alias;
   path_to_alias = "/hand/mapping/" + boost::lexical_cast<std::string>(sh_->get_serial());
+  ROS_INFO_STREAM("Trying to read mapping for: " << path_to_alias);
   if( ros::param::get(path_to_alias, alias))
   {
     device_id_ = alias;
@@ -186,7 +187,8 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
 
   //get the alias from the parameter server if it exists
   std::string path_to_prefix, prefix;
-  path_to_prefix = "/hand/joint_prefix/" + sh_->get_serial();
+  path_to_prefix = "/hand/joint_prefix/" + boost::lexical_cast<std::string>(sh_->get_serial());
+  ROS_INFO_STREAM("Trying to read joint_prefix for: " << path_to_prefix);
   if( ros::param::get(path_to_prefix, prefix))
   {
     device_joint_prefix_ = prefix;
