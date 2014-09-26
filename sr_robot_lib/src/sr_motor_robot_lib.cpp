@@ -1094,7 +1094,9 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
 
     this->nh_tilde.setParam("default_control_mode", param_value);
 
-    ros::ServiceClient list_ctrl_client = this->nodehandle_.template serviceClient<controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
+    //We need another node handle here, that is at the node's base namespace, as the controllers and the controller manager are unique per ethercat loop.
+    ros::NodeHandle nh;
+    ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
     controller_manager_msgs::ListControllers controllers_list;
 
     if (list_ctrl_client.call(controllers_list))
@@ -1103,7 +1105,7 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
       {
         if (controllers_list.response.controller[i].name.compare("joint_state_controller") == 0)
           continue;
-        ros::ServiceClient reset_gains_client = this->nodehandle_.template serviceClient<std_srvs::Empty>(controllers_list.response.controller[i].name + "/reset_gains");
+        ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controller[i].name + "/reset_gains");
         std_srvs::Empty empty_message;
         if (!reset_gains_client.call(empty_message))
         {
