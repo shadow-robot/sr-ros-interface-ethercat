@@ -138,7 +138,7 @@ void SrMuscleHandLib<StatusType, CommandType>::initialize(vector<string> joint_n
       muscle_wrapper->muscle_driver_id[1] = actuator_ids[index].muscle_driver_id[1];
       muscle_wrapper->muscle_id[0] = actuator_ids[index].muscle_id[0];
       muscle_wrapper->muscle_id[1] = actuator_ids[index].muscle_id[1];
-      muscle_wrapper->actuator = static_cast<SrMuscleActuator*> (this->hw_->getActuator(joint.joint_name));
+      muscle_wrapper->actuator = static_cast<SrMuscleActuator*> (this->hw_->getActuator(this->joint_prefix_ + joint.joint_name));
     }
     else //no muscles associated to this joint. We only check the driver 0 assuming a joint with -1 will have -1 in the driver 1 as well
       joint.has_actuator = false;
