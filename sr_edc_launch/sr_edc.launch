@@ -10,7 +10,14 @@
   <arg name="robot_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro"/>
   <!-- The control mode PWM (true) or torque (false) -->
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
-
+  <!-- Defines the sub-directory used in
+       $(find sr_ethercat_hand_config)/mappings/
+       and $(find sr_ethercat_hand_config)/calibrations/
+       and $(find sr_ethercat_hand_config)/controls/host/
+       to know where to find the parameters for a certain hand.
+       In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
+       If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
+  <arg name="config_dir" default=""/>
 
   <param name="/use_sim_time" value="false"/>
 
@@ -19,7 +26,7 @@
 
   <!-- Load parameters for the hand -->
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
-    <arg name="config_dir" value="" />
+    <arg name="config_dir" value="$(arg config_dir)" />
     <arg name="hand_id" value="" />
     <arg name="pwm_control" value="$(arg pwm_control)" />
   </include>
