@@ -418,7 +418,7 @@ void SrMotorRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnostic
        ++joint)
   {
     ostringstream name("");
-    string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + "/");
+    string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + " ");
     name << prefix << "SRDMotor " << joint->joint_name;
     d.name = name.str();
 

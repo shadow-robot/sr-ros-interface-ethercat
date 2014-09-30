@@ -217,7 +217,7 @@ namespace tactiles
     for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
     {
       std::stringstream ss;
-      std::string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + "/");
+      std::string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + " ");
 
       ss << prefix << "Tactile " << id_tact + 1;
 

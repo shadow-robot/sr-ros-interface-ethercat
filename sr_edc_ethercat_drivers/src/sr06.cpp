@@ -165,7 +165,7 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
   diagnostic_updater::DiagnosticStatusWrapper & d(diagnostic_status_);
 
   stringstream name;
-  string prefix = device_id_.empty() ? device_id_ : (device_id_ + "/");
+  string prefix = device_id_.empty() ? device_id_ : (device_id_ + " ");
   d.name = prefix + "EtherCAT Dual CAN Palm";
   d.summary(d.OK, "OK");
   stringstream hwid;
