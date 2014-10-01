@@ -42,7 +42,7 @@ namespace shadow_robot
   class SrMotorHandLib : public SrMotorRobotLib<StatusType, CommandType>
   {
   public:
-    SrMotorHandLib(hardware_interface::HardwareInterface *hw);
+    SrMotorHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, std::string device_id, std::string joint_prefix);
 
     /**
      * The service callback for setting the Force PID values. There's only one callback

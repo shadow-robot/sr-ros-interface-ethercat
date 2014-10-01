@@ -140,7 +140,7 @@ int SrEdcMuscle::initialize(hardware_interface::HardwareInterface *hw, bool allo
   if (retval != 0)
     return retval;
 
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> >(new shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(hw));
+  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> >(new shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(hw, nodehandle_, nh_tilde_, device_id_, device_joint_prefix_));
 
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int> (ETHERCAT_STATUS_DATA_SIZE));
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int> (ETHERCAT_COMMAND_DATA_SIZE));
@@ -166,7 +166,8 @@ void SrEdcMuscle::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &ve
   diagnostic_updater::DiagnosticStatusWrapper & d(diagnostic_status_);
 
   stringstream name;
-  d.name = "EtherCAT Dual CAN Palm";
+  string prefix = device_id_.empty() ? device_id_ : (device_id_ + " ");
+  d.name = prefix + "EtherCAT Dual CAN Palm";
   d.summary(d.OK, "OK");
   stringstream hwid;
   hwid << sh_->get_product_code() << "-" << sh_->get_serial();

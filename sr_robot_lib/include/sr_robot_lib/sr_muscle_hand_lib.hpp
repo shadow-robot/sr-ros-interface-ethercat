@@ -42,7 +42,7 @@ namespace shadow_robot
   class SrMuscleHandLib : public SrMuscleRobotLib<StatusType, CommandType>
   {
   public:
-    SrMuscleHandLib(hardware_interface::HardwareInterface *hw);
+    SrMuscleHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, std::string device_id, std::string joint_prefix);
 
     /**
      * Reset the muscle driver at motor index.

@@ -33,15 +33,15 @@
 namespace tactiles
 {
   template <class StatusType, class CommandType>
-  ShadowPSTs<StatusType, CommandType>::ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
-    : GenericTactiles<StatusType, CommandType>(update_configs_vector, update_state)
+  ShadowPSTs<StatusType, CommandType>::ShadowPSTs(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+    : GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
   {
     init(update_configs_vector, update_state);
   }
 
   template <class StatusType, class CommandType>
-  ShadowPSTs<StatusType, CommandType>::ShadowPSTs(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector)
-    : GenericTactiles<StatusType, CommandType>(update_configs_vector, update_state)
+  ShadowPSTs<StatusType, CommandType>::ShadowPSTs(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector)
+    : GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
   {
     init(update_configs_vector, update_state);
     tactiles_vector->clear();
@@ -185,8 +185,8 @@ namespace tactiles
     for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
     {
       std::stringstream ss;
-
-      ss << "Tactile " << id_tact + 1;
+      std::string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + " ");
+      ss << prefix << "Tactile " << id_tact + 1;
 
       d.name = ss.str().c_str();
       d.summary(d.OK, "OK");

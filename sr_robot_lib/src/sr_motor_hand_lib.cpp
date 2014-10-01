@@ -65,8 +65,8 @@ const int32u SrMotorHandLib<StatusType, CommandType>::motor_data_types[nb_motor_
                                                                                          MOTOR_DATA_DTERM};
 
 template <class StatusType, class CommandType>
-SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(hardware_interface::HardwareInterface *hw) :
-  SrMotorRobotLib<StatusType, CommandType>(hw)
+SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, string device_id, string joint_prefix) :
+  SrMotorRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
 {
   //read the motor polling frequency from the parameter server
   this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data, human_readable_motor_data_types, motor_data_types);
@@ -78,7 +78,6 @@ SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(hardware_interface::Hard
   //initializing the joints vector
   vector<string> joint_names_tmp;
   vector<int> motor_ids = read_joint_to_motor_mapping();
-  vector<JointToSensor> joints_to_sensors;
 
   ROS_ASSERT(motor_ids.size() == JOINTS_NUM_0220);
   ROS_ASSERT(joint_to_sensor_vect.size() == JOINTS_NUM_0220);
@@ -86,8 +85,6 @@ SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(hardware_interface::Hard
   for (unsigned int i = 0; i < JOINTS_NUM_0220; ++i)
   {
     joint_names_tmp.push_back(string(joint_names[i]));
-    JointToSensor tmp_jts = joint_to_sensor_vect[i];
-    joints_to_sensors.push_back(tmp_jts);
   }
   initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
   //Initialize the motor data checker
@@ -114,7 +111,7 @@ void SrMotorHandLib<StatusType, CommandType>::initialize(vector<string> joint_na
       shared_ptr<MotorWrapper> motor_wrapper(new MotorWrapper());
       joint.actuator_wrapper = motor_wrapper;
       motor_wrapper->motor_id = actuator_ids[index];
-      motor_wrapper->actuator = static_cast<SrMotorActuator*> (this->hw_->getActuator(joint.joint_name));
+      motor_wrapper->actuator = static_cast<SrMotorActuator*> (this->hw_->getActuator(this->joint_prefix_ + joint.joint_name));
 
       ostringstream ss;
       ss << "change_force_PID_" << joint_names[index];

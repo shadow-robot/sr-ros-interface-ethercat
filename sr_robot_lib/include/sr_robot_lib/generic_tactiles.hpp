@@ -56,7 +56,7 @@ namespace tactiles
   class GenericTactiles
   {
   public:
-    GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
+    GenericTactiles(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
     virtual ~GenericTactiles() {}
 
     /**
@@ -106,6 +106,7 @@ namespace tactiles
     void process_received_data_type(int32u data);
 
     ros::NodeHandle nodehandle_;
+    std::string device_id_;
 
     ros::ServiceServer reset_service_client_;
 

@@ -1,0 +1,64 @@
+<launch>
+  <!-- Defines the sub-directory used in
+       $(find sr_ethercat_hand_config)/mappings/
+       and $(find sr_ethercat_hand_config)/calibrations/
+       and $(find sr_ethercat_hand_config)/controls/host/
+       to know where to find the parameters for a certain hand.
+       In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
+       If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
+  <arg name="config_dir" default=""/>
+  <!-- Set use_ns to true if the hand_id is not empty string. This is necessary as group tag doesn't accept an empty 'ns' attribute   -->
+  <arg name="use_ns" default="false"/>
+  <!-- The id of the hand will be used to namespace the hand parameters
+       the id should   -->
+  <arg name="hand_id" default=""/>
+  <!-- The control mode PWM (true) or torque (false) -->
+  <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
+
+  <!-- Default controllers -->
+  <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch" >
+    <arg name="config_dir" value="$(arg config_dir)" />
+    <arg name="pwm_control" value="$(arg pwm_control)" />
+  </include>
+
+  <group if="$(arg use_ns)" ns="$(arg hand_id)">
+    <!-- We set this argument as a parameter in the parameter server (it is relative so it will be pushed to a namespace if we use a ns), to be able to access it from serveral places:
+         - the change control mode service inside the realtime loop will use it
+         - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
+    <param name="config_dir" value="$(arg config_dir)"/>
+    
+    <!-- These params are loaded here as they are not controllers in the sense of the controller_manager, and will be accessed by every hand driver inside its namespace -->
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/controls/motors/$(arg config_dir)motor_board_effort_controllers.yaml" />
+
+    <!-- polling rates -->
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml" />
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml" />
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/muscle_data_polling.yaml" />
+
+    <!-- load parameters for the robot library -->
+    <include file="$(find sr_robot_lib)/launch/sr_hand_lib.launch" >
+      <arg name="config_dir" value="$(arg config_dir)" />
+    </include>
+  </group>
+
+  <group unless="$(arg use_ns)">
+    <!-- We set this argument as a parameter in the parameter server (it is relative so it will be pushed to a namespace if we use a ns), to be able to access it from serveral places:
+         - the change control mode service inside the realtime loop will use it
+         - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
+    <param name="config_dir" value="$(arg config_dir)"/>
+    
+    <!-- These params are loaded here as they are not controllers in the sense of the controller_manager, and will be accessed by every hand driver inside its namespace -->
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/controls/motors/$(arg config_dir)motor_board_effort_controllers.yaml" />
+
+    <!-- polling rates -->
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml" />
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml" />
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/muscle_data_polling.yaml" />
+
+    <!-- load parameters for the robot library -->
+    <include file="$(find sr_robot_lib)/launch/sr_hand_lib.launch" >
+      <arg name="config_dir" value="$(arg config_dir)" />
+    </include>
+  </group>
+
+</launch>

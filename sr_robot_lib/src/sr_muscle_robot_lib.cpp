@@ -51,8 +51,8 @@ template <class StatusType, class CommandType>
 const double SrMuscleRobotLib<StatusType, CommandType>::timeout = 5.0;
 
 template <class StatusType, class CommandType>
-SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(hardware_interface::HardwareInterface *hw)
-  : SrRobotLib<StatusType, CommandType>(hw),
+SrMuscleRobotLib<StatusType, CommandType>::SrMuscleRobotLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, string device_id, string joint_prefix)
+  : SrRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix),
   muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout),
   lock_init_timeout_(shared_ptr<boost::mutex>(new boost::mutex())),
 
@@ -340,7 +340,8 @@ void SrMuscleRobotLib<StatusType, CommandType>::add_diagnostics(vector<diagnosti
        ++joint)
   {
     ostringstream name("");
-    name << "SRDMuscle " << joint->joint_name;
+    string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + " ");
+    name << prefix << "SRDMuscle " << joint->joint_name;
     d.name = name.str();
 
     if (joint->has_actuator)

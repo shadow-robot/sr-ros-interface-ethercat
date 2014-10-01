@@ -126,8 +126,6 @@ SrEdc::SrEdc()
 
   res = pthread_mutex_init(&producing, NULL);
   check_for_pthread_mutex_init_error(res);
-
-  serviceServer = nodehandle_.advertiseService("SimpleMotorFlasher", &SrEdc::simple_motor_flasher, this);
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs
@@ -167,6 +165,40 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
                       unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address, unsigned int ethercat_can_bridge_data_command_address, unsigned int ethercat_can_bridge_data_status_address)
 {
   sh_ = sh;
+
+  //get the alias from the parameter server if it exists
+  std::string path_to_alias, alias;
+  path_to_alias = "/hand/mapping/" + boost::lexical_cast<std::string>(sh_->get_serial());
+  ROS_INFO_STREAM("Trying to read mapping for: " << path_to_alias);
+  if( ros::param::get(path_to_alias, alias))
+  {
+    device_id_ = alias;
+  }
+  else
+  {
+    //no alias found, using empty device_id_
+    //Using the serial number as we do in ronex is probably a worse option here.
+    device_id_ = "" ;
+  }
+
+  nodehandle_ = ros::NodeHandle(device_id_);
+  nh_tilde_ = ros::NodeHandle(ros::NodeHandle("~"), device_id_);
+  serviceServer = nodehandle_.advertiseService("SimpleMotorFlasher", &SrEdc::simple_motor_flasher, this);
+
+  //get the alias from the parameter server if it exists
+  std::string path_to_prefix, prefix;
+  path_to_prefix = "/hand/joint_prefix/" + boost::lexical_cast<std::string>(sh_->get_serial());
+  ROS_INFO_STREAM("Trying to read joint_prefix for: " << path_to_prefix);
+  if( ros::param::get(path_to_prefix, prefix))
+  {
+    device_joint_prefix_ = prefix;
+  }
+  else
+  {
+    //no prefix found, using empty prefix
+    device_joint_prefix_ = "" ;
+  }
+
   command_base_ = start_address;
   command_size_ = ethercat_command_data_size + ethercat_can_bridge_data_size;
 
