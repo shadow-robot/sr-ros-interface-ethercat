@@ -16,7 +16,7 @@ catkin_package()
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
-install(FILES sr_edc.launch sr_edc.machine
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(FILES sr_edc.launch sr_edc.machine sr_edc_bimanual.launch load_hand_parameters.xml
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 
