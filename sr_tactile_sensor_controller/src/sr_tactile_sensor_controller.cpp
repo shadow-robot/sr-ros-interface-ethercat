@@ -47,16 +47,29 @@ namespace controller
   {
     // get all sensors from the hardware interface
     // apparently all the actuators have the tactile data copied in, so take the first one.
-    sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*> (hw->getActuator("FFJ0"));
-    sensors_ = motor_actuator->motor_state_.tactiles_;
+    sr_actuator::SrMotorActuator* motor_actuator=NULL;
+    if (hw->transmissions_.size()>0)
+    {
+      motor_actuator = static_cast<sr_actuator::SrMotorActuator*>  (hw->transmissions_[0].actuator_);
+    }
+    //sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*> (hw->getActuator("FFJ0"));
+    if (motor_actuator)
+    {
+      sensors_ = motor_actuator->motor_state_.tactiles_;
 
-    // get publishing period
-    if (!controller_nh.getParam("publish_rate", publish_rate_)){
-      ROS_ERROR("Parameter 'publish_rate' not set");
+      // get publishing period
+      if (!controller_nh.getParam("publish_rate", publish_rate_)){
+        ROS_ERROR("Parameter 'publish_rate' not set");
+        return false;
+      }
+         
+      return true;
+    }
+    else
+    {
+      ROS_ERROR("Could not find at least an actuator with tactile data inside");
       return false;
     }
-       
-    return true;
   }
   
   void SrTactileSensorController::update(const ros::Time& time, const ros::Duration& period)

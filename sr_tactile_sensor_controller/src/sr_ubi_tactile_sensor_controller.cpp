@@ -51,13 +51,14 @@ namespace controller
     {
       // realtime publisher
       ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(root_nh, "tactile", 4));
-      midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(root_nh, "mid_prox_tactile", 4));
+      midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(root_nh, "tactile_mid_prox", 4));
     }
     return ret;
   }
 
   void SrUbiTactileSensorController::update(const ros::Time& time, const ros::Duration& period)
   {
+    
     using namespace hardware_interface;
     bool ubi_published=false;
     // limit rate of publishing
