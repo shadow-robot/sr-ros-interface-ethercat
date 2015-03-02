@@ -333,7 +333,7 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   sr_hand_lib->update(status_data);
 
   //Now publish the additional data at 100Hz (every 10 cycles)
-  if (cycle_count >= 9)
+  if (cycle_count >= 10)
   {
     //publish tactiles if we have them
     if (sr_hand_lib->tactiles != NULL)
