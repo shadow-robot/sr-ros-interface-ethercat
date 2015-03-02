@@ -40,7 +40,9 @@ namespace tactiles
   const unsigned int GenericTactiles<StatusType, CommandType>::nb_tactiles = 5;
 
   template <class StatusType, class CommandType>
-  GenericTactiles<StatusType, CommandType>::GenericTactiles(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+  GenericTactiles<StatusType, CommandType>::GenericTactiles(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state)
+    : nodehandle_(nh),
+    device_id_(device_id)
   {
     sensor_updater = boost::shared_ptr<generic_updater::SensorUpdater<CommandType> >(new generic_updater::SensorUpdater<CommandType>(update_configs_vector, update_state));
     if(update_state != operation_mode::device_update_state::INITIALIZATION)

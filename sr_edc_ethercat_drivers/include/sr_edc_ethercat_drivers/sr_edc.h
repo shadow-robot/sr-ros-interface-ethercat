@@ -76,6 +76,7 @@ public:
 protected:
   int                                                                  counter_;
   ros::NodeHandle                                                      nodehandle_;
+  ros::NodeHandle                                                      nh_tilde_;
 
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
   std::vector< boost::shared_ptr<rt_pub_int16_t> >   realtime_pub_;
@@ -85,6 +86,9 @@ protected:
 
   bool                             flashing;
   bool                             can_packet_acked;
+
+  std::string device_id_;
+  std::string device_joint_prefix_;
 
   /// This function will call the reinitialization function for the boards attached to the CAN bus
   virtual void reinitialize_boards() = 0;

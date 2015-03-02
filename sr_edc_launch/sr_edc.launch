@@ -1,18 +1,15 @@
 <launch>
-  <!-- Allows to specify the ethernet interface to be used. It defaults to the value of the env var ETHERCAT_PORT -->
+  <!-- Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT
+       More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
   <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)"/>
-  <!-- Set to 0 if the hand description will not be specified with the argument hand_description. In which case it depends on the environment variables -->
-  <arg name="set_description" default="0"/>
-  <!-- Xacro file containing the robot description we want to load. Only taken into acount if the set_description arg is set to 1
-       the default value -->
-  <arg name="hand_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro"/>
-  <!-- The prefix used by the robot_state_publisher -->
-  <arg name="tf_prefix" default=""/>
-  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
-  <arg name="calibration_controllers" default="1"/>
   <!-- Set to true for debugging -->
   <arg name="debug" default="false"/>
-
+  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
+  <arg name="calibration_controllers" default="1"/>
+  <!-- Xacro file containing the robot description we want to load -->
+  <arg name="robot_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro"/>
+  <!-- The control mode PWM (true) or torque (false) -->
+  <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
   <!-- Defines the sub-directory used in
        $(find sr_ethercat_hand_config)/mappings/
        and $(find sr_ethercat_hand_config)/calibrations/
@@ -21,62 +18,41 @@
        In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
        If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
   <arg name="config_dir" default=""/>
-  <!-- We set this argument as a parameter in the parameter server (it is relative so it will be pushed to a namespace if we use a ns), to be able to access it from serveral places:
-       - the change control mode service inside the realtime loop will use it
-       - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
-  <param name="config_dir" value="$(arg config_dir)"/>
 
-  <include file="$(find sr_edc_launch)/sr_edc.machine" />
   <param name="/use_sim_time" value="false"/>
 
-  <!-- polling rates -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml" />
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml" />
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/muscle_data_polling.yaml" />
+  <!-- Loads the robot description from the file passed as an argument -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)'" />
 
-  <!-- Default controllers -->
-  <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch" >
+  <!-- Load parameters for the hand -->
+  <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
     <arg name="config_dir" value="$(arg config_dir)" />
+    <arg name="hand_id" value="" />
+    <arg name="pwm_control" value="$(arg pwm_control)" />
   </include>
 
-  <!-- Should be loaded before starting/running ros_ethercat node -->
-  <rosparam command="load" ns="srh" file="$(find sr_ethercat_hand_config)/calibrations/sr_edc_sensor_gain_offset.yaml" />
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/controls/sr_edc_calibration_controllers.yaml" />
-
-  <!-- load parameters for the robot library -->
-  <include file="$(find sr_robot_lib)/launch/sr_hand_lib.launch" >
-    <arg name="config_dir" value="$(arg config_dir)" />
-  </include>
+  <include file="$(find sr_edc_launch)/sr_edc.machine" />
 
   <!-- publishes joint 0s joint states on separate topic for debug/tuning -->
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
 
-  <group unless="$(arg set_description)">
-    <!-- Loads the correct robot description depending on the environment variables -->
-    <include file="$(find sr_description)/loaders/load_hand_model.launch" />
-  </group>
-  <group if="$(arg set_description)">
-    <!-- Loads the robot description from the file passed as an argument -->
-    <param name="sh_description" command="$(find xacro)/xacro.py '$(arg hand_description)'" />
-  </group>
-
   <!-- ros_ethercat -->
   <group if="$(arg debug)">
-    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="pr2-grant gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
-      <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
-      <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
+    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+      <param if="$(arg pwm_control)" name="default_control_mode" value="PWM"/>
+      <param unless="$(arg pwm_control)" name="default_control_mode" value="FORCE"/>
+
       <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
     </node>
   </group>
   <group unless="$(arg debug)">
-    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r sh_description" output="screen" launch-prefix="pr2-grant">
-      <param if="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="PWM"/>
-      <param unless="$(optenv PWM_CONTROL 0)" name="default_control_mode" value="FORCE"/>
+    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ros_grant">
+      <param if="$(arg pwm_control)" name="default_control_mode" value="PWM"/>
+      <param unless="$(arg pwm_control)" name="default_control_mode" value="FORCE"/>
+
       <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
     </node>
   </group>
-
-  <!--<node name="runtime_monitor" machine="local" pkg="runtime_monitor" type="monitor" />-->
 
   <group if="$(arg calibration_controllers)">
     <group if="$(optenv THREE_FINGER 0)">
@@ -97,11 +73,8 @@
   <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch"/>
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
-  <node pkg="robot_state_publisher" type="state_publisher"
-	name="srh_robot_state_publisher_pos_etherCAT">
-    <remap from="robot_description" to="sh_description"/>
+  <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="100.0" />
-    <param name="tf_prefix" type="string" value="$(arg tf_prefix)" />
   </node>
 
   <!-- adding tactile state publisher using the tf prefix as a namespace -->

@@ -56,8 +56,8 @@ const int32u SrMuscleHandLib<StatusType, CommandType>::muscle_data_types[nb_musc
                                                                                             MUSCLE_DATA_SLOW_MISC};
 
 template <class StatusType, class CommandType>
-SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(hardware_interface::HardwareInterface *hw) :
-  SrMuscleRobotLib<StatusType, CommandType>(hw)
+SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, string device_id, string joint_prefix) :
+  SrMuscleRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
 #ifdef DEBUG_PUBLISHER
   //advertise the debug service, used to set which data we want to publish on the debug topics
   , debug_service(nh_tilde.advertiseService("set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this))
@@ -138,7 +138,7 @@ void SrMuscleHandLib<StatusType, CommandType>::initialize(vector<string> joint_n
       muscle_wrapper->muscle_driver_id[1] = actuator_ids[index].muscle_driver_id[1];
       muscle_wrapper->muscle_id[0] = actuator_ids[index].muscle_id[0];
       muscle_wrapper->muscle_id[1] = actuator_ids[index].muscle_id[1];
-      muscle_wrapper->actuator = static_cast<SrMuscleActuator*> (this->hw_->getActuator(joint.joint_name));
+      muscle_wrapper->actuator = static_cast<SrMuscleActuator*> (this->hw_->getActuator(this->joint_prefix_ + joint.joint_name));
     }
     else //no muscles associated to this joint. We only check the driver 0 assuming a joint with -1 will have -1 in the driver 1 as well
       joint.has_actuator = false;

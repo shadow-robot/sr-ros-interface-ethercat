@@ -95,7 +95,7 @@ template <class StatusType, class CommandType>
 class SrRobotLib
 {
 public:
-  SrRobotLib(hardware_interface::HardwareInterface *hw);
+  SrRobotLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, std::string device_id, std::string joint_prefix);
   virtual ~SrRobotLib()
   {
   }
@@ -272,6 +272,11 @@ protected:
 
   /// a ros nodehandle to be able to access resources out of the node namespace
   ros::NodeHandle nodehandle_;
+
+  /// Prefix used to access the joints
+  std::string joint_prefix_;
+  /// Id of the ethercat device (alias)
+  std::string device_id_;
 
 
 #ifdef DEBUG_PUBLISHER
