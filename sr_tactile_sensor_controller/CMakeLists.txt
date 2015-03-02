@@ -28,3 +28,13 @@ CATKIN_DEPENDS controller_interface sr_hardware_interface pluginlib sr_robot_msg
 INCLUDE_DIRS include
 LIBRARIES ${PROJECT_NAME}
 )
+
+install(TARGETS sr_tactile_sensor_controller 
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(FILES sr_tactile_sensor.launch  sr_tactile_sensor_plugin.xml
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+
