@@ -35,7 +35,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //////////////////////////////////////////////////////////////////////////////
-/// Original author of ImuSensorController : Adolfo Rodriguez Tsouroukdissian
+/// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
 #include "sr_tactile_sensor_controller/sr_ubi_tactile_sensor_controller.hpp"
 #include <pluginlib/class_list_macros.h>
@@ -50,8 +50,8 @@ namespace controller
     if (ret)
     {
       // realtime publisher
-      ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(root_nh, "tactile", 4));
-      midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(root_nh, "tactile_mid_prox", 4));
+      ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(nh_prefix_, "tactile", 4));
+      midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(nh_prefix_, "tactile_mid_prox", 4));
     }
     return ret;
   }
@@ -70,7 +70,7 @@ namespace controller
         ubi_published=true;
         // populate message
         ubi_realtime_pub_->msg_.header.stamp = time;
-        ubi_realtime_pub_->msg_.header.frame_id = "palm";
+        ubi_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
         // data
         for (unsigned i=0; i<sensors_->size(); i++){
           sr_robot_msgs::UBI0 tactile_tmp;
@@ -89,7 +89,7 @@ namespace controller
           last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
         // populate message
         midprox_realtime_pub_->msg_.header.stamp = time;
-        midprox_realtime_pub_->msg_.header.frame_id = "palm";
+        midprox_realtime_pub_->msg_.header.frame_id = prefix_+"proximal";
         // data
         for (unsigned i=0; i<sensors_->size(); i++){
           sr_robot_msgs::MidProxData midprox_tmp;

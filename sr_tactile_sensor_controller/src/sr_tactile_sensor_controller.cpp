@@ -35,7 +35,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //////////////////////////////////////////////////////////////////////////////
-/// Original author of ImuSensorController : Adolfo Rodriguez Tsouroukdissian
+/// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
 #include "sr_tactile_sensor_controller/sr_tactile_sensor_controller.hpp"
 
@@ -45,14 +45,26 @@ namespace controller
 {
   bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
   {
+    
+    if (!controller_nh.getParam("prefix", prefix_)){
+      ROS_ERROR("Parameter 'prefix' not set");
+      return false;
+    }
+    
+    //this should handle the case where we don't want a prefix
+    if (!prefix_.empty())
+    {
+      nh_prefix_ = ros::NodeHandle(root_nh, prefix_);
+      prefix_+="_";
+    }
+    else
+    {
+      nh_prefix_ = ros::NodeHandle(root_nh);
+    }
+    
     // get all sensors from the hardware interface
     // apparently all the actuators have the tactile data copied in, so take the first one.
-    sr_actuator::SrMotorActuator* motor_actuator=NULL;
-    if (hw->transmissions_.size()>0)
-    {
-      motor_actuator = static_cast<sr_actuator::SrMotorActuator*>  (hw->transmissions_[0].actuator_);
-    }
-    //sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*> (hw->getActuator("FFJ0"));
+    sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*> (hw->getActuator(prefix_+"FFJ0"));
     if (motor_actuator)
     {
       sensors_ = motor_actuator->motor_state_.tactiles_;
@@ -67,7 +79,7 @@ namespace controller
     }
     else
     {
-      ROS_ERROR("Could not find at least an actuator with tactile data inside");
+      ROS_ERROR_STREAM("Could not find the "<<prefix_<<"FFJ0 actuator");
       return false;
     }
   }

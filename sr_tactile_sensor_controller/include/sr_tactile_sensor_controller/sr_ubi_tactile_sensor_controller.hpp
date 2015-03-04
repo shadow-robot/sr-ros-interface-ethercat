@@ -35,8 +35,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //////////////////////////////////////////////////////////////////////////////
-
-/// Original author of ImuSensorController : Adolfo Rodriguez Tsouroukdissian
+/// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
 #ifndef SR_UBI_TACTILE_SENSOR_CONTROLLER_H
 #define SR_UBI_TACTILE_SENSOR_CONTROLLER_H

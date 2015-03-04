@@ -35,7 +35,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //////////////////////////////////////////////////////////////////////////////
-/// Original author of ImuSensorController : Adolfo Rodriguez Tsouroukdissian
+/// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
 #ifndef SR_TACTILE_SENSOR_CONTROLLER_H
 #define SR_TACTILE_SENSOR_CONTROLLER_H
@@ -63,6 +63,8 @@ namespace controller
     std::vector<tactiles::AllTactileData>* sensors_;
     ros::Time last_publish_time_;
     double publish_rate_;
+    ros::NodeHandle nh_prefix_;
+    std::string prefix_;
   };
 
 }// namespace

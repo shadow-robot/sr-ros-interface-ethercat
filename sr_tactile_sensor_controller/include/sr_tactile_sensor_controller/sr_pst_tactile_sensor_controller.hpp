@@ -6,7 +6,7 @@
  *
  */
 
-/// Original author of ImuSensorController : Adolfo Rodriguez Tsouroukdissian
+/// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
 #pragma once
 
