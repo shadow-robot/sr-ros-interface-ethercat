@@ -98,4 +98,16 @@
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="100.0" />
   </node>
+  
+    <!-- adding tactile state publisher using the tf prefix as a namespace -->
+  <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
+   <arg name="prefix" value="$(arg rh_id)_" />
+   <arg name="config_dir" value="$(arg rh_id)/" />
+  </include>
+  
+  <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
+   <arg name="prefix" value="$(arg lh_id)_" />
+   <arg name="config_dir" value="$(arg lh_id)/" />
+  </include>  
+  
 </launch>

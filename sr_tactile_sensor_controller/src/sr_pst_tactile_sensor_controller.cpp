@@ -21,7 +21,7 @@ namespace controller
     if (ret)
     {
       // realtime publisher
-      pst_realtime_pub_ = PSTPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(root_nh, "tactile", 4));
+      pst_realtime_pub_ = PSTPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nh_prefix_, "tactile", 4));
     }
     return ret;
   }
@@ -41,7 +41,7 @@ namespace controller
         pst_published=true;
         // populate message
         pst_realtime_pub_->msg_.header.stamp = time;
-        pst_realtime_pub_->msg_.header.frame_id = "palm";
+        pst_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
         // data
 	for (unsigned i=0; i<sensors_->size(); i++)
 	{

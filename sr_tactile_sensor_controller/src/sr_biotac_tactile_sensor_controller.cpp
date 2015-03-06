@@ -21,7 +21,7 @@ namespace controller
     if (ret)
     {
       // realtime publisher
-      biotac_realtime_pub_ = BiotacPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(root_nh, "tactile", 4));
+      biotac_realtime_pub_ = BiotacPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(nh_prefix_, "tactile", 4));
     }
     return ret;
   }
@@ -41,7 +41,7 @@ namespace controller
         biotac_published=true;
         // populate message
         biotac_realtime_pub_->msg_.header.stamp = time;
-        biotac_realtime_pub_->msg_.header.frame_id = "palm";
+        biotac_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
         // data
 	for (unsigned i=0; i<sensors_->size(); i++)
 	{
