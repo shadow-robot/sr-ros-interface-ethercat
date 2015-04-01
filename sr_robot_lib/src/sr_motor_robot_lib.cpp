@@ -83,7 +83,6 @@ SrMotorRobotLib<StatusType, CommandType>::SrMotorRobotLib(hardware_interface::Ha
     this->debug_publishers.push_back(this->node_handle.template advertise<std_msgs::Int16>(ss.str().c_str(), 100));
   }
 #endif
-
 }
 
 template <class StatusType, class CommandType>
@@ -223,6 +222,9 @@ void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType* comman
          joint_tmp != this->joints_vector.end();
          ++joint_tmp)
     {
+      //update the robot control type for each joint of the joint state
+      this->hw_->getJointState(joint_tmp->joint_name)->control_type_.control_type = control_type_.control_type;
+
       if (!joint_tmp->has_actuator)
         continue;
 
