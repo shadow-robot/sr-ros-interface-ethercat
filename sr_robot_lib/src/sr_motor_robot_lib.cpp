@@ -1107,6 +1107,8 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
           continue;
         if (controllers_list.response.controller[i].name.find("trajectory_controller") != std::string::npos)
           continue;
+        if (controllers_list.response.controller[i].name.find("sr_ur_controller") != std::string::npos)
+          continue;
         ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(controllers_list.response.controller[i].name + "/reset_gains");
         std_srvs::Empty empty_message;
         if (!reset_gains_client.call(empty_message))
