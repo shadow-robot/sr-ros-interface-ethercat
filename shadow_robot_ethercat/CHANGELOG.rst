@@ -2,6 +2,9 @@
 Changelog for package shadow_robot_ethercat
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.1 (2014-07-18)
 ------------------
 

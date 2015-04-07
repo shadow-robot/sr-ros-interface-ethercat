@@ -2,6 +2,9 @@
 Changelog for package sr_edc_controller_configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.1 (2014-07-18)
 ------------------
 
