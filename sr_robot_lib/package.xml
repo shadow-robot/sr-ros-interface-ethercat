@@ -1,6 +1,6 @@
 <package>
   <name>sr_robot_lib</name>
-  <version>1.3.3</version>
+  <version>1.4.0</version>
   <description>sr_robot_lib contains the robot library used in the sr_edc_ethercat_drivers. The
      library is used to store the incoming etherCAT messages in an easy to access format,
      and prepare the messages to be send through etherCAT.</description>

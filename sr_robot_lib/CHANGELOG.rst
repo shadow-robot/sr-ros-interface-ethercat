@@ -2,8 +2,8 @@
 Changelog for package sr_robot_lib
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.0 (2015-04-07)
+------------------
 * Skip reset gains for arm controllers
 * Skip reset_gains if the controller is a trajectory controller
 * Fix diagnostics prefix

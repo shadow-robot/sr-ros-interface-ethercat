@@ -2,8 +2,8 @@
 Changelog for package sr_edc_muscle_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.0 (2015-04-07)
+------------------
 * Removed unuseful files
 
 1.3.1 (2014-07-18)

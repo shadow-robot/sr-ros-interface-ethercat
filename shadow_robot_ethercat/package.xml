@@ -1,6 +1,6 @@
 <package>
   <name>shadow_robot_ethercat</name>
-  <version>1.3.3</version>
+  <version>1.4.0</version>
   <description>This stack contains the drivers and the controllers for Shadow Robot's EtherCAT Hand.</description>
   <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
 

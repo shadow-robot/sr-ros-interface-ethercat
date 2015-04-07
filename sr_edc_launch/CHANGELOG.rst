@@ -2,8 +2,8 @@
 Changelog for package sr_edc_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.0 (2015-04-07)
+------------------
 * Rename ros_grant
 * Add launchfile for a bimanual system in a single process
 * replace pr2-grant with ros_grant
