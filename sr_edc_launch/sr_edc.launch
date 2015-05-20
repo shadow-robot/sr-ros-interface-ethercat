@@ -1,126 +1,37 @@
 <launch>
-  <!-- Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT
-       More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
+  <!--Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT-->
+  <!--More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
   <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)"/>
   <!-- Set to true for debugging -->
   <arg name="debug" default="false"/>
   <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
   <arg name="calibration_controllers" default="1"/>
-  <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro"/>
-  <!-- The control mode PWM (true) or torque (false) -->
-  <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
-  <!-- Defines the sub-directory used in
-       $(find sr_ethercat_hand_config)/mappings/
-       and $(find sr_ethercat_hand_config)/calibrations/
-       and $(find sr_ethercat_hand_config)/controls/host/
-       to know where to find the parameters for a certain hand.
-       In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
-       If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
-  <arg name="config_dir" default=""/>
-  
-  <arg name="use_prefix" default="false"/>
-  <!-- The ethercat serial number for the right hand -->
-  <arg name="hand_serial" default="1050"/>
-  <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
-  <arg name="hand_id" default="rh"/>
-  <!-- Set to true if you want to call xacro with a prefix -->
-  <arg name="use_xacro_prefix" default="false"/>
-  <arg name="xacro_prefix" default="r"/>
-
-  <param name="/use_sim_time" value="false"/>
-
-  <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg use_xacro_prefix)" name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)' prefix:=$(arg xacro_prefix)" />
-  <param unless="$(arg use_xacro_prefix)" name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)'" />
-
-  <group if="$(arg use_prefix)">
-    <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
-    <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
-  
-    <!-- Load parameters for the hand -->
-    <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
-      <arg name="config_dir" value="$(arg hand_id)/" />
-      <arg name="hand_id" value="$(arg hand_id)" />
-      <arg name="use_ns" value="true" />
-      <arg name="pwm_control" value="$(arg pwm_control)" />    
-    </include>
-  </group>
-  <group unless="$(arg use_prefix)">
-    <!-- Load parameters for the hand -->
-    <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
-      <arg name="config_dir" value="$(arg config_dir)" />
-      <arg name="hand_id" value="" />
-      <arg name="pwm_control" value="$(arg pwm_control)" />
-    </include>
-  </group>
-
+    
   <include file="$(find sr_edc_launch)/sr_edc.machine" />
 
   <!-- publishes joint 0s joint states on separate topic for debug/tuning -->
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
 
   <!-- ros_ethercat -->
-  <group if="$(arg use_prefix)">
-    <group if="$(arg debug)">
+  <group if="$(arg debug)">
       <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
-        <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
-        <param unless="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="FORCE"/>
-        
         <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
       </node>
-    </group>
-    <group unless="$(arg debug)">
-      <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ethercat_grant">
-        <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
-        <param unless="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="FORCE"/>
-  
-        <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
-      </node>
-    </group>
   </group>
-  <group unless="$(arg use_prefix)">
-    <group if="$(arg debug)">
-      <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
-        <param if="$(arg pwm_control)" name="default_control_mode" value="PWM"/>
-        <param unless="$(arg pwm_control)" name="default_control_mode" value="FORCE"/>
-  
-        <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
-      </node>
-    </group>
-    <group unless="$(arg debug)">
+  <group unless="$(arg debug)">
       <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ethercat_grant">
-        <param if="$(arg pwm_control)" name="default_control_mode" value="PWM"/>
-        <param unless="$(arg pwm_control)" name="default_control_mode" value="FORCE"/>
-  
         <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
       </node>
-    </group>
-  </group>  
-    
+  </group>
 
-  <group if="$(arg use_prefix)">
-    <group if="$(arg calibration_controllers)">
-      <group if="$(optenv THREE_FINGER 0)">
-	<node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
-	      args="cal_sh_$(arg hand_id)_ffj0 cal_sh_$(arg hand_id)_ffj3 cal_sh_$(arg hand_id)_ffj4 cal_sh_$(arg hand_id)_rfj0 cal_sh_$(arg hand_id)_rfj3 cal_sh_$(arg hand_id)_rfj4 cal_sh_$(arg hand_id)_thj1 cal_sh_$(arg hand_id)_thj2 cal_sh_$(arg hand_id)_thj3 cal_sh_$(arg hand_id)_thj4 cal_sh_$(arg hand_id)_thj5 cal_sh_$(arg hand_id)_wrj1 cal_sh_$(arg hand_id)_wrj2"/>
-      </group>
-      <group unless="$(optenv THREE_FINGER 0)">
-	<node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
-	      args="cal_sh_$(arg hand_id)_ffj0 cal_sh_$(arg hand_id)_ffj3 cal_sh_$(arg hand_id)_ffj4 cal_sh_$(arg hand_id)_mfj0 cal_sh_$(arg hand_id)_mfj3 cal_sh_$(arg hand_id)_mfj4 cal_sh_$(arg hand_id)_rfj0 cal_sh_$(arg hand_id)_rfj3 cal_sh_$(arg hand_id)_rfj4 cal_sh_$(arg hand_id)_lfj0 cal_sh_$(arg hand_id)_lfj3 cal_sh_$(arg hand_id)_lfj4 cal_sh_$(arg hand_id)_lfj5 cal_sh_$(arg hand_id)_thj1 cal_sh_$(arg hand_id)_thj2 cal_sh_$(arg hand_id)_thj3 cal_sh_$(arg hand_id)_thj4 cal_sh_$(arg hand_id)_thj5 cal_sh_$(arg hand_id)_wrj1 cal_sh_$(arg hand_id)_wrj2"/>
-      </group>
+  <group if="$(arg calibration_controllers)">
+    <group if="$(optenv THREE_FINGER 0)">
+      <node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
+	    args="cal_sh_rh_ffj0 cal_sh_rh_ffj3 cal_sh_rh_ffj4 cal_sh_rh_rfj0 cal_sh_rh_rfj3 cal_sh_rh_rfj4 cal_sh_rh_thj1 cal_sh_rh_thj2 cal_sh_rh_thj3 cal_sh_rh_thj4 cal_sh_rh_thj5 cal_sh_rh_wrj1 cal_sh_rh_wrj2"/>
     </group>
-  </group>
-  <group unless="$(arg use_prefix)">
-    <group if="$(arg calibration_controllers)">
-      <group if="$(optenv THREE_FINGER 0)">
-	<node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
-	      args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
-      </group>
-      <group unless="$(optenv THREE_FINGER 0)">
-	<node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
-	      args="cal_sh_ffj0 cal_sh_ffj3 cal_sh_ffj4 cal_sh_mfj0 cal_sh_mfj3 cal_sh_mfj4 cal_sh_rfj0 cal_sh_rfj3 cal_sh_rfj4 cal_sh_lfj0 cal_sh_lfj3 cal_sh_lfj4 cal_sh_lfj5 cal_sh_thj1 cal_sh_thj2 cal_sh_thj3 cal_sh_thj4 cal_sh_thj5 cal_sh_wrj1 cal_sh_wrj2"/>
-      </group>
+    <group unless="$(optenv THREE_FINGER 0)">
+      <node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
+	    args="cal_sh_rh_ffj0 cal_sh_rh_ffj3 cal_sh_rh_ffj4 cal_sh_rh_mfj0 cal_sh_rh_mfj3 cal_sh_rh_mfj4 cal_sh_rh_rfj0 cal_sh_rh_rfj3 cal_sh_rh_rfj4 cal_sh_rh_lfj0 cal_sh_rh_lfj3 cal_sh_rh_lfj4 cal_sh_rh_lfj5 cal_sh_rh_thj1 cal_sh_rh_thj2 cal_sh_rh_thj3 cal_sh_rh_thj4 cal_sh_rh_thj5 cal_sh_rh_wrj1 cal_sh_rh_wrj2"/>
     </group>
   </group>
 
@@ -131,7 +42,7 @@
 
   <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch"/>
 
-  <!-- Robot state publisher: transforming the joints angles to tf.  -->
+  <!-- Robot state publisher: transforming the joints angles to tf. -->
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="100.0" />
   </node>

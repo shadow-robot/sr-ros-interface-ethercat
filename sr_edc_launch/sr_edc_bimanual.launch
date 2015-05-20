@@ -1,51 +1,11 @@
 <launch>
-  <!-- Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT
-       More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
-  <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)"/>
+  <!--Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT-->
+  <!--More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
+  <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth1_eth2)"/>
   <!-- Set to true for debugging -->
   <arg name="debug" default="false"/>
   <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
   <arg name="calibration_controllers" default="1"/>
-  <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="$(find sr_description)/robots/bimanual_shadowhand_motor.urdf.xacro"/>
-  <!-- The control mode PWM (true) or torque (false) -->
-  <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
-
-  <!-- The ethercat serial number for the right hand -->
-  <arg name="rh_serial" default="1050"/>
-  <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
-  <arg name="rh_id" default="rh"/>
-  <!-- The ethercat serial number for the left hand -->
-  <arg name="lh_serial" default="1098"/>
-  <!-- The id for the left hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
-  <arg name="lh_id" default="lh"/>
-
-
-  <param name="/hand/mapping/$(arg rh_serial)" value="$(arg rh_id)"/>
-  <param name="/hand/mapping/$(arg lh_serial)" value="$(arg lh_id)"/>
-  <param name="/hand/joint_prefix/$(arg rh_serial)" value="$(arg rh_id)_"/>
-  <param name="/hand/joint_prefix/$(arg lh_serial)" value="$(arg lh_id)_"/>
-
-  <param name="/use_sim_time" value="false"/>
-
-  <!-- Loads the robot description from the file passed as an argument -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)'" />
-
-  <!-- Load parameters for the right hand -->
-  <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
-    <arg name="config_dir" value="$(arg rh_id)/" />
-    <arg name="hand_id" value="$(arg rh_id)" />
-    <arg name="use_ns" value="true" />
-    <arg name="pwm_control" value="$(arg pwm_control)" />
-  </include>
-
-  <!-- Load parameters for the left hand -->
-  <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
-    <arg name="config_dir" value="$(arg lh_id)/" />
-    <arg name="hand_id" value="$(arg lh_id)" />
-    <arg name="use_ns" value="true" />
-    <arg name="pwm_control" value="$(arg pwm_control)" />
-  </include>
 
   <include file="$(find sr_edc_launch)/sr_edc.machine" />
 
@@ -55,23 +15,11 @@
   <!-- ros_ethercat -->
   <group if="$(arg debug)">
     <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
-      <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
-      <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>
-
-      <param if="$(arg pwm_control)" name="$(arg lh_id)/default_control_mode" value="PWM"/>
-      <param unless="$(arg pwm_control)" name="$(arg lh_id)/default_control_mode" value="FORCE"/>
-
       <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
     </node>
   </group>
   <group unless="$(arg debug)">
     <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ethercat_grant">
-      <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
-      <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>
-
-      <param if="$(arg pwm_control)" name="$(arg lh_id)/default_control_mode" value="PWM"/>
-      <param unless="$(arg pwm_control)" name="$(arg lh_id)/default_control_mode" value="FORCE"/>
-
       <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
     </node>
   </group>
