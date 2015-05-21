@@ -6,6 +6,7 @@ import rosparam
 import rospkg
 import os
 import subprocess
+import argparse
 
 
 def find_location(search_item, item_type, search_path='/'):
@@ -23,9 +24,9 @@ def find_location(search_item, item_type, search_path='/'):
             rospy.logerr("Search type "+"'"+item_type+"'"+" not recognised")
 
 
-def load_parameters(params, config_file='true'):
+def load_parameters(params, config_file='y'):
     # load parameters from configuration yaml into parameter server
-    if config_file == 'true':
+    if config_file == 'y':
         paramlist=rosparam.load_file(params)
         for params, ns in paramlist:
             rosparam.upload_params(ns,params)
@@ -49,15 +50,16 @@ def replace_string(file_list, replacements, w='n'):
 
 
 def main():
-    try:
-        hand = str(sys.argv[1]).lower()
-        install_dir = sys.argv[2].rstrip('/')
-    except IndexError, e:
-        rospy.logerr("Left/right hand and installation directory arguments required in launch file" + str(e))
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--hand', dest='hand')
+    parser.add_argument('--install_path', dest='install_dir')
+    parser.add_argument('--debug', dest='debug')
+    parser.add_argument('--eth', dest='eth_port')
+    args, unknown = parser.parse_known_args()
 
-    debug = sys.argv[3]
-
+    debug = args.debug
+    hand = str(args.hand).lower()
+    install_dir = args.install_dir.rstrip('/')
     cfg = 'configuration.yaml'
 
     # check if install directory is in ros path
@@ -96,15 +98,14 @@ def main():
         host_conf_files = []
         for l in file_list:
             host_conf_files.append(host+l)
-
         replace_string(host_conf_files, {'_lh_': '_'+p+'_', '_rh_': '_'+p+'_', ' rh': ' '+p, ' lh': ' '+p}, 'y')
 
         # load pwm_control_mode to parameter server
         pwm_control = str(rospy.get_param('pwm_control')).lower()
         if pwm_control == 'true':
-            load_parameters(['realtime_loop/'+p+'/default_control_mode', 'PWM'], 'false')
+            load_parameters(['realtime_loop/'+p+'/default_control_mode', 'PWM'], 'n')
         else:
-            load_parameters(['realtime_loop/'+p+'/default_control_mode', 'FORCE'], 'false')
+            load_parameters(['realtime_loop/'+p+'/default_control_mode', 'FORCE'], 'n')
 
         #replace prefix in sr_edc.launch
         replace_string([os.path.dirname(os.path.realpath(sys.argv[0]))+'/sr_edc.launch'], {'_lh_': '_'+p+'_', '_rh_': '_'+p+'_'}, 'y')
@@ -113,20 +114,20 @@ def main():
         os.system('roslaunch sr_edc_launch load_hand_parameters.xml hand_id:='+p+' pwm_control:='+str(rospy.get_param('pwm_control'))+' use_ns:='+str(rospy.get_param('use_ns')))
 
     # setup eth_port, based on argument given or if not, take from parameter server
-    eth_port = sys.argv[4]
-    if eth_port == '' and hand == 'bimanual':
+    eth_port = args.eth_port
+    if eth_port == 'None' and hand == 'bimanual':
         eth_port = str(rospy.get_param('rh_eth_port'))+'_'+str(rospy.get_param('lh_eth_port'))
-    elif eth_port != '' and hand == 'bimanual':
+    elif eth_port != 'None' and hand == 'bimanual':
         eth_port = eth_port
-    elif eth_port == '' and hand != 'bimanual':
+    elif eth_port == 'None' and hand != 'bimanual':
         eth_port = str(rospy.get_param(hand_dict['prefix']+'_eth_port'))
 
     # find robot description
     rospack = rospkg.RosPack()
-    robot_description_file = find_location(rospy.get_param('robot_description_file'), 'f', rospack.get_path('sr_description'))
+    robot_description_file = find_location(rospy.get_param('robot_description_file'), 'f', rospy.get_param('robot_description_path'))
     xacro_file = find_location('xacro.py', 'f', rospack.get_path('xacro'))
 
-    #load robot description and launch edc launch file
+    # load robot description and launch edc launch file
     if hand == 'bimanual':
         robot_description_detail = subprocess.check_output('python '+xacro_file+" "+robot_description_file, shell=True)
         rospy.set_param('robot_description', robot_description_detail)
@@ -134,7 +135,7 @@ def main():
     else:
         robot_description_detail = subprocess.check_output('python '+xacro_file+" "+robot_description_file+' prefix:='+''.join(hand_dict['prefix'])+'_', shell=True)
         rospy.set_param('robot_description', robot_description_detail)
-        os.system('roslaunch sr_edc_launch sr_edc.launch debug:='+''+debug+' eth_port:='+eth_port)
+        os.system('roslaunch sr_edc_launch sr_edc.launch debug:='+debug+' eth_port:='+eth_port)
 
 
 if __name__ == "__main__":
