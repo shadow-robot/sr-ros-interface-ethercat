@@ -48,6 +48,33 @@ def replace_string(file_list, replacements, w='n'):
                 return new_data
 
 
+def pwm_control(prefix):
+    # load pwm_control_mode to parameter server
+    pwm_control = str(rospy.get_param('pwm_control')).lower()
+    if pwm_control == 'true':
+        load_parameters(['realtime_loop/' + prefix + '/default_control_mode', 'PWM'], 'n')
+    else:
+        load_parameters(['realtime_loop/' + prefix + '/default_control_mode', 'FORCE'], 'n')
+
+
+def load_hand_params(conf_dir, prefix):
+        sr_ethercat_dir = find_location('sr_ethercat_hand_config', 'd', conf_dir)
+        system('roslaunch sr_edc_launch load_hand_parameters.xml hand_id:=' + prefix + ' sr_ethercat_dir:=' +
+               sr_ethercat_dir + ' pwm_control:=' + str(rospy.get_param('pwm_control')) + ' use_ns:=' +
+               str(rospy.get_param('use_ns')))
+
+
+def load_robot_description():
+    # find robot description and load
+    robot_description_file = find_location(rospy.get_param('robot_description_file'), 'f',
+                                           rospy.get_param('robot_description_path'))
+    xacro_file = path.join(rospkg.RosPack().get_path('xacro'), 'xacro.py')
+
+    robot_description_detail = subprocess.check_output('python ' + xacro_file + " "
+                                                           + robot_description_file, shell=True)
+    rospy.set_param('robot_description', robot_description_detail)
+
+
 def main():
     rospy.init_node('configuration_load')
 
@@ -100,24 +127,17 @@ def main():
         host_conf_files = []
         for l in file_list:
             host_conf_files.append(host + l)
-        replace_string(host_conf_files, {'_lh_': '_' + p + '_', '_rh_': '_' + p + '_',
-                                         ' rh': ' ' + p, ' lh': ' ' + p}, 'y')
 
-        # load pwm_control_mode to parameter server
-        pwm_control = str(rospy.get_param('pwm_control')).lower()
-        if pwm_control == 'true':
-            load_parameters(['realtime_loop/' + p + '/default_control_mode', 'PWM'], 'n')
-        else:
-            load_parameters(['realtime_loop/' + p + '/default_control_mode', 'FORCE'], 'n')
+        #replace lh or rh prefix in controls/host files
+        replace_string(host_conf_files, {'lh_': p + '_', 'rh_': p + '_',
+                                         ' rh': ' ' + p, ' lh': ' ' + p}, 'y')
 
         # replace prefix in sr_edc.launch
         replace_string([rospkg.RosPack().get_path('sr_edc_launch') + '/sr_edc.launch'],
                        {'_lh_': '_' + p + '_', '_rh_': '_' + p + '_'}, 'y')
 
-        # load hand parameters
-        sr_ethercat_dir = find_location('sr_ethercat_hand_config', 'd', c)
-        system('roslaunch sr_edc_launch load_hand_parameters.xml hand_id:=' + p + ' sr_ethercat_dir:=' + sr_ethercat_dir
-               + ' pwm_control:=' + str(rospy.get_param('pwm_control')) + ' use_ns:=' + str(rospy.get_param('use_ns')))
+        pwm_control(p)
+        load_hand_params(c, p)
 
     # set eth_port, based on argument given or if not, take from parameter server
     eth_port = args.eth_port
@@ -127,21 +147,12 @@ def main():
         else:
             eth_port = rospy.get_param(str(hand_dict['prefix']) + '_eth_port')
 
-    # find robot description
-    robot_description_file = find_location(rospy.get_param('robot_description_file'), 'f',
-                                           rospy.get_param('robot_description_path'))
-    xacro_file = path.join(rospkg.RosPack().get_path('xacro'), 'xacro.py')
+    load_robot_description()
 
-    # load robot description and launch edc launch file
+    # launch edc launch file
     if hand == 'bimanual':
-        robot_description_detail = subprocess.check_output('python ' + xacro_file + " "
-                                                           + robot_description_file, shell=True)
-        rospy.set_param('robot_description', robot_description_detail)
         system('roslaunch sr_edc_launch sr_edc_bimanual.launch debug:=' + debug + ' eth_port:='+eth_port)
     else:
-        robot_description_detail = subprocess.check_output('python ' + xacro_file + " "
-                                                           + robot_description_file, shell=True)
-        rospy.set_param('robot_description', robot_description_detail)
         system('roslaunch sr_edc_launch sr_edc.launch debug:=' + debug + ' eth_port:=' + eth_port)
 
 
