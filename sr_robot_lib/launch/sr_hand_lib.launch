@@ -1,20 +1,12 @@
 <launch>
-  <!-- Defines the sub-directory used in 
-       $(find sr_ethercat_hand_config)/mappings/
-       and $(find sr_ethercat_hand_config)/calibrations/ 
-       to know where to find the parameters for a certain hand.
-       In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories  
-       If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
-  <arg name="config_dir" default="" />
-
   <!-- For the moment the sensor_to_joint mapping will be the same for all the existing models of hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/sensor_to_joint.yaml" />
+  <rosparam command="load" file="$(find sr_edc_launch)/mappings/sensor_to_joint.yaml" />
   <!-- The joint_to_motor_mapping is different depending on the hand being a right or a left hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/$(arg config_dir)joint_to_motor_mapping.yaml" />
+  <rosparam command="load" file="$(find sr_edc_launch)/mappings/joint_to_motor_mapping.yaml" />
   <!-- The joint_to_muscle_mapping is different depending on the hand being a right or a left hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/$(arg config_dir)joint_to_muscle_mapping.yaml" />
+  <rosparam command="load" file="$(find sr_edc_launch)/mappings/joint_to_muscle_mapping.yaml" />
   <!-- The calibration of the position sensors is different for every hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg config_dir)calibration.yaml" />
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/calibration.yaml" />
   <!-- The calibration of the pressure sensors is different for every hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg config_dir)pressure_calibration.yaml" />
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/pressure_calibration.yaml" />
 </launch>

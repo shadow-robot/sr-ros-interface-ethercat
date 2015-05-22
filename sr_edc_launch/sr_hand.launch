@@ -1,0 +1,16 @@
+<launch>
+  <!--Parameter to specify which hand, left, right or bimanual, is being launched. If loading from the ROS default
+  location of sr-config, bimanual cannot be specified  -->
+  <arg name="hand" default="right"/>
+
+  <!--Installation directory, location of sr-config  -->
+  <arg name="install_dir" default="/etc/shadow/right" />
+
+  <!--Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT-->
+  <!--More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
+  <arg name="eth_port" default="none"/>
+  <!-- Set to true for debugging -->
+  <arg name="debug" default="false"/>
+  <!--Run configuration file to load parameters into param server and generate l or r specific files  -->
+  <node name="configuration_load" pkg="sr_edc_launch" type="launch_config.py" args="--hand $(arg hand) --install_path $(arg install_dir) --debug $(arg debug) --eth $(arg eth_port)" output="screen"/>
+</launch>
