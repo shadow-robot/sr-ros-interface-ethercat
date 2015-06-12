@@ -2,6 +2,8 @@
 
 This stack focuses on the drivers for our [etherCAT hand](http://www.shadowrobot.com/products/).
 
+**Warning: be careful when starting the hand. Make sure you're using the proper config files or you might damage the hardware. If in doubt contact us!**
+
 ## Launching the Hand Driver
 
 - `sr_edc.launch` Launches a single hand
