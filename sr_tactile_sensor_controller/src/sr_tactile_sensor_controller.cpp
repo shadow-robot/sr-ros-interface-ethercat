@@ -59,6 +59,9 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
   std::string robot_state_name;
   controller_nh.param<std::string>("robot_state_name", robot_state_name, "unique_robot_hw");
 
+  bool use_ns = true;
+  ros::NodeHandle nh_priv("~");
+  
   try
   {
     robot_state = hw->getHandle(robot_state_name).getState();
@@ -69,6 +72,11 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
     return false;
   }
 
+  if (!nh_priv.getParam("use_ns", use_ns))
+  {
+    ROS_INFO("Private parameter 'use_ns' not set, default is using namespace");  
+  }
+  
   if (!controller_nh.getParam("prefix", prefix_))
   {
     ROS_ERROR("Parameter 'prefix' not set");
@@ -78,7 +86,11 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
   //this should handle the case where we don't want a prefix
   if (!prefix_.empty())
   {
-    nh_prefix_ = ros::NodeHandle(root_nh, prefix_);
+    if(use_ns)
+      nh_prefix_ = ros::NodeHandle(root_nh, prefix_);
+    else
+      nh_prefix_ = ros::NodeHandle(root_nh);
+        
     prefix_+="_";
   }
   else

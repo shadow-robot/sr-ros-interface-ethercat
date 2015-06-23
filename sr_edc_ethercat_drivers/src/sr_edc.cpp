@@ -187,9 +187,23 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
     // Using the serial number as we do in ronex is probably a worse option here.
     device_id_ = "";
   }
-
-  nodehandle_ = ros::NodeHandle(device_id_);
-  nh_tilde_ = ros::NodeHandle(ros::NodeHandle("~"), device_id_);
+  ros::NodeHandle nh_priv = ros::NodeHandle("~");
+  bool use_ns = true;
+  if(!nh_priv.getParam("use_ns", use_ns))
+    ROS_INFO_STREAM("use_ns not set for " << nh_priv.getNamespace());
+  
+  if(use_ns)
+  {
+    nodehandle_ = ros::NodeHandle(device_id_);
+    ROS_INFO_STREAM("Using namespace in sr_edc");
+  }
+  else
+  {
+    ROS_INFO_STREAM("Not using namespace in sr_edc");
+    nodehandle_ = ros::NodeHandle();
+  }
+  nh_tilde_ = ros::NodeHandle(nh_priv, device_id_);
+  
   serviceServer = nodehandle_.advertiseService("SimpleMotorFlasher", &SrEdc::simple_motor_flasher, this);
 
   // get the alias from the parameter server if it exists
