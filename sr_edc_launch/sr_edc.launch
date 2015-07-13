@@ -17,7 +17,7 @@
        to know where to find the parameters for a certain hand.
        In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
        If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
-  <arg name="config_dir" default=""/>
+  <arg name="config_dir" default="rh/"/>
   
   <arg name="use_prefix" default="false"/>
   <!-- The ethercat serial number for the right hand -->
