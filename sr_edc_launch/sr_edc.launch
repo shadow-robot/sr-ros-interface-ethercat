@@ -14,24 +14,19 @@
   <arg name="hand_serial" default="1050"/>
   <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
   <arg name="hand_id" default="rh"/>
-  <!-- Set to true if you want to call xacro with a prefix -->
-  <arg name="use_xacro_prefix" default="false"/>
-  <arg name="xacro_prefix" default="r"/>
 
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg use_xacro_prefix)" name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)' prefix:=$(arg xacro_prefix)" />
-  <param unless="$(arg use_xacro_prefix)" name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)' prefix:=$(arg hand_id)_" />
+
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
 
   <!-- Load parameters for the hand -->
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
-    <arg name="config_dir" value="$(arg hand_id)/" />
     <arg name="hand_id" value="$(arg hand_id)" />
-    <arg name="use_ns" value="true" />
     <arg name="pwm_control" value="$(arg pwm_control)" />
   </include>
 

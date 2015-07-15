@@ -34,14 +34,12 @@
   <!-- Load parameters for the right hand -->
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
     <arg name="hand_id" value="$(arg rh_id)" />
-    <arg name="use_ns" value="true" />
     <arg name="pwm_control" value="$(arg pwm_control)" />
   </include>
 
   <!-- Load parameters for the left hand -->
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
     <arg name="hand_id" value="$(arg lh_id)" />
-    <arg name="use_ns" value="true" />
     <arg name="pwm_control" value="$(arg pwm_control)" />
   </include>
 

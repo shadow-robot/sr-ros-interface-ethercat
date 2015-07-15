@@ -10,9 +10,7 @@
   <!-- For the moment the sensor_to_joint mapping will be the same for all the existing models of hand -->
   <rosparam command="load" file="$(find sr_edc_launch)/mappings/default_mappings/sensor_to_joint.yaml" />
   <!-- The joint_to_motor_mapping is different depending on the hand being a right or a left hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/$(arg hand_id)/joint_to_motor_mapping.yaml" />
-  <!-- The joint_to_muscle_mapping is different depending on the hand being a right or a left hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/mappings/$(arg hand_id)/joint_to_muscle_mapping.yaml" />
+  <include file="$(find sr_ethercat_hand_config)/mappings/$(arg hand_id)/load_joint_mapping.xml" />
   <!-- The calibration of the position sensors is different for every hand -->
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/calibration.yaml" />
   <!-- The calibration of the pressure sensors is different for every hand -->
