@@ -1077,13 +1077,13 @@ bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t
 
   string arguments = "";
 
-  // Read the config_dir prefix from the parameter server
-  // The config_dir will be passed as an argument to the sr_edc_default_controllers.launch
+  // Read the hand_id prefix from the parameter server
+  // The hand_id will be passed as an argument to the sr_edc_default_controllers.launch
   // so that the parameters in it will be read from the correct files
-  string config_dir = "";
-  this->nodehandle_.template param<string>("config_dir", config_dir, "");
-  ROS_DEBUG("config_dir: %s", config_dir.c_str());
-  arguments += " config_dir:=" + config_dir;
+  string hand_id = "";
+  this->nodehandle_.template param<string>("hand_id", hand_id, "");
+  ROS_DEBUG("hand_id: %s", hand_id.c_str());
+  arguments += " hand_id:=" + hand_id;
   ROS_INFO("arguments: %s", arguments.c_str());
 
   int result = system((env_variable + " roslaunch sr_ethercat_hand_config sr_edc_default_controllers.launch" + arguments).c_str());

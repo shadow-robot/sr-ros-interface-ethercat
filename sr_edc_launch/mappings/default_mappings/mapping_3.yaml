@@ -1,0 +1,47 @@
+##
+# This file contains the mapping between the muscles and the joints:
+#
+# Every joint is controlled by two muscles.
+#
+# Some joints are virtual joints that group other joints. e.g. FFJ0 is the combination of FFJ1 and FFJ2, that are actuated by the same pair of muscles
+#
+# Every muscle is defined by a pair [muscle_driver_ID, muscle_ID]
+# the muscle_ID is relative to a certain muscle driver, e.g. [0, 6] is the 6th muscle of the muscle driver 0.
+#
+##
+
+joint_to_muscle_mapping: [
+  [[0, 6], [3, 0]],         #FFJ0
+  [[-1, -1], [-1, -1]],     #FFJ1
+  [[-1, -1], [-1, -1]],     #FFJ2
+  [[0, 0], [0, 1]],         #FFJ3
+  [[0, 0], [0, 1]],         #FFJ4
+
+  [[0, 0], [0, 1]],         #MFJ0
+  [[-1, -1], [-1, -1]],     #MFJ1
+  [[-1, -1], [-1, -1]],     #MFJ2
+  [[0, 0], [0, 1]],         #MFJ3
+  [[0, 0], [0, 1]],         #MFJ4
+
+  [[0, 0], [0, 1]],         #RFJ0
+  [[-1, -1], [-1, -1]],     #RFJ1
+  [[-1, -1], [-1, -1]],     #RFJ2
+  [[0, 0], [0, 1]],         #RFJ3
+  [[0, 0], [0, 1]],         #RFJ4
+
+  [[0, 0], [0, 1]],         #LFJ0
+  [[-1, -1], [-1, -1]],     #LFJ1
+  [[-1, -1], [-1, -1]],     #LFJ2
+  [[0, 0], [0, 1]],         #LFJ3
+  [[0, 0], [0, 1]],         #LFJ4
+  [[0, 0], [0, 1]],         #LFJ5
+
+  [[0, 0], [0, 1]],         #THJ1
+  [[0, 0], [0, 1]],         #THJ2
+  [[0, 0], [0, 1]],         #THJ3
+  [[0, 0], [0, 1]],         #THJ4
+  [[0, 0], [0, 1]],         #THJ5
+
+  [[0, 0], [0, 1]],         #WRJ1
+  [[0, 0], [0, 1]],         #WRJ2
+]
