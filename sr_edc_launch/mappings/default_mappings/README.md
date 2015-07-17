@@ -7,4 +7,4 @@ Contains the different mapping files for joint to motor/muscle.
 - mapping_4 Left hand E, muscle actuation
 - mapping_5 Right hand G, motor actuation
 
-The mapping that is used for an install should be specified in sr_config.
+The mapping that is used for an install should be specified in [sr_config](https://github.com/shadow-robot/sr-config/tree/indigo-devel/sr_ethercat_hand_config/mappings).
