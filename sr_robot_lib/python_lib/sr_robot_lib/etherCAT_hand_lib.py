@@ -26,6 +26,7 @@ from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState
 from sr_robot_msgs.srv import ForceController
 from sr_robot_msgs.msg import EthercatDebug
+from sr_utilities.hand_finder import HandFinder
 
 class EtherCAT_Hand_Lib(object):
     """
@@ -45,6 +46,11 @@ class EtherCAT_Hand_Lib(object):
         """
         Useful python library to communicate with the etherCAT hand.
         """
+        self.hand_finder = HandFinder()
+        self.hand_params = self.hand_finder.get_hand_parameters()
+        self.hand_id = ''
+        if len(self.hand_params.mapping) is not 0:
+            self.hand_id = self.hand_params.mapping.itervalues().next()
         self.debug_subscriber = None
         self.joint_state_subscriber = None
         self.record_js_callback = None
@@ -63,9 +69,12 @@ class EtherCAT_Hand_Lib(object):
 
         joint_to_sensor_mapping = []
         try:
-            rospy.wait_for_message("debug_etherCAT_data", EthercatDebug, timeout = 0.2)
+            rospy.wait_for_message(self.hand_id + "/debug_etherCAT_data",
+                                   EthercatDebug, timeout = 0.2)
             try:
-                joint_to_sensor_mapping = rospy.get_param("joint_to_sensor_mapping")
+                joint_to_sensor_mapping \
+                    = rospy.get_param(self.hand_id
+                                      + "/joint_to_sensor_mapping")
             except:
                 rospy.logwarn("The parameter joint_to_sensor_mapping was not found,\
                         you won't be able to get the raw values from the EtherCAT compound sensors.")
@@ -207,13 +216,18 @@ class EtherCAT_Hand_Lib(object):
         #check if something is being published to those topics, otherwise
         # return false (the library is not activated)
         try:
-            rospy.wait_for_message("debug_etherCAT_data", EthercatDebug, timeout = 0.2)
+            rospy.wait_for_message(self.hand_id + "/debug_etherCAT_data",
+                                   EthercatDebug, timeout = 0.2)
             rospy.wait_for_message("joint_states", JointState, timeout = 0.2)
         except:
             return False
 
-        self.debug_subscriber = rospy.Subscriber("debug_etherCAT_data", EthercatDebug, self.debug_callback)
-        self.joint_state_subscriber = rospy.Subscriber("joint_states", JointState, self.joint_state_callback)
+        self.debug_subscriber =\
+            rospy.Subscriber(self.hand_id + "/debug_etherCAT_data",
+                             EthercatDebug, self.debug_callback)
+        self.joint_state_subscriber =\
+            rospy.Subscriber("joint_states",
+                             JointState, self.joint_state_callback)
         return True
 
     def activate_joint_states(self):
