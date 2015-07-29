@@ -15,7 +15,7 @@
     <!-- We set this argument as a parameter in the parameter server (it is relative so it will be pushed to a namespace if we use a ns), to be able to access it from serveral places:
          - the change control mode service inside the realtime loop will use it
          - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
-
+	<param name="hand_id" value="$(arg hand_id)"/>
     <!-- These params are loaded here as they are not controllers in the sense of the controller_manager, and will be accessed by every hand driver inside its namespace -->
     <rosparam command="load" file="$(find sr_ethercat_hand_config)/controls/motors/$(arg hand_id)/motor_board_effort_controllers.yaml" />
 
