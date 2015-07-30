@@ -77,4 +77,7 @@
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="100.0" />
   </node>
+
+  <node name="teach_mode_node" pkg="sr_robot_launch" type="teach_mode_node" output="screen" />
+
 </launch>
