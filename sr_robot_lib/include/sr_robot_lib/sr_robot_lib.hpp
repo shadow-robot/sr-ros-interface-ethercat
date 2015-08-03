@@ -265,7 +265,7 @@ protected:
   ///The ROS service handler for nullifying the demand
   ros::ServiceServer nullify_demand_server_;
 
-  boost::shared_ptr<SrSelfTest> self_tests_;
+  //boost::shared_ptr<SrSelfTest> self_tests_;
 
   ///Thread for running the tests in parallel when doing the tests on real hand
   boost::shared_ptr<boost::thread> self_test_thread_;

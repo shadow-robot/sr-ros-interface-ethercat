@@ -29,6 +29,7 @@
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
+
 #define error_flag_names palm_0200_edc_error_flag_names
 #define STATUS_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS
 #define COMMAND_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND
@@ -36,32 +37,55 @@
 class HandLibTestProtected : public shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>
 {
 public:
-  HandLibTestProtected(hardware_interface::HardwareInterface *hw)
-    : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw)
+  HandLibTestProtected(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh)
+    : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw, nh, nh, "", "rh_")
   {};
 
-public: using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::joints_vector;
+public:
+  using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::joints_vector;
+  using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::humanize_flags;
 };
 
 class HandLibTest
 {
+  ros::NodeHandle nh;
 public:
-  ros_ethercat_model::RobotState *hw;
+  ros_ethercat_model::RobotState *hw = NULL;
   boost::shared_ptr<HandLibTestProtected> sr_hand_lib;
   sr_actuator::SrMotorActuator* actuator;
+  XmlRpc::XmlRpcValue joint_to_sensor_mapping;
 
   HandLibTest()
   {
-    hw = new ros_ethercat_model::RobotState(NULL);
-    std::string nam("FFJ4");
-    hw->transmissions_.push_back(new sr_mechanism_model::SimpleTransmission());
-    hw->transmissions_.front().joint_ = hw->getJointState(nam);
-    hw->transmissions_.front().actuator_ = new sr_actuator::SrMotorActuator();
-    hw->transmissions_.front().actuator_->name_ = nam;
-    hw->transmissions_.front().actuator_->command_.enable_ = true;
+    TiXmlElement *root;
+    TiXmlElement *root_element;
+    TiXmlDocument xml;
+    std::string robot_description;
+    if (ros::param::get("/robot_description",robot_description ))
+    {
+      xml.Parse(robot_description.c_str());
+    }
+    else
+    {
+      ROS_ERROR_STREAM("Could not load the xml from parameter server");
+    }
+    root_element = xml.RootElement();
+    root = xml.FirstChildElement("robot");
+
+    nh.getParam("joint_to_sensor_mapping", joint_to_sensor_mapping);
+    hw = new ros_ethercat_model::RobotState(root);
+//    std::string nam("FFJ4");
+//    hw->transmissions_.push_back(new sr_mechanism_model::SimpleTransmission());
+//    hw->transmissions_.front().joint_ = hw->getJointState(nam);
+//    hw->transmissions_.front().actuator_ = new sr_actuator::SrMotorActuator();
+//    hw->transmissions_.front().actuator_->name_ = nam;
+//    hw->transmissions_.front().actuator_->command_.enable_ = true;
+//    hw->transmissions_.front().actuator_->state_.device_id_ = 1;
+
 
     hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface*>(hw);
-    sr_hand_lib.reset(new HandLibTestProtected(ehw));
+    sr_hand_lib.reset(new HandLibTestProtected(ehw, nh));
+
   }
 
   ~HandLibTest()
@@ -152,6 +176,7 @@ TEST(SrRobotLib, UpdateMotor)
       }
     }
   }
+  delete status_data;
 }
 
 /**
@@ -193,7 +218,7 @@ TEST(SrRobotLib, UpdateActuators)
   lib_test->sr_hand_lib->update(status_data);
 
   // name, motor_id, id_in_enum, expected_pos
-  lib_test->check_hw_actuator("FFJ4", 7, 3, 4.0);
+  lib_test->check_hw_actuator("rh_FFJ4", 2, 3, 4.0);
 
   //cleanup
   delete status_data;
@@ -209,8 +234,8 @@ class TestHandLib
   : public HandLibTestProtected
 {
 public:
-  TestHandLib(hardware_interface::HardwareInterface* hw)
-    : HandLibTestProtected(hw)
+  TestHandLib(hardware_interface::HardwareInterface* hw, ros::NodeHandle nh)
+    : HandLibTestProtected(hw, nh)
   {}
 
   using HandLibTestProtected::calibrate_joint;
@@ -412,12 +437,12 @@ public:
  */
 TEST(SrRobotLib, HumanizeFlags)
 {
-  hardware_interface::HardwareInterface *hw;
-  boost::shared_ptr<TestHandLib> sr_hand_lib = boost::shared_ptr<TestHandLib>( new TestHandLib(hw) );
 
+  boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
+//
   std::vector<std::pair<std::string, bool> > flags;
   //all flags set
-  flags = sr_hand_lib->humanize_flags(0xFFFF);
+  flags = lib_test->sr_hand_lib->humanize_flags(0xFFFF);
 
   EXPECT_EQ(flags.size(), 16);
 
@@ -437,7 +462,6 @@ TEST(SrRobotLib, HumanizeFlags)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "calibration_test");
-
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
