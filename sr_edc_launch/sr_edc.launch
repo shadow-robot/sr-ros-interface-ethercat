@@ -9,7 +9,7 @@
   <!-- Xacro file containing the robot description we want to load -->
   <arg name="robot_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro"/>
   <!-- The control mode PWM (true) or torque (false) -->
-  <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
+  <arg name="pwm_control" default="$(optenv PWM_CONTROL 1)"/>
   <!-- The ethercat serial number for the right hand -->
   <arg name="hand_serial" default="1050"/>
   <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
