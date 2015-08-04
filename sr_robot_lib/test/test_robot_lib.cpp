@@ -74,14 +74,6 @@ public:
 
     nh.getParam("joint_to_sensor_mapping", joint_to_sensor_mapping);
     hw = new ros_ethercat_model::RobotState(root);
-//    std::string nam("FFJ4");
-//    hw->transmissions_.push_back(new sr_mechanism_model::SimpleTransmission());
-//    hw->transmissions_.front().joint_ = hw->getJointState(nam);
-//    hw->transmissions_.front().actuator_ = new sr_actuator::SrMotorActuator();
-//    hw->transmissions_.front().actuator_->name_ = nam;
-//    hw->transmissions_.front().actuator_->command_.enable_ = true;
-//    hw->transmissions_.front().actuator_->state_.device_id_ = 1;
-
 
     hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface*>(hw);
     sr_hand_lib.reset(new HandLibTestProtected(ehw, nh));
