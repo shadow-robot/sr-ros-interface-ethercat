@@ -150,8 +150,8 @@ SrRobotLib<StatusType, CommandType>::SrRobotLib(hardware_interface::HardwareInte
   nullify_demand_server_(nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this)),
 
   //initialises self tests (false as this is not a simulated hand\)
-  self_tests_(new SrSelfTest(false)),
-  self_test_thread_(new boost::thread(boost::bind(&SrRobotLib::checkSelfTests, this))),
+  //self_tests_(new SrSelfTest(false)),
+//  self_test_thread_(new boost::thread(boost::bind(&SrRobotLib::checkSelfTests, this))),
 
   //read the generic sensor polling frequency from the parameter server
   generic_sensor_update_rate_configs_vector(read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data, human_readable_sensor_data_types, sensor_data_types)),
@@ -418,18 +418,18 @@ template <class StatusType, class CommandType>
      }
   }
 
-  template <class StatusType, class CommandType>  
-void SrRobotLib<StatusType, CommandType>::checkSelfTests()
-{
-  ros::Rate loop_rate(1);
-  while (ros::ok())
-  {
-    //check if we have some self diagnostics test to run and run them
-    // in a separate thread
-    self_tests_->checkTest();
-    loop_rate.sleep();
-  }
-}
+//  template <class StatusType, class CommandType>
+//void SrRobotLib<StatusType, CommandType>::checkSelfTests()
+//{
+//  ros::Rate loop_rate(1);
+//  while (ros::ok())
+//  {
+//    //check if we have some self diagnostics test to run and run them
+//    // in a separate thread
+//    //self_tests_->checkTest();
+//    loop_rate.sleep();
+//  }
+//}
 
 //Only to ensure that the template class is compiled for the types we are interested in
 template class SrRobotLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
