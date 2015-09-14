@@ -2,7 +2,7 @@
 | ----------------- | -------- |
 | Documentation     | [![Documentation Status](https://readthedocs.org/projects/shadow-robot-ethercat-driver/badge/?version=latest)](http://shadow-robot-ethercat-driver.readthedocs.org) |
 | Code style checks | [![Circle CI](https://circleci.com/gh/shadow-robot/sr-ros-interface-ethercat.svg?style=shield)](https://circleci.com/gh/shadow-robot/sr-ros-interface-ethercat) |
-| Unit tests        | [![Build Status](https://img.shields.io/shippable/55e02cb71895ca44741090de.svg)](https://app.shippable.com/projects/55e02cb71895ca44741090de) |
+| Unit tests        | [![Build Status](https://img.shields.io/shippable/554b2990edd7f2c052e402b9.svg)](https://app.shippable.com/projects/554b2990edd7f2c052e402b9) |
 | Install tests     | [![Build Status](https://semaphoreci.com/api/v1/projects/c0557341-a994-4b1d-84c5-7b79ce6dbce9/525136/shields_badge.svg)](https://semaphoreci.com/shadow-robot/sr-interface-ethercat) |
 | Code Coverage     | [![codecov.io](https://img.shields.io/codecov/c/github/shadow-robot/sr-interface-ethercat/indigo-devel.svg)](http://codecov.io/github/shadow-robot/sr-interface-ethercat?branch=indigo-devel) |
 
