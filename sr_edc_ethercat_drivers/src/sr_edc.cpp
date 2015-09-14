@@ -63,7 +63,7 @@ namespace is_edc_command_32_bits
 // check is the EDC_COMMAND is 32bits on the computer
 // if not, fails
   BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
-} // namespace is_edc_command_32_bits
+}  // namespace is_edc_command_32_bits
 
 const unsigned int SrEdc::max_retry = 20;
 
@@ -220,15 +220,15 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   ROS_INFO("First FMMU (command) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", command_base_,
            command_size_,
            static_cast<int> (ethercat_command_data_address));
-  EC_FMMU *commandFMMU = new EC_FMMU(command_base_, // Logical Start Address    (in ROS address space?)
+  EC_FMMU *commandFMMU = new EC_FMMU(command_base_,  // Logical Start Address    (in ROS address space?)
                                      command_size_,
-                                     0x00, // Logical Start Bit
-                                     0x07, // Logical End Bit
-                                     ethercat_command_data_address, // Physical Start Address   (in ET1200 address space?)
-                                     0x00, // Physical Start Bit
-                                     false, // Read Enable
-                                     true, // Write Enable
-                                     true // Channel Enable
+                                     0x00,  // Logical Start Bit
+                                     0x07,  // Logical End Bit
+                                     ethercat_command_data_address,  // Physical Start Address   (in ET1200 address space?)
+                                     0x00,  // Physical Start Bit
+                                     false,  // Read Enable
+                                     true,  // Write Enable
+                                     true  // Channel Enable
   );
 
 
@@ -375,7 +375,7 @@ bool SrEdc::read_flash(unsigned int offset, unsigned int baddr)
       can_message_.message_length = 3;
       can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | READ_FLASH_COMMAND;
       can_message_.message_data[2] = (offset + baddr) >> 16;
-      can_message_.message_data[1] = (offset + baddr) >> 8; // User application start address is 0x4C0
+      can_message_.message_data[1] = (offset + baddr) >> 8;  // User application start address is 0x4C0
       can_message_.message_data[0] = offset + baddr;
       cmd_sent = 1;
       unlock(&producing);
@@ -768,7 +768,7 @@ void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u m
   can_packet_acked = false;
   while (!can_packet_acked)
   {
-    usleep(1000); // 1 ms
+    usleep(1000);  // 1 ms
     wait_time++;
     if (wait_time > timeout)
     {
@@ -911,7 +911,7 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
             can_message_.can_bus = can_bus_;
             can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_ADDRESS_COMMAND;
             can_message_.message_data[2] = (base_addr + pos) >> 16;
-            can_message_.message_data[1] = (base_addr + pos) >> 8; // User application start address is 0x4C0
+            can_message_.message_data[1] = (base_addr + pos) >> 8;  // User application start address is 0x4C0
             can_message_.message_data[0] = base_addr + pos;
             ROS_DEBUG("Sending write address to motor %d : 0x%02X%02X%02X", motor_being_flashed,
                       can_message_.message_data[2], can_message_.message_data[1], can_message_.message_data[0]);

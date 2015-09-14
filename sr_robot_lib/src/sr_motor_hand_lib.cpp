@@ -155,12 +155,12 @@ namespace shadow_robot
                                     pair<int, string>(motor_wrapper->motor_id, joint.joint_name)));
       }
       else
-      { //no motor associated to this joint
+      {  //no motor associated to this joint
         joint.has_actuator = false;
       }
 
       this->joints_vector.push_back(joint);
-    } //end for joints.
+    }  //end for joints.
   }
 
   template<class StatusType, class CommandType>
@@ -449,7 +449,7 @@ namespace shadow_robot
     }
 
     return motor_ids;
-  } //end read_joint_to_motor_mapping
+  }  //end read_joint_to_motor_mapping
 
 
 #ifdef DEBUG_PUBLISHER
@@ -504,7 +504,7 @@ namespace shadow_robot
 
   template
   class SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
-} // end namespace
+}  // end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

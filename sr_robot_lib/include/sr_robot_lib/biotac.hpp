@@ -87,8 +87,8 @@ namespace tactiles
 
     // Tactile sensor real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> > tactile_publisher;
-  }; //end class
-} //end namespace
+  };  //end class
+}  //end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

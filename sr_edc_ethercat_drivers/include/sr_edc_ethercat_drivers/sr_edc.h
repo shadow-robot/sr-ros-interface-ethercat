@@ -128,8 +128,8 @@ private:
 
   ETHERCAT_CAN_BRIDGE_DATA can_message_;
   bool can_message_sent;
-  bfd_byte *binary_content; // buffer containing the binary content to be flashed
-  unsigned int pos; // position in binary_content buffer
+  bfd_byte *binary_content;  // buffer containing the binary content to be flashed
+  unsigned int pos;  // position in binary_content buffer
   unsigned int motor_being_flashed;
 
 

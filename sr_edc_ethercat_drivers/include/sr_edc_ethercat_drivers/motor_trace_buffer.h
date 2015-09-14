@@ -65,8 +65,8 @@ namespace sr_edc_ethercat_drivers
 
   protected:
     unsigned trace_size_;  //!< size of trace vector
-    unsigned trace_index_; //!< index of most recent element in trace vector
-    unsigned published_traces_; //!< number of times motor trace has been published
+    unsigned trace_index_;  //!< index of most recent element in trace vector
+    unsigned published_traces_;  //!< number of times motor trace has been published
     std::vector<sr_edc_ethercat_drivers::MotorTraceSample> trace_buffer_;
     realtime_tools::RealtimePublisher<sr_edc_ethercat_drivers::MotorTrace> *publisher_;
     int publish_delay_;
@@ -77,4 +77,4 @@ namespace sr_edc_ethercat_drivers
 
 };
 
-#endif //SRH_ETHERCAT_HARDWARE_MOTOR_TRACE_H
+#endif  //SRH_ETHERCAT_HARDWARE_MOTOR_TRACE_H

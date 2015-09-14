@@ -157,8 +157,8 @@ namespace tactiles
         default:
           break;
 
-      } //end switch
-    } //end for tactile
+      }  //end switch
+    }  //end for tactile
 
     for (unsigned int i = 0; i < palm_tactiles->palm.size(); ++i)
     {
@@ -228,7 +228,7 @@ namespace tactiles
       aux_spi_publisher->unlockAndPublish();
     }
 
-  } //end publish
+  }  //end publish
 
   template<class StatusType, class CommandType>
   void UBI0<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,

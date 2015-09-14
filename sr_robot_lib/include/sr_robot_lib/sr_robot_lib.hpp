@@ -333,8 +333,8 @@ namespace shadow_robot
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
 
-  }; //end class
-} //end namespace
+  };  //end class
+}  //end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

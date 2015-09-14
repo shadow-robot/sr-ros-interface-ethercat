@@ -52,7 +52,7 @@ namespace is_edc_command_32_bits
 // check is the EDC_COMMAND is 32bits on the computer
 // if not, fails
   BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
-} // namespace is_edc_command_32_bits
+}  // namespace is_edc_command_32_bits
 
 #define ETHERCAT_STATUS_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS)
 #define ETHERCAT_COMMAND_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND)

@@ -97,7 +97,7 @@ namespace tactiles
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> > mid_prox_publisher;
     // Auxiliar Spi data (sometimes it is a palm tactile sensor) real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData> > aux_spi_publisher;
-  }; //end class
+  };  //end class
 
 
   // class template specialization.
@@ -132,7 +132,7 @@ namespace tactiles
     ~UBI0()
     {
     };
-  }; //end class
+  };  //end class
 
   template<>
   class UBI0<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> :
@@ -159,8 +159,8 @@ namespace tactiles
     ~UBI0()
     {
     };
-  }; //end class
-} //end namespace
+  };  //end class
+}  //end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

@@ -265,8 +265,8 @@ namespace shadow_robot
      */
     bool motor_system_controls_callback_(sr_robot_msgs::ChangeMotorSystemControls::Request &request,
                                          sr_robot_msgs::ChangeMotorSystemControls::Response &response);
-  }; //end class
-} //end namespace
+  };  //end class
+}  //end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

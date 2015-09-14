@@ -152,12 +152,12 @@ namespace shadow_robot
                 this->joint_prefix_ + joint.joint_name));
       }
       else
-      { //no muscles associated to this joint. We only check the driver 0 assuming a joint with -1 will have -1 in the driver 1 as well
+      {  //no muscles associated to this joint. We only check the driver 0 assuming a joint with -1 will have -1 in the driver 1 as well
         joint.has_actuator = false;
       }
 
       this->joints_vector.push_back(joint);
-    } //end for joints.
+    }  //end for joints.
   }
 
   template<class StatusType, class CommandType>
@@ -205,7 +205,7 @@ namespace shadow_robot
     }
 
     return muscle_map;
-  } //end read_joint_to_muscle_mapping
+  }  //end read_joint_to_muscle_mapping
 
 #ifdef DEBUG_PUBLISHER
 
@@ -256,7 +256,7 @@ namespace shadow_robot
 // Only to ensure that the template class is compiled for the types we are interested in
   template
   class SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-} // end namespace
+}  // end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

@@ -245,8 +245,8 @@ namespace tactiles
         default:
           break;
 
-      } //end switch
-    } //end for tactile
+      }  //end switch
+    }  //end for tactile
 
     if (this->sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
     {
@@ -287,7 +287,7 @@ namespace tactiles
       tactile_publisher->unlockAndPublish();
     }
 
-  } //end publish
+  }  //end publish
 
   template<class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,

@@ -167,7 +167,7 @@ TEST(SrRobotLib, UpdateMotor)
         ROS_ERROR_STREAM("last measured effort: " << sr_actuator->state_.last_measured_effort_ << " actuator: " <<
                          motor_wrapper->actuator);
 
-        EXPECT_FLOAT_EQ(sr_actuator->motor_state_.force_unfiltered_, 4.0); //(double)motor_wrapper->motor_id/2.0);
+        EXPECT_FLOAT_EQ(sr_actuator->motor_state_.force_unfiltered_, 4.0);  //(double)motor_wrapper->motor_id/2.0);
         EXPECT_EQ(sr_actuator->motor_state_.strain_gauge_right_, motor_wrapper->motor_id);
       }
     }

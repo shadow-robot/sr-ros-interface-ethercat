@@ -147,7 +147,7 @@ namespace sr_edc_ethercat_drivers
   void MotorTraceBuffer::sample(const sr_edc_ethercat_drivers::MotorTraceSample &s)
   {
 
-    { // Add motor trace sample to trace buffer
+    {  // Add motor trace sample to trace buffer
       assert(trace_buffer_.size() <= trace_size_);
       if (trace_buffer_.size() >= trace_size_)
       {

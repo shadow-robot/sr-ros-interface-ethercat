@@ -181,8 +181,8 @@ namespace shadow_robot
       }
 
       read_additional_muscle_data(joint_tmp, status_data);
-    } //end for joint
-  } //end update()
+    }  //end for joint
+  }  //end update()
 
   template<class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::build_command(CommandType *command)
@@ -274,12 +274,12 @@ namespace shadow_robot
             }
 
             this->debug_mutex.unlock();
-          } //end try_lock
+          }  //end try_lock
 #endif
 
-        } //end if has_actuator
-      } // end for each joint
-    } //endif
+        }  //end if has_actuator
+      }  // end for each joint
+    }  //endif
     else
     {
       //we have some reset command waiting.
@@ -319,7 +319,7 @@ namespace shadow_robot
         command->muscle_data[muscle_driver_id * 5] = to_send.byte[0];
         command->muscle_data[muscle_driver_id * 5 + 1] = to_send.byte[1];
       }
-    } // end if reset queue not empty
+    }  // end if reset queue not empty
   }
 
   template<class StatusType, class CommandType>
@@ -339,7 +339,7 @@ namespace shadow_robot
       //Add one
       tmp_valve = tmp_valve + 1;
     }
-    else //Positive representation is straightforward
+    else  //Positive representation is straightforward
     {
       tmp_valve = valve_value & 0x0F;
     }
@@ -383,7 +383,7 @@ namespace shadow_robot
             d.addf("Muscle ID 1", "%d", actuator_wrapper->muscle_id[1]);
             d.addf("Muscle driver ID 1", "%d", actuator_wrapper->muscle_driver_id[1]);
           }
-          else //the data is good
+          else  //the data is good
           {
             d.summary(d.OK, "OK");
 
@@ -421,7 +421,7 @@ namespace shadow_robot
       }
       vec.push_back(d);
 
-    } //end for each joints
+    }  //end for each joints
 
     for (vector<MuscleDriver>::iterator muscle_driver = this->muscle_drivers_vector_.begin();
          muscle_driver != this->muscle_drivers_vector_.end();
@@ -440,7 +440,7 @@ namespace shadow_robot
           d.clear();
           d.addf("Muscle Driver ID", "%d", muscle_driver->muscle_driver_id);
         }
-        else //the data is good
+        else  //the data is good
         {
           d.summary(d.OK, "OK");
 
@@ -473,7 +473,7 @@ namespace shadow_robot
       }
 
       vec.push_back(d);
-    } //end for each muscle driver
+    }  //end for each muscle driver
 
   }
 
@@ -561,7 +561,7 @@ namespace shadow_robot
         }
 
         this->debug_mutex.unlock();
-      } //end try_lock
+      }  //end try_lock
 #endif
 
       //we received the data and it was correct
@@ -853,7 +853,7 @@ namespace shadow_robot
       actuator->muscle_state_.position_unfiltered_ = calibrated_position;
       ROS_DEBUG_STREAM("          => " << actuator->muscle_state_.position_unfiltered_);
     }
-  } //end calibrate_joint()
+  }  //end calibrate_joint()
 
   template<class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp,
@@ -938,7 +938,7 @@ namespace shadow_robot
 // Only to ensure that the template class is compiled for the types we are interested in
   template
   class SrMuscleRobotLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-} //end namespace
+}  //end namespace
 
 /* For the emacs weenies in the crowd.
  Local Variables:

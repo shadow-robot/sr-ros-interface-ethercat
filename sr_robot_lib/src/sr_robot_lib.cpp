@@ -342,7 +342,7 @@ namespace shadow_robot
     }
 
     return joint_calibration;
-  } //end read_joint_calibration
+  }  //end read_joint_calibration
 
   template<class StatusType, class CommandType>
   vector<JointToSensor> SrRobotLib<StatusType, CommandType>::read_joint_to_sensor_mapping()
@@ -383,7 +383,7 @@ namespace shadow_robot
         param_index++;
       }
       else
-      { //by default we calibrate before combining the sensors
+      {  //by default we calibrate before combining the sensors
         tmp_vect.calibrate_after_combining_sensors = false;
       }
 
@@ -405,7 +405,7 @@ namespace shadow_robot
     }
 
     return joint_to_sensor_vect;
-  } //end read_joint_to_sensor_mapping
+  }  //end read_joint_to_sensor_mapping
 
   template<class StatusType, class CommandType>
   vector<UpdateConfig> SrRobotLib<StatusType, CommandType>::read_update_rate_configs(string base_param,
@@ -489,7 +489,7 @@ namespace shadow_robot
   template
   class SrRobotLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 
-} //end namespace
+}  //end namespace
 
 /* For the emacs weenies in the crowd.
  Local Variables:

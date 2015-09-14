@@ -178,11 +178,11 @@ namespace shadow_robot
       {
         read_additional_data(joint_tmp, status_data);
       }
-    } //end for joint
+    }  //end for joint
 
     //then we read the tactile sensors information
     this->update_tactile_info(status_data);
-  } //end update()
+  }  //end update()
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType *command)
@@ -293,10 +293,10 @@ namespace shadow_robot
           }
 
           this->debug_mutex.unlock();
-        } //end try_lock
+        }  //end try_lock
 #endif
-      } // end for each joint
-    } //end if reconfig_queue.empty()
+      }  // end for each joint
+    }  //end if reconfig_queue.empty()
     else
     {
       if (!motor_system_control_flags_.empty())
@@ -353,7 +353,7 @@ namespace shadow_robot
 
           command->motor_data[it->motor_id] = combined_flags;
         }
-      } //end if motor_system_control_flags_.empty
+      }  //end if motor_system_control_flags_.empty
       else
       {
         if (!reset_motors_queue.empty())
@@ -404,7 +404,7 @@ namespace shadow_robot
 
             command->motor_data[motor_id] = to_send.word;
           }
-        } // end if reset queue not empty
+        }  // end if reset queue not empty
         else
         {
           if (!reconfig_queue.empty())
@@ -452,10 +452,10 @@ namespace shadow_robot
             {
               ++config_index;
             }
-          } //end if reconfig queue not empty
-        } // end else reset_queue.empty
-      } // end else motor_system_control_flags_.empty
-    } //end else reconfig_queue.empty() && reset_queue.empty()
+          }  //end if reconfig queue not empty
+        }  // end else reset_queue.empty
+      }  // end else motor_system_control_flags_.empty
+    }  //end else reconfig_queue.empty() && reset_queue.empty()
   }
 
   template<class StatusType, class CommandType>
@@ -485,7 +485,7 @@ namespace shadow_robot
             d.clear();
             d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
           }
-          else //the data is good
+          else  //the data is good
           {
             d.summary(d.OK, "OK");
 
@@ -597,7 +597,7 @@ namespace shadow_robot
       }
       vec.push_back(d);
 
-    } //end for each joints
+    }  //end for each joints
 
   }
 
@@ -664,7 +664,7 @@ namespace shadow_robot
         }
 
         this->debug_mutex.unlock();
-      } //end try_lock
+      }  //end try_lock
 #endif
 
       //we received the data and it was correct
@@ -960,7 +960,7 @@ namespace shadow_robot
       actuator->motor_state_.position_unfiltered_ = calibrated_position;
       ROS_DEBUG_STREAM("          => " << actuator->motor_state_.position_unfiltered_);
     }
-  } //end calibrate_joint()
+  }  //end calibrate_joint()
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp,
@@ -1278,7 +1278,7 @@ namespace shadow_robot
 
   template
   class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
-} //end namespace
+}  //end namespace
 
 /* For the emacs weenies in the crowd.
  Local Variables:
