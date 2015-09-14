@@ -30,6 +30,7 @@ from sr_utilities.hand_finder import HandFinder
 
 
 class EtherCAT_Hand_Lib(object):
+
     """
     Useful python library to communicate with the etherCAT hand.
     """
@@ -158,7 +159,7 @@ class EtherCAT_Hand_Lib(object):
         """
         """
         if joint_name not in self.pid_services:
-            service_name = "realtime_loop/change_force_PID_"+joint_name
+            service_name = "realtime_loop/change_force_PID_" + joint_name
             self.pid_services[joint_name] = rospy.ServiceProxy(service_name,
                                                                ForceController)
 
@@ -216,7 +217,7 @@ class EtherCAT_Hand_Lib(object):
             tmp_raw_values.append(self.get_raw_value(sensor_name))
             time.sleep(0.002)
 
-        average = float(sum(tmp_raw_values))/len(tmp_raw_values)
+        average = float(sum(tmp_raw_values)) / len(tmp_raw_values)
         return average
 
     def activate(self):
