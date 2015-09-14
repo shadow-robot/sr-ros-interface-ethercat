@@ -33,7 +33,7 @@
 #include <vector>
 #include <deque>
 
-//used to publish debug values
+// used to publish debug values
 #include <std_msgs/Int16.h>
 
 #include <sr_hardware_interface/sr_actuator.hpp>

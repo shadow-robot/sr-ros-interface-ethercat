@@ -31,8 +31,8 @@
 #include "sr_robot_lib/sr_muscle_robot_lib.hpp"
 #include <std_srvs/Empty.h>
 
-//to be able to load the configuration from the
-//parameter server
+// to be able to load the configuration from the
+// parameter server
 #include <ros/ros.h>
 #include <string>
 

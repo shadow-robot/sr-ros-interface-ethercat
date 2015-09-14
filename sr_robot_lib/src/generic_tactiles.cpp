@@ -29,7 +29,7 @@
 #include <sr_utilities/sr_math_utils.hpp>
 #include <cctype>
 
-//NOTE: The length used in this generic tactile class (that is used to obtain common information to determine the actual type of tactile sensors)
+// NOTE: The length used in this generic tactile class (that is used to obtain common information to determine the actual type of tactile sensors)
 // should be the the minimum length of all the existing types of tactile sensors
 // (this is used only to sanitise_string for certain data types)
 #define TACTILE_DATA_LENGTH_BYTES TACTILE_DATA_LENGTH_BYTES_v1

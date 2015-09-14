@@ -49,8 +49,8 @@ using namespace std;
 
 namespace is_edc_command_32_bits
 {
-//check is the EDC_COMMAND is 32bits on the computer
-//if not, fails
+// check is the EDC_COMMAND is 32bits on the computer
+// if not, fails
   BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
 } // namespace is_edc_command_32_bits
 

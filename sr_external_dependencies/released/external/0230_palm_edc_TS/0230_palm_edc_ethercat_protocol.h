@@ -1,11 +1,11 @@
-//
+// 
 // � 2010 Shadow Robot Company Limited.
-//
+// 
 // FileName:        this_node.h
 // Dependencies:
 // Processor:       PIC32
 // Compiler:        MPLAB� C32
-//
+// 
 //  +------------------------------------------------------------------------+
 //  | This file is part of The Shadow Robot PIC32 firmware code base.        |
 //  |                                                                        |
@@ -23,30 +23,30 @@
 //  | along with this code repository. The text of the license can be found  |
 //  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
 //  +------------------------------------------------------------------------+
-//
-//
-//
+// 
+// 
+// 
 //  Doxygen
 //  -------
-//
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
-//
+// 
+// ! @file
+// !
+// ! The term "Command" means data going from the ROS PC to the Node on the robot
+// ! Previously known as "Incoming"
+// !
+// ! The term "Status"  means data going from Node on the robot the to the ROS PC
+// ! Previously known as "Outgoing"
+// !
+// !
+// ! @addtogroup
+// 
 
 #ifndef PALM_EDC_0230_ETHERCAT_PROTOCOL_H_INCLUDED
 #define PALM_EDC_0230_ETHERCAT_PROTOCOL_H_INCLUDED
 
 #include "../0220_palm_edc/0220_palm_edc_ethercat_protocol.h"
 
-//! These are the data sent from the Palm to the host.
+// ! These are the data sent from the Palm to the host.
 typedef struct
 {
   EDC_COMMAND EDC_command;                        //!< This tells us the contents of the data below.
@@ -106,7 +106,7 @@ typedef struct
 #define STATUS_IDLETIME_LENGTH  (STATUS_TOTAL_LENGTH   - STATUS_IDLETIME_START)
 
 
-//! These are the data sent by the host.
+// ! These are the data sent by the host.
 typedef struct
 {
   EDC_COMMAND EDC_command;                        //!< Header [0]:18  What type of data should the palm send back in the next packet?
@@ -145,17 +145,17 @@ typedef struct
 
 
 
-//! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |
-//! |                       |                                  |                      |
-//! |                       |                                  |                      ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
-//! |                       |                                  |
-//! |                       |                                  ETHERCAT_STATUS_DATA_ADDRESS
-//! |                       |
-//! |                       ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
-//! |
-//! ETHERCAT_COMMAND_DATA_ADDRESS
-//!
-//!
+// ! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |
+// ! |                       |                                  |                      |
+// ! |                       |                                  |                      ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
+// ! |                       |                                  |
+// ! |                       |                                  ETHERCAT_STATUS_DATA_ADDRESS
+// ! |                       |
+// ! |                       ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
+// ! |
+// ! ETHERCAT_COMMAND_DATA_ADDRESS
+// !
+// !
 
 #define PALM_0230_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
 #define PALM_0230_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (PALM_0230_ETHERCAT_COMMAND_DATA_ADDRESS            + PALM_0230_ETHERCAT_COMMAND_DATA_SIZE)

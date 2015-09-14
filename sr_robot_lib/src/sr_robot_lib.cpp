@@ -467,8 +467,8 @@ namespace shadow_robot
   }
 
 //  template <class StatusType, class CommandType>
-//void SrRobotLib<StatusType, CommandType>::checkSelfTests()
-//{
+// void SrRobotLib<StatusType, CommandType>::checkSelfTests()
+// {
 //  ros::Rate loop_rate(1);
 //  while (ros::ok())
 //  {
@@ -477,9 +477,9 @@ namespace shadow_robot
 //    //self_tests_->checkTest();
 //    loop_rate.sleep();
 //  }
-//}
+// }
 
-//Only to ensure that the template class is compiled for the types we are interested in
+// Only to ensure that the template class is compiled for the types we are interested in
   template
   class SrRobotLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
 

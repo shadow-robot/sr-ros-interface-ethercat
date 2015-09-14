@@ -1,11 +1,11 @@
-//
+// 
 // � 2010 Shadow Robot Company Limited.
-//
+// 
 // FileName:        0320_palm_edc_ethercat_protocol.h
 // Dependencies:
 // Processor:       PIC32
 // Compiler:        MPLAB� C32
-//
+// 
 //  +------------------------------------------------------------------------+
 //  | This file is part of The Shadow Robot PIC32 firmware code base.        |
 //  |                                                                        |
@@ -23,23 +23,23 @@
 //  | along with this code repository. The text of the license can be found  |
 //  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
 //  +------------------------------------------------------------------------+
-//
-//
-//
+// 
+// 
+// 
 //  Doxygen
 //  -------
-//
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
-//
+// 
+// ! @file
+// !
+// ! The term "Command" means data going from the ROS PC to the Node on the robot
+// ! Previously known as "Incoming"
+// !
+// ! The term "Status"  means data going from Node on the robot the to the ROS PC
+// ! Previously known as "Outgoing"
+// !
+// !
+// ! @addtogroup
+// 
 
 #ifndef PALM_EDC_0320_ETHERCAT_PROTOCOL_H_INCLUDED
 #define PALM_EDC_0320_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -61,7 +61,7 @@
 // ========================================================
 
 
-//! @author Hugo Elias
+// ! @author Hugo Elias
 typedef enum
 {
   MUSCLE_DATA_INVALID = 0x0,                  //!< For safety, this is not a valid request
@@ -118,12 +118,12 @@ typedef enum
 #define PALM_0300_EDC_SERIOUS_ERROR_FLAGS            (  MOTOR_FLAG_BITS_NO_DEMAND_SEEN )
 
 #define PALM_0300_EDC_NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a muscle driver doesn't see any Torque or PWM demand values,
-//!  how long, in milliseconds, before it switches off the valves.
+// !  how long, in milliseconds, before it switches off the valves.
 
 #ifndef NO_STRINGS                                                      // The PIC compiler doesn't deal well with strings.
 
-//! These are the names of the bits in the MUSCLE_DATA_FLAGS.
-//! error_flag_names[n] is the name of bit 'n' in MUSCLE_DATA_FLAGS.
+// ! These are the names of the bits in the MUSCLE_DATA_FLAGS.
+// ! error_flag_names[n] is the name of bit 'n' in MUSCLE_DATA_FLAGS.
 static const char *palm_0300_edc_error_flag_names[16] = {"No demand seen for more than 20ms",            // 0x0400
 };
 #endif
@@ -138,10 +138,10 @@ static const char *palm_0300_edc_error_flag_names[16] = {"No demand seen for mor
 // 
 // ========================================================
 
-//! The host can send different types of data to the muscle drivers.
-//! These can be either control demands, system messages.
-//! These values are inserted into bits [3..0] of the message ID
-//! in the muscle driver data message.
+// ! The host can send different types of data to the muscle drivers.
+// ! These can be either control demands, system messages.
+// ! These values are inserted into bits [3..0] of the message ID
+// ! in the muscle driver data message.
 typedef enum
 {
   MUSCLE_DEMAND_INVALID = 0x0,                  //!< A zero is what happens if an EtherCAT packet doesn't get through, so it's considered a special case.
@@ -162,8 +162,8 @@ typedef enum
 
 #ifndef NO_STRINGS                                              // The PIC compiler doesn't deal well with strings.
 
-//! These are the human-readable names of the different types of data.
-//! you can send to the muscle drivers.
+// ! These are the human-readable names of the different types of data.
+// ! you can send to the muscle drivers.
 static const char *to_muscle_data_type_names[16] = {"INVALID",
                                                     "Demand: Valves",
 };
@@ -171,8 +171,8 @@ static const char *to_muscle_data_type_names[16] = {"INVALID",
 
 
 
-//! Each muscle driver sends back five 12-bit pressure of status data on the CAN bus.
-//! Generically, those two words look like this.
+// ! Each muscle driver sends back five 12-bit pressure of status data on the CAN bus.
+// ! Generically, those two words look like this.
 
 typedef union
 {
@@ -253,18 +253,18 @@ typedef union
 
 
 #define SENSORS_NUM_0320  ((int)36)                             //!< The number of sensors in the robot.
-//!  This needs to be a #define because it's used to dimension an array.
+// !  This needs to be a #define because it's used to dimension an array.
 
 #define JOINTS_NUM_0320   ((int)28)                             //!< The number of joints in the hand
-//!  This needs to be a #define for symmetry with SENSORS_NUM
+// !  This needs to be a #define for symmetry with SENSORS_NUM
 
 
 
-//#if (int)IGNORE > SENSORS_NUM
+// #if (int)IGNORE > SENSORS_NUM
 //    #error Not enough sensors[] in ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS
-//#endif
+// #endif
 
-//! These are the data sent from the Palm to the host.
+// ! These are the data sent from the Palm to the host.
 typedef struct
 {
   EDC_COMMAND EDC_command;                        //!< This tells us the contents of the data below.
@@ -295,7 +295,7 @@ typedef struct
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS;
 
 
-//! These are the data sent by the host.
+// ! These are the data sent by the host.
 typedef struct
 {
   EDC_COMMAND EDC_command;                        //!< What type of data should the palm send back in the next packet?
@@ -325,17 +325,17 @@ typedef struct
 #define ETHERCAT_COMMAND_0300_AGREED_SIZE    36     //! This is the size of the Command EtherCAT packet (Status + CAN packet)
 
 
-//! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |
-//! |                       |                                  |                      |
-//! |                       |                                  |                      ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
-//! |                       |                                  |
-//! |                       |                                  ETHERCAT_STATUS_DATA_ADDRESS
-//! |                       |
-//! |                       ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
-//! |
-//! ETHERCAT_COMMAND_DATA_ADDRESS
-//!
-//!
+// ! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |
+// ! |                       |                                  |                      |
+// ! |                       |                                  |                      ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
+// ! |                       |                                  |
+// ! |                       |                                  ETHERCAT_STATUS_DATA_ADDRESS
+// ! |                       |
+// ! |                       ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
+// ! |
+// ! ETHERCAT_COMMAND_DATA_ADDRESS
+// !
+// !
 
 #define PALM_0300_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
 #define PALM_0300_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (PALM_0300_ETHERCAT_COMMAND_DATA_ADDRESS            + PALM_0300_ETHERCAT_COMMAND_DATA_SIZE)
@@ -343,7 +343,7 @@ typedef struct
 #define PALM_0300_ETHERCAT_STATUS_DATA_ADDRESS                (PALM_0300_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS + ETHERCAT_CAN_BRIDGE_DATA_SIZE)
 #define PALM_0300_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (PALM_0300_ETHERCAT_STATUS_DATA_ADDRESS             + PALM_0300_ETHERCAT_STATUS_DATA_SIZE)
 
-//#define NUM_CONFIGS_REQUIRED 5
+// #define NUM_CONFIGS_REQUIRED 5
 
 
 #endif

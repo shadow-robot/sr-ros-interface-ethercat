@@ -29,22 +29,22 @@
 //  Doxygen
 //  -------
 //
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
+// ! @file
+// !
+// ! The term "Command" means data going from the ROS PC to the Node on the robot
+// ! Previously known as "Incoming"
+// !
+// ! The term "Status"  means data going from Node on the robot the to the ROS PC
+// ! Previously known as "Outgoing"
+// !
+// !
+// ! @addtogroup
 //
 
 #ifndef COMMON_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
 #define COMMON_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
 
-//! The host can request different types of data from the palm.
+// ! The host can request different types of data from the palm.
 typedef enum
 {
   EDC_COMMAND_INVALID = 0,                                    //!< Reading an empty mailbox on the ET1200 results in a zero.
@@ -83,8 +83,8 @@ static const char *slow_data_types[17] = {"Invalid",                            
 #endif
 
 
-//! This represents the top two bits [10..9] of the CAN message ID.
-//! These bits tell us the type of the message.
+// ! This represents the top two bits [10..9] of the CAN message ID.
+// ! These bits tell us the type of the message.
 typedef enum
 {
   DIRECTION_DATA_REQUEST = 0x0,                  //!< Requesting that motors send back status data (AKA Start of Frame)
@@ -103,13 +103,13 @@ typedef enum
 #define MESSAGE_ID_DIRECTION_SHIFT_POS  9                       //!< Bit number of lowest bit of MESSAGE_ID_DIRECTION_BITS
 
 
-//Check this against the SENSORS_NUM_0320 and SENSORS_NUM_0220
+// Check this against the SENSORS_NUM_0320 and SENSORS_NUM_0220
 #define SENSORS_NUM_0X20  ((int)36)                             //!< The number of sensors in the robot.
-//!  This needs to be a #define because it's used to dimension an array.
+// !  This needs to be a #define because it's used to dimension an array.
 
-//Check this against the JOINTS_NUM_0320 and JOINTS_NUM_0220
+// Check this against the JOINTS_NUM_0320 and JOINTS_NUM_0220
 #define JOINTS_NUM_0X20   ((int)28)                             //!< The number of joints in the hand
-//!  This needs to be a #define for symmetry with SENSORS_NUM
+// !  This needs to be a #define for symmetry with SENSORS_NUM
 
 
 
@@ -124,7 +124,7 @@ static const char *joint_names[JOINTS_NUM_0X20] = {"FFJ0", "FFJ1", "FFJ2", "FFJ3
 };
 
 
-//! This array defines the names of the joints. The names and order should match the enum SENSOR_NAMES_ENUM.
+// ! This array defines the names of the joints. The names and order should match the enum SENSOR_NAMES_ENUM.
 
 static const char *sensor_names[SENSORS_NUM_0X20] = {"FFJ1", "FFJ2", "FFJ3",
                                                      "FFJ4",                       //  [00..03] ADC readings from First finger
@@ -148,7 +148,7 @@ static const char *sensor_names[SENSORS_NUM_0X20] = {"FFJ1", "FFJ2", "FFJ3",
 #endif
 
 
-//! This enum defines which ADC reading goes into which sensors[].
+// ! This enum defines which ADC reading goes into which sensors[].
 typedef enum
 {
   FFJ1 = 0, FFJ2, FFJ3, FFJ4,                      // [ 0...3]

@@ -253,7 +253,7 @@ namespace shadow_robot
   }
 #endif
 
-//Only to ensure that the template class is compiled for the types we are interested in
+// Only to ensure that the template class is compiled for the types we are interested in
   template
   class SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }// end namespace

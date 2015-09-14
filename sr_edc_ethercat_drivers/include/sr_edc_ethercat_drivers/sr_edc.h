@@ -46,7 +46,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 
-//#include <sr_robot_lib/sr_hand_lib.hpp>
+// #include <sr_robot_lib/sr_hand_lib.hpp>
 
 #include <sr_robot_msgs/EthercatDebug.h>
 

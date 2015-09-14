@@ -29,16 +29,16 @@
 //  Doxygen
 //  -------
 //
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
+// ! @file
+// !
+// ! The term "Command" means data going from the ROS PC to the Node on the robot
+// ! Previously known as "Incoming"
+// !
+// ! The term "Status"  means data going from Node on the robot the to the ROS PC
+// ! Previously known as "Outgoing"
+// !
+// !
+// ! @addtogroup
 //
 
 #ifndef TACTILE_EDC_ETHERCAT_PROTOCOL_H_INCLUDED

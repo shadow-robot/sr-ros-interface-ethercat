@@ -1,11 +1,11 @@
-//
+// 
 // � 2010 Shadow Robot Company Limited.
-//
+// 
 // FileName:        this_node.h
 // Dependencies:    
 // Processor:       PIC32
 // Compiler:        MPLAB� C32 
-//
+// 
 //  +------------------------------------------------------------------------+
 //  | This file is part of The Shadow Robot PIC32 firmware code base.        |
 //  |                                                                        |
@@ -23,20 +23,20 @@
 //  | along with this code repository. The text of the license can be found  |
 //  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
 //  +------------------------------------------------------------------------+
-//
-//
-//
+// 
+// 
+// 
 //  Doxygen
 //  -------
-//
-//! @file 
-//! This Node definition for the 0220 Palm EDC node
-//! 
-//! 
-//! 
-//! 
-//! @addtogroup NodeName
-//
+// 
+// ! @file 
+// ! This Node definition for the 0220 Palm EDC node
+// ! 
+// ! 
+// ! 
+// ! 
+// ! @addtogroup NodeName
+// 
 
 #ifndef THIS_NODE_H_INCLUDED
 #define THIS_NODE_H_INCLUDED
@@ -94,11 +94,11 @@
 #endif
 
 
-//! Used for reporting error events, or a change in error state.
-//! E.G. the change from CAN1_HAPPY to CAN1_SAD
-//
-//! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
-//! this enum simply collects together the error codes relevant to this node.
+// ! Used for reporting error events, or a change in error state.
+// ! E.G. the change from CAN1_HAPPY to CAN1_SAD
+// 
+// ! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
+// ! this enum simply collects together the error codes relevant to this node.
 typedef enum
 {
   //NO_ERROR_CODE,
@@ -107,11 +107,11 @@ typedef enum
 } ERROR_CODE;
 
 
-//! Used for reporting general events, or a change in state.
-//! E.G. the change from Idle mode to Active mode
-//
-//! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
-//! this enum simply collects together the event codes relevant to this node.
+// ! Used for reporting general events, or a change in state.
+// ! E.G. the change from Idle mode to Active mode
+// 
+// ! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
+// ! this enum simply collects together the event codes relevant to this node.
 typedef enum
 {
   //NO_EVENT_CODE,
@@ -203,10 +203,10 @@ extern ETHERCAT_CAN_BRIDGE_DATA can_bridge_data_to_ROS;
 
 
 #define PALM_PCB_01                                     //!< Use PALM_PCB_00 for the old prototype board.
-//!  Use PALM_PCB_00 for the real palm board
+// !  Use PALM_PCB_00 for the real palm board
 
 #ifdef PALM_PCB_00                                      // Definitions for big square prototype board
-//#define USE_SMALL_EEPROM
+// #define USE_SMALL_EEPROM
 
 #define USE_SIMPLE_PST_CS
 #define AUTO_TRIGGER         0                      //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging

@@ -1,11 +1,11 @@
-//
+// 
 // � 2010 Shadow Robot Company Limited.
-//
+// 
 // FileName:        this_node.h
 // Dependencies:
 // Processor:       PIC32
 // Compiler:        MPLAB� C32
-//
+// 
 //  +------------------------------------------------------------------------+
 //  | This file is part of The Shadow Robot PIC32 firmware code base.        |
 //  |                                                                        |
@@ -23,23 +23,23 @@
 //  | along with this code repository. The text of the license can be found  |
 //  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
 //  +------------------------------------------------------------------------+
-//
-//
-//
+// 
+// 
+// 
 //  Doxygen
 //  -------
-//
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
-//
+// 
+// ! @file
+// !
+// ! The term "Command" means data going from the ROS PC to the Node on the robot
+// ! Previously known as "Incoming"
+// !
+// ! The term "Status"  means data going from Node on the robot the to the ROS PC
+// ! Previously known as "Outgoing"
+// !
+// !
+// ! @addtogroup
+// 
 
 #ifndef PALM_EDC_0220_ETHERCAT_PROTOCOL_H_INCLUDED
 #define PALM_EDC_0220_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -59,32 +59,32 @@
 // ========================================================
 
 
-//! The host can request different types of data from the motors.
-//! These values are inserted into bits [3..0] of the message ID
-//! in the Data Request (Start Of Frame) message.
-//!
-//!
-//! \htmlonly
-//!<table border=1>
-//!  <tr> <td>                    </td> <td colspan=2>Word 0</td> <td colspan=2>Word 1</td> </tr>
-//!  <tr> <td>FROM_MOTOR_DATA_TYPE</td> <td>Byte0</td> <td>Byte1</td> <td>Byte2</td> <td>Byte3</td> </tr>
-//!
-//!  <tr> <td>MOTOR_DATA_SGL</td>                     <td colspan=2>Torque</td>             <td colspan=2>SGL</td>                      </tr>
-//!  <tr> <td>MOTOR_DATA_SGR</td>                     <td colspan=2>Torque</td>             <td colspan=2>SGR</td>                      </tr>
-//!  <tr> <td>MOTOR_DATA_PWM</td>                     <td colspan=2>Torque</td>             <td colspan=2>PWM</td>                      </tr>
-//!  <tr> <td>MOTOR_DATA_FLAGS</td>                   <td colspan=2>Torque</td>             <td colspan=2>Flags</td>                    </tr>
-//!  <tr> <td>MOTOR_DATA_CURRENT</td>                 <td colspan=2>Torque</td>             <td colspan=2>Current</td>                  </tr>
-//!  <tr> <td>MOTOR_DATA_VOLTAGE</td>                 <td colspan=2>Torque</td>             <td colspan=2>Voltage</td>                  </tr>
-//!  <tr> <td>MOTOR_DATA_TEMPERATURE</td>             <td colspan=2>Torque</td>             <td colspan=2>Temperature</td>              </tr>
-//!  <tr> <td>MOTOR_DATA_CAN_NUM_RECEIVED</td>        <td colspan=2>Torque</td>             <td colspan=2>Num Rx</td>                   </tr>
-//!  <tr> <td>MOTOR_DATA_CAN_NUM_TRANSMITTED</td>     <td colspan=2>Torque</td>             <td colspan=2>Num Tx</td>                   </tr>
-//!  <tr> <td>MOTOR_DATA_SVN_REVISION</td>            <td colspan=2>Server revision</td>    <td colspan=2>This revision (top bit = modified)</td> </tr>
-//!  <tr> <td>MOTOR_DATA_READBACK_LAST_CONFIG</td>    <td colspan=2>FROM_MOTOR_SLOW_DATA_TYPE</td> <td colspan=2>Config value</td>             </tr>
-//!  <tr> <td>MOTOR_DATA_CAN_ERROR_COUNTERS</td>      <td colspan=2>Torque</td>             <td          >Tx Err</td> <td>Rx Err</td>   </tr>
-//!</table>
-//! \endhtmlonly
-//!
-//! @author Hugo Elias
+// ! The host can request different types of data from the motors.
+// ! These values are inserted into bits [3..0] of the message ID
+// ! in the Data Request (Start Of Frame) message.
+// !
+// !
+// ! \htmlonly
+// !<table border=1>
+// !  <tr> <td>                    </td> <td colspan=2>Word 0</td> <td colspan=2>Word 1</td> </tr>
+// !  <tr> <td>FROM_MOTOR_DATA_TYPE</td> <td>Byte0</td> <td>Byte1</td> <td>Byte2</td> <td>Byte3</td> </tr>
+// !
+// !  <tr> <td>MOTOR_DATA_SGL</td>                     <td colspan=2>Torque</td>             <td colspan=2>SGL</td>                      </tr>
+// !  <tr> <td>MOTOR_DATA_SGR</td>                     <td colspan=2>Torque</td>             <td colspan=2>SGR</td>                      </tr>
+// !  <tr> <td>MOTOR_DATA_PWM</td>                     <td colspan=2>Torque</td>             <td colspan=2>PWM</td>                      </tr>
+// !  <tr> <td>MOTOR_DATA_FLAGS</td>                   <td colspan=2>Torque</td>             <td colspan=2>Flags</td>                    </tr>
+// !  <tr> <td>MOTOR_DATA_CURRENT</td>                 <td colspan=2>Torque</td>             <td colspan=2>Current</td>                  </tr>
+// !  <tr> <td>MOTOR_DATA_VOLTAGE</td>                 <td colspan=2>Torque</td>             <td colspan=2>Voltage</td>                  </tr>
+// !  <tr> <td>MOTOR_DATA_TEMPERATURE</td>             <td colspan=2>Torque</td>             <td colspan=2>Temperature</td>              </tr>
+// !  <tr> <td>MOTOR_DATA_CAN_NUM_RECEIVED</td>        <td colspan=2>Torque</td>             <td colspan=2>Num Rx</td>                   </tr>
+// !  <tr> <td>MOTOR_DATA_CAN_NUM_TRANSMITTED</td>     <td colspan=2>Torque</td>             <td colspan=2>Num Tx</td>                   </tr>
+// !  <tr> <td>MOTOR_DATA_SVN_REVISION</td>            <td colspan=2>Server revision</td>    <td colspan=2>This revision (top bit = modified)</td> </tr>
+// !  <tr> <td>MOTOR_DATA_READBACK_LAST_CONFIG</td>    <td colspan=2>FROM_MOTOR_SLOW_DATA_TYPE</td> <td colspan=2>Config value</td>             </tr>
+// !  <tr> <td>MOTOR_DATA_CAN_ERROR_COUNTERS</td>      <td colspan=2>Torque</td>             <td          >Tx Err</td> <td>Rx Err</td>   </tr>
+// !</table>
+// ! \endhtmlonly
+// !
+// ! @author Hugo Elias
 typedef enum
 {
   MOTOR_DATA_INVALID = 0x0,                  //!< For safety, this is not a valid request
@@ -163,7 +163,7 @@ typedef enum
 
 // Serious flags cause the motor to be switched off
 // ------------------------------------------------
-//#define                                           0x0100
+// #define                                           0x0100
 #define MOTOR_FLAG_BITS_MOTOR_ID_IS_INVALID         0x0200      //!< Motor seems to have an out-of-range ID. You'll probably never see this flag. (Might get rid of it)
 #define MOTOR_FLAG_BITS_NO_DEMAND_SEEN              0x0400      //!< Haven't received any demand messages for longer than NO_DEMAND_TIMEOUT_MS. Motor halted
 #define MOTOR_FLAG_BITS_SGL_FAULT                   0x0800      //!< Fault seen with Left strain gauge. Not currently implemented.
@@ -184,12 +184,12 @@ typedef enum
 
 
 #define PALM_0200_EDC_NO_DEMAND_TIMEOUT_MS    20                                                              //!< If a motor doesn't see any Torque or PWM demand values,
-//!  how long, in milliseconds, before it switches off the motor.
+// !  how long, in milliseconds, before it switches off the motor.
 
 #ifndef NO_STRINGS                                                      // The PIC compiler doesn't deal well with strings.
 
-//! These are the names of the bits in the MOTOR_DATA_FLAGS.
-//! error_flag_names[n] is the name of bit 'n' in MOTOR_DATA_FLAGS.
+// ! These are the names of the bits in the MOTOR_DATA_FLAGS.
+// ! error_flag_names[n] is the name of bit 'n' in MOTOR_DATA_FLAGS.
 static const char *palm_0200_edc_error_flag_names[16] = {"Current choke bit 6",                          // 0x0001
                                                          "Current choke bit 7",                          // 0x0002
                                                          "Current choke bit 8",                          // 0x0004
@@ -222,10 +222,10 @@ static const char *palm_0200_edc_error_flag_names[16] = {"Current choke bit 6", 
 // 
 // ========================================================
 
-//! The host can send different types of data from the motors.
-//! These can be either control demands, or configurations.
-//! These values are inserted into bits [3..0] of the message ID
-//! in the Motor data message.
+// ! The host can send different types of data from the motors.
+// ! These can be either control demands, or configurations.
+// ! These values are inserted into bits [3..0] of the message ID
+// ! in the Motor data message.
 typedef enum
 {
   MOTOR_DEMAND_INVALID = 0x0,                  //!< A zero is what happens if an EtherCAT packet doesn't get through, so it's considered a special case.
@@ -259,7 +259,7 @@ typedef enum
 #define MOTOR_SYSTEM_CONTROL_SGR_TRACKING_INC               0x0010              //!< Increment the tracking value for Right gauge
 #define MOTOR_SYSTEM_CONTROL_SGR_TRACKING_DEC               0x0020              //!< Decrement the tracking value for Right gauge
 #define MOTOR_SYSTEM_CONTROL_INITIATE_JIGGLING              0x0040              //!< Initiate the jiggling to re-zero the strain gauges. You'll
-//!  see the MOTOR_FLAG_BITS_JIGGLING_IN_PROGRESS flag appear.
+// !  see the MOTOR_FLAG_BITS_JIGGLING_IN_PROGRESS flag appear.
 #define MOTOR_SYSTEM_CONTROL_EEPROM_WRITE                   0x0080              //!< Write the configuration to the EEPROM.
 
 
@@ -293,8 +293,8 @@ typedef enum
 
 #ifndef NO_STRINGS                                              // The PIC compiler doesn't deal well with strings.
 
-//! These are the human-readable names of the different types of data.
-//! you can send to the motors.
+// ! These are the human-readable names of the different types of data.
+// ! you can send to the motors.
 static const char *to_motor_data_type_names[16] = {"INVALID",
                                                    "Demand: Torque",
                                                    "Demand: PWM",
@@ -315,12 +315,12 @@ static const char *to_motor_data_type_names[16] = {"INVALID",
 #endif
 
 
-//! Then the motor is in debug mode, the host can send different
-//! types of spoof sensor data to the motors.
-//! These values are inserted into bits [3..0] of the message ID
-//! in the Motor data message.
-//!
-//! NOT CURRENTLY IMPLEMENTED IN THE MOTORS.
+// ! Then the motor is in debug mode, the host can send different
+// ! types of spoof sensor data to the motors.
+// ! These values are inserted into bits [3..0] of the message ID
+// ! in the Motor data message.
+// !
+// ! NOT CURRENTLY IMPLEMENTED IN THE MOTORS.
 typedef enum
 {
   MOTOR_DEBUG_INVALID = 0x0,                  //!< Should not be used
@@ -332,8 +332,8 @@ typedef enum
 } TO_MOTOR_DEBUG_TYPE;
 
 
-//! Each motor sends back two 16-bit words of status data on the CAN bus.
-//! Generically, those two words look like this.
+// ! Each motor sends back two 16-bit words of status data on the CAN bus.
+// ! Generically, those two words look like this.
 typedef struct
 {
   int16s torque;                                 //!< Measured Motor Torque
@@ -347,17 +347,17 @@ typedef struct
 
 
 #define SENSORS_NUM_0220  ((int)36)                             //!< The number of sensors in the robot.
-//!  This needs to be a #define because it's used to dimension an array.
+// !  This needs to be a #define because it's used to dimension an array.
 
 #define JOINTS_NUM_0220   ((int)28)                             //!< The number of joints in the hand
-//!  This needs to be a #define for symmetry with SENSORS_NUM
+// !  This needs to be a #define for symmetry with SENSORS_NUM
 
 
-//#if (int)IGNORE > SENSORS_NUM
+// #if (int)IGNORE > SENSORS_NUM
 //    #error Not enough sensors[] in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS
-//#endif
+// #endif
 
-//! These are the data sent from the Palm to the host.
+// ! These are the data sent from the Palm to the host.
 typedef struct
 {
   EDC_COMMAND EDC_command;                        //!< This tells us the contents of the data below.
@@ -389,7 +389,7 @@ typedef struct
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS;
 
 
-//! These are the data sent by the host.
+// ! These are the data sent by the host.
 typedef struct
 {
   EDC_COMMAND EDC_command;                        //!< What type of data should the palm send back in the next packet?
@@ -426,17 +426,17 @@ typedef struct
 
 
 
-//! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |
-//! |                       |                                  |                      |
-//! |                       |                                  |                      ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
-//! |                       |                                  |
-//! |                       |                                  ETHERCAT_STATUS_DATA_ADDRESS
-//! |                       |
-//! |                       ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
-//! |
-//! ETHERCAT_COMMAND_DATA_ADDRESS
-//!
-//!
+// ! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |
+// ! |                       |                                  |                      |
+// ! |                       |                                  |                      ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
+// ! |                       |                                  |
+// ! |                       |                                  ETHERCAT_STATUS_DATA_ADDRESS
+// ! |                       |
+// ! |                       ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
+// ! |
+// ! ETHERCAT_COMMAND_DATA_ADDRESS
+// !
+// !
 
 #define PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
 #define PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS            + PALM_0200_ETHERCAT_COMMAND_DATA_SIZE)
@@ -444,7 +444,7 @@ typedef struct
 #define PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS                (PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS + ETHERCAT_CAN_BRIDGE_DATA_SIZE)
 #define PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS             + PALM_0200_ETHERCAT_STATUS_DATA_SIZE)
 
-//#define NUM_CONFIGS_REQUIRED 5
+// #define NUM_CONFIGS_REQUIRED 5
 
 
 #endif

@@ -26,10 +26,10 @@
 
 #include <ros/ros.h>
 
-//we store the publishers in a map.
+// we store the publishers in a map.
 #include <map>
 
-//You need to send a Float64 message to the joints.
+// You need to send a Float64 message to the joints.
 #include <std_msgs/Float64.h>
 
 class TargetSender
