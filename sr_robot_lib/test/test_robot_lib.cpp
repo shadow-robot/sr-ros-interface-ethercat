@@ -445,8 +445,8 @@ TEST(SrRobotLib, HumanizeFlags)
   EXPECT_EQ(flags.size(), 16);
 
   for (unsigned int i = 0; i < 16; ++i)
-          EXPECT_EQ(flags[i].first.compare(error_flag_names[i]), 0)
   {
+    EXPECT_EQ(flags[i].first.compare(error_flag_names[i]), 0);
   }
 
  // The last three flags are serious

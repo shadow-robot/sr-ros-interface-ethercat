@@ -82,13 +82,13 @@ namespace robot_state
 
 namespace crc_unions
 {
-  union union16
-  {
-    int16u word;
-    int8u byte[2];
-  };
+union CRCUnion
+{
+  int16u word;
+  int8u byte[2];
+};
 
-  typedef union union16;
+typedef CRCUnion union16;
 }
 
 namespace shadow_robot
