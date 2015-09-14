@@ -94,7 +94,7 @@ namespace generic_updater
      */
     bool reset();
   };
-}
+}  // namespace generic_updater
 
 
 /* For the emacs weenies in the crowd.

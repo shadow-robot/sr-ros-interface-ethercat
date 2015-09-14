@@ -35,6 +35,9 @@
 // parameter server
 #include <ros/ros.h>
 #include <string>
+#include <utility>
+#include <map>
+#include <vector>
 
 namespace shadow_robot
 {
@@ -127,7 +130,6 @@ namespace shadow_robot
     std::string find_joint_name(int motor_index);
 
   private:
-
     /**
      * Reads the mapping associating a joint to a motor.
      * If the motor index is -1, then no motor is associated
@@ -158,8 +160,7 @@ namespace shadow_robot
      */
     std::map<std::string, ros::Timer> pid_timers;
   };
-
-}
+}  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.
 Local Variables:

@@ -25,5 +25,7 @@ print "Try moving ffj3"
 r = rospy.Rate(1)  # hz
 while not rospy.is_shutdown():
     if status:
-        print "ffj3 position:%s radians  pressure0:%s pressure1:%s" % (status.process_value, status.muscle_pressure_0, status.muscle_pressure_1)
+        print "ffj3 position:%s radians  pressure0:%s pressure1:%s" % (status.process_value,
+                                                                       status.muscle_pressure_0,
+                                                                       status.muscle_pressure_1)
     r.sleep()

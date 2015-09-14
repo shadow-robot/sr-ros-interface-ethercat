@@ -86,9 +86,8 @@ namespace generic_updater
   private:
     // are we sending the command to the even or the uneven motors.
     int even_motors;
-
   };
-}
+}  // namespace generic_updater
 
 
 /* For the emacs weenies in the crowd.

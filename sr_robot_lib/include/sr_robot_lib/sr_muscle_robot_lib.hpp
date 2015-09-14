@@ -31,12 +31,17 @@
 
 #include "sr_robot_lib/muscle_updater.hpp"
 #include <sr_utilities/calibration.hpp>
+#include <string>
+#include <map>
+#include <queue>
+#include <utility>
+#include <list>
+#include <vector>
 
 #define NUM_MUSCLE_DRIVERS      4
 
 namespace shadow_robot
 {
-
   template<class StatusType, class CommandType>
   class SrMuscleRobotLib :
           public SrRobotLib<StatusType, CommandType>
@@ -81,7 +86,6 @@ namespace shadow_robot
 
 
   protected:
-
     /**
      * Initializes the hand library with the needed values.
      *
@@ -204,7 +208,7 @@ namespace shadow_robot
 
 
     // contains a queue of muscle driver indexes to reset
-    std::queue<short, std::list<short> > reset_muscle_driver_queue;
+    std::queue<int16_t, std::list<int16_t> > reset_muscle_driver_queue;
 
 
     // The update rate for each muscle information
@@ -225,8 +229,8 @@ namespace shadow_robot
 
     // A mutual exclusion object to ensure that the initialization timeout event does work without threading issues
     boost::shared_ptr<boost::mutex> lock_init_timeout_;
-  }; // end class
-} // end namespace
+  };  // end class
+}  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.
 Local Variables:

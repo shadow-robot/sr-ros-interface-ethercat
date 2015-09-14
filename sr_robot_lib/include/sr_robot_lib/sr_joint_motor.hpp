@@ -33,6 +33,8 @@
 #include <sr_utilities/calibration.hpp>
 #include <sr_utilities/thread_safe_map.hpp>
 
+#include <string>
+#include <vector>
 
 namespace shadow_joints
 {
@@ -66,7 +68,7 @@ namespace shadow_joints
     {
     }
 
-   // actuator
+    // actuator
     ros_ethercat_model::Actuator *actuator;
 
     /**
@@ -91,11 +93,11 @@ namespace shadow_joints
     {
     }
 
-   // the position of the motor in the motor array
+    // the position of the motor in the motor array
     // coming from the hardware
     int motor_id;
 
-   // the position of the motor in the message array
+    // the position of the motor in the message array
     int msg_motor_id;
 
     /**
@@ -114,7 +116,7 @@ namespace shadow_joints
   class MuscleDriver
   {
   public:
-    MuscleDriver(int id = 0)
+    explicit MuscleDriver(int id = 0)
             : muscle_driver_id(id),
               can_msgs_received_(0),
               can_msgs_transmitted_(0),
@@ -166,7 +168,8 @@ namespace shadow_joints
     {
     }
 
-    /// id of the muscle drivers that control the muscles for this joint. These muscles can be driven by different muscle drivers.
+    /// id of the muscle drivers that control the muscles for this joint. These muscles can be driven
+    // by different muscle drivers.
     int muscle_driver_id[2];
     /// id of the muscles for this joint (the id indicates the order from 0 to 9 of the muscle in its muscle driver)
     int muscle_id[2];
@@ -176,14 +179,14 @@ namespace shadow_joints
   {
     std::string joint_name;
 
-   // the indexes of the joints in the joint array
+    // the indexes of the joints in the joint array
     // coming from the hardware which are used to
     // compute the joint data.
     JointToSensor joint_to_sensor;
 
-   // used to filter the position and the velocity
+    // used to filter the position and the velocity
     sr_math_utils::filters::LowPassFilter pos_filter;
-   // used to filter the effort
+    // used to filter the effort
     sr_math_utils::filters::LowPassFilter effort_filter;
 
     bool has_actuator;
@@ -191,7 +194,7 @@ namespace shadow_joints
   };
 
   typedef threadsafe::Map<boost::shared_ptr<shadow_robot::JointCalibration> > CalibrationMap;
-}
+}  // namespace shadow_joints
 
 /* For the emacs weenies in the crowd.
  Local Variables:

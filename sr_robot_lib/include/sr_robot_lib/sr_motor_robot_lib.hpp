@@ -38,6 +38,11 @@
 #include "sr_robot_lib/motor_updater.hpp"
 #include "sr_robot_lib/motor_data_checker.hpp"
 
+#include <string>
+#include <queue>
+#include <utility>
+#include <list>
+#include <vector>
 
 namespace shadow_robot
 {
@@ -86,7 +91,6 @@ namespace shadow_robot
 
 
   protected:
-
     /**
      * Initializes the hand library with the needed values.
      *
@@ -190,7 +194,7 @@ namespace shadow_robot
     int config_index;
 
     // contains a queue of motor indexes to reset
-    std::queue<short, std::list<short> > reset_motors_queue;
+    std::queue<int16_t, std::list<int16_t> > reset_motors_queue;
 
 
     // The index of the motor in all the 20 motors
@@ -222,7 +226,8 @@ namespace shadow_robot
     bool control_type_changed_flag_;
     // A service server used to change the control type on the fly.
     ros::ServiceServer change_control_type_;
-    // A mutual exclusion object to ensure that no command will be sent to the robot while a change in the control type (PWM or torque) is ongoing
+    // A mutual exclusion object to ensure that no command will be sent to the robot while a change
+    // in the control type (PWM or torque) is ongoing
     boost::shared_ptr<boost::mutex> lock_command_sending_;
 
     /**
@@ -249,7 +254,8 @@ namespace shadow_robot
     bool change_control_parameters(int16_t control_type);
 
     // The Flag which will be sent to change the motor controls
-    std::queue<std::vector<sr_robot_msgs::MotorSystemControls>, std::list<std::vector<sr_robot_msgs::MotorSystemControls> > > motor_system_control_flags_;
+    std::queue<std::vector<sr_robot_msgs::MotorSystemControls>,
+            std::list<std::vector<sr_robot_msgs::MotorSystemControls> > > motor_system_control_flags_;
     // A service server used to call the different motor system controls "buttons"
     ros::ServiceServer motor_system_control_server_;
 
@@ -265,8 +271,8 @@ namespace shadow_robot
      */
     bool motor_system_controls_callback_(sr_robot_msgs::ChangeMotorSystemControls::Request &request,
                                          sr_robot_msgs::ChangeMotorSystemControls::Response &response);
-  }; // end class
-} // end namespace
+  };  // end class
+}  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.
 Local Variables:

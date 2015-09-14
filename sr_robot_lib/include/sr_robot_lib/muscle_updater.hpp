@@ -83,7 +83,7 @@ namespace generic_updater
      */
     operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command);
   };
-}
+}  // namespace generic_updater
 
 
 /* For the emacs weenies in the crowd.

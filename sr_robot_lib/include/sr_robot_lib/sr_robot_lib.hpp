@@ -31,6 +31,8 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread.hpp>
 #include <vector>
+#include <utility>
+#include <string>
 #include <deque>
 
 // used to publish debug values
@@ -67,26 +69,26 @@ extern "C"
 
 namespace operation_mode
 {
-  namespace robot_state
+namespace robot_state
+{
+  enum RobotState
   {
-
-    enum RobotState
-    {
-      INITIALIZATION,
-      OPERATION,
-      SHUTDOWN
-    };
-  }
-}
+    INITIALIZATION,
+    OPERATION,
+    SHUTDOWN
+  };
+}  // namespace robot_state
+}  // namespace operation_mode
 
 namespace crc_unions
 {
-
-  typedef union
+  union union16
   {
     int16u word;
     int8u byte[2];
-  } union16;
+  };
+
+  typedef union union16;
 }
 
 namespace shadow_robot
@@ -270,7 +272,7 @@ namespace shadow_robot
     // The ROS service handler for nullifying the demand
     ros::ServiceServer nullify_demand_server_;
 
-   // boost::shared_ptr<SrSelfTest> self_tests_;
+    // boost::shared_ptr<SrSelfTest> self_tests_;
 
     // Thread for running the tests in parallel when doing the tests on real hand
     boost::shared_ptr<boost::thread> self_test_thread_;
@@ -296,8 +298,8 @@ namespace shadow_robot
      * This vector has the same size as the debug_publishers vector.
      */
     std::vector<boost::shared_ptr<std::pair<int, int> > > debug_motor_indexes_and_data;
-   // static const int debug_mutex_lock_wait_time;
-   // boost::shared_mutex debug_mutex;
+     // static const int debug_mutex_lock_wait_time;
+     // boost::shared_mutex debug_mutex;
     ros::NodeHandle node_handle;
     std_msgs::Int16 msg_debug;
 #endif
@@ -315,11 +317,11 @@ namespace shadow_robot
     static const char *human_readable_sensor_data_types[];
     static const int32u sensor_data_types[];
 
-    /// It is run in a separate thread and calls the checkTests() method of the self_tests_. This avoids the tests blocking the main thread
+    /// It is run in a separate thread and calls the checkTests() method of the self_tests_.
+    // This avoids the tests blocking the main thread
     void checkSelfTests();
 
   public:
-
     /// Timeout handling variables for UBI sensors
     static const double tactile_timeout;
     ros::Duration tactile_init_max_duration;
@@ -333,8 +335,8 @@ namespace shadow_robot
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
 
-  }; // end class
-} // end namespace
+  };  // end class
+}  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.
 Local Variables:

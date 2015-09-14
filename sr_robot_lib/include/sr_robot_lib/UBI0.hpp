@@ -29,6 +29,7 @@
 #define _UBI0_HPP_
 
 #include <vector>
+#include <string>
 #include <sr_robot_msgs/UBI0All.h>
 #include <sr_robot_msgs/UBI0.h>
 #include <sr_robot_msgs/AuxSpiData.h>
@@ -97,7 +98,7 @@ namespace tactiles
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> > mid_prox_publisher;
     // Auxiliar Spi data (sometimes it is a palm tactile sensor) real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData> > aux_spi_publisher;
-  }; // end class
+  };  // end class
 
 
   // class template specialization.
@@ -109,13 +110,14 @@ namespace tactiles
    */
   template<>
   class UBI0<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> :
-          public GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>
+          public GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
+                  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>
   {
   public:
     UBI0(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
          operation_mode::device_update_state::DeviceUpdateState update_state)
-            : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(
-            nh, device_id, update_configs_vector, update_state)
+            : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
+            ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
     {
       ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
     }
@@ -123,8 +125,8 @@ namespace tactiles
     UBI0(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
          operation_mode::device_update_state::DeviceUpdateState update_state,
          boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
-            : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(
-            nh, device_id, update_configs_vector, update_state)
+            : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
+            ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
     {
       ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
     }
@@ -132,17 +134,18 @@ namespace tactiles
     ~UBI0()
     {
     };
-  }; // end class
+  };  // end class
 
   template<>
   class UBI0<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> :
-          public GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>
+          public GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS,
+                  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>
   {
   public:
     UBI0(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
          operation_mode::device_update_state::DeviceUpdateState update_state)
-            : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(
-            nh, device_id, update_configs_vector, update_state)
+            : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS,
+            ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
     {
       ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
     }
@@ -150,8 +153,8 @@ namespace tactiles
     UBI0(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
          operation_mode::device_update_state::DeviceUpdateState update_state,
          boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
-            : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(
-            nh, device_id, update_configs_vector, update_state)
+            : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS,
+            ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
     {
       ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
     }
@@ -159,8 +162,8 @@ namespace tactiles
     ~UBI0()
     {
     };
-  }; // end class
-} // end namespace
+  };  // end class
+}  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
 Local Variables:

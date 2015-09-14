@@ -46,15 +46,15 @@ extern "C"
 
 namespace operation_mode
 {
-  namespace device_update_state
+namespace device_update_state
+{
+  enum DeviceUpdateState
   {
-    enum DeviceUpdateState
-    {
-      INITIALIZATION,
-      OPERATION
-    };
-  }
-}
+    INITIALIZATION,
+    OPERATION
+  };
+}   // namespace device_update_state
+}  // namespace operation_mode
 
 namespace generic_updater
 {
@@ -125,9 +125,7 @@ namespace generic_updater
 
     boost::shared_ptr<boost::mutex> mutex;
   };
-}
-
-
+}  // namespace generic_updater
 
 
 /* For the emacs weenies in the crowd.

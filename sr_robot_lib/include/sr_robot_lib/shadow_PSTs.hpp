@@ -29,6 +29,7 @@
 #define _SHADOW_PSTS_HPP_
 
 #include <vector>
+#include <string>
 #include <sr_robot_msgs/ShadowPST.h>
 #include <realtime_tools/realtime_publisher.h>
 
@@ -83,11 +84,10 @@ namespace tactiles
     virtual std::vector<AllTactileData> *get_tactile_data();
 
   protected:
-
     // Tactile sensor real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> > tactile_publisher;
-  }; // end class
-} // end namespace
+  };  // end class
+}  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
 Local Variables:

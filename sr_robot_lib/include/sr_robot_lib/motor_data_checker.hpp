@@ -46,7 +46,7 @@ namespace generic_updater
   class MessageFromMotorChecker
   {
   public:
-    MessageFromMotorChecker(int id)
+    explicit MessageFromMotorChecker(int id)
             : motor_id_(id), received_(false)
     {
     }
@@ -69,7 +69,7 @@ namespace generic_updater
           public MessageFromMotorChecker
   {
   public:
-    SlowMessageFromMotorChecker(int id);
+    explicit SlowMessageFromMotorChecker(int id);
 
     boost::array<bool, MOTOR_SLOW_DATA_LAST + 1> slow_data_received;
 
@@ -79,7 +79,7 @@ namespace generic_updater
   class MessageChecker
   {
   public:
-    MessageChecker(FROM_MOTOR_DATA_TYPE msg_type)
+    explicit MessageChecker(FROM_MOTOR_DATA_TYPE msg_type)
             : msg_type(msg_type)
     {
     }
@@ -141,8 +141,7 @@ namespace generic_updater
 
     std::vector<MessageChecker> msg_checkers_;
   };
-
-}
+}  // namespace generic_updater
 
 /* For the emacs weenies in the crowd.
  Local Variables:

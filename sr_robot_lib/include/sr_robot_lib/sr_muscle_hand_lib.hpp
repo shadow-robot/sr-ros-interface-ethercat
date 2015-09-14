@@ -35,6 +35,8 @@
 // parameter server
 #include <ros/ros.h>
 #include <string>
+#include <vector>
+
 
 namespace shadow_robot
 {
@@ -95,7 +97,6 @@ namespace shadow_robot
                     std::vector<shadow_joints::JointToSensor> joint_to_sensors);
 
   private:
-
     /**
      * Reads the mapping associating a joint to a muscle.
      * If the muscle index is -1, then no muscle is associated
@@ -116,8 +117,7 @@ namespace shadow_robot
     ros::ServiceServer debug_service;
 #endif
   };
-
-}
+}  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.
 Local Variables:

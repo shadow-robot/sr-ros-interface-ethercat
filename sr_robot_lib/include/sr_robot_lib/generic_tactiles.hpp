@@ -40,9 +40,8 @@ extern "C"
 
 #include <ros/ros.h>
 #include <vector>
+#include <string>
 #include <std_srvs/Empty.h>
-
-#include <boost/smart_ptr.hpp>
 
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_updater/DiagnosticStatusWrapper.h>
@@ -108,7 +107,6 @@ namespace tactiles
     virtual std::vector<AllTactileData> *get_tactile_data();
 
   protected:
-
     void process_received_data_type(int32u data);
 
     ros::NodeHandle nodehandle_;
@@ -132,8 +130,8 @@ namespace tactiles
     std::string sanitise_string(const char *raw_string, const unsigned int str_size);
 
     boost::shared_ptr<std::vector<AllTactileData> > all_tactile_data;
-  }; // end class
-} // end namespace
+  };  // end class
+}  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
 Local Variables:

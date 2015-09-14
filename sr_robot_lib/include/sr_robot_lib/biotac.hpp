@@ -29,6 +29,7 @@
 #define _BIOTAC_HPP_
 
 #include <vector>
+#include <string>
 #include <sr_robot_msgs/BiotacAll.h>
 #include <sr_robot_msgs/Biotac.h>
 #include <realtime_tools/realtime_publisher.h>
@@ -87,8 +88,8 @@ namespace tactiles
 
     // Tactile sensor real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> > tactile_publisher;
-  }; // end class
-} // end namespace
+  };  // end class
+}  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
 Local Variables:
