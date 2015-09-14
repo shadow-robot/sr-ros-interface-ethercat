@@ -116,7 +116,7 @@ namespace tactiles
 
     ros::ServiceServer reset_service_client_;
 
-    ///Contains the received data types.
+    // Contains the received data types.
     std::vector<int32u> initialization_received_data_vector;
 
     /**
@@ -132,8 +132,8 @@ namespace tactiles
     std::string sanitise_string(const char *raw_string, const unsigned int str_size);
 
     boost::shared_ptr<std::vector<AllTactileData> > all_tactile_data;
-  };  //end class
-}  //end namespace
+  }; // end class
+} // end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

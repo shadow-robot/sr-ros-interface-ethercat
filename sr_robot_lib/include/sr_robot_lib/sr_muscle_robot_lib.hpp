@@ -76,7 +76,7 @@ namespace shadow_robot
     void reinitialize_motors();
 
 
-    ///Current update state of the motor (initialization, operation..)
+    // Current update state of the motor (initialization, operation..)
     operation_mode::device_update_state::DeviceUpdateState muscle_current_state;
 
 
@@ -203,11 +203,11 @@ namespace shadow_robot
     boost::shared_ptr<generic_updater::MuscleUpdater<CommandType> > muscle_updater_;
 
 
-    ///contains a queue of muscle driver indexes to reset
+    // contains a queue of muscle driver indexes to reset
     std::queue<short, std::list<short> > reset_muscle_driver_queue;
 
 
-    ///The update rate for each muscle information
+    // The update rate for each muscle information
     std::vector<generic_updater::UpdateConfig> muscle_update_rate_configs_vector;
 
     /**
@@ -223,10 +223,10 @@ namespace shadow_robot
     static const double timeout;
     ros::Duration init_max_duration;
 
-    ///A mutual exclusion object to ensure that the initialization timeout event does work without threading issues
+    // A mutual exclusion object to ensure that the initialization timeout event does work without threading issues
     boost::shared_ptr<boost::mutex> lock_init_timeout_;
-  };  //end class
-}  //end namespace
+  }; // end class
+} // end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

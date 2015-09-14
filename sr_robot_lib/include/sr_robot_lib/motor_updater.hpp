@@ -84,7 +84,7 @@ namespace generic_updater
     operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command);
 
   private:
-    ///are we sending the command to the even or the uneven motors.
+    // are we sending the command to the even or the uneven motors.
     int even_motors;
 
   };

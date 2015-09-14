@@ -152,7 +152,7 @@ int SrEdcMuscle::initialize(hardware_interface::HardwareInterface *hw, bool allo
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int> (ETHERCAT_COMMAND_DATA_SIZE));
   ROS_INFO("ETHERCAT_CAN_BRIDGE_DATA_SIZE  = %4d bytes", static_cast<int> (ETHERCAT_CAN_BRIDGE_DATA_SIZE));
 
-  //initialise the publisher for the extra analog inputs, gyroscope and accelerometer on the palm
+ // initialise the publisher for the extra analog inputs, gyroscope and accelerometer on the palm
   extra_analog_inputs_publisher.reset(
           new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_, "palm_extras", 10));
 
@@ -190,16 +190,16 @@ void SrEdcMuscle::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &ve
 
   d.addf("PIC idle time (in microsecs)", "%d", sr_hand_lib->main_pic_idle_time);
   d.addf("Min PIC idle time (since last diagnostics)", "%d", sr_hand_lib->main_pic_idle_time_min);
-  //reset the idle time min to a big number, to get a fresh number on next diagnostic
+ // reset the idle time min to a big number, to get a fresh number on next diagnostic
   sr_hand_lib->main_pic_idle_time_min = 1000;
 
   this->ethercatDiagnostics(d, 2);
   vec.push_back(d);
 
-  //Add the diagnostics from the hand
+ // Add the diagnostics from the hand
   sr_hand_lib->add_diagnostics(vec, d);
 
-  //Add the diagnostics from the tactiles
+ // Add the diagnostics from the tactiles
   if (sr_hand_lib->tactiles != NULL)
   {
     sr_hand_lib->tactiles->add_diagnostics(vec, d);
@@ -237,7 +237,7 @@ void SrEdcMuscle::packCommand(unsigned char *buffer, bool halt, bool reset)
     command->EDC_command = EDC_COMMAND_CAN_DIRECT_MODE;
   }
 
-  //alternate between even and uneven motors
+ // alternate between even and uneven motors
   // and ask for the different informations.
   sr_hand_lib->build_command(command);
 
@@ -363,7 +363,7 @@ bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_bu
 
   if (status_data->EDC_command == EDC_COMMAND_INVALID)
   {
-    //received empty message: the pic is not writing to its mailbox.
+   // received empty message: the pic is not writing to its mailbox.
     ++zero_buffer_read;
     float percentage_packet_loss = 100.f * ((float) zero_buffer_read / (float) num_rxed_packets);
 
@@ -372,21 +372,21 @@ bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_bu
     return true;
   }
 
-  //We received a coherent message.
-  //Update the library (positions, diagnostics values, actuators, etc...)
-  //with the received information
+ // We received a coherent message.
+ // Update the library (positions, diagnostics values, actuators, etc...)
+ // with the received information
   sr_hand_lib->update(status_data);
 
-  //Now publish the additional data at 100Hz (every 10 cycles)
+ // Now publish the additional data at 100Hz (every 10 cycles)
   if (cycle_count >= 9)
   {
-    //publish tactiles if we have them
+   // publish tactiles if we have them
     if (sr_hand_lib->tactiles != NULL)
     {
       sr_hand_lib->tactiles->publish();
     }
 
-    //And we also publish the additional data (accelerometer / gyroscope / analog inputs)
+   // And we also publish the additional data (accelerometer / gyroscope / analog inputs)
     std_msgs::Float64MultiArray extra_analog_msg;
     extra_analog_msg.layout.dim.resize(3);
     extra_analog_msg.data.resize(3 + 3 + 4);
@@ -422,7 +422,7 @@ bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_bu
   ++cycle_count;
 
 
-  //If we're flashing, check is the packet has been acked
+ // If we're flashing, check is the packet has been acked
   if (flashing & !can_packet_acked)
   {
     if (can_data_is_ack(can_data))
@@ -436,7 +436,7 @@ bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_bu
 
 void SrEdcMuscle::reinitialize_boards()
 {
-  //Reinitialize motors information
+ // Reinitialize motors information
   sr_hand_lib->reinitialize_motors();
 }
 

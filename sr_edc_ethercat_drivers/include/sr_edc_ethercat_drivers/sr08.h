@@ -91,9 +91,9 @@ protected:
 
 private:
 
-  //std::string                      firmware_file_name;
+ // std::string                      firmware_file_name;
 
-  ///counter for the number of empty buffer we're reading.
+  // counter for the number of empty buffer we're reading.
   unsigned int zero_buffer_read;
 
   boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> > sr_hand_lib;

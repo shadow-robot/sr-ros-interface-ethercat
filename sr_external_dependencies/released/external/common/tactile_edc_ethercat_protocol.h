@@ -55,53 +55,53 @@
 
 typedef union
 {
-  int16u word[TACTILE_DATA_LENGTH_WORDS_v1];                            //!< As yet unspecified
+  int16u word[TACTILE_DATA_LENGTH_WORDS_v1];                           // !< As yet unspecified
   char string[TACTILE_DATA_LENGTH_BYTES_v1];
 } TACTILE_SENSOR_STATUS_v1;
 
-typedef enum                                                            //! Data you can request from tactile sensors in general
+typedef enum                                                           // ! Data you can request from tactile sensors in general
 {
-  TACTILE_SENSOR_TYPE_WHICH_SENSORS = 0xFFF9,               //!< Is this a PST, a BioTac, or what? Returns a TACTILE_SENSOR_PROTOCOL_TYPE
-  TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ = 0xFFFA,               //!< word[0] = frequency in Hz. currently only used by BioTacs
-  TACTILE_SENSOR_TYPE_MANUFACTURER = 0xFFFB,               //!< e.g. "Shadow" or "Syntouch"
-  TACTILE_SENSOR_TYPE_SERIAL_NUMBER = 0xFFFC,               //!< e.g. "PST3200110190001"
-  TACTILE_SENSOR_TYPE_SOFTWARE_VERSION = 0xFFFD,               //!< e.g. "1825"
-  TACTILE_SENSOR_TYPE_PCB_VERSION = 0xFFFE,               //!< e.g. "FB". Currently only used by BioTacs
-  TACTILE_SENSOR_TYPE_RESET_COMMAND = 0xFFFF                //!< Requesting this causes the tactile sensors to reset if they support it.
+  TACTILE_SENSOR_TYPE_WHICH_SENSORS = 0xFFF9,              // !< Is this a PST, a BioTac, or what? Returns a TACTILE_SENSOR_PROTOCOL_TYPE
+  TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ = 0xFFFA,              // !< word[0] = frequency in Hz. currently only used by BioTacs
+  TACTILE_SENSOR_TYPE_MANUFACTURER = 0xFFFB,              // !< e.g. "Shadow" or "Syntouch"
+  TACTILE_SENSOR_TYPE_SERIAL_NUMBER = 0xFFFC,              // !< e.g. "PST3200110190001"
+  TACTILE_SENSOR_TYPE_SOFTWARE_VERSION = 0xFFFD,              // !< e.g. "1825"
+  TACTILE_SENSOR_TYPE_PCB_VERSION = 0xFFFE,              // !< e.g. "FB". Currently only used by BioTacs
+  TACTILE_SENSOR_TYPE_RESET_COMMAND = 0xFFFF               // !< Requesting this causes the tactile sensors to reset if they support it.
 } FROM_TACTILE_SENSOR_TYPE;
 
 
-typedef enum                                                            //! This is the protocol that the palm is using for the tactile sensors.
+typedef enum                                                           // ! This is the protocol that the palm is using for the tactile sensors.
 {
-  TACTILE_SENSOR_PROTOCOL_TYPE_INVALID = 0x0000,               //!< No supported sensors were found.
-  TACTILE_SENSOR_PROTOCOL_TYPE_PST3 = 0x0001,               //!< Shadow's Pressure Tactile sensor, Hugo's firmware
-  TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3 = 0x0002,               //!< Syntouch's BioTac sensor, version 2.3
-  TACTILE_SENSOR_PROTOCOL_TYPE_UBI0 = 0x0003,               //!< Bielefeld's tactile sensor
+  TACTILE_SENSOR_PROTOCOL_TYPE_INVALID = 0x0000,              // !< No supported sensors were found.
+  TACTILE_SENSOR_PROTOCOL_TYPE_PST3 = 0x0001,              // !< Shadow's Pressure Tactile sensor, Hugo's firmware
+  TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3 = 0x0002,              // !< Syntouch's BioTac sensor, version 2.3
+  TACTILE_SENSOR_PROTOCOL_TYPE_UBI0 = 0x0003,              // !< Bielefeld's tactile sensor
 
-  TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING = 0xFFFF                //!< More than 1 type of sensor is connected to the hand! (Very unlikely to happen)
+  TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING = 0xFFFF               // !< More than 1 type of sensor is connected to the hand! (Very unlikely to happen)
 } TACTILE_SENSOR_PROTOCOL_TYPE;
 
 
-typedef enum                                                            //!< This is the protocol the palm is using for the Aux SPI sensor
+typedef enum                                                           // !< This is the protocol the palm is using for the Aux SPI sensor
 {
-  AUX_SENSOR_PROTOCOL_TYPE_INVALID = 0x0000,               //!< No supported sensors were found.
-  AUX_SENSOR_PROTOCOL_TYPE_MCP3202 = 0x0001,               //!< A basic MCP3202 ADC was found.
-  AUX_SENSOR_PROTOCOL_TYPE_MCP3204 = 0x0002,               //!< A basic MCP3204 ADC was found.
-  AUX_SENSOR_PROTOCOL_TYPE_MCP3208 = 0x0003                //!< A basic MCP3208 ADC was found.
+  AUX_SENSOR_PROTOCOL_TYPE_INVALID = 0x0000,              // !< No supported sensors were found.
+  AUX_SENSOR_PROTOCOL_TYPE_MCP3202 = 0x0001,              // !< A basic MCP3202 ADC was found.
+  AUX_SENSOR_PROTOCOL_TYPE_MCP3204 = 0x0002,              // !< A basic MCP3204 ADC was found.
+  AUX_SENSOR_PROTOCOL_TYPE_MCP3208 = 0x0003               // !< A basic MCP3208 ADC was found.
 
 } AUX_SENSOR_PROTOCOL_TYPE;
 
 typedef enum                                                            // Data you can request from PST3s
 {
-  TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE = 0x0000,       //!< 0: Pressure.       1: Temperature
-  TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING = 0x0002,       //!< 0: Raw pressure    1: Zero tracking
-  TACTILE_SENSOR_TYPE_PST3_DAC_VALUE = 0x0004        //!< 0: DAC value       1: ----
+  TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE = 0x0000,      // !< 0: Pressure.       1: Temperature
+  TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING = 0x0002,      // !< 0: Raw pressure    1: Zero tracking
+  TACTILE_SENSOR_TYPE_PST3_DAC_VALUE = 0x0004       // !< 0: DAC value       1: ----
 } FROM_TACTILE_SENSOR_TYPE_PST3;
 
 typedef enum                                                            // Data you can request from UBI0 tactiles
 {
-  TACTILE_SENSOR_TYPE_UBI0_INVALID = 0x0000,       //!<
-  TACTILE_SENSOR_TYPE_UBI0_TACTILE = 0x0001       //!< Only one type of sensor
+  TACTILE_SENSOR_TYPE_UBI0_INVALID = 0x0000,      // !<
+  TACTILE_SENSOR_TYPE_UBI0_TACTILE = 0x0001      // !< Only one type of sensor
 } FROM_TACTILE_SENSOR_TYPE_UBI0;
 
 typedef enum                                                            // Data you can request from BioTacs
@@ -136,8 +136,8 @@ typedef enum                                                            // Data 
 
 typedef enum                                                   // Data you can request from MCP320x ADC
 {
-  TACTILE_SENSOR_TYPE_MCP320x_INVALID = 0x0000,       //!<
-  TACTILE_SENSOR_TYPE_MCP320x_TACTILE = 0x0001       //!< Only one type of sensor
+  TACTILE_SENSOR_TYPE_MCP320x_INVALID = 0x0000,      // !<
+  TACTILE_SENSOR_TYPE_MCP320x_TACTILE = 0x0001      // !< Only one type of sensor
 } FROM_TACTILE_SENSOR_TYPE_MCP320x;
 
 
@@ -165,7 +165,7 @@ typedef struct
 
 typedef union
 {
-  int16u word[TACTILE_DATA_LENGTH_WORDS_v2];                            //!< As yet unspecified
+  int16u word[TACTILE_DATA_LENGTH_WORDS_v2];                           // !< As yet unspecified
   char string[TACTILE_DATA_LENGTH_BYTES_v2];
 } TACTILE_SENSOR_STATUS_v2;
 

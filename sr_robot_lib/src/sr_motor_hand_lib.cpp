@@ -83,7 +83,7 @@ namespace shadow_robot
                                                           string joint_prefix) :
           SrMotorRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
   {
-    //read the motor polling frequency from the parameter server
+   // read the motor polling frequency from the parameter server
     this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data,
                                                                             human_readable_motor_data_types,
                                                                             motor_data_types);
@@ -91,10 +91,10 @@ namespace shadow_robot
             new MotorUpdater<CommandType>(this->motor_update_rate_configs_vector,
                                           operation_mode::device_update_state::INITIALIZATION));
 
-    //TODO: read this from config/EEProm?
+   // TODO: read this from config/EEProm?
     vector<JointToSensor> joint_to_sensor_vect = this->read_joint_to_sensor_mapping();
 
-    //initializing the joints vector
+   // initializing the joints vector
     vector<string> joint_names_tmp;
     vector<int> motor_ids = read_joint_to_motor_mapping();
 
@@ -106,7 +106,7 @@ namespace shadow_robot
       joint_names_tmp.push_back(string(joint_names[i]));
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
-    //Initialize the motor data checker
+   // Initialize the motor data checker
     this->motor_data_checker = shared_ptr<MotorDataChecker>(
             new MotorDataChecker(this->joints_vector, this->motor_updater_->initialization_configs_vector));
   }
@@ -118,10 +118,10 @@ namespace shadow_robot
   {
     for (unsigned int index = 0; index < joint_names.size(); ++index)
     {
-      //add the joint and the vector of joints.
+     // add the joint and the vector of joints.
       Joint joint;
 
-      //update the joint variables
+     // update the joint variables
       joint.joint_name = joint_names[index];
       joint.joint_to_sensor = joint_to_sensors[index];
 
@@ -147,7 +147,7 @@ namespace shadow_robot
 
         ss.str("");
         ss << "reset_motor_" << joint_names[index];
-        //initialize the reset motor service
+       // initialize the reset motor service
         motor_wrapper->reset_motor_service =
                 this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(
                         ss.str().c_str(),
@@ -155,12 +155,12 @@ namespace shadow_robot
                                     pair<int, string>(motor_wrapper->motor_id, joint.joint_name)));
       }
       else
-      {  //no motor associated to this joint
+      { // no motor associated to this joint
         joint.has_actuator = false;
       }
 
       this->joints_vector.push_back(joint);
-    }  //end for joints.
+    } // end for joints.
   }
 
   template<class StatusType, class CommandType>
@@ -172,7 +172,7 @@ namespace shadow_robot
 
     this->reset_motors_queue.push(joint.first);
 
-    //wait a few secs for the reset to be sent then resend the pids
+   // wait a few secs for the reset to be sent then resend the pids
     string joint_name = joint.second;
 
     pid_timers[joint_name] = this->nh_tilde.createTimer(ros::Duration(3.0),
@@ -186,7 +186,7 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrMotorHandLib<StatusType, CommandType>::resend_pids(string joint_name, int motor_index)
   {
-    //read the parameters from the parameter server and set the pid
+   // read the parameters from the parameter server and set the pid
     // values.
     ostringstream full_param;
 
@@ -238,7 +238,7 @@ namespace shadow_robot
     sr_robot_msgs::ForceController::Response pid_response;
     bool pid_success = force_pid_callback(pid_request, pid_response, motor_index);
 
-    //setting the backlash compensation (on or off)
+   // setting the backlash compensation (on or off)
     bool backlash_compensation;
     full_param << act_name << "/backlash_compensation";
     this->nodehandle_.template param<bool>(full_param.str(), backlash_compensation, true);
@@ -268,7 +268,7 @@ namespace shadow_robot
   {
     ROS_INFO_STREAM("Received new force PID parameters for motor " << motor_index);
 
-    //Check the parameters are in the correct ranges
+   // Check the parameters are in the correct ranges
     if (motor_index > 20)
     {
       ROS_WARN_STREAM(" Wrong motor index specified: " << motor_index);
@@ -356,7 +356,7 @@ namespace shadow_robot
       return false;
     }
 
-    //ok, the parameters sent are coherent, send the demand to the motor.
+   // ok, the parameters sent are coherent, send the demand to the motor.
     this->generate_force_control_config(motor_index, request.maxpwm, request.sgleftref,
                                         request.sgrightref, request.f, request.p, request.i,
                                         request.d, request.imax, request.deadband, request.sign);
@@ -366,7 +366,7 @@ namespace shadow_robot
                                          request.d, request.imax, request.deadband, request.sign);
     response.configured = true;
 
-    //Reinitialize motors information
+   // Reinitialize motors information
     this->reinitialize_motors();
 
     return true;
@@ -441,7 +441,7 @@ namespace shadow_robot
     XmlRpc::XmlRpcValue mapping;
     this->nodehandle_.getParam(param_name, mapping);
     ROS_ASSERT(mapping.getType() == XmlRpc::XmlRpcValue::TypeArray);
-    //iterate on all the joints
+   // iterate on all the joints
     for (int32_t i = 0; i < mapping.size(); ++i)
     {
       ROS_ASSERT(mapping[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
@@ -449,7 +449,7 @@ namespace shadow_robot
     }
 
     return motor_ids;
-  }  //end read_joint_to_motor_mapping
+  } // end read_joint_to_motor_mapping
 
 
 #ifdef DEBUG_PUBLISHER
@@ -458,7 +458,7 @@ namespace shadow_robot
   bool SrMotorHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
                                                                           sr_robot_msgs::SetDebugData::Response& response)
   {
-    //check if the publisher_index is correct
+   // check if the publisher_index is correct
     if (request.publisher_index < this->nb_debug_publishers_const)
     {
       if (request.motor_index > NUM_MOTORS)

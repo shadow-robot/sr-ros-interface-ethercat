@@ -62,7 +62,7 @@ protected:
 
   string reason_;
   int level_;
-  int device_offset_;      //!< Offset of device position from first device of Shadow Hand
+  int device_offset_;     // !< Offset of device position from first device of Shadow Hand
 
 protected:
   int command_base_;

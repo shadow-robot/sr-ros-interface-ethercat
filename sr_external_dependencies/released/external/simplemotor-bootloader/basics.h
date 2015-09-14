@@ -112,8 +112,8 @@ typedef union union64
 
 void ShiftLeft64(union union64 *p);
 
-void Reset_func(void);                  //!< Use this instead of Reset to keep optimization.
-void ClrWdt_func(void);                 //!< Clear Watchdog Timer
+void Reset_func(void);                 // !< Use this instead of Reset to keep optimization.
+void ClrWdt_func(void);                // !< Clear Watchdog Timer
 
 extern const int8u basic_lshift[];
 

@@ -105,22 +105,22 @@ namespace generic_updater
     void timer_callback(const ros::TimerEvent &event, int32u data_type);
 
     operation_mode::device_update_state::DeviceUpdateState update_state;
-    ///Contains all the initialization data types.
+    // Contains all the initialization data types.
     std::vector<UpdateConfig> initialization_configs_vector;
 
   protected:
     ros::NodeHandle nh_tilde;
 
-    ///Contains all the important data types.
+    // Contains all the important data types.
     std::vector<UpdateConfig> important_update_configs_vector;
-    ///iterate through the important or initialization data types.
+    // iterate through the important or initialization data types.
     int which_data_to_request;
 
-    ///All the timers for the unimportant data types.
+    // All the timers for the unimportant data types.
     std::vector<ros::Timer> timers;
-    ///A queue containing the unimportant data types we want to ask for next time (empty most of the time).
+    // A queue containing the unimportant data types we want to ask for next time (empty most of the time).
     std::queue<int32u, std::list<int32u> > unimportant_data_queue;
-    ///Contains the vector with the update configs for every command. We store it to be able to reinitialize.
+    // Contains the vector with the update configs for every command. We store it to be able to reinitialize.
     std::vector<UpdateConfig> update_configs_vector;
 
     boost::shared_ptr<boost::mutex> mutex;

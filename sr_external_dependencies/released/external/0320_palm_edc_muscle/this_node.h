@@ -100,7 +100,7 @@
 // ! this enum simply collects together the error codes relevant to this node.
 typedef enum
 {
-  //NO_ERROR_CODE,
+ // NO_ERROR_CODE,
           CAN_ERROR_CODES,
   SIMPLE_CAN_ERROR_CODES
 } ERROR_CODE;
@@ -113,7 +113,7 @@ typedef enum
 // ! this enum simply collects together the event codes relevant to this node.
 typedef enum
 {
-  //NO_EVENT_CODE,
+ // NO_EVENT_CODE,
           CAN_EVENT_CODES,
 } EVENT_CODE;
 
@@ -195,14 +195,14 @@ extern ETHERCAT_CAN_BRIDGE_DATA can_bridge_data_from_ROS;
 extern ETHERCAT_CAN_BRIDGE_DATA can_bridge_data_to_ROS;
 
 
-#define PALM_PCB_01                                     //!< Use PALM_PCB_00 for the old prototype board.
+#define PALM_PCB_01                                    // !< Use PALM_PCB_00 for the old prototype board.
 // !  Use PALM_PCB_00 for the real palm board
 
 #ifdef PALM_PCB_00                                      // Definitions for big square prototype board
 // #define USE_SMALL_EEPROM
 
 #define USE_SIMPLE_PST_CS
-#define AUTO_TRIGGER         0                      //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
+#define AUTO_TRIGGER         0                     // !< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
 
 #define ET1200_CHIP_SELECT_PIN      'C', 14
 #define ET1200_RESET_PIN            'F',  3
@@ -266,7 +266,7 @@ extern ETHERCAT_CAN_BRIDGE_DATA can_bridge_data_to_ROS;
 
 #ifdef PALM_PCB_01                                          // Definitions for actual palm board inside hand
 #define USE_SIMPLE_PST_CS
-#define AUTO_TRIGGER         0                          //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
+#define AUTO_TRIGGER         0                         // !< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
 
 #define ET1200_CHIP_SELECT_PIN      'C', 14
 #define ET1200_RESET_PIN            'F',  3

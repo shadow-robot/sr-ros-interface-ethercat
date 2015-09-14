@@ -66,7 +66,7 @@ namespace shadow_joints
     {
     }
 
-    //actuator
+   // actuator
     ros_ethercat_model::Actuator *actuator;
 
     /**
@@ -91,11 +91,11 @@ namespace shadow_joints
     {
     }
 
-    //the position of the motor in the motor array
+   // the position of the motor in the motor array
     // coming from the hardware
     int motor_id;
 
-    //the position of the motor in the message array
+   // the position of the motor in the message array
     int msg_motor_id;
 
     /**
@@ -176,14 +176,14 @@ namespace shadow_joints
   {
     std::string joint_name;
 
-    //the indexes of the joints in the joint array
+   // the indexes of the joints in the joint array
     // coming from the hardware which are used to
     // compute the joint data.
     JointToSensor joint_to_sensor;
 
-    //used to filter the position and the velocity
+   // used to filter the position and the velocity
     sr_math_utils::filters::LowPassFilter pos_filter;
-    //used to filter the effort
+   // used to filter the effort
     sr_math_utils::filters::LowPassFilter effort_filter;
 
     bool has_actuator;

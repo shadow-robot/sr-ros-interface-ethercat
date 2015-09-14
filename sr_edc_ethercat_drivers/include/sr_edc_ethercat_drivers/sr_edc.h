@@ -80,7 +80,7 @@ public:
 
   void erase_flash();
 
-  //bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
+ // bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
   bool read_flash(unsigned int offset, unsigned int baddr);
 
 protected:
@@ -115,13 +115,13 @@ protected:
 
 private:
 
-  //static const unsigned int        nb_sensors_const;
+ // static const unsigned int        nb_sensors_const;
   static const unsigned int max_retry;
-  //static const unsigned short int  max_iter_const;
-  //static const unsigned short int  ros_pub_freq_const;
-  //static const unsigned short int  device_pub_freq_const;
-  //static const unsigned char       nb_publish_by_unpack_const;
-  //std::string                      firmware_file_name;
+ // static const unsigned short int  max_iter_const;
+ // static const unsigned short int  ros_pub_freq_const;
+ // static const unsigned short int  device_pub_freq_const;
+ // static const unsigned char       nb_publish_by_unpack_const;
+ // std::string                      firmware_file_name;
   pthread_mutex_t producing;
   ros::ServiceServer serviceServer;
 
@@ -133,7 +133,7 @@ private:
   unsigned int motor_being_flashed;
 
 
-  ///We're using 2 can busses, so can_bus_ is 1 for motors 0 to 9 and 2 for motors 10 to 19
+  // We're using 2 can busses, so can_bus_ is 1 for motors 0 to 9 and 2 for motors 10 to 19
   int can_bus_;
 
   /**

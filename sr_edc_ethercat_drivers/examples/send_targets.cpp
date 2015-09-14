@@ -85,7 +85,7 @@ public:
    */
   bool sendupdate(std::string joint_name, double target)
   {
-    //first we find the joint in the map (or return an error if we
+   // first we find the joint in the map (or return an error if we
     // can't find it)
     std::map<std::string, ros::Publisher>::iterator publisher_iterator;
     publisher_iterator = publisher_map_.find(joint_name);
@@ -96,7 +96,7 @@ public:
       return false;
     }
 
-    //now we build the message:
+   // now we build the message:
     // the target must be send in RADIANS
     std_msgs::Float64 msg_to_send;
     msg_to_send.data = target * 3.14159 / 360.0;
@@ -127,13 +127,13 @@ protected:
  */
 int main(int argc, char **argv)
 {
-  //Initialize the ROS node.
+ // Initialize the ROS node.
   ros::init(argc, argv, "send_targets");
 
-  //Instantiate the target sender
+ // Instantiate the target sender
   TargetSender target_sender = TargetSender();
 
-  //Builds the vector of targets
+ // Builds the vector of targets
   static const unsigned int length_targets = 1000;
   std::vector<double> targets;
 
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
     targets.push_back(target);
   }
 
-  //Send the targets until the node is killed.
+ // Send the targets until the node is killed.
   unsigned int step = 0;
   while (ros::ok())
   {

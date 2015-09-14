@@ -81,7 +81,7 @@ namespace shadow_robot
     void reinitialize_motors();
 
 
-    ///Current update state of the motor (initialization, operation..)
+    // Current update state of the motor (initialization, operation..)
     operation_mode::device_update_state::DeviceUpdateState motor_current_state;
 
 
@@ -186,16 +186,16 @@ namespace shadow_robot
      * This queue contains the force PID config waiting to be pushed to the motor.
      */
     std::queue<ForceConfig, std::list<ForceConfig> > reconfig_queue;
-    ///this index is used to iterate over the config we're sending.
+    // this index is used to iterate over the config we're sending.
     int config_index;
 
-    ///contains a queue of motor indexes to reset
+    // contains a queue of motor indexes to reset
     std::queue<short, std::list<short> > reset_motors_queue;
 
 
-    ///The index of the motor in all the 20 motors
+    // The index of the motor in all the 20 motors
     int motor_index_full;
-    ///The index of the motor in the current message (from 0 to 9)
+    // The index of the motor in the current message (from 0 to 9)
     int index_motor_in_msg;
 
     int8u crc_byte;
@@ -203,13 +203,13 @@ namespace shadow_robot
     int8u crc_i;
 
 
-    ///The update rate for each motor information
+    // The update rate for each motor information
     std::vector<generic_updater::UpdateConfig> motor_update_rate_configs_vector;
 
     boost::shared_ptr<generic_updater::MotorDataChecker> motor_data_checker;
 
 
-    ///The current type of control (FORCE demand or PWM demand sent to the motors)
+    // The current type of control (FORCE demand or PWM demand sent to the motors)
     sr_robot_msgs::ControlType control_type_;
     /**
      * Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
@@ -220,9 +220,9 @@ namespace shadow_robot
      * doing so would cause a deadlock, thus we do it in the realtime loop thread instead.
      */
     bool control_type_changed_flag_;
-    ///A service server used to change the control type on the fly.
+    // A service server used to change the control type on the fly.
     ros::ServiceServer change_control_type_;
-    ///A mutual exclusion object to ensure that no command will be sent to the robot while a change in the control type (PWM or torque) is ongoing
+    // A mutual exclusion object to ensure that no command will be sent to the robot while a change in the control type (PWM or torque) is ongoing
     boost::shared_ptr<boost::mutex> lock_command_sending_;
 
     /**
@@ -248,9 +248,9 @@ namespace shadow_robot
      */
     bool change_control_parameters(int16_t control_type);
 
-    ///The Flag which will be sent to change the motor controls
+    // The Flag which will be sent to change the motor controls
     std::queue<std::vector<sr_robot_msgs::MotorSystemControls>, std::list<std::vector<sr_robot_msgs::MotorSystemControls> > > motor_system_control_flags_;
-    ///A service server used to call the different motor system controls "buttons"
+    // A service server used to call the different motor system controls "buttons"
     ros::ServiceServer motor_system_control_server_;
 
     /**
@@ -265,8 +265,8 @@ namespace shadow_robot
      */
     bool motor_system_controls_callback_(sr_robot_msgs::ChangeMotorSystemControls::Request &request,
                                          sr_robot_msgs::ChangeMotorSystemControls::Response &response);
-  };  //end class
-}  //end namespace
+  }; // end class
+} // end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

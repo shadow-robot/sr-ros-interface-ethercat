@@ -182,13 +182,13 @@ namespace shadow_robot
      */
     int main_pic_idle_time_min;
 
-    ///Current update state of the sensors (initialization, operation..)
+    // Current update state of the sensors (initialization, operation..)
     operation_mode::device_update_state::DeviceUpdateState tactile_current_state;
 
     ros_ethercat_model::RobotState *hw_;
 
   protected:
-    ///True if we want to set the demand to 0 (stop the controllers)
+    // True if we want to set the demand to 0 (stop the controllers)
     bool nullify_demand_;
 
     /// The vector containing all the robot joints.
@@ -267,12 +267,12 @@ namespace shadow_robot
     /// a ROS nodehandle (private naming, only inside the node namespace) to be able to advertise the Force PID service
     ros::NodeHandle nh_tilde;
 
-    ///The ROS service handler for nullifying the demand
+    // The ROS service handler for nullifying the demand
     ros::ServiceServer nullify_demand_server_;
 
-    //boost::shared_ptr<SrSelfTest> self_tests_;
+   // boost::shared_ptr<SrSelfTest> self_tests_;
 
-    ///Thread for running the tests in parallel when doing the tests on real hand
+    // Thread for running the tests in parallel when doing the tests on real hand
     boost::shared_ptr<boost::thread> self_test_thread_;
 
     /// a ros nodehandle to be able to access resources out of the node namespace
@@ -285,7 +285,7 @@ namespace shadow_robot
 
 
 #ifdef DEBUG_PUBLISHER
-    ///These publishers are useful for debugging
+    // These publishers are useful for debugging
     static const int nb_debug_publishers_const;
     std::vector<ros::Publisher> debug_publishers;
     /**
@@ -296,19 +296,19 @@ namespace shadow_robot
      * This vector has the same size as the debug_publishers vector.
      */
     std::vector<boost::shared_ptr<std::pair<int, int> > > debug_motor_indexes_and_data;
-    //static const int debug_mutex_lock_wait_time;
-    //boost::shared_mutex debug_mutex;
+   // static const int debug_mutex_lock_wait_time;
+   // boost::shared_mutex debug_mutex;
     ros::NodeHandle node_handle;
     std_msgs::Int16 msg_debug;
 #endif
 
-    ///The update rate for each sensor information type
+    // The update rate for each sensor information type
     std::vector<generic_updater::UpdateConfig> generic_sensor_update_rate_configs_vector;
-    ///The update rate for each sensor information type
+    // The update rate for each sensor information type
     std::vector<generic_updater::UpdateConfig> pst3_sensor_update_rate_configs_vector;
-    ///The update rate for each sensor information type
+    // The update rate for each sensor information type
     std::vector<generic_updater::UpdateConfig> biotac_sensor_update_rate_configs_vector;
-    ///The update rate for each sensor information type
+    // The update rate for each sensor information type
     std::vector<generic_updater::UpdateConfig> ubi0_sensor_update_rate_configs_vector;
 
     static const int nb_sensor_data;
@@ -333,8 +333,8 @@ namespace shadow_robot
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
 
-  };  //end class
-}  //end namespace
+  }; // end class
+} // end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

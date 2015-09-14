@@ -47,13 +47,13 @@
 // ! The host can request different types of data from the palm.
 typedef enum
 {
-  EDC_COMMAND_INVALID = 0,                                    //!< Reading an empty mailbox on the ET1200 results in a zero.
-  EDC_COMMAND_SENSOR_DATA,                                    //!< Normal operating value. Palm transmits ADC readings.
-  EDC_COMMAND_SENSOR_CHANNEL_NUMBERS,                         //!< Instead of sending ADC readings, send the channel number, so the host can confirm the firmware is correct.
-  EDC_COMMAND_SENSOR_ADC_CHANNEL_CS,                          //!< Instead of sending ADC readings, send the chip select channel, so the host can confirm the firmware is correct.
-  EDC_COMMAND_CAN_DIRECT_MODE                                 //!< Might be used in the future for running automated tests inside the firmware.
+  EDC_COMMAND_INVALID = 0,                                   // !< Reading an empty mailbox on the ET1200 results in a zero.
+  EDC_COMMAND_SENSOR_DATA,                                   // !< Normal operating value. Palm transmits ADC readings.
+  EDC_COMMAND_SENSOR_CHANNEL_NUMBERS,                        // !< Instead of sending ADC readings, send the channel number, so the host can confirm the firmware is correct.
+  EDC_COMMAND_SENSOR_ADC_CHANNEL_CS,                         // !< Instead of sending ADC readings, send the chip select channel, so the host can confirm the firmware is correct.
+  EDC_COMMAND_CAN_DIRECT_MODE                                // !< Might be used in the future for running automated tests inside the firmware.
 
-  //EDC_COMMAND_TEST_RESULTS,                                   //!< Might be used in the future for running automated tests inside the firmware.
+ // EDC_COMMAND_TEST_RESULTS,                                  // !< Might be used in the future for running automated tests inside the firmware.
 } EDC_COMMAND;
 
 
@@ -87,28 +87,28 @@ static const char *slow_data_types[17] = {"Invalid",                            
 // ! These bits tell us the type of the message.
 typedef enum
 {
-  DIRECTION_DATA_REQUEST = 0x0,                  //!< Requesting that motors send back status data (AKA Start of Frame)
-  DIRECTION_TO_MOTOR = 0x1,                  //!< Message contains command data being sent to the motors
-  DIRECTION_FROM_MOTOR = 0x2,                  //!< Message contains status data from a motor
-  DIRECTION_BOOTLOADER = 0x3                   //!< Message has something to do with boot-loading.
+  DIRECTION_DATA_REQUEST = 0x0,                 // !< Requesting that motors send back status data (AKA Start of Frame)
+  DIRECTION_TO_MOTOR = 0x1,                 // !< Message contains command data being sent to the motors
+  DIRECTION_FROM_MOTOR = 0x2,                 // !< Message contains status data from a motor
+  DIRECTION_BOOTLOADER = 0x3                  // !< Message has something to do with boot-loading.
 } MESSAGE_DIRECTION;
 
 
-#define MESSAGE_ID_DIRECTION_BITS       0b11000000000           //!< Bit mask specifying which bits of the CAN message ID are used for the MESSAGE_DIRECTION
-#define MESSAGE_ID_MOTOR_ID_BITS        0b00111100000           //!< Bit mask specifying which bits of the CAN message ID are used for the motor ID [0..9]
-#define MESSAGE_ID_ACK_BIT              0b00000010000           //!< Bit mask specifying which bits of the CAN message ID are used for the ACK bit (only for bootloading)
-#define MESSAGE_ID_TYPE_BITS            0b00000001111           //!< Bit mask specifying which bits of the CAN message ID are used for the TO_MOTOR_DATA_TYPE or FROM_MOTOR_DATA_TYPE
+#define MESSAGE_ID_DIRECTION_BITS       0b11000000000          // !< Bit mask specifying which bits of the CAN message ID are used for the MESSAGE_DIRECTION
+#define MESSAGE_ID_MOTOR_ID_BITS        0b00111100000          // !< Bit mask specifying which bits of the CAN message ID are used for the motor ID [0..9]
+#define MESSAGE_ID_ACK_BIT              0b00000010000          // !< Bit mask specifying which bits of the CAN message ID are used for the ACK bit (only for bootloading)
+#define MESSAGE_ID_TYPE_BITS            0b00000001111          // !< Bit mask specifying which bits of the CAN message ID are used for the TO_MOTOR_DATA_TYPE or FROM_MOTOR_DATA_TYPE
 //                                               or for the TO_MUSCLE_DATA_TYPE or FROM_MUSCLE_DATA_TYPE
 
-#define MESSAGE_ID_DIRECTION_SHIFT_POS  9                       //!< Bit number of lowest bit of MESSAGE_ID_DIRECTION_BITS
+#define MESSAGE_ID_DIRECTION_SHIFT_POS  9                      // !< Bit number of lowest bit of MESSAGE_ID_DIRECTION_BITS
 
 
 // Check this against the SENSORS_NUM_0320 and SENSORS_NUM_0220
-#define SENSORS_NUM_0X20  ((int)36)                             //!< The number of sensors in the robot.
+#define SENSORS_NUM_0X20  ((int)36)                            // !< The number of sensors in the robot.
 // !  This needs to be a #define because it's used to dimension an array.
 
 // Check this against the JOINTS_NUM_0320 and JOINTS_NUM_0220
-#define JOINTS_NUM_0X20   ((int)28)                             //!< The number of joints in the hand
+#define JOINTS_NUM_0X20   ((int)28)                            // !< The number of joints in the hand
 // !  This needs to be a #define for symmetry with SENSORS_NUM
 
 
