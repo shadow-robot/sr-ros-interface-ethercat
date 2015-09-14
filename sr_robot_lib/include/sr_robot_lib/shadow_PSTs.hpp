@@ -38,15 +38,22 @@
 
 namespace tactiles
 {
-  template <class StatusType, class CommandType>
+  template<class StatusType, class CommandType>
   class ShadowPSTs :
-    public GenericTactiles<StatusType, CommandType>
+          public GenericTactiles<StatusType, CommandType>
   {
   public:
-    ShadowPSTs(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    ShadowPSTs(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector);
+    ShadowPSTs(ros::NodeHandle nh, std::string device_id,
+               std::vector<generic_updater::UpdateConfig> update_configs_vector,
+               operation_mode::device_update_state::DeviceUpdateState update_state);
 
-    void init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
+    ShadowPSTs(ros::NodeHandle nh, std::string device_id,
+               std::vector<generic_updater::UpdateConfig> update_configs_vector,
+               operation_mode::device_update_state::DeviceUpdateState update_state,
+               boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
+
+    void init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
+              operation_mode::device_update_state::DeviceUpdateState update_state);
 
     /**
      * This function is called each time a new etherCAT message
@@ -55,7 +62,7 @@ namespace tactiles
      *
      * @param status_data the received etherCAT message
      */
-    virtual void update(StatusType* status_data);
+    virtual void update(StatusType *status_data);
 
     /**
      * Publish the information to a ROS topic.
@@ -71,9 +78,9 @@ namespace tactiles
                                  diagnostic_updater::DiagnosticStatusWrapper &d);
 
     /// the vector containing the data for the tactiles.
-    boost::shared_ptr< std::vector<PST3Data> > tactiles_vector;
+    boost::shared_ptr<std::vector<PST3Data> > tactiles_vector;
 
-    virtual std::vector<AllTactileData>* get_tactile_data();
+    virtual std::vector<AllTactileData> *get_tactile_data();
 
   protected:
 

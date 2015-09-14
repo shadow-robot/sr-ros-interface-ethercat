@@ -51,41 +51,51 @@
 #include <sr_robot_msgs/EthercatDebug.h>
 
 #include <sr_external_dependencies/types_for_external.h>
+
 extern "C"
 {
-  #include <sr_external_dependencies/external/common/ethercat_can_bridge_protocol.h>
-  #include <sr_external_dependencies/external/common/common_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/common/ethercat_can_bridge_protocol.h>
+#include <sr_external_dependencies/external/common/common_edc_ethercat_protocol.h>
 }
 
 
-class SrEdc : public SR0X
+class SrEdc :
+        public SR0X
 {
 public:
   SrEdc();
 
-  virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size, unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
-  						 unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address, unsigned int ethercat_can_bridge_data_command_address, unsigned int ethercat_can_bridge_data_status_address);
+  virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size,
+                         unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
+                         unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address,
+                         unsigned int ethercat_can_bridge_data_command_address,
+                         unsigned int ethercat_can_bridge_data_status_address);
 
-  bool simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req, sr_robot_msgs::SimpleMotorFlasher::Response &res);
+  bool simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
+                            sr_robot_msgs::SimpleMotorFlasher::Response &res);
+
   void build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message);
-  bool can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet);
+
+  bool can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA *packet);
+
   void erase_flash();
+
   //bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
   bool read_flash(unsigned int offset, unsigned int baddr);
 
 protected:
-  int                                                                  counter_;
-  ros::NodeHandle                                                      nodehandle_;
-  ros::NodeHandle                                                      nh_tilde_;
+  int counter_;
+  ros::NodeHandle nodehandle_;
+  ros::NodeHandle nh_tilde_;
 
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
-  std::vector< boost::shared_ptr<rt_pub_int16_t> >   realtime_pub_;
+  std::vector<boost::shared_ptr<rt_pub_int16_t> > realtime_pub_;
 
   /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
 
-  bool                             flashing;
-  bool                             can_packet_acked;
+  bool flashing;
+  bool can_packet_acked;
 
   std::string device_id_;
   std::string device_joint_prefix_;
@@ -102,24 +112,25 @@ protected:
    * @param board_can_id pointer to the board id we want to determine
    */
   virtual void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id) = 0;
+
 private:
 
   //static const unsigned int        nb_sensors_const;
-  static const unsigned int        max_retry;
+  static const unsigned int max_retry;
   //static const unsigned short int  max_iter_const;
   //static const unsigned short int  ros_pub_freq_const;
   //static const unsigned short int  device_pub_freq_const;
   //static const unsigned char       nb_publish_by_unpack_const;
   //std::string                      firmware_file_name;
-  pthread_mutex_t                  producing;
-  ros::ServiceServer               serviceServer;
+  pthread_mutex_t producing;
+  ros::ServiceServer serviceServer;
 
 
-  ETHERCAT_CAN_BRIDGE_DATA         can_message_;
-  bool                            can_message_sent;
-  bfd_byte                        *binary_content; // buffer containing the binary content to be flashed
-  unsigned int                     pos; // position in binary_content buffer
-  unsigned int                     motor_being_flashed;
+  ETHERCAT_CAN_BRIDGE_DATA can_message_;
+  bool can_message_sent;
+  bfd_byte *binary_content; // buffer containing the binary content to be flashed
+  unsigned int pos; // position in binary_content buffer
+  unsigned int motor_being_flashed;
 
 
   ///We're using 2 can busses, so can_bus_ is 1 for motors 0 to 9 and 2 for motors 10 to 19
@@ -191,7 +202,7 @@ private:
    *
    * @return the filename.
    */
-  static inline std::string get_filename( std::string full_path )
+  static inline std::string get_filename(std::string full_path)
   {
     std::vector<std::string> splitted_string;
     boost::split(splitted_string, full_path, boost::is_any_of("/"));

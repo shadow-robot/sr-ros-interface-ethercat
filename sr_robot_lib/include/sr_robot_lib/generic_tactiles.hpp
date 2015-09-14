@@ -30,11 +30,12 @@
 
 #include <boost/smart_ptr.hpp>
 #include <sr_external_dependencies/types_for_external.h>
+
 extern "C"
 {
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
-  #include <sr_external_dependencies/external/0230_palm_edc_TS/0230_palm_edc_ethercat_protocol.h>
-  #include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0230_palm_edc_TS/0230_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
 }
 
 #include <ros/ros.h>
@@ -52,12 +53,17 @@ extern "C"
 
 namespace tactiles
 {
-  template <class StatusType, class CommandType>
+  template<class StatusType, class CommandType>
   class GenericTactiles
   {
   public:
-    GenericTactiles(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    virtual ~GenericTactiles() {}
+    GenericTactiles(ros::NodeHandle nh, std::string device_id,
+                    std::vector<generic_updater::UpdateConfig> update_configs_vector,
+                    operation_mode::device_update_state::DeviceUpdateState update_state);
+
+    virtual ~GenericTactiles()
+    {
+    }
 
     /**
      * This function is called each time a new etherCAT message
@@ -66,7 +72,7 @@ namespace tactiles
      *
      * @param status_data the received etherCAT message
      */
-    virtual void update(StatusType* status_data);
+    virtual void update(StatusType *status_data);
 
     /**
      * Publish the information to a ROS topic.
@@ -89,17 +95,17 @@ namespace tactiles
      *
      * @return true if success
      */
-    bool reset(std_srvs::Empty::Request& request,
-               std_srvs::Empty::Response& response);
+    bool reset(std_srvs::Empty::Request &request,
+               std_srvs::Empty::Response &response);
 
     /// Number of tactile sensors (TODO: should probably be defined in the protocol)
     static const unsigned int nb_tactiles;
 
     boost::shared_ptr<generic_updater::SensorUpdater<CommandType> > sensor_updater;
     /// the vector containing the data for the tactiles.
-    boost::shared_ptr< std::vector<GenericTactileData> > tactiles_vector;
+    boost::shared_ptr<std::vector<GenericTactileData> > tactiles_vector;
 
-    virtual std::vector<AllTactileData>* get_tactile_data();
+    virtual std::vector<AllTactileData> *get_tactile_data();
 
   protected:
 
@@ -123,7 +129,7 @@ namespace tactiles
      *
      * @return The sanitised string.
      */
-    std::string sanitise_string( const char* raw_string, const unsigned int str_size );
+    std::string sanitise_string(const char *raw_string, const unsigned int str_size);
 
     boost::shared_ptr<std::vector<AllTactileData> > all_tactile_data;
   };//end class

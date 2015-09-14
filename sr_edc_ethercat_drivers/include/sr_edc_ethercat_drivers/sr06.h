@@ -46,27 +46,32 @@
 #include <sr_robot_msgs/EthercatDebug.h>
 
 #include <sr_external_dependencies/types_for_external.h>
+
 extern "C"
 {
 #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
 }
 
-class SR06 : public SrEdc
+class SR06 :
+        public SrEdc
 {
 public:
   SR06();
 
   virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address);
+
   virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed = true);
+
   virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
 
   virtual void packCommand(unsigned char *buffer, bool halt, bool reset);
+
   virtual bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
 
 protected:
 
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
-  std::vector< boost::shared_ptr<rt_pub_int16_t> > realtime_pub_;
+  std::vector<boost::shared_ptr<rt_pub_int16_t> > realtime_pub_;
 
   /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;

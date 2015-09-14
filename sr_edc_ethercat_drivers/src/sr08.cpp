@@ -46,11 +46,12 @@ using namespace std;
 #include <sr_external_dependencies/types_for_external.h>
 
 #include <boost/static_assert.hpp>
+
 namespace is_edc_command_32_bits
 {
 //check is the EDC_COMMAND is 32bits on the computer
 //if not, fails
-BOOST_STATIC_ASSERT(sizeof (EDC_COMMAND) == 4);
+  BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
 } // namespace is_edc_command_32_bits
 
 #define ETHERCAT_STATUS_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS)
@@ -64,7 +65,6 @@ BOOST_STATIC_ASSERT(sizeof (EDC_COMMAND) == 4);
 #define ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS         PALM_0230_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
 
 
-
 PLUGINLIB_EXPORT_CLASS(SR08, EthercatDevice);
 
 /** \brief Constructor of the SR08 driver
@@ -74,8 +74,8 @@ PLUGINLIB_EXPORT_CLASS(SR08, EthercatDevice);
  *  and create the Bootloading service.
  */
 SR08::SR08()
-  : zero_buffer_read(0),
-  cycle_count(0)
+        : zero_buffer_read(0),
+          cycle_count(0)
 {
   /*
     ROS_INFO("There are %d sensors", nb_sensors_const);
@@ -125,8 +125,10 @@ void SR08::construct(EtherCAT_SlaveHandler *sh, int &start_address)
   ROS_ASSERT(ETHERCAT_STATUS_0230_AGREED_SIZE == ETHERCAT_STATUS_DATA_SIZE);
   ROS_ASSERT(ETHERCAT_COMMAND_0230_AGREED_SIZE == ETHERCAT_COMMAND_DATA_SIZE);
 
-  SrEdc::construct(sh, start_address, ETHERCAT_COMMAND_DATA_SIZE, ETHERCAT_STATUS_DATA_SIZE, ETHERCAT_CAN_BRIDGE_DATA_SIZE,
-                   ETHERCAT_COMMAND_DATA_ADDRESS, ETHERCAT_STATUS_DATA_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS);
+  SrEdc::construct(sh, start_address, ETHERCAT_COMMAND_DATA_SIZE, ETHERCAT_STATUS_DATA_SIZE,
+                   ETHERCAT_CAN_BRIDGE_DATA_SIZE,
+                   ETHERCAT_COMMAND_DATA_ADDRESS, ETHERCAT_STATUS_DATA_ADDRESS,
+                   ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS);
 
   ROS_INFO("Finished constructing the SR08 driver");
 }
@@ -140,20 +142,26 @@ int SR08::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   int retval = SR0X::initialize(hw, allow_unprogrammed);
 
   if (retval != 0)
+  {
     return retval;
+  }
 
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> >(new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>(hw, nodehandle_, nh_tilde_, device_id_, device_joint_prefix_));
+  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> >(
+          new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>(
+                  hw, nodehandle_, nh_tilde_, device_id_, device_joint_prefix_));
 
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int> (ETHERCAT_STATUS_DATA_SIZE));
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int> (ETHERCAT_COMMAND_DATA_SIZE));
   ROS_INFO("ETHERCAT_CAN_BRIDGE_DATA_SIZE  = %4d bytes", static_cast<int> (ETHERCAT_CAN_BRIDGE_DATA_SIZE));
 
   //initialise the publisher for the extra analog inputs, gyroscope and accelerometer on the palm
-  extra_analog_inputs_publisher.reset(new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_, "palm_extras", 10));
+  extra_analog_inputs_publisher.reset(
+          new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_, "palm_extras", 10));
 
 
   // Debug real time publisher: publishes the raw ethercat data
-  debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
+  debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(
+          new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
   return retval;
 }
 
@@ -165,7 +173,7 @@ int SR08::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
  */
 void SR08::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer)
 {
-  diagnostic_updater::DiagnosticStatusWrapper & d(diagnostic_status_);
+  diagnostic_updater::DiagnosticStatusWrapper &d(diagnostic_status_);
 
   stringstream name;
   string prefix = device_id_.empty() ? device_id_ : (device_id_ + " ");
@@ -195,7 +203,9 @@ void SR08::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
 
   //Add the diagnostics from the tactiles
   if (sr_hand_lib->tactiles != NULL)
+  {
     sr_hand_lib->tactiles->add_diagnostics(vec, d);
+  }
 }
 
 /** \brief packs the commands before sending them to the EtherCAT bus
@@ -238,28 +248,29 @@ void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
   // After that, this should be done in the aux_data_updater (or something similar ) in the driver
   command->aux_data_type = TACTILE_SENSOR_TYPE_MCP320x_TACTILE;
 
-  ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
-            command->to_motor_data_type,
-            command->motor_data[0],
-            command->motor_data[1],
-            command->motor_data[2],
-            command->motor_data[3],
-            command->motor_data[4],
-            command->motor_data[5],
-            command->motor_data[6],
-            command->motor_data[7],
-            command->motor_data[8],
-            command->motor_data[9],
-            command->motor_data[10],
-            command->motor_data[11],
-            command->motor_data[12],
-            command->motor_data[13],
-            command->motor_data[14],
-            command->motor_data[15],
-            command->motor_data[16],
-            command->motor_data[17],
-            command->motor_data[18],
-            command->motor_data[19]);
+  ROS_DEBUG(
+          "Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
+          command->to_motor_data_type,
+          command->motor_data[0],
+          command->motor_data[1],
+          command->motor_data[2],
+          command->motor_data[3],
+          command->motor_data[4],
+          command->motor_data[5],
+          command->motor_data[6],
+          command->motor_data[7],
+          command->motor_data[8],
+          command->motor_data[9],
+          command->motor_data[10],
+          command->motor_data[11],
+          command->motor_data[12],
+          command->motor_data[13],
+          command->motor_data[14],
+          command->motor_data[15],
+          command->motor_data[16],
+          command->motor_data[17],
+          command->motor_data[18],
+          command->motor_data[19]);
 
   build_CAN_message(message);
 }
@@ -284,8 +295,10 @@ void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
  */
 bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 {
-  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *status_data = (ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *) (this_buffer + command_size_);
-  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *) (this_buffer + command_size_ + ETHERCAT_STATUS_DATA_SIZE);
+  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *status_data = (ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *) (
+          this_buffer + command_size_);
+  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *) (this_buffer + command_size_ +
+                                                                     ETHERCAT_STATUS_DATA_SIZE);
   //  int16u                                        *status_buffer = (int16u*)status_data;
   static unsigned int num_rxed_packets = 0;
 
@@ -299,7 +312,9 @@ bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
     debug_publisher->msg_.sensors.clear();
     for (unsigned int i = 0; i < SENSORS_NUM_0220 + 1; ++i)
+    {
       debug_publisher->msg_.sensors.push_back(status_data->sensors[i]);
+    }
 
     debug_publisher->msg_.motor_data_type.data = static_cast<int> (status_data->motor_data_type);
     debug_publisher->msg_.which_motors = status_data->which_motors;
@@ -318,7 +333,10 @@ bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int> (static_cast<int16u> (status_data->tactile_data_valid));
     debug_publisher->msg_.tactile.clear();
     for (unsigned int i = 0; i < 5; ++i)
-      debug_publisher->msg_.tactile.push_back(static_cast<unsigned int> (static_cast<int16u> (status_data->tactile[i].word[0])));
+    {
+      debug_publisher->msg_.tactile.push_back(
+              static_cast<unsigned int> (static_cast<int16u> (status_data->tactile[i].word[0])));
+    }
 
     debug_publisher->msg_.idle_time_us = status_data->idle_time_us;
 
@@ -331,7 +349,8 @@ bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     ++zero_buffer_read;
     float percentage_packet_loss = 100.f * ((float) zero_buffer_read / (float) num_rxed_packets);
 
-    ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus", zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
+    ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus",
+              zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
     return true;
   }
 
@@ -345,7 +364,9 @@ bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   {
     //publish tactiles if we have them
     if (sr_hand_lib->tactiles != NULL)
+    {
       sr_hand_lib->tactiles->publish();
+    }
 
     //And we also publish the additional data (accelerometer / gyroscope / analog inputs)
     std_msgs::Float64MultiArray extra_analog_msg;

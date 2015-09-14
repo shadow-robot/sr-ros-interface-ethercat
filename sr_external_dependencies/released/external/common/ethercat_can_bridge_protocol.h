@@ -51,10 +51,10 @@
 //! or to configure the motor boards.
 typedef struct
 {
-    int8u   can_bus;
-    int8u   message_length;
-    int16u  message_id;
-    int8u   message_data[8];
+  int8u can_bus;
+  int8u message_length;
+  int16u message_id;
+  int8u message_data[8];
 } __attribute__((packed)) ETHERCAT_CAN_BRIDGE_DATA;
 
 #define ETHERCAT_CAN_BRIDGE_DATA_SIZE   sizeof(ETHERCAT_CAN_BRIDGE_DATA)

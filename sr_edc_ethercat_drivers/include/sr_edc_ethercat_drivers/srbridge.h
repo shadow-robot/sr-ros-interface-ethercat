@@ -26,11 +26,14 @@
 
 #include <sr_edc_ethercat_drivers/sr0x.h>
 
-class SRBridge : public SR0X
+class SRBridge :
+        public SR0X
 {
 public:
   virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed);
+
   virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address);
+
   virtual void diagnostics(diagnostic_updater::DiagnosticStatusWrapper &d, unsigned char *buffer);
 
   enum

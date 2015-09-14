@@ -38,11 +38,13 @@
 
 namespace shadow_robot
 {
-  template <class StatusType, class CommandType>
-  class SrMuscleHandLib : public SrMuscleRobotLib<StatusType, CommandType>
+  template<class StatusType, class CommandType>
+  class SrMuscleHandLib :
+          public SrMuscleRobotLib<StatusType, CommandType>
   {
   public:
-    SrMuscleHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, std::string device_id, std::string joint_prefix);
+    SrMuscleHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde,
+                    std::string device_id, std::string joint_prefix);
 
     /**
      * Reset the muscle driver at motor index.
@@ -53,9 +55,9 @@ namespace shadow_robot
      *
      * @return true if success
      */
-    bool reset_muscle_driver_callback(std_srvs::Empty::Request& request,
-                              std_srvs::Empty::Response& response,
-                              int muscle_driver_index);
+    bool reset_muscle_driver_callback(std_srvs::Empty::Request &request,
+                                      std_srvs::Empty::Response &response,
+                                      int muscle_driver_index);
 
 #ifdef DEBUG_PUBLISHER
     /**
@@ -90,7 +92,7 @@ namespace shadow_robot
      * @param joint_to_sensors A vector mapping the joint to the sensor index we read from the palm.
      */
     void initialize(std::vector<std::string> joint_names, std::vector<shadow_joints::JointToMuscle> actuator_ids,
-                            std::vector<shadow_joints::JointToSensor> joint_to_sensors);
+                    std::vector<shadow_joints::JointToSensor> joint_to_sensors);
 
   private:
 
@@ -106,7 +108,7 @@ namespace shadow_robot
 
 
     static const int nb_muscle_data;
-    static const char* human_readable_muscle_data_types[];
+    static const char *human_readable_muscle_data_types[];
     static const int32u muscle_data_types[];
 
 #ifdef DEBUG_PUBLISHER

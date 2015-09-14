@@ -36,11 +36,12 @@
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
 #include <sr_external_dependencies/types_for_external.h>
+
 extern "C"
 {
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
-  #include <sr_external_dependencies/external/0230_palm_edc_TS/0230_palm_edc_ethercat_protocol.h>
-  #include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0230_palm_edc_TS/0230_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0320_palm_edc_muscle/0320_palm_edc_ethercat_protocol.h>
 }
 
 namespace operation_mode
@@ -73,12 +74,16 @@ namespace generic_updater
    * The unimportant data are refreshed at their given rate (the value is defined in
    * the config in seconds).
    */
-  template <class CommandType>
+  template<class CommandType>
   class GenericUpdater
   {
   public:
-    GenericUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    virtual ~GenericUpdater() {}
+    GenericUpdater(std::vector<UpdateConfig> update_configs_vector,
+                   operation_mode::device_update_state::DeviceUpdateState update_state);
+
+    virtual ~GenericUpdater()
+    {
+    }
 
     /**
      * Building the motor command. This function is called at each packCommand() call.
@@ -88,7 +93,7 @@ namespace generic_updater
      * @param command The command which will be sent to the motor.
      * @return the current state of the device.
      */
-    virtual operation_mode::device_update_state::DeviceUpdateState build_command(CommandType* command)=0;
+    virtual operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command) = 0;
 
     /**
      * A timer callback for the unimportant data. The frequency of this callback
@@ -97,7 +102,7 @@ namespace generic_updater
      * @param event
      * @param data_type The unimportant data type we want to ask for.
      */
-    void timer_callback(const ros::TimerEvent& event, int32u data_type);
+    void timer_callback(const ros::TimerEvent &event, int32u data_type);
 
     operation_mode::device_update_state::DeviceUpdateState update_state;
     ///Contains all the initialization data types.

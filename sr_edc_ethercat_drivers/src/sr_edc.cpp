@@ -50,17 +50,19 @@
 using namespace std;
 
 #include <sr_external_dependencies/types_for_external.h>
+
 extern "C"
 {
 #include <sr_external_dependencies/external/simplemotor-bootloader/bootloader.h>
 }
 
 #include <boost/static_assert.hpp>
+
 namespace is_edc_command_32_bits
 {
 //check is the EDC_COMMAND is 32bits on the computer
 //if not, fails
-BOOST_STATIC_ASSERT(sizeof (EDC_COMMAND) == 4);
+  BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
 } // namespace is_edc_command_32_bits
 
 const unsigned int SrEdc::max_retry = 20;
@@ -68,8 +70,7 @@ const unsigned int SrEdc::max_retry = 20;
 #define ETHERCAT_CAN_BRIDGE_DATA_SIZE sizeof(ETHERCAT_CAN_BRIDGE_DATA)
 
 
-
-#define check_for_pthread_mutex_init_error(x)	switch(x)               \
+#define check_for_pthread_mutex_init_error(x)  switch(x)               \
   {                                                                     \
   case EAGAIN:                                                          \
     ROS_ERROR("The system temporarily lacks the resources to create another mutex : %s:%d", __FILE__, __LINE__); \
@@ -90,7 +91,7 @@ const unsigned int SrEdc::max_retry = 20;
     exit(1);                                                            \
   }
 
-#define unlock(x)	switch ( pthread_mutex_unlock(x) )              \
+#define unlock(x)  switch ( pthread_mutex_unlock(x) )              \
   {                                                                     \
   case EINVAL:                                                          \
     ROS_ERROR("The value specified as a mutex is invalid : %s:%d", __FILE__, __LINE__); \
@@ -102,7 +103,7 @@ const unsigned int SrEdc::max_retry = 20;
     break;                                                              \
   }
 
-#define check_for_trylock_error(x)	if (x == EINVAL)        \
+#define check_for_trylock_error(x)  if (x == EINVAL)        \
   {                                                             \
     ROS_ERROR("mutex error %s:%d", __FILE__, __LINE__);         \
     exit(1);                                                    \
@@ -115,11 +116,11 @@ const unsigned int SrEdc::max_retry = 20;
  *  and create the Bootloading service.
  */
 SrEdc::SrEdc()
-  : flashing(false),
-  can_message_sent(true),
-  can_packet_acked(true),
-  can_bus_(0),
-  counter_(0)
+        : flashing(false),
+          can_message_sent(true),
+          can_packet_acked(true),
+          can_bus_(0),
+          counter_(0)
 {
   int res = 0;
   check_for_pthread_mutex_init_error(res);
@@ -161,8 +162,11 @@ SrEdc::SrEdc()
  * If you need to have several commands like in this SrEdc driver, put the sum of the size, same thing for the status.
  *
  */
-void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size, unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
-                      unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address, unsigned int ethercat_can_bridge_data_command_address, unsigned int ethercat_can_bridge_data_status_address)
+void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size,
+                      unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
+                      unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address,
+                      unsigned int ethercat_can_bridge_data_command_address,
+                      unsigned int ethercat_can_bridge_data_status_address)
 {
   sh_ = sh;
 
@@ -170,7 +174,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   std::string path_to_alias, alias;
   path_to_alias = "/hand/mapping/" + boost::lexical_cast<std::string>(sh_->get_serial());
   ROS_INFO_STREAM("Trying to read mapping for: " << path_to_alias);
-  if( ros::param::get(path_to_alias, alias))
+  if (ros::param::get(path_to_alias, alias))
   {
     device_id_ = alias;
   }
@@ -178,7 +182,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   {
     //no alias found, using empty device_id_
     //Using the serial number as we do in ronex is probably a worse option here.
-    device_id_ = "" ;
+    device_id_ = "";
   }
 
   nodehandle_ = ros::NodeHandle(device_id_);
@@ -189,14 +193,14 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   std::string path_to_prefix, prefix;
   path_to_prefix = "/hand/joint_prefix/" + boost::lexical_cast<std::string>(sh_->get_serial());
   ROS_INFO_STREAM("Trying to read joint_prefix for: " << path_to_prefix);
-  if( ros::param::get(path_to_prefix, prefix))
+  if (ros::param::get(path_to_prefix, prefix))
   {
     device_joint_prefix_ = prefix;
   }
   else
   {
     //no prefix found, using empty prefix
-    device_joint_prefix_ = "" ;
+    device_joint_prefix_ = "";
   }
 
   command_base_ = start_address;
@@ -213,7 +217,8 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   //
   // This is for data going TO the palm
   //
-  ROS_INFO("First FMMU (command) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", command_base_, command_size_,
+  ROS_INFO("First FMMU (command) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", command_base_,
+           command_size_,
            static_cast<int> (ethercat_command_data_address));
   EC_FMMU *commandFMMU = new EC_FMMU(command_base_, // Logical Start Address    (in ROS address space?)
                                      command_size_,
@@ -224,7 +229,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
                                      false, // Read Enable
                                      true, // Write Enable
                                      true // Channel Enable
-                                     );
+  );
 
 
 
@@ -233,7 +238,8 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   //
   // This is for data coming FROM the palm
   //
-  ROS_INFO("Second FMMU (status) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", status_base_, status_size_,
+  ROS_INFO("Second FMMU (status) : start_address : 0x%08X ; size : %3d bytes ; phy addr : 0x%08X", status_base_,
+           status_size_,
            static_cast<int> (ethercat_status_data_address));
   EC_FMMU *statusFMMU = new EC_FMMU(status_base_,
                                     status_size_,
@@ -246,7 +252,6 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
                                     true);
 
 
-
   EtherCAT_FMMU_Config *fmmu = new EtherCAT_FMMU_Config(2);
 
   (*fmmu)[0] = *commandFMMU;
@@ -257,7 +262,8 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   EtherCAT_PD_Config *pd = new EtherCAT_PD_Config(4);
 
   (*pd)[0] = EC_SyncMan(ethercat_command_data_address, ethercat_command_data_size, EC_QUEUED, EC_WRITTEN_FROM_MASTER);
-  (*pd)[1] = EC_SyncMan(ethercat_can_bridge_data_command_address, ethercat_can_bridge_data_size, EC_QUEUED, EC_WRITTEN_FROM_MASTER);
+  (*pd)[1] = EC_SyncMan(ethercat_can_bridge_data_command_address, ethercat_can_bridge_data_size, EC_QUEUED,
+                        EC_WRITTEN_FROM_MASTER);
   (*pd)[2] = EC_SyncMan(ethercat_status_data_address, ethercat_status_data_size, EC_QUEUED);
   (*pd)[3] = EC_SyncMan(ethercat_can_bridge_data_status_address, ethercat_can_bridge_data_size, EC_QUEUED);
 
@@ -436,7 +442,8 @@ bool SrEdc::read_flash(unsigned int offset, unsigned int baddr)
  *
  *  @return This returns always true, the real return value is in the res parameter
  */
-bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req, sr_robot_msgs::SimpleMotorFlasher::Response &res)
+bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
+                                 sr_robot_msgs::SimpleMotorFlasher::Response &res)
 {
   bfd *fd;
   unsigned int base_addr;
@@ -601,21 +608,22 @@ void SrEdc::build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message)
       ROS_DEBUG_STREAM("Ethercat bridge data size: " << ETHERCAT_CAN_BRIDGE_DATA_SIZE);
 
       ROS_DEBUG("We're sending a CAN message for flashing.");
-      memcpy(message, &can_message_, sizeof (can_message_));
+      memcpy(message, &can_message_, sizeof(can_message_));
       can_message_sent = true;
 
-      ROS_DEBUG("Sending : SID : 0x%04X ; bus : 0x%02X ; length : 0x%02X ; data : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
-                message->message_id,
-                message->can_bus,
-                message->message_length,
-                message->message_data[0],
-                message->message_data[1],
-                message->message_data[2],
-                message->message_data[3],
-                message->message_data[4],
-                message->message_data[5],
-                message->message_data[6],
-                message->message_data[7]);
+      ROS_DEBUG(
+              "Sending : SID : 0x%04X ; bus : 0x%02X ; length : 0x%02X ; data : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
+              message->message_id,
+              message->can_bus,
+              message->message_length,
+              message->message_data[0],
+              message->message_data[1],
+              message->message_data[2],
+              message->message_data[3],
+              message->message_data[4],
+              message->message_data[5],
+              message->message_data[6],
+              message->message_data[7]);
 
       unlock(&producing);
     }
@@ -641,7 +649,7 @@ void SrEdc::build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message)
  *  @param packet The packet from this_buffer of unpackState() that we want to check if it's an ACK
  *  @return Returns true if packet is an ACK of can_message_ packet.
  */
-bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
+bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA *packet)
 {
   int i;
 
@@ -695,14 +703,19 @@ bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA * packet)
 
   for (i = 0; i < packet->message_length; ++i)
   {
-    ROS_DEBUG("packet sent, data[%d] : %02X ; ack, data[%d] : %02X", i, can_message_.message_data[i], i, packet->message_data[i]);
+    ROS_DEBUG("packet sent, data[%d] : %02X ; ack, data[%d] : %02X", i, can_message_.message_data[i], i,
+              packet->message_data[i]);
     if (packet->message_data[i] != can_message_.message_data[i])
+    {
       return false;
+    }
   }
   ROS_DEBUG("Data is OK");
 
   if (!(0x0010 & packet->message_id))
+  {
     return false;
+  }
 
   ROS_DEBUG("This is an ACK");
 
@@ -782,7 +795,9 @@ bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_siz
     {
       timedout = read_flash(pos, baddr);
       if (!timedout)
+      {
         pos += 8;
+      }
       retry++;
       if (retry > max_retry)
       {
@@ -819,7 +834,9 @@ void SrEdc::find_address_range(bfd *fd, unsigned int *smallest_start_address, un
       {
         section_addr = (unsigned int) bfd_section_lma(fd, s);
         if (section_addr >= 0x7fff)
+        {
           continue;
+        }
         section_size = (unsigned int) bfd_section_size(fd, s);
         *smallest_start_address = std::min(section_addr, *smallest_start_address);
         *biggest_end_address = std::max(*biggest_end_address, section_addr + section_size);
@@ -847,7 +864,9 @@ bool SrEdc::read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned i
         //The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
         //(they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
         if (section_addr >= 0x7fff)
+        {
           continue;
+        }
         section_size = (unsigned int) bfd_section_size(fd, s);
         bfd_get_section_contents(fd, s, content + (section_addr - base_addr), 0, section_size);
       }
@@ -894,7 +913,8 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
             can_message_.message_data[2] = (base_addr + pos) >> 16;
             can_message_.message_data[1] = (base_addr + pos) >> 8; // User application start address is 0x4C0
             can_message_.message_data[0] = base_addr + pos;
-            ROS_DEBUG("Sending write address to motor %d : 0x%02X%02X%02X", motor_being_flashed, can_message_.message_data[2], can_message_.message_data[1], can_message_.message_data[0]);
+            ROS_DEBUG("Sending write address to motor %d : 0x%02X%02X%02X", motor_being_flashed,
+                      can_message_.message_data[2], can_message_.message_data[1], can_message_.message_data[0]);
             cmd_sent = 1;
             unlock(&producing);
           }
@@ -936,7 +956,9 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
         can_message_.message_id = 0x0600 | (motor_being_flashed << 5) | WRITE_FLASH_DATA_COMMAND;
         bzero(can_message_.message_data, 8);
         for (unsigned char j = 0; j < 8; ++j)
+        {
           can_message_.message_data[j] = (pos > total_size) ? 0xFF : *(binary_content + pos + j);
+        }
 
         pos += 8;
         cmd_sent = 1;
@@ -965,7 +987,8 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
     }
     if (timedout)
     {
-      ROS_ERROR("A WRITE data packet has been lost at pos=%u, resending the 32 bytes block at pos=%u  !", pos, (pos - packet * 8));
+      ROS_ERROR("A WRITE data packet has been lost at pos=%u, resending the 32 bytes block at pos=%u  !", pos,
+                (pos - packet * 8));
       pos -= packet * 8;
     }
   }

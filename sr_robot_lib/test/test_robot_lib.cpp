@@ -34,12 +34,14 @@
 #define STATUS_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS
 #define COMMAND_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND
 
-class HandLibTestProtected : public shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>
+class HandLibTestProtected :
+        public shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>
 {
 public:
   HandLibTestProtected(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh)
-    : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw, nh, nh, "", "rh_")
-  {};
+          : shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw, nh, nh, "", "rh_")
+  {
+  };
 
 public:
   using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::joints_vector;
@@ -52,7 +54,7 @@ class HandLibTest
 public:
   ros_ethercat_model::RobotState *hw = NULL;
   boost::shared_ptr<HandLibTestProtected> sr_hand_lib;
-  sr_actuator::SrMotorActuator* actuator;
+  sr_actuator::SrMotorActuator *actuator;
   XmlRpc::XmlRpcValue joint_to_sensor_mapping;
 
   HandLibTest()
@@ -61,7 +63,7 @@ public:
     TiXmlElement *root_element;
     TiXmlDocument xml;
     std::string robot_description;
-    if (ros::param::get("/robot_description",robot_description ))
+    if (ros::param::get("/robot_description", robot_description))
     {
       xml.Parse(robot_description.c_str());
     }
@@ -75,7 +77,7 @@ public:
     nh.getParam("joint_to_sensor_mapping", joint_to_sensor_mapping);
     hw = new ros_ethercat_model::RobotState(root);
 
-    hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface*>(hw);
+    hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface *>(hw);
     sr_hand_lib.reset(new HandLibTestProtected(ehw, nh));
 
   }
@@ -87,9 +89,9 @@ public:
 
   void check_hw_actuator(std::string name, int motor_id, int id_in_enum, double expected_pos)
   {
-    actuator = static_cast<sr_actuator::SrMotorActuator*>(hw->getActuator(name));
+    actuator = static_cast<sr_actuator::SrMotorActuator *>(hw->getActuator(name));
 
-    EXPECT_EQ(actuator->state_.device_id_ , motor_id);
+    EXPECT_EQ(actuator->state_.device_id_, motor_id);
     //EXPECT_EQ(state.position_ , expected_pos);
   }
 
@@ -100,7 +102,7 @@ public:
  */
 TEST(SrRobotLib, Initialization)
 {
-  boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
+  boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
 
 //  pr2_hardware_interface::HardwareInterface *hw;
 //  hw = new pr2_hardware_interface::HardwareInterface();
@@ -114,11 +116,11 @@ TEST(SrRobotLib, Initialization)
  */
 TEST(SrRobotLib, UpdateMotor)
 {
-  boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
+  boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
 
-  STATUS_TYPE* status_data = new STATUS_TYPE();
+  STATUS_TYPE *status_data = new STATUS_TYPE();
   //add growing sensors values
-  for(unsigned int i=1 ; i < SENSORS_NUM_0220 + 2; ++i)
+  for (unsigned int i = 1; i < SENSORS_NUM_0220 + 2; ++i)
   {
     //position = id in joint enum
     status_data->sensors[i] = i;
@@ -134,10 +136,10 @@ TEST(SrRobotLib, UpdateMotor)
   status_data->which_motor_data_had_errors = 0;
 
   //add growing motor data packet values
-  for(unsigned int i=0 ; i < 10; ++i)
+  for (unsigned int i = 0; i < 10; ++i)
   {
     status_data->motor_data_packet[i].torque = 4;
-    status_data->motor_data_packet[i].misc = 2*i;
+    status_data->motor_data_packet[i].misc = 2 * i;
   }
   //filling the status data with known values
   status_data->idle_time_us = 1;
@@ -151,19 +153,21 @@ TEST(SrRobotLib, UpdateMotor)
 
   //check the sensors etc..
   std::vector<shadow_joints::Joint>::iterator joint_tmp = lib_test->sr_hand_lib->joints_vector.begin();
-  for(;joint_tmp != lib_test->sr_hand_lib->joints_vector.end(); ++joint_tmp)
+  for (; joint_tmp != lib_test->sr_hand_lib->joints_vector.end(); ++joint_tmp)
   {
-    if(joint_tmp->has_actuator)
+    if (joint_tmp->has_actuator)
     {
-      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
+      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(
+              joint_tmp->actuator_wrapper);
       //we updated the even motors
-      if(motor_wrapper->motor_id % 2 == 0)
+      if (motor_wrapper->motor_id % 2 == 0)
       {
-        const sr_actuator::SrMotorActuator* sr_actuator = static_cast<sr_actuator::SrMotorActuator*>(motor_wrapper->actuator);
+        const sr_actuator::SrMotorActuator *sr_actuator = static_cast<sr_actuator::SrMotorActuator *>(motor_wrapper->actuator);
 
-        ROS_ERROR_STREAM("last measured effort: " << sr_actuator->state_.last_measured_effort_ << " actuator: " << motor_wrapper->actuator);
+        ROS_ERROR_STREAM("last measured effort: " << sr_actuator->state_.last_measured_effort_ << " actuator: " <<
+                         motor_wrapper->actuator);
 
-        EXPECT_FLOAT_EQ(sr_actuator->motor_state_.force_unfiltered_ , 4.0);//(double)motor_wrapper->motor_id/2.0);
+        EXPECT_FLOAT_EQ(sr_actuator->motor_state_.force_unfiltered_, 4.0);//(double)motor_wrapper->motor_id/2.0);
         EXPECT_EQ(sr_actuator->motor_state_.strain_gauge_right_, motor_wrapper->motor_id);
       }
     }
@@ -178,14 +182,14 @@ TEST(SrRobotLib, UpdateMotor)
 
 TEST(SrRobotLib, UpdateActuators)
 {
-  boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
+  boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
 
-  STATUS_TYPE* status_data = new STATUS_TYPE();
+  STATUS_TYPE *status_data = new STATUS_TYPE();
   //add growing sensors values
-  for(unsigned int i=0 ; i < SENSORS_NUM_0220 + 1; ++i)
+  for (unsigned int i = 0; i < SENSORS_NUM_0220 + 1; ++i)
   {
     //position = id in joint enum
-    status_data->sensors[i] = i+1;
+    status_data->sensors[i] = i + 1;
   }
 
   status_data->motor_data_type = MOTOR_DATA_VOLTAGE;
@@ -198,10 +202,10 @@ TEST(SrRobotLib, UpdateActuators)
   status_data->which_motor_data_had_errors = 0;
 
   //add growing motor data packet values
-  for(unsigned int i=0 ; i < 10; ++i)
+  for (unsigned int i = 0; i < 10; ++i)
   {
     status_data->motor_data_packet[i].torque = i;
-    status_data->motor_data_packet[i].misc = 10*i;
+    status_data->motor_data_packet[i].misc = 10 * i;
   }
   //filling the status data with known values
   status_data->idle_time_us = 1;
@@ -223,12 +227,14 @@ TEST(SrRobotLib, UpdateActuators)
  * http://code.google.com/p/googletest/wiki/V1_6_FAQ#How_do_I_test_private_class_members_without_writing_FRIEND_TEST(
  */
 class TestHandLib
-  : public HandLibTestProtected
+        :
+                public HandLibTestProtected
 {
 public:
-  TestHandLib(hardware_interface::HardwareInterface* hw, ros::NodeHandle nh)
-    : HandLibTestProtected(hw, nh)
-  {}
+  TestHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh)
+          : HandLibTestProtected(hw, nh)
+  {
+  }
 
   using HandLibTestProtected::calibrate_joint;
 
@@ -430,7 +436,7 @@ public:
 TEST(SrRobotLib, HumanizeFlags)
 {
 
-  boost::shared_ptr< HandLibTest > lib_test = boost::shared_ptr< HandLibTest >( new HandLibTest() );
+  boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
 //
   std::vector<std::pair<std::string, bool> > flags;
   //all flags set
@@ -438,8 +444,10 @@ TEST(SrRobotLib, HumanizeFlags)
 
   EXPECT_EQ(flags.size(), 16);
 
-  for(unsigned int i=0; i < 16; ++i)
-    EXPECT_EQ(flags[i].first.compare(error_flag_names[i]) , 0);
+  for (unsigned int i = 0; i < 16; ++i)
+          EXPECT_EQ(flags[i].first.compare(error_flag_names[i]), 0)
+  {
+  }
 
   //The last three flags are serious
   EXPECT_TRUE(flags[13].second);

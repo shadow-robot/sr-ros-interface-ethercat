@@ -1,10 +1,10 @@
 //
-// © 2010 Shadow Robot Company Limited.
+// ï¿½ 2010 Shadow Robot Company Limited.
 //
 // FileName:        bootloader.h
 // Dependencies:
 // Processor:       PIC18
-// Compiler:        MPLAB® C32
+// Compiler:        MPLABï¿½ C32
 //
 //  +------------------------------------------------------------------------+
 //  | This file is part of The Shadow Robot PIC32 firmware code base.        |
@@ -45,15 +45,15 @@
 //! 
 typedef enum
 {
-    WRITE_FLASH_DATA_COMMAND      = 0x00,
-    READ_FLASH_COMMAND            = 0x01,
-    ERASE_FLASH_COMMAND           = 0x02,
-    RESET_COMMAND                 = 0x03,
-    READ_VERSION_COMMAND          = 0x04,
-    WRITE_FLASH_ADDRESS_COMMAND   = 0x05,
-    START_FLASH_WRITE_COMMAND     = 0x06,
-    MAGIC_PACKET                  = 0x0A
-}BOOTLOADER_COMMAND;
+  WRITE_FLASH_DATA_COMMAND = 0x00,
+  READ_FLASH_COMMAND = 0x01,
+  ERASE_FLASH_COMMAND = 0x02,
+  RESET_COMMAND = 0x03,
+  READ_VERSION_COMMAND = 0x04,
+  WRITE_FLASH_ADDRESS_COMMAND = 0x05,
+  START_FLASH_WRITE_COMMAND = 0x06,
+  MAGIC_PACKET = 0x0A
+} BOOTLOADER_COMMAND;
 
 
 #endif

@@ -64,15 +64,16 @@ public:
      *
      * The topic type is Float64.
      */
-    for( unsigned int index_joint=0; index_joint < 20; ++index_joint )
+    for (unsigned int index_joint = 0; index_joint < 20; ++index_joint)
     {
       std::string joint_tmp = joints[index_joint];
-      publisher_map_[joint_tmp] = node_handle_.advertise<std_msgs::Float64>( prefix + joint_tmp + suffix , 2 );
+      publisher_map_[joint_tmp] = node_handle_.advertise<std_msgs::Float64>(prefix + joint_tmp + suffix, 2);
     }
   };
 
   ~TargetSender()
-  {};
+  {
+  };
 
   /**
    * Sends a target to the given joint.
@@ -89,9 +90,9 @@ public:
     std::map<std::string, ros::Publisher>::iterator publisher_iterator;
     publisher_iterator = publisher_map_.find(joint_name);
 
-    if( publisher_iterator == publisher_map_.end() )
+    if (publisher_iterator == publisher_map_.end())
     {
-      ROS_WARN_STREAM("Joint "<< joint_name << " not found.");
+      ROS_WARN_STREAM("Joint " << joint_name << " not found.");
       return false;
     }
 
@@ -99,7 +100,7 @@ public:
     // the target must be send in RADIANS
     std_msgs::Float64 msg_to_send;
     msg_to_send.data = target * 3.14159 / 360.0;
-    publisher_iterator->second.publish( msg_to_send );
+    publisher_iterator->second.publish(msg_to_send);
 
     return true;
   };
@@ -127,7 +128,7 @@ protected:
 int main(int argc, char **argv)
 {
   //Initialize the ROS node.
-  ros::init (argc, argv, "send_targets");
+  ros::init(argc, argv, "send_targets");
 
   //Instantiate the target sender
   TargetSender target_sender = TargetSender();
@@ -136,20 +137,20 @@ int main(int argc, char **argv)
   static const unsigned int length_targets = 1000;
   std::vector<double> targets;
 
-  for( unsigned int i = 0; i < length_targets; ++i)
+  for (unsigned int i = 0; i < length_targets; ++i)
   {
     double target = static_cast<double>(i) / 1000.0 * 90.0;
-    targets.push_back( target );
+    targets.push_back(target);
   }
 
   //Send the targets until the node is killed.
   unsigned int step = 0;
-  while( ros::ok() )
+  while (ros::ok())
   {
-    target_sender.sendupdate("ffj3", targets[step % length_targets] );
+    target_sender.sendupdate("ffj3", targets[step % length_targets]);
     usleep(10000);
 
-    ++ step;
+    ++step;
   }
 
   return 0;

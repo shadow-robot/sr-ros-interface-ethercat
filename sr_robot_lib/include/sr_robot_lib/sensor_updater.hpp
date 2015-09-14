@@ -28,7 +28,6 @@
 #define SENSOR_UPDATER_HPP_
 
 
-
 #include <ros/ros.h>
 #include <vector>
 #include <list>
@@ -38,9 +37,10 @@
 #include "sr_robot_lib/generic_updater.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
+
 extern "C"
 {
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
 }
 
 namespace generic_updater
@@ -55,12 +55,13 @@ namespace generic_updater
    * The unimportant data are refreshed at their given rate (the value is defined in
    * the config in seconds).
    */
-  template <class CommandType>
+  template<class CommandType>
   class SensorUpdater :
-      public GenericUpdater<CommandType>
+          public GenericUpdater<CommandType>
   {
   public:
-    SensorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
+    SensorUpdater(std::vector<UpdateConfig> update_configs_vector,
+                  operation_mode::device_update_state::DeviceUpdateState update_state);
 
     /**
      * Updates the initialization command to send to the hand. This function is called
@@ -69,7 +70,7 @@ namespace generic_updater
      * @param command The command which will be sent to the palm.
      * @return current update state
      */
-    operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType* command);
+    operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType *command);
 
     /**
      * Updates the command to send to the hand. This function is called
@@ -80,7 +81,7 @@ namespace generic_updater
      * @param command The command which will be sent to the palm.
      * @return current update state
      */
-    operation_mode::device_update_state::DeviceUpdateState build_command(CommandType* command);
+    operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command);
 
     /**
      * Will send the reset command to the tactiles, on next build

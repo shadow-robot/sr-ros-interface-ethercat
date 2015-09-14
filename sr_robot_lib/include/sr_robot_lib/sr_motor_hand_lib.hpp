@@ -38,11 +38,13 @@
 
 namespace shadow_robot
 {
-  template <class StatusType, class CommandType>
-  class SrMotorHandLib : public SrMotorRobotLib<StatusType, CommandType>
+  template<class StatusType, class CommandType>
+  class SrMotorHandLib :
+          public SrMotorRobotLib<StatusType, CommandType>
   {
   public:
-    SrMotorHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde, std::string device_id, std::string joint_prefix);
+    SrMotorHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde,
+                   std::string device_id, std::string joint_prefix);
 
     /**
      * The service callback for setting the Force PID values. There's only one callback
@@ -55,8 +57,8 @@ namespace shadow_robot
      *
      * @return true if succeeded.
      */
-    bool force_pid_callback(sr_robot_msgs::ForceController::Request& request,
-                            sr_robot_msgs::ForceController::Response& response,
+    bool force_pid_callback(sr_robot_msgs::ForceController::Request &request,
+                            sr_robot_msgs::ForceController::Response &response,
                             int motor_index);
 
     /**
@@ -69,9 +71,9 @@ namespace shadow_robot
      *
      * @return true if success
      */
-    bool reset_motor_callback(std_srvs::Empty::Request& request,
-                              std_srvs::Empty::Response& response,
-                              std::pair<int,std::string> joint);
+    bool reset_motor_callback(std_srvs::Empty::Request &request,
+                              std_srvs::Empty::Response &response,
+                              std::pair<int, std::string> joint);
 
 #ifdef DEBUG_PUBLISHER
     /**
@@ -113,8 +115,9 @@ namespace shadow_robot
      * @param deadband the deadband on the force.
      * @param sign can be 0 or 1 depending on the way the motor is plugged in.
      */
-    void update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p,
-                                                       int i, int d, int imax, int deadband, int sign);
+    void update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f,
+                                              int p,
+                                              int i, int d, int imax, int deadband, int sign);
 
     /**
      * Finds the joint name for a certain motor index
@@ -137,7 +140,7 @@ namespace shadow_robot
 
 
     static const int nb_motor_data;
-    static const char* human_readable_motor_data_types[];
+    static const char *human_readable_motor_data_types[];
     static const int32u motor_data_types[];
 
     /**

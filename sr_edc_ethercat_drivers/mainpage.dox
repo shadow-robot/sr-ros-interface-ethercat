@@ -165,14 +165,18 @@ Here is the startup code you will need to put in your project :
 /* MPLAB-C18 startup code, including initialized data */
 
 /* external reference to __init() function */
-extern void __init (void);
+extern void __init(void);
+
 /* external reference to the user's main routine */
-extern void main (void);
+extern void main(void);
+
 /* prototype for the startup function */
-void _entry (void);
-void _startup (void);
+void _entry(void);
+
+void _startup(void);
+
 /* prototype for the initialized data setup */
-void _do_cinit (void);
+void _do_cinit(void);
 
 extern volatile near unsigned long short TBLPTR;
 extern near unsigned FSR0;
@@ -180,42 +184,52 @@ extern near char __FPFLAGS;
 #define RND 6
 
 #pragma code _entry_scn=0x0004c0
-void
-_entry (void)
-{
-_asm goto _startup _endasm
 
-}
-#pragma code _startup_scn
 void
-_startup (void)
+_entry(void)
 {
   _asm
-    // Initialize the stack pointer
-    lfsr 1, _stack
-    lfsr 2, _stack
+  goto _startup
+  _endasm
 
-    clrf TBLPTRU, 0 // 1st silicon doesn't do this on POR
+}
 
-    bcf __FPFLAGS,RND,0 // Initialize rounding flag for floating point libs
-    
-    _endasm 
-    _do_cinit ();
+#pragma code _startup_scn
 
-loop:
+void
+_startup(void)
+{
+  _asm
+  // Initialize the stack pointer
+          lfsr
+  1, _stack
+  lfsr
+  2, _stack
+
+  clrf
+  TBLPTRU, 0 // 1st silicon doesn't do this on POR
+
+  bcf
+  __FPFLAGS, RND, 0 // Initialize rounding flag for floating point libs
+
+  _endasm
+          _do_cinit();
+
+  loop:
 
   // If user defined __init is not found, the one in clib.lib will be used
-  __init ();
+  __init();
 
   // Call the user's main routine
-  main ();
+  main();
 
   goto loop;
 }                               /* end _startup() */
 
 /* MPLAB-C18 initialized data memory support */
 /* The linker will populate the _cinit table */
-extern far rom struct
+extern far rom
+struct
 {
   unsigned short num_init;
   struct _init_entry
@@ -224,13 +238,14 @@ extern far rom struct
     unsigned long to;
     unsigned long size;
   }
-  entries[];
+          entries[];
 }
-_cinit;
+        _cinit;
 
 #pragma code _cinit_scn
+
 void
-_do_cinit (void)
+_do_cinit(void)
 {
   /* we'll make the assumption in the following code that these statics
    * will be allocated into the same bank.
@@ -241,177 +256,457 @@ _do_cinit (void)
   static short long data_ptr;
 
   // Initialized data...
-  TBLPTR = (short long)&_cinit;
+  TBLPTR = (short long) &_cinit;
   _asm
-    movlb data_ptr
-    tblrdpostinc
-    movf TABLAT, 0, 0
-    movwf curr_entry, 1
-    tblrdpostinc
-    movf TABLAT, 0, 0
-    movwf curr_entry+1, 1
+  movlb data_ptr
+  tblrdpostinc
+          movf
+  TABLAT, 0, 0
+  movwf
+  curr_entry, 1
+  tblrdpostinc
+          movf
+  TABLAT, 0, 0
+  movwf
+  curr_entry + 1, 1
   _endasm
-    //while (curr_entry)
-    //{
-    test:
-    _asm
-     bnz 3
-    tstfsz curr_entry, 1
-    bra 1
-    _endasm
-    goto done;
-      /* Count down so we only have to look up the data in _cinit
-       * once.
-       *
-       * At this point we know that TBLPTR points to the top of the current
-       * entry in _cinit, so we can just start reading the from, to, and
-       * size values.
-       */
-      _asm
-	/* read the source address */
-	tblrdpostinc
-	movf TABLAT, 0, 0
-	movwf prom, 1
-	tblrdpostinc
-	movf TABLAT, 0, 0
-	movwf prom+1, 1
-	tblrdpostinc
-	movf TABLAT, 0, 0
-	movwf prom+2, 1
-	/* skip a byte since it's stored as a 32bit int */
-	tblrdpostinc
-	/* read the destination address directly into FSR0 */
-	tblrdpostinc
-	movf TABLAT, 0, 0
-	movwf FSR0L, 0
-	tblrdpostinc
-	movf TABLAT, 0, 0
-	movwf FSR0H, 0
-	/* skip two bytes since it's stored as a 32bit int */
-	tblrdpostinc
-	tblrdpostinc
-	/* read the destination address directly into FSR0 */
-	tblrdpostinc
-	movf TABLAT, 0, 0
-	movwf curr_byte, 1
-	tblrdpostinc
-	movf TABLAT, 0, 0
-	movwf curr_byte+1, 1
-	/* skip two bytes since it's stored as a 32bit int */
-	tblrdpostinc
-	tblrdpostinc
-      _endasm  
-      //prom = data_ptr->from;
-      //FSR0 = data_ptr->to;
-      //curr_byte = (unsigned short) data_ptr->size;
-      /* the table pointer now points to the next entry. Save it
-       * off since we'll be using the table pointer to do the copying
-       * for the entry.
-       */
-      data_ptr = TBLPTR;
-      
-      /* now assign the source address to the table pointer */
-      TBLPTR = prom;
+  //while (curr_entry)
+  //{
+          test:
+  _asm
+          bnz
+  3
+  tstfsz
+  curr_entry, 1
+  bra
+  1
+  _endasm
+  goto done;
+  /* Count down so we only have to look up the data in _cinit
+   * once.
+   *
+   * At this point we know that TBLPTR points to the top of the current
+   * entry in _cinit, so we can just start reading the from, to, and
+   * size values.
+   */
+  _asm
+  /* read the source address */
+          tblrdpostinc
+  movf
+  TABLAT, 0, 0
+  movwf
+  prom, 1
+  tblrdpostinc
+          movf
+  TABLAT, 0, 0
+  movwf
+  prom + 1, 1
+  tblrdpostinc
+          movf
+  TABLAT, 0, 0
+  movwf
+  prom + 2, 1
+  /* skip a byte since it's stored as a 32bit int */
+  tblrdpostinc
+  /* read the destination address directly into FSR0 */
+          tblrdpostinc
+  movf
+  TABLAT, 0, 0
+  movwf
+  FSR0L, 0
+  tblrdpostinc
+          movf
+  TABLAT, 0, 0
+  movwf
+  FSR0H, 0
+  /* skip two bytes since it's stored as a 32bit int */
+  tblrdpostinc
+          tblrdpostinc
+  /* read the destination address directly into FSR0 */
+  tblrdpostinc
+          movf
+  TABLAT, 0, 0
+  movwf
+  curr_byte, 1
+  tblrdpostinc
+          movf
+  TABLAT, 0, 0
+  movwf
+  curr_byte + 1, 1
+  /* skip two bytes since it's stored as a 32bit int */
+  tblrdpostinc
+          tblrdpostinc
+  _endasm
+  //prom = data_ptr->from;
+  //FSR0 = data_ptr->to;
+  //curr_byte = (unsigned short) data_ptr->size;
+  /* the table pointer now points to the next entry. Save it
+   * off since we'll be using the table pointer to do the copying
+   * for the entry.
+   */
+          data_ptr = TBLPTR;
 
-      /* do the copy loop */
-      _asm
-        // determine if we have any more bytes to copy
-	movlb curr_byte
-	movf curr_byte, 1, 1
-copy_loop:
-	bnz 2 // copy_one_byte
-	movf curr_byte + 1, 1, 1
-	bz 7 // done_copying
+  /* now assign the source address to the table pointer */
+  TBLPTR = prom;
 
-copy_one_byte:
-	tblrdpostinc
-	movf TABLAT, 0, 0
-	movwf POSTINC0, 0
+  /* do the copy loop */
+  _asm
+  // determine if we have any more bytes to copy
+  movlb curr_byte
+  movf
+  curr_byte, 1, 1
+  copy_loop:
+  bnz
+  2 // copy_one_byte
+  movf
+  curr_byte + 1, 1, 1
+  bz
+  7 // done_copying
 
-	// decrement byte counter
-	decf curr_byte, 1, 1
-	bc -8 // copy_loop
-        decf curr_byte + 1, 1, 1
-	bra -7 // copy_one_byte
+  copy_one_byte:
+  tblrdpostinc
+          movf
+  TABLAT, 0, 0
+  movwf
+  POSTINC0, 0
 
-done_copying:
+  // decrement byte counter
+  decf
+  curr_byte, 1, 1
+  bc - 8 // copy_loop
+  decf
+  curr_byte + 1, 1, 1
+  bra - 7 // copy_one_byte
 
-      _endasm
-      /* restore the table pointer for the next entry */
-      TBLPTR = data_ptr;
-      /* next entry... */
-      curr_entry--;
-      goto test;
-done:
-;
+  done_copying:
+
+  _endasm
+  /* restore the table pointer for the next entry */
+          TBLPTR = data_ptr;
+  /* next entry... */
+  curr_entry--;
+  goto test;
+  done:;
 }
 
 
-\endcode
+\
 
-Note : This code is located at svn://pericles/EDC/simplemotor/c018i-userapp.c
 
-\section basic basic workflow of the SR06 ROS EtherCAT driver
+endcode
 
-\image html pr2_etherCAT.svg
+        Note :
+This code
+is located
+at svn://pericles/EDC/simplemotor/c018i-userapp.c
 
-The ros_etherCAT node has a controlLoop() which is an infinite loop that runs EthercatHardware::update()
+        \
 
-EthercatHardware::update() will do two things : 
+section basic
+basic workflow
+of the
+SR06 ROS
+EtherCAT driver
 
-- Loop over EtherCAT slaves and run their SR06::packCommand() function.
-- Loop again over EtherCAT slaves and run their SR06::unpackState() function.
+        \
 
-The loop frequency is 1 kHz.
+image html
+pr2_etherCAT.
+svg
 
-Basically, the node sends a command to each slave, and then receive the state of each slave, in a loop.
+        The
+ros_etherCAT node
+has a
 
-\section packcommand SR06::packCommand()
+controlLoop()
 
-This function is called once per millisecond by the controlLoop of ros_etherCAT node on each etherCAT slave.
-SR06::packCommand() is the function that fills the buffers to be sent via EtherCAT to the SR EDC EtherCAT hand.
-Several commands can be packed, the sr06 driver for example is sending two commands.
-See the SR06::packCommand() for more information about this function.
+which is
+an infinite
+loop that
 
-In this case the command_size_ attribute should be the sum of the size of the two commands.
+runs EthercatHardware::update()
 
-\section bootloadingprotocol Bootloading protocole
+EthercatHardware::update()
 
-The bootloading is done through CAN, so the bootloader (which is on the PIC18F simplemotor board) waits for CAN commands in order to execute them to erase flash, write flash and so on.
+will do
+two things :
 
-But the bootloading is asked and managed by ROS (using the ROS service call), ROS in theory does not send any CAN message, ROS only interacts with the PIC32 through the EtherCAT bus.
+-
+Loop over
+EtherCAT slaves
+and
+run their
 
-So in order to do the bootloading, ROS sets the first member of the first structure of the "command" EtherCAT Mailbox (which is named EDC_command) to be : EDC_COMMAND_CAN_TEST_MODE.
+SR06::packCommand()
 
-Doing this will put the PIC32 in "CAN_TEST_MODE".
+function.
+-
+Loop again
+over EtherCAT
+slaves andrun
 
-So that afterward ROS can put can messages in the second structure of the "command" EtherCAT Mailbox, the PIC32 will read these can messages and send them over the CAN bus. Moreover any CAN message received by the PIC32 will be forwarded back to ROS through the EtherCAT "status" Mailbox. So that the ROS flashing service can check for ACK from the PIC18F during the bootloading process.
+their SR06::unpackState()
 
-Eventually ROS is able to send CAN message, putting the PIC32 is "CAN_TEST_MODE" and then execute the bootloading sequence on a SimpleMotor PCB.
+function.
 
-The bootloading protocol is described in the following subsection.
+The loop
+frequency is
+1 kHz.
 
-\subsection SIDbitmapping CAN SID bit mapping
+Basically,
+the node
+sends a
+command to
+each slave, andthen
+receive the
+state of
+each slave, in
+a loop
+.
 
-A CAN SID is 11 bits-wide.
+\
 
-- The first two bits are for the direction of the message
-  - 10 : Incoming (for the PIC18F)
-  - 01 : Outgoing (for the PIC18F)
-  - 11 : bootloader protocol related CAN message (This is the one used for bootloading)
-  - 00 : reserved
+section packcommand
 
-- The following 4 bits are the motor_id (0 to 9)
+SR06::packCommand()
 
-- The following bit is an ACK bit
-  - 0 : Packet is a request
-  - 1 : Packet is an ACK
+This function
+is called
+once per
+millisecond by
+the controlLoop
+of ros_etherCAT
+node on
+each etherCAT
+slave.
 
-- The following 4 bits are
-  - The Request_Data_Type, if the direction bits are "10"
-  - The Command ID, if the direction bits are "11" (bootloader mode)
+SR06::packCommand()
 
-\subsection canbootloadercommands CAN bootloader commands
+is the
+function that
+fills the
+buffers to
+be sent
+via EtherCAT
+to the
+SR EDC
+EtherCAT hand
+.
+Several commands
+can be
+packed,
+the sr06
+driver for
+example is
+sending two
+commands.
+See the
+
+SR06::packCommand()
+
+for
+more information
+about this function.
+
+In this case
+the command_size_
+attribute should
+be the
+sum of
+the size
+of the
+two commands
+.
+
+\
+
+section bootloadingprotocol
+Bootloading protocole
+
+The bootloading
+is done
+through CAN, so
+
+the bootloader(which is on the PIC18F simplemotor board)
+
+waits for
+CAN commands
+in order
+to execute
+them to
+erase flash, write
+flash andso
+on.
+
+But the
+bootloading is
+asked andmanaged
+by ROS(
+using the
+ROS service
+call),
+ROS in
+theory does
+not
+send any
+CAN message, ROS
+only interacts
+with the
+PIC32 through
+the EtherCAT
+bus.
+
+So in
+order to
+do
+the bootloading, ROS
+sets the
+first member
+of the
+first structure
+of the
+"command"
+
+EtherCAT Mailbox(which is named EDC_command)
+
+to be :
+EDC_COMMAND_CAN_TEST_MODE.
+
+Doing this
+will put
+the PIC32
+in "CAN_TEST_MODE".
+
+So that
+afterward ROS
+can put
+can messages
+in the
+second structure
+of the
+"command"
+EtherCAT Mailbox, the
+PIC32 will
+read these
+can messages
+and
+send them
+over the
+CAN bus
+.
+Moreover any
+CAN message
+received by
+the PIC32
+will be
+forwarded back
+to ROS
+through the
+EtherCAT "status" Mailbox.
+So that
+the ROS
+flashing service
+can check
+for
+ACK from
+the PIC18F
+during the
+bootloading process
+.
+
+Eventually ROS
+is able
+to send
+CAN message, putting
+the PIC32
+is "CAN_TEST_MODE" and
+then execute
+the bootloading
+sequence on
+a SimpleMotor
+PCB.
+
+The bootloading
+protocol is
+described in
+the following
+subsection.
+
+\
+
+subsection SIDbitmapping
+CAN SID
+bit mapping
+
+A CAN
+SID is
+11 bits-wide.
+
+-
+The first
+two bits
+are for
+the direction
+of the
+message
+- 10 : Incoming (for
+the PIC18F
+)
+- 01 : Outgoing (for
+the PIC18F
+)
+- 11 :
+bootloader protocol
+related CAN
+message (This
+is the
+one used
+for bootloading)
+- 00 : reserved
+
+-
+The following
+4
+bits are
+the motor_id(0
+to 9)
+
+-
+The following
+bit is
+an ACK
+bit
+- 0 :
+Packet is
+a request
+- 1 :
+Packet is
+an ACK
+
+-
+The following
+4
+bits are
+-
+The Request_Data_Type,
+if
+the direction
+bits are
+"10"
+-
+The Command
+ID, if
+the direction
+bits are
+"11" (
+bootloader mode
+)
+
+\
+
+subsection canbootloadercommands
+CAN bootloader
+commands
 
 - "0000" (0x0) : WRITE_FLASH_DATA_COMMAND
 - "0001" (0x1) : READ_FLASH_COMMAND
@@ -419,20 +714,55 @@ A CAN SID is 11 bits-wide.
 - "0011" (0x3) : RESET_COMMAND
 - "0100" (0x4) : READ_VERSION_COMMAND
 - "0101" (0x5) : WRITE_FLASH_ADDRESS_COMMAND
-- "1010" (0xA) : MAGIC_PACKET
+- "1010" (0xA) :
+MAGIC_PACKET
 
-\subsection canbootloadercommandwriteflashdatacommand WRITE_FLASH_DATA_COMMAND
+\
+ subsection
+canbootloadercommandwriteflashdatacommand
+        WRITE_FLASH_DATA_COMMAND
 
-This command : 
+This
+        command :
 
-- Has a length of 8 bytes
-- Has a SID like this : 0x600 | (motor_id << 5) | 0
-- Contains 8 bytes of data to be written into program memory (flash memory)
-- Gets answered with the usual acknowledgement CAN message (same SID but with 0x10 bit on, same length, same data)
+-
+Has a
+length of
+8 bytes
+-
+Has a
+SID like
+this : 0x600 | (motor_id << 5) | 0
+- Contains 8
+bytes of
+data to
+be written
+into program
+memory (flash
+memory)
+-
+Gets answered
+with the
+usual acknowledgement
 
-It triggers this code in the PIC18F bootloader : 
+CAN message(same SID but with
 
-\code
+0x10
+bit on, same
+length,
+same data
+)
+
+It triggers
+this
+code in
+the PIC18F
+bootloader :
+
+        \
+
+        code
+
 /*  This function does the actual writting in program memory (which is flash)
  *  Writting the flash has to be done by 32 bytes blocks. But we can only transport
  *  8 bytes of data in a CAN message, so we do the block writting in 4 CAN commands.
@@ -443,84 +773,146 @@ It triggers this code in the PIC18F bootloader :
  */
 static void write_flash_data(void)
 {
-   int8 i;
-    
-    for (i = 0 ; i < 8 ; ++i) // Put 8 more bytes in the buffer
-    {   
-        TABLAT = CanMsgR.d.byte[i];
-        _asm
+  int8 i;
+
+  for (i = 0; i < 8; ++i) // Put 8 more bytes in the buffer
+  {
+    TABLAT = CanMsgR.d.byte[i];
+    _asm
             TBLWTPOSTINC
-        _endasm
-    }   
+    _endasm
+  }
 
-    position += 8; // We just buffered 8 more bytes
+  position += 8; // We just buffered 8 more bytes
 
-    if (position == 32) 
-    { // We have buffured a 32 bytes block, we can start the writting procedure
-        _asm
+  if (position == 32)
+  { // We have buffured a 32 bytes block, we can start the writting procedure
+    _asm
             TBLRDPOSTDEC
-        _endasm // We do a TBLRDPOSTDEC in order for the TBLPTR addressing register to stay in the range of the 32 bytes
-                // block we are writting, this is necessary because there has been one extra unneeded TBLWTPOSTINC during
-                // the previous loop. If we don't do that, the block will be written over the next block, so 32 bytes after
-                // the address provided by the previous WRITE_FLASH_ADDRESS command.
-        EECON1 |= ((1 << EEPGD) | (1 << WREN)); // point to Flash program memory & enable write to memory
-        EECON1 &= ~(1 << CFGS); // access Flash program memory
-        INTCON &= ~(1 << GIE); // disable interrupts
-        EECON2 = 0x55; //magic enable
-        EECON2 = 0xaa;
-        EECON1 |= (1 << WR); // starts the actual writting (CPU stall)
-        INTCON |= (1 << GIE); // re-enable interrupts
-        EECON1 &= ~(1 << WREN); // disable write to memory
-        position = 0; // reset the position to 0, we just finished a 32 bytes block
-    }   
-} 
-\endcode
+    _endasm // We do a TBLRDPOSTDEC in order for the TBLPTR addressing register to stay in the range of the 32 bytes
+    // block we are writting, this is necessary because there has been one extra unneeded TBLWTPOSTINC during
+    // the previous loop. If we don't do that, the block will be written over the next block, so 32 bytes after
+    // the address provided by the previous WRITE_FLASH_ADDRESS command.
+    EECON1 |= ((1 << EEPGD) | (1 << WREN)); // point to Flash program memory & enable write to memory
+    EECON1 &= ~(1 << CFGS); // access Flash program memory
+    INTCON &= ~(1 << GIE); // disable interrupts
+    EECON2 = 0x55; //magic enable
+    EECON2 = 0xaa;
+    EECON1 |= (1 << WR); // starts the actual writting (CPU stall)
+    INTCON |= (1 << GIE); // re-enable interrupts
+    EECON1 &= ~(1 << WREN); // disable write to memory
+    position = 0; // reset the position to 0, we just finished a 32 bytes block
+  }
+}
 
-\subsection canbootloadercommandreadflashcommand READ_FLASH_COMMAND
+\
+endcode
 
-This command : 
+\
+ subsection
+canbootloadercommandreadflashcommand
+        READ_FLASH_COMMAND
 
-- Has a length of 3 bytes (which are the address where to read)
-- Has a SID like this : 0x600 | (motod_id << 5) | 0x1
-- Gets answered with a CAN message of 8 bytes long, containing 8 bytes of data located at the address received with the command
+This
+        command :
 
-It triggers this code in the PIC18F bootloader : 
+-
+Has a
+length of
+3
+bytes (which
+are the
+address where
+to read
+)
+-
+Has a
+SID like
+this : 0x600 | (motod_id << 5) | 0x1
+-
+Gets answered
+with a
+CAN message
+of 8 bytes long, containing 8
+bytes of
+data located
+at the
+address received
+with the
+command
 
-\code
+        It
+triggers this
+code in
+the PIC18F
+bootloader :
+
+        \
+
+        code
+
 /*  This function reads the program memory (which is flash)
  *  It reads 8 bytes at the address present in the incoming CAN
  *  command and sends it back through CAN too.
  */
 static void read_flash(void)
 {
-    overlay int8 i = 0;
-    TBLPTRL = CanMsgR.d.byte[0];
-    TBLPTRH = CanMsgR.d.byte[1];
-    TBLPTRU = CanMsgR.d.byte[2];
-    while (i < 8)
-    {
-        _asm
+  overlay
+  int8 i = 0;
+  TBLPTRL = CanMsgR.d.byte[0];
+  TBLPTRH = CanMsgR.d.byte[1];
+  TBLPTRU = CanMsgR.d.byte[2];
+  while (i < 8)
+  {
+    _asm
             TBLRDPOSTINC
-        _endasm
-        CanMsgT.d.byte[i++] = TABLAT;
-    }
-    CanMsgT.messageID = CanMsgR.messageID | 0x10; // We set the "ACK" bit in the SID
-    CanMsgT.length = 8;
-    sendCanMsg(); // We send it
+    _endasm
+    CanMsgT.d.byte[i++] = TABLAT;
+  }
+  CanMsgT.messageID = CanMsgR.messageID | 0x10; // We set the "ACK" bit in the SID
+  CanMsgT.length = 8;
+  sendCanMsg(); // We send it
 }
 
-\endcode
+\
+endcode
 
-\subsection canbootloadercommanderaseflashcommand ERASE_FLASH_COMMAND
+\
+ subsection
+canbootloadercommanderaseflashcommand
+        ERASE_FLASH_COMMAND
 
-This command : 
+This
+        command :
 
-- Has a length of 0 byte.
-- Has a SID like this : 0x600 | (motod_id << 5) | 0x2
-- Gets answered with the usual acknowledgement CAN message (same SID but with 0x10 bit on, same length, same data)
+-
+Has a
+length of
+0 byte.
+-
+Has a
+SID like
+this : 0x600 | (motod_id << 5) | 0x2
+-
+Gets answered
+with the
+usual acknowledgement
+CAN message(same
+SID but
+with 0x10
+bit on, same
+length,
+same data
+)
 
-It triggers this code in the PIC18F bootloader : 
-\code
+It triggers
+this
+code in
+the PIC18F
+bootloader :
+        \
+
+        code
 
 /* This function erases the program memory (which is flash)
  *  It only erases the user application
@@ -528,59 +920,99 @@ It triggers this code in the PIC18F bootloader :
  */
 static void erase_flash(void)
 {
-    overlay int16 i = 0;
+  overlay
+  int16 i = 0;
 
-    i = 0x04c0; // user application start address
-    // 0x7dc0 is the start of debugger code
-    while (i < 0x7dc0) // and we don't wanna erase debugger code
+  i = 0x04c0; // user application start address
+  // 0x7dc0 is the start of debugger code
+  while (i < 0x7dc0) // and we don't wanna erase debugger code
+  {
+    TBLPTR = i;
+    TBLPTR &= 0xFFFFE0;
+
+    EECON1 |= 128;                                   // point to Flash program memory
+    EECON1 &= ~64;                                  // access Flash program memory
+    EECON1 |= 4;                                    // enable write to memory
+    EECON1 |= 16;                                   // enable Row Erase operation
+    INTCON &= ~128;                                 // disable interrupts
+    EECON2 = 0x55;
+    EECON2 = 0xaa;
+    EECON1 |= 2;                                    // start erase (CPU stall)
+
+    while (EECON1 & 2)
     {
-        TBLPTR  = i;
-        TBLPTR &= 0xFFFFE0;
+    }                           // Wait for stuff being written
 
-        EECON1 |=128;                                   // point to Flash program memory
-        EECON1 &= ~64;                                  // access Flash program memory
-        EECON1 |= 4;                                    // enable write to memory
-        EECON1 |= 16;                                   // enable Row Erase operation
-        INTCON &= ~128;                                 // disable interrupts
-        EECON2 = 0x55;
-        EECON2 = 0xaa;
-        EECON1 |= 2;                                    // start erase (CPU stall)
-
-        while (EECON1 & 2);                           // Wait for stuff being written
-
-        INTCON |= 128;
-        i += 64;
-    }  
+    INTCON |= 128;
+    i += 64;
+  }
 
 }
 
 
-\endcode
+\
+endcode
 
 
-\subsection canbootloadercommandresetcommand RESET_COMMAND
+\
+ subsection
+canbootloadercommandresetcommand
+        RESET_COMMAND
 
-This command : 
+This
+        command :
 
-- Has a length of 0 byte.
-- Has a SID like this : 0x600 | (motod_id << 5) | 0x3
-- Gets answered with the usual acknowledgement CAN message (same SID but with 0x10 bit on, same length, same data)
+-
+Has a
+length of
+0 byte.
+-
+Has a
+SID like
+this : 0x600 | (motod_id << 5) | 0x3
+-
+Gets answered
+with the
+usual acknowledgement
+CAN message(same
+SID but
+with 0x10
+bit on, same
+length,
+same data
+)
 
-It triggers this code in the PIC18F bootloader : 
+It triggers
+this
+code in
+the PIC18F
+bootloader :
 
-\code
+        \
+
+        code
 
 write_eeprom();
+
 acknowledge_packet();
+
 _asm
-  goto 0x0000 // This jumps to the Reset vector
+goto 0x0000 // This jumps to the Reset vector
 _endasm
 
-\endcode
+\
+ endcode
 
-With write_eeprom() being : 
+With
 
-\code
+        write_eeprom()
+
+being :
+
+        \
+
+        code
+
 /* This function writes to the EEPROM memory
  *  The only goal of this function is to write something different than 0xFF
  *  at the last memory location in EEPROM. This happens right after a flashing
@@ -591,334 +1023,1054 @@ With write_eeprom() being :
  */
 static void write_eeprom(void)
 {
-    EEADR = 0xff; // EEPROM address to write to 
-    EEDATA = 0x42; // Something != than 0xFF it's the data to be written
-    EECON1 &= ~( (1 << EEPGD) | (1 << CFGS) ); // we select EEPROM memory
-    EECON1 |= (1 << WREN); // enable write to memory
-    INTCON &= ~(1 << GIE); // disable interrupts
+  EEADR = 0xff; // EEPROM address to write to
+  EEDATA = 0x42; // Something != than 0xFF it's the data to be written
+  EECON1 &= ~((1 << EEPGD) | (1 << CFGS)); // we select EEPROM memory
+  EECON1 |= (1 << WREN); // enable write to memory
+  INTCON &= ~(1 << GIE); // disable interrupts
 
-    EECON2 = 0x55; // magic enable
-    EECON2 = 0xaa;
-    EECON1 |= (1 << WR); // do the write
+  EECON2 = 0x55; // magic enable
+  EECON2 = 0xaa;
+  EECON1 |= (1 << WR); // do the write
 
-    while (EECON1 & (1 << WR)); // wait for the write to finish
+  while (EECON1 & (1 << WR))
+  {
+  } // wait for the write to finish
 
-    INTCON |= (1 << GIE); // enable back interrupts
-    EECON1 &= ~(1 << WREN); // disable write to memory
+  INTCON |= (1 << GIE); // enable back interrupts
+  EECON1 &= ~(1 << WREN); // disable write to memory
 
 }
 
-\endcode
+\
+endcode
 
 
-\subsection canbootloadercommandreadversioncommand READ_VERSION_COMMAND
+\
+ subsection
+canbootloadercommandreadversioncommand
+        READ_VERSION_COMMAND
 
-This command : 
+This
+        command :
 
-- Has a length of 0 byte.
-- Has a SID like this : 0x600 | (motod_id << 5) | 0x4
-- Gets answered with a 4 bytes long CAN message, with the same SID (with the 0x10 ACK bit on), the data containing the major and minor version number of the bootloader. (for the moment it always returns 0x40414243)
+-
+Has a
+length of
+0 byte.
+-
+Has a
+SID like
+this : 0x600 | (motod_id << 5) | 0x4
+-
+Gets answered
+with a
+4
+bytes long CAN
+message,
+with the
 
-It triggers this code in the PIC18F bootloader : 
+same SID(with the
 
-\code
+0x10
+ACK bit
+on),
+the data
+containing the
+major andminor
+version number
+of the
+bootloader. (for
+the moment
+it always
+returns 0x40414243)
 
-CanMsgT.messageID = CanMsgR.messageID | 0x10;
+It triggers
+this
+code in
+the PIC18F
+bootloader :
+
+        \
+code
+
+CanMsgT
+.
+messageID = CanMsgR.messageID | 0x10;
 CanMsgT.d.byte[0] = 0x40;
 CanMsgT.d.byte[1] = 0x41;
 CanMsgT.d.byte[2] = 0x42;
 CanMsgT.d.byte[3] = 0x43;
-CanMsgT.length = 4;
+CanMsgT.
+length = 4;
+
 sendCanMsg();
 
-\endcode
+\
+endcode
 
-\subsection canbootloadercommandwriteflashaddresscommand WRITE_FLASH_ADDRESS_COMMAND
+\
+ subsection
+canbootloadercommandwriteflashaddresscommand
+        WRITE_FLASH_ADDRESS_COMMAND
 
-This command : 
+This
+        command :
 
-- Has a length of 3 bytes.
-- Contains as data the address where the next WRITE_FLASH_DATA_COMMAND calls will write data to.
-- Is followed by 4 calls to WRITE_FLASH_DATA_COMMAND because writes are by 32 bytes blocks.
-- Has a SID like this : 0x600 | (motod_id << 5) | 0x5
-- Gets answered with the usual acknowledgement CAN message (same SID but with 0x10 bit on, same length, same data)
+-
+Has a
+length of
+3 bytes.
+-
+Contains as
+data the
+address where
+the next
+WRITE_FLASH_DATA_COMMAND calls
+will write
+data to
+.
+-
+Is followed
+by 4
+calls to
+WRITE_FLASH_DATA_COMMAND because
+writes are
+by 32
+bytes blocks
+.
+-
+Has a
+SID like
+this : 0x600 | (motod_id << 5) | 0x5
+-
+Gets answered
+with the
+usual acknowledgement
+CAN message(same
+SID but
+with 0x10
+bit on, same
+length,
+same data
+)
 
-It triggers this code in the PIC18F bootloader : 
+It triggers
+this
+code in
+the PIC18F
+bootloader :
 
-\code
+        \
+
+        code
 
 /* This is setting up the flash addressing registers to some address received by a
  *  CAN command. This sets everything up for future writes.
  */
 static void write_flash_address(void)
 {
-    position = 0; // resets the position to 0, we are starting to write a 32 bytes block
-    TBLPTRU = CanMsgR.d.byte[2];
-    TBLPTRH = CanMsgR.d.byte[1];
-    TBLPTRL = CanMsgR.d.byte[0];
+  position = 0; // resets the position to 0, we are starting to write a 32 bytes block
+  TBLPTRU = CanMsgR.d.byte[2];
+  TBLPTRH = CanMsgR.d.byte[1];
+  TBLPTRL = CanMsgR.d.byte[0];
 }
 
-\endcode
+\
+endcode
 
-\subsection canbootloadercommandmagicpacket MAGIC_PACKET
+\
+ subsection
+canbootloadercommandmagicpacket
+        MAGIC_PACKET
 
-This command : 
+This
+        command :
 
-- Has a length of 8 bytes.
+-
+Has a
+length of
+8 bytes.
 - Contains 0x55AA55AA55AA55AA
-- Has a SID like this : 0x600 | (motor_id << 5) | 0xA
-- Gets answered with the usual acknowledgement CAN message (same SID but with 0x10 bit on, same length, same data)
-- It gets acknowledged at bootup of the PIC18F.
+-
+Has a
+SID like
+this : 0x600 | (motor_id << 5) | 0xA
+-
+Gets answered
+with the
+usual acknowledgement
+CAN message(same
+SID but
+with 0x10
+bit on, same
+length,
+same data
+)
+-
+It gets
+acknowledged at
+bootup of
+the PIC18F
+.
 
-It triggers this code in the PIC18F bootloader : 
+It triggers
+this
+code in
+the PIC18F
+bootloader :
 
-\code
+        \
+code
 
 _asm
-    goto 0x0000
+goto 0x0000
 _endasm
 
-\endcode
+\
+ endcode
 
-Note : if this packet is received by the SimpleMotor code (and *NOT* by the bootloader code), with the first two bits of the SID equal to "10" : Then before rebooting the PIC18F will erase the last byte of EEPROM, setting it to 0xFF. This is to force the bootloader to stay in bootloader mode upon reboot and not start directly the user application.
+Note :
+if this
+packet is
+received by
+the SimpleMotor
+code (and*NOT
+*
+by the
+bootloader code
+),
+with the
+first two
+bits of
+the SID
+equal to
+"10" :
+Then before
+rebooting the
+PIC18F will
+erase the
+last byte
+of EEPROM, setting
+it to
+0xFF.
+This is
+to force
+the bootloader
+to stay
+in bootloader
+mode upon
+reboot and not
+start directly
+the user
+application.
 
-\section roscommunicationprotocol How ROS interacts with the PIC32
+\
 
-\subsection roscommands ROS commands sent to the PIC32
+section roscommunicationprotocol
+How ROS
+interacts with
+the PIC32
 
-ROS sends commands through the EtherCAT protocol using one Mailbox and one FMMU (which are setup in SR06::construct()).
+        \
 
-The data are sent by the SR06::packCommand() function.
+subsection roscommands
+ROS commands
+sent to
+the PIC32
 
-The commands consist in 2 structures.
+ROS sends
+commands through
+the EtherCAT
+protocol using one
+Mailbox andone
+FMMU (which
+are setup
 
-The first one : 
+in SR06::construct()
 
-\code
+).
+
+The data
+are sent
+by the
+
+SR06::packCommand()
+
+function.
+
+The commands
+consist in
+2 structures.
+
+The first
+one :
+
+        \
+code
 
 typedef struct
 {
-    EDC_COMMAND         EDC_command;
-    int16s  motor_torque_demand[20];
+  EDC_COMMAND EDC_command;
+  int16s motor_torque_demand[20];
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_INCOMING;
 
 
-\endcode
+\
 
-the EDC_COMMAND type being : 
+endcode
 
-\code
+        the
+EDC_COMMAND type
+being :
+
+        \
+code
 
 typedef enum
 {
-    EDC_COMMAND_INVALID             = 0,
-    EDC_COMMAND_SENSOR_DATA,
-    EDC_COMMAND_SENSOR_CHANNEL_NUMBERS,
-    EDC_COMMAND_SENSOR_ADC_CHANNEL_CS,
-    EDC_COMMAND_TEST_RESULTS,
-    EDC_COMMAND_CAN_TEST_MODE
-}EDC_COMMAND;
+  EDC_COMMAND_INVALID = 0,
+  EDC_COMMAND_SENSOR_DATA,
+  EDC_COMMAND_SENSOR_CHANNEL_NUMBERS,
+  EDC_COMMAND_SENSOR_ADC_CHANNEL_CS,
+  EDC_COMMAND_TEST_RESULTS,
+  EDC_COMMAND_CAN_TEST_MODE
+} EDC_COMMAND;
 
-\endcode
+\
 
-This structure contains the torque demand that ROS sends to the PIC32 (which are afterward being forwarded through CAN by the PIC32 to the SimpleMotors).
-The first member of the structure describes the operating mode ROS wants the PIC32 to be in.
+endcode
 
-- 0 has been choosen to be an invalid command, since thanks to the SyncManager mechanism, reading a Mailbox that hasn't been written to yet, is read as all 0s.
+        This
+structure contains
+the torque
+demand that
+ROS sends
+to the
+PIC32 (which
+are afterward
+being forwarded
+through CAN
+by the
+PIC32 to
+the SimpleMotors
+).
+The first
+member of
+the structure
+describes the
+operating mode
+ROS wants
+the PIC32
+to be
+in.
 
-- The "normal" functionning mode is "EDC_COMMAND_SENSOR_DATA".
+- 0
+has been
+choosen to
+be an
+invalid command, since
+thanks to
+the SyncManager
+mechanism,
+reading a
+Mailbox that
+hasn't been written to yet, is read as all 0s.
 
-In this mode the PIC32 behaviour is the one described in the Palm_EDC_Specification.odt
+- The "normal"
+functionning mode
+is "EDC_COMMAND_SENSOR_DATA".
 
-Which means it sends the data request messages to the motors, reads ADC values (through SPI) sends torque demands to motors, sends back to ROS the Joints data and the motor data.
+In this
+mode the
+PIC32 behaviour
+is the
+one described
+in the
+Palm_EDC_Specification.
+odt
 
-- The "EDC_COMMAND_SENSOR_CHANNEL_NUMBERS" command is like the "EDC_COMMAND_SENSOR_DATA" one but instead of sending back the joints data, the PIC32 sends back the Channel and ADC number of the joint, this is for tests purposes.
+        Which
+means it
+sends the
+data request
+messages to
+the motors, reads
+ADC values(through
+SPI)
+sends torque
+demands to
+motors,
+sends back
+to ROS
+the Joints
+data andthe
+motor data
+.
 
-- The "EDC_COMMAND_CAN_TEST_MODE" makes the PIC32 go into "CAN_TEST_MODE", so that it does not follow anymore the specification in Palm_EDC_Specification.odt anymore.
-  - In this mode the PIC32 just acts as a CAN bridge between ROS and the CAN bus.
+- The "EDC_COMMAND_SENSOR_CHANNEL_NUMBERS"
+command is
+like the
+"EDC_COMMAND_SENSOR_DATA"
+one but
+instead of
+sending back
+the joints
+data,
+the PIC32
+sends back
+the Channel
+and
+ADC number
+of the
+joint, this is for
+tests purposes
+.
 
-The second structure in the command is : 
+- The "EDC_COMMAND_CAN_TEST_MODE"
+makes the
+PIC32 go
+into "CAN_TEST_MODE",
+so that
+it does
+not
+follow anymore
+the specification
+in Palm_EDC_Specification
+.
+odt anymore
+.
+- In this
+mode the
+PIC32 just
+acts as
+a CAN
+bridge between
+ROS andthe
+CAN bus
+.
 
-\code
+The second
+structure in
+the command
+is :
+
+        \
+code
 
 typedef struct
 {
-        int8u   can_bus;
-        int8u   message_length;
-        int16u  message_id;
-        int8u   message_data[8];
+  int8u can_bus;
+  int8u message_length;
+  int16u message_id;
+  int8u message_data[8];
 } __attribute__((packed)) ETHERCAT_CAN_BRIDGE_DATA;
 
-\endcode
+\
 
-This structure is filled with CAN messages to be sent by the PIC32 on the CAN bus. It is only usefull in CAN_TEST_MODE.
-The content of this structure will be ignored by the PIC32 if not in CAN_TEST_MODE.
+endcode
 
-\subsection rosstatus ROS status sent by the PIC32, received by ROS
-ROS receives data through the EtherCAT protocol using one Mailbox and one FMMU (which are setup in SR06::construct()).
+        This
+structure is
+filled with
+CAN messages
+to be
+sent by
+the PIC32
+on the
+CAN bus
+.
+It is
+only usefull
+in CAN_TEST_MODE
+.
+The content
+of this
+structure will
+be ignored
+by the
+PIC32 if not
+in CAN_TEST_MODE
+.
 
-The data are sent by the PIC32 and received by SR06::unpackState() function.
+\
 
-Those data are called "status" in ROS.
+subsection rosstatus
+ROS status
+sent by
+the PIC32, received
+by ROS
+ROS receives
+data through
+the EtherCAT
+protocol using one
+Mailbox andone
+FMMU (which
+are setup
 
-The status consist in 2 structures.
+in SR06::construct()
 
-The first one : 
+).
 
-\code
+The data
+are sent
+by the
+PIC32 andreceived
+
+by SR06::unpackState()
+
+function.
+
+Those data
+are called
+"status"
+in ROS
+.
+
+The status
+consist in
+2 structures.
+
+The first
+one :
+
+        \
+code
 
 typedef struct
 {
-    EDC_COMMAND         EDC_command;
-    int16s              FFJ1, FFJ2, FFJ3, FFJ4;
-    int16s              MFJ1, MFJ2, MFJ3, MFJ4;
-    int16s              RFJ1, RFJ2, RFJ3, RFJ4;
-    int16s              LFJ1, LFJ2, LFJ3, LFJ4;
-    int16s              LFJ5, THJ1, THJ2, THJ3;
-    int16s              THJ4, THJ5, WRJ1, WRJ2;
+  EDC_COMMAND EDC_command;
+  int16s FFJ1, FFJ2, FFJ3, FFJ4;
+  int16s MFJ1, MFJ2, MFJ3, MFJ4;
+  int16s RFJ1, RFJ2, RFJ3, RFJ4;
+  int16s LFJ1, LFJ2, LFJ3, LFJ4;
+  int16s LFJ5, THJ1, THJ2, THJ3;
+  int16s THJ4, THJ5, WRJ1, WRJ2;
 
-    int16s              ACCX, ACCY, ACCZ, GYRX;
-    int16s              GYRY, GYRZ, AN_0, AN_1;
+  int16s ACCX, ACCY, ACCZ, GYRX;
+  int16s GYRY, GYRZ, AN_0, AN_1;
 
-    int16s              AN_2, AN_3, nothing1, nothing2;
+  int16s AN_2, AN_3, nothing1, nothing2;
 
-    MOTOR_DATA_OUT      motor[20];
+  MOTOR_DATA_OUT motor[20];
 
-    TACTILE_SENSOR_OUT  tactile[5];
+  TACTILE_SENSOR_OUT tactile[5];
 }__attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_OUTGOING;
 
-\endcode
+\
 
-With EDC_COMMAND being  : 
+endcode
 
-\code
+        With
+EDC_COMMAND being  :
+
+        \
+
+code
 
 typedef enum
 {
-    EDC_COMMAND_INVALID             = 0,
-    EDC_COMMAND_SENSOR_DATA,
-    EDC_COMMAND_SENSOR_CHANNEL_NUMBERS,
-    EDC_COMMAND_SENSOR_ADC_CHANNEL_CS,
-    EDC_COMMAND_TEST_RESULTS,
-    EDC_COMMAND_CAN_TEST_MODE
-}EDC_COMMAND;
+  EDC_COMMAND_INVALID = 0,
+  EDC_COMMAND_SENSOR_DATA,
+  EDC_COMMAND_SENSOR_CHANNEL_NUMBERS,
+  EDC_COMMAND_SENSOR_ADC_CHANNEL_CS,
+  EDC_COMMAND_TEST_RESULTS,
+  EDC_COMMAND_CAN_TEST_MODE
+} EDC_COMMAND;
 
 \endcode
 
-- The EDC_command contains a copy of what was in the EDC_command of the command received by the PIC32.
-- The bunch of int16s is the Joint/Sensor data, that the PIC32 has read via SPI.
-- The MOTOR_DATA_OUT are the informations sent from motors via CAN (torque, current, temperature etc).
+-
+The EDC_command
+contains a
+copy of
+what was
+in the
+EDC_command of
+the command
+received by
+the PIC32
+.
+-
+The bunch
+of int16s
+is the
+Joint/
+Sensor data, that
+the PIC32
+has read
+via SPI
+.
+-
+The MOTOR_DATA_OUT
+are the
+informations sent
+from motors
+via CAN(torque, current, temperature
+etc).
 
-MOTOR_DATA_OUT structure is defined by : 
+MOTOR_DATA_OUT structure
+is defined
+by :
 
-\code
+        \
+code
 
 typedef struct
 {
-    int16s              torque;
-    int16u              SG_L;
-    int16u              SG_R;
-    int16s              temperature;
-    int16s              current;
-    int16u              flags;
-}MOTOR_DATA_OUT;
+  int16s torque;
+  int16u SG_L;
+  int16u SG_R;
+  int16s temperature;
+  int16s current;
+  int16u flags;
+} MOTOR_DATA_OUT;
 
-\endcode
+\
 
-The second status : 
+endcode
 
-- It is only used in CAN_TEST_MODE.
-- It contains any CAN message received by the PIC32.
-- It is usually used to get answers from the PIC18.
+        The
+second status :
 
-the structure is the same as the one in the command : 
+-
+It is
+only used
+in CAN_TEST_MODE
+.
+-
+It contains
+any CAN
+message received
+by the
+PIC32.
+-
+It is
+usually used
+to get
+answers from
+the PIC18
+.
 
-\code
+the structure
+is the
+same as
+the one
+in the
+command :
+
+        \
+code
 
 typedef struct
 {
-        int8u   can_bus;
-        int8u   message_length;
-        int16u  message_id;
-        int8u   message_data[8];
+  int8u can_bus;
+  int8u message_length;
+  int16u message_id;
+  int8u message_data[8];
 } __attribute__((packed)) ETHERCAT_CAN_BRIDGE_DATA;
 
+\
+endcode
+
+\
+ section
+todo
+        TODO
+&
+Improvements
+
+        What
+'s next to be done ?
+
+-
+Implement a
+service to
+send a
+crafted CAN
+message to
+the PIC18F
+SimpleMotor board
+
+For the
+moment there
+is the
+possibility to
+put the
+PIC32 in
+"CAN_TEST_MODE",
+so that
+it will
+act as
+a CAN
+bridge between
+ROS andthe
+PIC18.
+Which means
+the PIC32
+will read
+a structure
+in the
+"command"
+Mailbox (coming
+from ROS
+)
+containing a
+CAN message
+to be
+sent.
+It will
+send the
+CAN message
+over the
+CAN bus
+.
+And every
+CAN message
+received by
+the PIC32
+will be
+sent back
+to ROS
+through a
+structure in
+the "status"
+Mailbox (from
+the PIC32
+to ROS
+).
+
+This is
+implemented in
+the PIC32
+and
+has been
+tested (putting
+some test
+code in
+
+SR06::packCommand()
+
+and
+
+SR06::unpackState()
+
+which has
+been removed
+afterward) and works.
+
+But there
+is no
+code at
+the moment
+in the
+last revision
+of SR06
+ROS driver
+that gives
+a way
+to do
+that (telling
+the PIC32
+to send
+a crafted
+CAN message
+)
+
+What would
+be great
+to implement
+is a
+ROS service
+that would
+allow sending
+such a
+crafted CAN
+message.
+
+doing something
+like
+
+\
+ code
+
+rosservice
+        call
+"SendCanMessage"
+SID Length
+8-bytes-long-content-in-
+hex
+
+\
+ endcode
+
+So
+        that
+one
+        could
+do
+tests running
+the service
+manually (typing
+the above
+command in
+a shell
+) or
+doing automated
+test running
+a special
+test node
+that would
+call this
+service one
+or
+several times
+.
+
+-
+Implement a
+service to
+put the
+PIC32 in
+SENSOR_CHANNEL_NUMBERS mode
+
+For the
+moment there
+is the
+possibility to
+put the
+PIC32 in
+"SENSOR_CHANNEL_NUMBERS" mode,
+so that
+the PIC32
+won't put the sensor (joints) data inside the structure which is sent back to ROS through the "status" Mailbox, but instead it would put the ADC number and channel number.
+
+For example :
+
+        \
+
+code
+
+        ROS_INFO("LFJ5 : 0x%04X", tbuffer->LFJ5);
+
+\
+
+endcode
+
+        would
+print "LFJ5 : 0x0605" while
+in that
+"SENSOR_CHANNEL_NUMBERS" mode,
+because LFJ5
+'s data comes from Channel 06 of ADC 05.
+
+This is
+a "test" feature,
+it has
+been tested
+putting some
+code in
+
+SR06::packCommand()
+
+and
+
+SR06::unpackState()
+
+which has
+been removed
+afterward since
+it's not "normal functionning".
+
+So it
+would be
+great to
+implement a
+service to
+enter that
+mode andtest
+if
+the data
+received are
+correct.
+
+Doing something
+like
+
+\
+ code
+
+rosservice
+        call
+"TestADCChannelNumbers"
+
 \endcode
 
-\section todo TODO & Improvements
+-
+Propagating the
+new
+SID bit
+mapping to
+the remaining
+parts of
+the code, in
+particular the
+PIC32<->
+PIC18F(SimpleMotor)
+CAN protocol
+.
 
-What's next to be done ?
+The protocol
+described in
+svn
+        ://thoth/trunk/Projects/Palm_EDC_Development/Docs/Specification/Palm_EDC_Specification.odt for the communication between PIC32 and PIC18F is quite messy and has been re-thought differently, using more efficiently the SID and in a more "standardized" way.
 
-- Implement a service to send a crafted CAN message to the PIC18F SimpleMotor board
+        This
+new
+SID bit
+mapping is
+actually the
+one used
+by the
+PIC18F CAN
+bootloader, and
+which is
+described in
+the "CAN SID bit mapping"
+subsection of
+the "Bootloading protocole" section.
 
-For the moment there is the possibility to put the PIC32 in "CAN_TEST_MODE", so that it will act as a CAN bridge between ROS and the PIC18.
-Which means the PIC32 will read a structure in the "command" Mailbox (coming from ROS) containing a CAN message to be sent. It will send the CAN message over the CAN bus. And every CAN message received by the PIC32 will be sent back to ROS through a structure in the "status" Mailbox (from the PIC32 to ROS).
+It would
+be great
+to change
+the PIC32
+and
+SimpleMotor code
+to reflect
+this
+kind of
+new
+SID bit
+mapping.
+So that
+all the
+SIDs in
+all the
+CAN protocols
+used through
+the robot
+code would
+be homogeneous
+.
 
-This is implemented in the PIC32 and has been tested (putting some test code in SR06::packCommand() and SR06::unpackState() which has been removed afterward) and works.
+-#
+The two
+first bits
+can stay
+as "input"/"output" bits,
+the following
+4
+bits can
+stay as
+"motor_id" bits,
+the bit
+0x10
+can stay
+as an
+ACK bit
+if
+ACK is
+needed, and
+the last
+4
+bits can
+contain the
+"data requested" in case
+of a
+"request data message" (
+as explained
+in the
+Palm_EDC_Specification.odt).
+-#
+That would
+save using 2
+bytes in
+the can
+datas for the "which_data" field,
+just putting
+this
+in the
+last 4
+bits of
+the SID
+.
+-#
+If there
+is too
+much data
+types to
+ask,
+we could
+use the
+last 5
+bits of
+the SID(so
+one extra
+bit),
+since there
+is no
+ACK in
+this
+protocol anyway
+.
 
-But there is no code at the moment in the last revision of SR06 ROS driver that gives a way to do that (telling the PIC32 to send a crafted CAN message)
 
-What would be great to implement is a ROS service that would allow sending such a crafted CAN message.
-
-doing something like
-
-\code
-
-rosservice call "SendCanMessage" SID Length 8-bytes-long-content-in-hex
-
-\endcode
-
-So that one could do tests running the service manually (typing the above command in a shell) or doing automated test running a special test node that would call this service one or several times.
-
-- Implement a service to put the PIC32 in SENSOR_CHANNEL_NUMBERS mode
-
-For the moment there is the possibility to put the PIC32 in "SENSOR_CHANNEL_NUMBERS" mode, so that the PIC32 won't put the sensor (joints) data inside the structure which is sent back to ROS through the "status" Mailbox, but instead it would put the ADC number and channel number.
-
-For example : 
-
-\code
-
-ROS_INFO("LFJ5 : 0x%04X", tbuffer->LFJ5);
-
-\endcode
-
-would print "LFJ5 : 0x0605" while in that "SENSOR_CHANNEL_NUMBERS" mode, because LFJ5's data comes from Channel 06 of ADC 05.
-
-This is a "test" feature, it has been tested putting some code in SR06::packCommand() and SR06::unpackState() which has been removed afterward since it's not "normal functionning".
-
-So it would be great to implement a service to enter that mode and test if the data received are correct.
-
-Doing something like 
-
-\code
-
-rosservice call "TestADCChannelNumbers"
-
-\endcode
-
-- Propagating the new SID bit mapping to the remaining parts of the code, in particular the PIC32<->PIC18F(SimpleMotor) CAN protocol.
-
-The protocol described in svn://thoth/trunk/Projects/Palm_EDC_Development/Docs/Specification/Palm_EDC_Specification.odt for the communication between PIC32 and PIC18F is quite messy and has been re-thought differently, using more efficiently the SID and in a more "standardized" way.
-
-This new SID bit mapping is actually the one used by the PIC18F CAN bootloader, and which is described in the "CAN SID bit mapping" subsection of the "Bootloading protocole" section.
-
-It would be great to change the PIC32 and SimpleMotor code to reflect this kind of new SID bit mapping. So that all the SIDs in all the CAN protocols used through the robot code would be homogeneous.
-
-  -# The two first bits can stay as "input"/"output" bits, the following 4 bits can stay as "motor_id" bits, the bit 0x10 can stay as an ACK bit if ACK is needed, and the last 4 bits can contain the "data requested" in case of a "request data message" (as explained in the Palm_EDC_Specification.odt).
-  -# That would save using 2 bytes in the can datas for the "which_data" field, just putting this in the last 4 bits of the SID.
-  -# If there is too much data types to ask, we could use the last 5 bits of the SID (so one extra bit), since there is no ACK in this protocol anyway.
-
- 
 
 <!--
-Provide links to specific auto-generated API documentation within your
-package that is of particular interest to a reader. Doxygen will
-document pretty much every part of your code, so do your best here to
-point the reader to the actual API.
+Provide links
+to specific
+auto-
+generated API
+documentation within
+your
+        package
+that is
+of particular
+interest to
+a reader
+.
+Doxygen will
+document pretty
+much every
+part of
+your code, so
+do
+your best
+here to
+point the
+reader to
+the actual
+API.
 
-If your codebase is fairly large or has different sets of APIs, you
-should use the doxygen 'group' tag to keep these APIs together. For
-example, the roscpp documentation has 'libros' group.
+If your
+codebase is
+fairly large
+or
+has different
+sets of
+APIs,
+you
+        should
+use the
+doxygen 'group'
+tag to
+keep these
+APIs together
+.
+For
+        example, the
+roscpp documentation
+has 'libros' group.
 -->
 
 

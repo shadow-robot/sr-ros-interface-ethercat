@@ -30,11 +30,11 @@
 #include <sr_edc_ethercat_drivers/motor_trace_buffer.h>
 
 
-
-class SR0X : public EthercatDevice
+class SR0X :
+        public EthercatDevice
 {
 public:
-  virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
+  virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed = true);
 
 protected:
   uint8_t fw_major_;
@@ -55,7 +55,7 @@ protected:
 
   enum
   {
-    EC_PRODUCT_ID_BRIDGE    = 0,
+    EC_PRODUCT_ID_BRIDGE = 0,
     EC_PRODUCT_ID_SHADOWCAN = 2,
     EC_PRODUCT_ID_DUALMOTOR = 3,
   };
