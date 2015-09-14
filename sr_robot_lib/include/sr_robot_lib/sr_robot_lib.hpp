@@ -334,7 +334,6 @@ namespace shadow_robot
 
     /// The map used to calibrate each joint.
     shadow_joints::CalibrationMap calibration_map;
-
   };  // end class
 }  // namespace shadow_robot
 
