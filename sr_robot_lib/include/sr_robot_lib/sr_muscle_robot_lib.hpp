@@ -226,7 +226,7 @@ namespace shadow_robot
     ///A mutual exclusion object to ensure that the initialization timeout event does work without threading issues
     boost::shared_ptr<boost::mutex> lock_init_timeout_;
   }; //end class
-}//end namespace
+} //end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

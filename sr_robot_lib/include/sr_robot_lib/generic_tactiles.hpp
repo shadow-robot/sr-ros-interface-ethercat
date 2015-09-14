@@ -132,8 +132,8 @@ namespace tactiles
     std::string sanitise_string(const char *raw_string, const unsigned int str_size);
 
     boost::shared_ptr<std::vector<AllTactileData> > all_tactile_data;
-  };//end class
-}//end namespace
+  }; //end class
+} //end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

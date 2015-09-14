@@ -504,7 +504,7 @@ namespace shadow_robot
 
   template
   class SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
-}// end namespace
+} // end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

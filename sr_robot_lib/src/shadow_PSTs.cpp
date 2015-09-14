@@ -197,7 +197,7 @@ namespace tactiles
       tactile_publisher->unlockAndPublish();
     }
 
-  }//end publish
+  } //end publish
 
   template<class StatusType, class CommandType>
   void ShadowPSTs<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,

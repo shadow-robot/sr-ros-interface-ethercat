@@ -256,7 +256,7 @@ namespace shadow_robot
 // Only to ensure that the template class is compiled for the types we are interested in
   template
   class SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-}// end namespace
+} // end namespace
 
 /* For the emacs weenies in the crowd.
 Local Variables:

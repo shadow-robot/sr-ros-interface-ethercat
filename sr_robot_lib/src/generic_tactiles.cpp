@@ -179,7 +179,7 @@ namespace tactiles
   void GenericTactiles<StatusType, CommandType>::publish()
   {
     //We don't publish anything during the initialization phase
-  }//end publish
+  } //end publish
 
   template<class StatusType, class CommandType>
   void GenericTactiles<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,

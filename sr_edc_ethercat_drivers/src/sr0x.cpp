@@ -43,7 +43,7 @@ int SR0X::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
             'A' + board_major_, board_minor_,
             sh_->get_serial());
 
-  device_offset_ = sh_->get_ring_position();// - hand_->getBridgeRingPosition();
+  device_offset_ = sh_->get_ring_position(); // - hand_->getBridgeRingPosition();
 
   return 0;
 }
