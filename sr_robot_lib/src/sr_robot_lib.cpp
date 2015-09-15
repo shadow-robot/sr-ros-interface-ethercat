@@ -70,11 +70,11 @@ using boost::ptr_vector;
 namespace shadow_robot
 {
 #ifdef DEBUG_PUBLISHER
-   // max of 20 publishers for debug
-   template <class StatusType, class CommandType>
-   const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
-   // template <class StatusType, class CommandType>
-   // const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
+  // max of 20 publishers for debug
+  template<class StatusType, class CommandType>
+  const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
+  // template <class StatusType, class CommandType>
+  // const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
 #endif
 
   template<class StatusType, class CommandType>

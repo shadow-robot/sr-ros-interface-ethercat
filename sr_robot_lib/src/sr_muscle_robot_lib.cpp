@@ -454,7 +454,7 @@ namespace shadow_robot
           d.clear();
           d.addf("Muscle Driver ID", "%d", muscle_driver->muscle_driver_id);
         }
-        else // the data is good
+        else  // the data is good
         {
           d.summary(d.OK, "OK");
 
@@ -601,12 +601,14 @@ namespace shadow_robot
             actuator->muscle_state_.pressure_[i] = static_cast<int16u> (bar);
           }
           // Raw values
-          // actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0],
-          //                                                                         muscle_wrapper->muscle_id[0],
-          //                                                                         status_data));
-          // actuator->state_.pressure_[1] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[1],
-          //                                                                         muscle_wrapper->muscle_id[1],
-          //                                                                         status_data));
+          // actuator->state_.pressure_[0] = static_cast<int16u>(
+          //         get_muscle_pressure(muscle_wrapper->muscle_driver_id[0],
+          //                             muscle_wrapper->muscle_id[0],
+          //                             status_data));
+          // actuator->state_.pressure_[1] = static_cast<int16u>(
+          //         get_muscle_pressure(muscle_wrapper->muscle_driver_id[1],
+          //                             muscle_wrapper->muscle_id[1],
+          //                             status_data));
           // ROS_WARN("DriverID: %u MuscleID: %u Pressure 0: %u", muscle_wrapper->muscle_driver_id[0],
           //          muscle_wrapper->muscle_id[0], actuator->state_.pressure_[0]);
           // ROS_WARN("DriverID: %u MuscleID: %u Pressure 1: %u", muscle_wrapper->muscle_driver_id[1],
@@ -880,7 +882,7 @@ namespace shadow_robot
       actuator->muscle_state_.position_unfiltered_ = calibrated_position;
       ROS_DEBUG_STREAM("          => " << actuator->muscle_state_.position_unfiltered_);
     }
-  } // end calibrate_joint()
+  }  // end calibrate_joint()
 
   template<class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp,

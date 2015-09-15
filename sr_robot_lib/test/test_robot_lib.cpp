@@ -81,7 +81,6 @@ public:
 
     hardware_interface::HardwareInterface *ehw = static_cast<hardware_interface::HardwareInterface *>(hw);
     sr_hand_lib.reset(new HandLibTestProtected(ehw, nh));
-
   }
 
   ~HandLibTest()

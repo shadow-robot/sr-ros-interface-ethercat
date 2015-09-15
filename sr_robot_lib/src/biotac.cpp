@@ -287,7 +287,6 @@ namespace tactiles
       tactile_publisher->msg_ = tactiles;
       tactile_publisher->unlockAndPublish();
     }
-
   }  // end publish
 
   template<class StatusType, class CommandType>

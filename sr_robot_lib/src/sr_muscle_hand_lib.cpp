@@ -76,8 +76,9 @@ namespace shadow_robot
                                                             string device_id, string joint_prefix) :
           SrMuscleRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
 #ifdef DEBUG_PUBLISHER
-   // advertise the debug service, used to set which data we want to publish on the debug topics
-   , debug_service(nh_tilde.advertiseService("set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this))
+          // advertise the debug service, used to set which data we want to publish on the debug topics
+          , debug_service(
+          nh_tilde.advertiseService("set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this))
 #endif
   {
     // read the muscle polling frequency from the parameter server
@@ -177,7 +178,7 @@ namespace shadow_robot
       }
 
       this->joints_vector.push_back(joint);
-    } // end for joints.
+    }  // end for joints.
   }
 
   template<class StatusType, class CommandType>
