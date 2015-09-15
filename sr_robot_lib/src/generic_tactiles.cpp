@@ -28,8 +28,11 @@
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
 #include <cctype>
+#include <string>
+#include <vector>
 
-// NOTE: The length used in this generic tactile class (that is used to obtain common information to determine the actual type of tactile sensors)
+// NOTE: The length used in this generic tactile class (that is used to obtain common information to determine
+// the actual type of tactile sensors)
 // should be the the minimum length of all the existing types of tactile sensors
 // (this is used only to sanitise_string for certain data types)
 #define TACTILE_DATA_LENGTH_BYTES TACTILE_DATA_LENGTH_BYTES_v1
@@ -40,9 +43,10 @@ namespace tactiles
   const unsigned int GenericTactiles<StatusType, CommandType>::nb_tactiles = 5;
 
   template<class StatusType, class CommandType>
-  GenericTactiles<StatusType, CommandType>::GenericTactiles(ros::NodeHandle nh, std::string device_id,
-                                                            std::vector<generic_updater::UpdateConfig> update_configs_vector,
-                                                            operation_mode::device_update_state::DeviceUpdateState update_state)
+  GenericTactiles<StatusType,
+          CommandType>::GenericTactiles(ros::NodeHandle nh, std::string device_id,
+                                        std::vector<generic_updater::UpdateConfig> update_configs_vector,
+                                        operation_mode::device_update_state::DeviceUpdateState update_state)
           : nodehandle_(nh),
             device_id_(device_id)
   {
@@ -69,7 +73,7 @@ namespace tactiles
   void GenericTactiles<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-    // TODO: use memcopy instead?
+    // @todo use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
     {
       ROS_DEBUG_STREAM(" received: " << static_cast<int32u>(status_data->tactile_data_type));
@@ -82,11 +86,10 @@ namespace tactiles
           {
             if (tactiles_vector != NULL)
             {
-              tactiles_vector->at(
-                      id_sensor).which_sensor = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+              tactiles_vector->at(id_sensor).which_sensor =
+                      static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
             }
             ROS_DEBUG_STREAM(" tact[" << id_sensor << "] = " << tactiles_vector->at(id_sensor).which_sensor);
-
           }
           break;
 
@@ -95,8 +98,8 @@ namespace tactiles
           {
             if (tactiles_vector != NULL)
             {
-              tactiles_vector->at(
-                      id_sensor).sample_frequency = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+              tactiles_vector->at(id_sensor).sample_frequency =
+                      static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
             }
           }
           break;
@@ -144,9 +147,8 @@ namespace tactiles
 
         default:
           break;
-
-      } // end switch
-    } // end for tactile
+      }  // end switch
+    }  // end for tactile
 
     if (sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
     {
@@ -179,7 +181,7 @@ namespace tactiles
   void GenericTactiles<StatusType, CommandType>::publish()
   {
     // We don't publish anything during the initialization phase
-  } // end publish
+  }  // end publish
 
   template<class StatusType, class CommandType>
   void GenericTactiles<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
@@ -212,12 +214,12 @@ namespace tactiles
     std::string sanitised_string = "";
     for (unsigned int i = 0; i < str_size; ++i)
     {
-      char tmp = static_cast<char>( raw_string[i] );
+      char tmp = static_cast<char>(raw_string[i]);
       if (tmp != 0)
       {
         if (tmp >= '\x20' && tmp <= '\x7E')
         {
-          sanitised_string += static_cast<char>( raw_string[i] );
+          sanitised_string += static_cast<char>(raw_string[i]);
         }
         else
         {
@@ -247,7 +249,7 @@ namespace tactiles
 
   template
   class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-}
+}  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
    Local Variables:

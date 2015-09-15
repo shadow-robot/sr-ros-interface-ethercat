@@ -25,6 +25,7 @@
  */
 
 #include "sr_robot_lib/motor_data_checker.hpp"
+#include <vector>
 
 namespace generic_updater
 {
@@ -68,8 +69,8 @@ namespace generic_updater
       {
         if (joint->has_actuator)
         {
-          boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(
-                  joint->actuator_wrapper);
+          boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper =
+                  boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint->actuator_wrapper);
           if (msg_it->what_to_update == MOTOR_DATA_SLOW_MISC)
           {
             tmp_msg_checker.msg_from_motor_checkers.push_back(new SlowMessageFromMotorChecker(motor_wrapper->motor_id));
@@ -93,15 +94,16 @@ namespace generic_updater
     if (index_motor_data_type != (-1))
     {
       int index_motor_id = 0;
-      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(
-              joint_tmp->actuator_wrapper);
+      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper =
+              boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
       index_motor_id = msg_checkers_.at(index_motor_data_type).find(motor_wrapper->motor_id);
       if (index_motor_id != (-1))
       {
         if (motor_data_type == MOTOR_DATA_SLOW_MISC)
         {
-          SlowMessageFromMotorChecker *ptr_tmp_checker = dynamic_cast<SlowMessageFromMotorChecker *>( msg_checkers_.at(
-                  index_motor_data_type).msg_from_motor_checkers.at(index_motor_id));
+          SlowMessageFromMotorChecker *ptr_tmp_checker =
+                  dynamic_cast<SlowMessageFromMotorChecker *>(
+                          msg_checkers_.at(index_motor_data_type).msg_from_motor_checkers.at(index_motor_id));
 
           if (ptr_tmp_checker != NULL)
           {
@@ -228,8 +230,7 @@ namespace generic_updater
   {
     return received_;
   }
-
-}
+}  // namespace generic_updater
 
 /* For the emacs weenies in the crowd.
  Local Variables:

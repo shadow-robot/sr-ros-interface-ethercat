@@ -27,6 +27,8 @@
 
 #include "sr_robot_lib/shadow_PSTs.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
+#include <string>
+#include <vector>
 
 #define TACTILE_DATA_LENGTH_BYTES TACTILE_DATA_LENGTH_BYTES_v1
 
@@ -42,10 +44,11 @@ namespace tactiles
   }
 
   template<class StatusType, class CommandType>
-  ShadowPSTs<StatusType, CommandType>::ShadowPSTs(ros::NodeHandle nh, std::string device_id,
-                                                  std::vector<generic_updater::UpdateConfig> update_configs_vector,
-                                                  operation_mode::device_update_state::DeviceUpdateState update_state,
-                                                  boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
+  ShadowPSTs<StatusType,
+          CommandType>::ShadowPSTs(ros::NodeHandle nh, std::string device_id,
+                                   std::vector<generic_updater::UpdateConfig> update_configs_vector,
+                                   operation_mode::device_update_state::DeviceUpdateState update_state,
+                                   boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
           : GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
   {
     init(update_configs_vector, update_state);
@@ -75,7 +78,7 @@ namespace tactiles
   void ShadowPSTs<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-    // TODO: use memcopy instead?
+    // @todo use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
       switch (static_cast<int32u>(status_data->tactile_data_type))
@@ -84,32 +87,32 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(
-                    id_sensor).pressure = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
-            tactiles_vector->at(
-                    id_sensor).temperature = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]));
-            tactiles_vector->at(
-                    id_sensor).debug_1 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]));
-            tactiles_vector->at(
-                    id_sensor).debug_2 = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[3]));
+            tactiles_vector->at(id_sensor).pressure =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+            tactiles_vector->at(id_sensor).temperature =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]));
+            tactiles_vector->at(id_sensor).debug_1 =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]));
+            tactiles_vector->at(id_sensor).debug_2 =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[3]));
           }
           break;
 
         case TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(
-                    id_sensor).pressure_raw = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
-            tactiles_vector->at(
-                    id_sensor).zero_tracking = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]));
+            tactiles_vector->at(id_sensor).pressure_raw =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+            tactiles_vector->at(id_sensor).zero_tracking =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]));
           }
           break;
 
         case TACTILE_SENSOR_TYPE_PST3_DAC_VALUE:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(
-                    id_sensor).dac_value = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+            tactiles_vector->at(id_sensor).dac_value =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
           }
           break;
 
@@ -117,8 +120,8 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(
-                    id_sensor).sample_frequency = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+            tactiles_vector->at(id_sensor).sample_frequency =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
           }
           break;
 
@@ -159,9 +162,8 @@ namespace tactiles
 
         default:
           break;
-
-      } // end switch
-    } // end for tactile
+      }  // end switch
+    }  // end for tactile
 
     if (this->sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
     {
@@ -192,12 +194,10 @@ namespace tactiles
         tactiles.temperature.push_back(tactiles_vector->at(id_tact).temperature);
       }
 
-
       tactile_publisher->msg_ = tactiles;
       tactile_publisher->unlockAndPublish();
     }
-
-  } // end publish
+  }  // end publish
 
   template<class StatusType, class CommandType>
   void ShadowPSTs<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
@@ -248,7 +248,7 @@ namespace tactiles
 
   template
   class ShadowPSTs<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-}
+}  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
    Local Variables:

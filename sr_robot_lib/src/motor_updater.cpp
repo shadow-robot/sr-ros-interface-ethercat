@@ -29,6 +29,7 @@
 #include "sr_robot_lib/motor_updater.hpp"
 #include <boost/foreach.hpp>
 #include <iostream>
+#include <vector>
 
 namespace generic_updater
 {
@@ -70,7 +71,9 @@ namespace generic_updater
       command->which_motors = even_motors;
 
       // initialization data
-      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(this->initialization_configs_vector[this->which_data_to_request].what_to_update);
+      command->from_motor_data_type =
+              static_cast<FROM_MOTOR_DATA_TYPE>(
+                      this->initialization_configs_vector[this->which_data_to_request].what_to_update);
       ROS_DEBUG_STREAM("Updating initialization data type: " << command->from_motor_data_type << " | [" <<
                        this->which_data_to_request << "/" << this->initialization_configs_vector.size() << "] ");
     }
@@ -80,7 +83,8 @@ namespace generic_updater
       // we use the first important message and ask it to the even motors (0)
       // This is to avoid sending a random command
       command->which_motors = 0;
-      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(this->important_update_configs_vector[0].what_to_update);
+      command->from_motor_data_type =
+              static_cast<FROM_MOTOR_DATA_TYPE>(this->important_update_configs_vector[0].what_to_update);
       ROS_DEBUG_STREAM("Updating important data type: " << command->from_motor_data_type << " | [" <<
                        this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
     }
@@ -129,7 +133,9 @@ namespace generic_updater
     else
     {
       // important data to update as often as possible
-      command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(this->important_update_configs_vector[this->which_data_to_request].what_to_update);
+      command->from_motor_data_type =
+              static_cast<FROM_MOTOR_DATA_TYPE>(
+                      this->important_update_configs_vector[this->which_data_to_request].what_to_update);
       ROS_DEBUG_STREAM("Updating important data type: " << command->from_motor_data_type << " | [" <<
                        this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
     }
@@ -145,7 +151,7 @@ namespace generic_updater
 
   template
   class MotorUpdater<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
-}
+}  // namespace generic_updater
 
 
 

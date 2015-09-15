@@ -27,6 +27,8 @@
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <string>
+#include <vector>
+#include <utility>
 #include <boost/foreach.hpp>
 
 #include <sys/time.h>
@@ -39,10 +41,17 @@
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0200_edc_error_flag_names
 
-using namespace std;
-using namespace sr_actuator;
-using namespace shadow_joints;
-using namespace generic_updater;
+using std::vector;
+using std::string;
+using std::pair;
+using std::ostringstream;
+using sr_actuator::SrMotorActuator;
+using shadow_joints::Joint;
+using shadow_joints::JointToSensor;
+using shadow_joints::MotorWrapper;
+using shadow_joints::PartialJointToSensor;
+using generic_updater::MotorUpdater;
+using generic_updater::MotorDataChecker;
 using boost::shared_ptr;
 using boost::static_pointer_cast;
 
@@ -60,9 +69,10 @@ namespace shadow_robot
             change_control_type_(this->nh_tilde.advertiseService("change_control_type",
                                                                  &SrMotorRobotLib::change_control_type_callback_,
                                                                  this)),
-            motor_system_control_server_(this->nh_tilde.advertiseService("change_motor_system_controls",
-                                                                         &SrMotorRobotLib::motor_system_controls_callback_,
-                                                                         this)),
+            motor_system_control_server_(
+                    this->nh_tilde.advertiseService("change_motor_system_controls",
+                                                    &SrMotorRobotLib::motor_system_controls_callback_,
+                                                    this)),
             lock_command_sending_(new boost::mutex())
   {
     // reading the parameters to check for a specified default control type
@@ -89,7 +99,6 @@ namespace shadow_robot
       this->debug_publishers.push_back(this->node_handle.template advertise<std_msgs::Int16>(ss.str().c_str(), 100));
     }
 #endif
-
   }
 
   template<class StatusType, class CommandType>
@@ -109,7 +118,7 @@ namespace shadow_robot
       ROS_WARN("SrMotorRobotLib: Failed to get system time, timestamp in state will be zero");
     else
     {
-      timestamp = double(tv.tv_sec) + double(tv.tv_usec) / 1.0e+6;
+      timestamp = static_cast<double>(tv.tv_sec) + static_cast<double>(tv.tv_usec) / 1.0e+6;
     }
 
     // First we read the joints information
@@ -178,16 +187,17 @@ namespace shadow_robot
       {
         read_additional_data(joint_tmp, status_data);
       }
-    } // end for joint
+    }  // end for joint
 
     // then we read the tactile sensors information
     this->update_tactile_info(status_data);
-  } // end update()
+  }  // end update()
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType *command)
   {
-    // Mutual exclusion with the change_control_type service. We have to wait until the control_type_ variable has been set.
+    // Mutual exclusion with the change_control_type service.
+    // We have to wait until the control_type_ variable has been set.
     boost::mutex::scoped_lock l(*lock_command_sending_);
 
     if (control_type_changed_flag_)
@@ -262,10 +272,11 @@ namespace shadow_robot
           command->motor_data[motor_wrapper->motor_id] = 0;
         }
 
-        joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
+        joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ =
+                joint_tmp->actuator_wrapper->actuator->command_.effort_;
 
 #ifdef DEBUG_PUBLISHER
-        // publish the debug values for the given motors.
+         // publish the debug values for the given motors.
          // NB: debug_motor_indexes_and_data is smaller
          //     than debug_publishers.
          int publisher_index = 0;
@@ -278,10 +289,10 @@ namespace shadow_robot
              if (debug_pair != NULL)
              {
                MotorWrapper* actuator_wrapper = static_cast<MotorWrapper*> (joint_tmp->actuator_wrapper.get());
-              // check if we want to publish some data for the current motor
+               // check if we want to publish some data for the current motor
                if (debug_pair->first == actuator_wrapper->motor_id)
                {
-                // check if it's the correct data
+                 // check if it's the correct data
                  if (debug_pair->second == -1)
                  {
                    this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
@@ -293,10 +304,10 @@ namespace shadow_robot
            }
 
            this->debug_mutex.unlock();
-         } // end try_lock
+         }  // end try_lock
 #endif
       }  // end for each joint
-    } // end if reconfig_queue.empty()
+    }  // end if reconfig_queue.empty()
     else
     {
       if (!motor_system_control_flags_.empty())
@@ -313,7 +324,7 @@ namespace shadow_robot
              it != system_controls_to_send.end();
              ++it)
         {
-          short combined_flags = 0;
+          int16_t combined_flags = 0;
           if (it->enable_backlash_compensation)
           {
             combined_flags |= MOTOR_SYSTEM_CONTROL_BACKLASH_COMPENSATION_ENABLE;
@@ -353,13 +364,13 @@ namespace shadow_robot
 
           command->motor_data[it->motor_id] = combined_flags;
         }
-      } // end if motor_system_control_flags_.empty
+      }  // end if motor_system_control_flags_.empty
       else
       {
         if (!reset_motors_queue.empty())
         {
           // reset the CAN messages counters for the motor we're going to reset.
-          short motor_id = reset_motors_queue.front();
+          int16_t motor_id = reset_motors_queue.front();
 
           for (vector<Joint>::iterator joint_tmp = this->joints_vector.begin();
                joint_tmp != this->joints_vector.end();
@@ -452,10 +463,10 @@ namespace shadow_robot
             {
               ++config_index;
             }
-          } // end if reconfig queue not empty
+          }  // end if reconfig queue not empty
         }  // end else reset_queue.empty
       }  // end else motor_system_control_flags_.empty
-    } // end else reconfig_queue.empty() && reset_queue.empty()
+    }  // end else reconfig_queue.empty() && reset_queue.empty()
   }
 
   template<class StatusType, class CommandType>
@@ -485,7 +496,7 @@ namespace shadow_robot
             d.clear();
             d.addf("Motor ID", "%d", actuator_wrapper->motor_id);
           }
-          else // the data is good
+          else  // the data is good
           {
             d.summary(d.OK, "OK");
 
@@ -596,9 +607,7 @@ namespace shadow_robot
         d.clear();
       }
       vec.push_back(d);
-
-    } // end for each joints
-
+    }  // end for each joints
   }
 
   template<class StatusType, class CommandType>
@@ -631,27 +640,26 @@ namespace shadow_robot
 
 #ifdef DEBUG_PUBLISHER
       int publisher_index = 0;
-     // publish the debug values for the given motors.
+      // publish the debug values for the given motors.
       // NB: debug_motor_indexes_and_data is smaller
       //     than debug_publishers.
       shared_ptr<pair<int, int> > debug_pair;
 
       if (this->debug_mutex.try_lock())
       {
-
         BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
         {
           if (debug_pair != NULL)
           {
             MotorWrapper* actuator_wrapper = static_cast<MotorWrapper*> (joint_tmp->actuator_wrapper.get());
 
-           // check if we want to publish some data for the current motor
+            // check if we want to publish some data for the current motor
             if (debug_pair->first == actuator_wrapper->motor_id)
             {
-             // if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
+              // if < 0, then we're not asking for a FROM_MOTOR_DATA_TYPE
               if (debug_pair->second > 0)
               {
-               // check if it's the correct data
+                // check if it's the correct data
                 if (debug_pair->second == status_data->motor_data_type)
                 {
                   this->msg_debug.data = status_data->motor_data_packet[index_motor_in_msg].misc;
@@ -664,7 +672,7 @@ namespace shadow_robot
         }
 
         this->debug_mutex.unlock();
-      } // end try_lock
+      }  // end try_lock
 #endif
 
       // we received the data and it was correct
@@ -773,31 +781,38 @@ namespace shadow_robot
           {
             case MOTOR_SLOW_DATA_SVN_REVISION:
               actuator->motor_state_.pic_firmware_svn_revision_ =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_SVN_SERVER_REVISION:
               actuator->motor_state_.server_firmware_svn_revision_ =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_SVN_MODIFIED:
               actuator->motor_state_.firmware_modified_ =
-                      static_cast<bool> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<bool> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW:
               actuator->motor_state_.set_serial_number_low(
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)));
               break;
             case MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH:
               actuator->motor_state_.set_serial_number_high(
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc)));
               break;
             case MOTOR_SLOW_DATA_GEAR_RATIO:
               actuator->motor_state_.motor_gear_ratio =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_ASSEMBLY_DATE_YYYY:
               actuator->motor_state_.assembly_data_year =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_ASSEMBLY_DATE_MMDD:
               actuator->motor_state_.assembly_data_month =
@@ -811,23 +826,28 @@ namespace shadow_robot
               break;
             case MOTOR_SLOW_DATA_CONTROLLER_F:
               actuator->motor_state_.force_control_f_ =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_CONTROLLER_P:
               actuator->motor_state_.force_control_p_ =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_CONTROLLER_I:
               actuator->motor_state_.force_control_i_ =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_CONTROLLER_D:
               actuator->motor_state_.force_control_d_ =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_CONTROLLER_IMAX:
               actuator->motor_state_.force_control_imax_ =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
             case MOTOR_SLOW_DATA_CONTROLLER_DEADSIGN:
               tmp_value.word = status_data->motor_data_packet[index_motor_in_msg].misc;
@@ -836,7 +856,8 @@ namespace shadow_robot
               break;
             case MOTOR_SLOW_DATA_CONTROLLER_FREQUENCY:
               actuator->motor_state_.force_control_frequency_ =
-                      static_cast<unsigned int> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
+                      static_cast<unsigned int> (
+                              static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
 
             default:
@@ -960,7 +981,7 @@ namespace shadow_robot
       actuator->motor_state_.position_unfiltered_ = calibrated_position;
       ROS_DEBUG_STREAM("          => " << actuator->motor_state_.position_unfiltered_);
     }
-  } // end calibrate_joint()
+  }  // end calibrate_joint()
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp,
@@ -1136,7 +1157,8 @@ namespace shadow_robot
 
     if (control_type_.control_type != request.control_type.control_type)
     {
-      // Mutual exclusion with the build_command() function. We have to wait until the current motor command has been built.
+      // Mutual exclusion with the build_command() function.
+      // We have to wait until the current motor command has been built.
       boost::mutex::scoped_lock l(*lock_command_sending_);
 
       ROS_WARN("Changing control type");
@@ -1193,7 +1215,8 @@ namespace shadow_robot
 
       this->nh_tilde.setParam("default_control_mode", param_value);
 
-      // We need another node handle here, that is at the node's base namespace, as the controllers and the controller manager are unique per ethercat loop.
+      // We need another node handle here, that is at the node's base namespace,
+      // as the controllers and the controller manager are unique per ethercat loop.
       ros::NodeHandle nh;
       ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>(
               "controller_manager/list_controllers");
@@ -1272,13 +1295,13 @@ namespace shadow_robot
     return no_motor_id_out_of_range;
   }
 
-// Only to ensure that the template class is compiled for the types we are interested in
+  // Only to ensure that the template class is compiled for the types we are interested in
   template
   class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
 
   template
   class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
-} // end namespace
+}  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.
  Local Variables:

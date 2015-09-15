@@ -27,6 +27,8 @@
 
 #include "sr_robot_lib/UBI0.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
+#include <string>
+#include <vector>
 
 #define TACTILE_DATA_LENGTH_BYTES TACTILE_DATA_LENGTH_BYTES_v2
 
@@ -85,7 +87,7 @@ namespace tactiles
   void UBI0<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-    // TODO: use memcopy instead?
+    // @todo use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
       // the rest of the data is sampled at different rates
@@ -95,18 +97,18 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_UBI0_TACTILE:
           for (unsigned int i = 0; i < tactiles_vector->at(id_sensor).distal.size(); ++i)
           {
-            tactiles_vector->at(
-                    id_sensor).distal[i] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[i]));
+            tactiles_vector->at(id_sensor).distal[i] =
+                    static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[i]));
           }
           for (unsigned int i = 0; i < tactiles_vector->at(id_sensor).middle.size(); ++i)
           {
-            tactiles_vector->at(
-                    id_sensor).middle[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.middle[i]));
+            tactiles_vector->at(id_sensor).middle[i] =
+                    static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.middle[i]));
           }
           for (unsigned int i = 0; i < tactiles_vector->at(id_sensor).proximal.size(); ++i)
           {
-            tactiles_vector->at(
-                    id_sensor).proximal[i] = static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.proximal[i]));
+            tactiles_vector->at(id_sensor).proximal[i] =
+                    static_cast<int>(static_cast<int16u>(status_data->tactile_mid_prox[id_sensor].named.proximal[i]));
           }
           break;
 
@@ -114,8 +116,8 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(
-                    id_sensor).sample_frequency = static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+            tactiles_vector->at(id_sensor).sample_frequency =
+                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
           }
           break;
 
@@ -156,9 +158,8 @@ namespace tactiles
 
         default:
           break;
-
-      } // end switch
-    } // end for tactile
+      }  // end switch
+    }  // end for tactile
 
     for (unsigned int i = 0; i < palm_tactiles->palm.size(); ++i)
     {
@@ -276,7 +277,7 @@ namespace tactiles
 
   template
   class UBI0<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-}
+}  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
    Local Variables:

@@ -28,6 +28,7 @@
 #include "sr_robot_lib/sensor_updater.hpp"
 #include <boost/foreach.hpp>
 #include <iostream>
+#include <vector>
 
 namespace generic_updater
 {
