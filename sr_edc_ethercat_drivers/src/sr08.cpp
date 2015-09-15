@@ -231,7 +231,8 @@ void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
 
-  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *command = reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *>(buffer);
+  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *command =
+          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *>(buffer);
   ETHERCAT_CAN_BRIDGE_DATA *message = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
 
   if (!flashing)
@@ -253,7 +254,8 @@ void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
   command->aux_data_type = TACTILE_SENSOR_TYPE_MCP320x_TACTILE;
 
   ROS_DEBUG(
-          "Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
+          "Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X"
+                  " 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
           command->to_motor_data_type,
           command->motor_data[0],
           command->motor_data[1],
@@ -299,10 +301,10 @@ void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
  */
 bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 {
-  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *status_data = (ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *) (
-          this_buffer + command_size_);
-  ETHERCAT_CAN_BRIDGE_DATA *can_data = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(this_buffer + command_size_ +
-                                                                                    ETHERCAT_STATUS_DATA_SIZE);
+  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *status_data =
+          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *>(this_buffer + command_size_);
+  ETHERCAT_CAN_BRIDGE_DATA *can_data =
+          reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(this_buffer + command_size_ + ETHERCAT_STATUS_DATA_SIZE);
   //  int16u                                        *status_buffer = (int16u*)status_data;
   static unsigned int num_rxed_packets = 0;
 

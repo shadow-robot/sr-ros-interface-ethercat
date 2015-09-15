@@ -296,11 +296,11 @@ void SrEdc::erase_flash(void)
 {
   unsigned char cmd_sent;
   unsigned int wait_time;
-  bool timedout;
+  bool timedout = true;
   unsigned int timeout;
   int err;
 
-  do
+  while (timedout)
   {
     ROS_INFO("Erasing FLASH");
     // First we send the erase command
@@ -340,7 +340,7 @@ void SrEdc::erase_flash(void)
     {
       ROS_ERROR("ERASE command timedout, resending it !");
     }
-  } while (timedout);
+  };
 }
 
 /** \brief Function that reads back 8 bytes from PIC18F program memory
@@ -450,7 +450,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   unsigned int smallest_start_address = 0x7fff;
   unsigned int biggest_end_address = 0;
   unsigned int total_size = 0;
-  bool timedout;
+  bool timedout = true;
 
   get_board_id_and_can_bus(req.motor_id, &can_bus_, &motor_being_flashed);
 
@@ -581,11 +581,10 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   ROS_INFO("Resetting microcontroller.");
   // Then we send the RESET command to PIC18F
-  do
+  while (timedout)
   {
     send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | RESET_COMMAND, 0, NULL, 1000, &timedout);
-  } while (timedout);
-
+  };
 
   flashing = false;
 
@@ -783,7 +782,7 @@ void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u m
 
 bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_size)
 {
-  bool timedout;
+  bool timedout = true;
   // The actual comparison between the content read from the flash and the content read from
   // the hex file is carried out in the can_data_is_ack() function.
   // read_flash(...) will return timedout = true if the 8 byte content read from the flash doesn't
@@ -795,7 +794,7 @@ bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_siz
   while (pos < total_size)
   {
     retry = 0;
-    do
+    while (timedout)
     {
       timedout = read_flash(pos, baddr);
       if (!timedout)
@@ -808,7 +807,7 @@ bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_siz
         ROS_ERROR("Too much retry for READ back, try flashing again");
         return false;
       }
-    } while (timedout);
+    };
   }
   return true;
 }
@@ -907,7 +906,7 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
     if ((pos % 32) == 0)
     {
       packet = 0;
-      do
+      while (timedout)
       {
         cmd_sent = 0;
         while (!cmd_sent)
@@ -949,7 +948,7 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
         {
           ROS_ERROR("WRITE ADDRESS timedout ");
         }
-      } while (timedout);
+      };
     }
     cmd_sent = 0;
     while (!cmd_sent)
