@@ -29,8 +29,8 @@
  *
  */
 
-#ifndef SR_EDC_H
-#define SR_EDC_H
+#ifndef SR_EDC_ETHERCAT_DRIVERS_SR_EDC_H
+#define SR_EDC_ETHERCAT_DRIVERS_SR_EDC_H
 
 #include <ros_ethercat_hardware/ethercat_hardware.h>
 #include <sr_edc_ethercat_drivers/sr0x.h>
@@ -42,12 +42,11 @@
 #include <bfd.h>
 #include <boost/smart_ptr.hpp>
 #include <map>
+#include <string>
+#include <vector>
 #include <boost/assign.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
-
-// #include <sr_robot_lib/sr_hand_lib.hpp>
-
 #include <sr_robot_msgs/EthercatDebug.h>
 
 #include <sr_external_dependencies/types_for_external.h>
@@ -80,7 +79,7 @@ public:
 
   void erase_flash();
 
- // bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
+  // bool read_flash(unsigned int offset, unsigned char baddrl, unsigned char baddrh, unsigned char baddru);
   bool read_flash(unsigned int offset, unsigned int baddr);
 
 protected:
@@ -114,14 +113,13 @@ protected:
   virtual void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id) = 0;
 
 private:
-
- // static const unsigned int        nb_sensors_const;
+  // static const unsigned int        nb_sensors_const;
   static const unsigned int max_retry;
- // static const unsigned short int  max_iter_const;
- // static const unsigned short int  ros_pub_freq_const;
- // static const unsigned short int  device_pub_freq_const;
- // static const unsigned char       nb_publish_by_unpack_const;
- // std::string                      firmware_file_name;
+  // static const unsigned short int  max_iter_const;
+  // static const unsigned short int  ros_pub_freq_const;
+  // static const unsigned short int  device_pub_freq_const;
+  // static const unsigned char       nb_publish_by_unpack_const;
+  // std::string                      firmware_file_name;
   pthread_mutex_t producing;
   ros::ServiceServer serviceServer;
 
@@ -208,7 +206,6 @@ private:
     boost::split(splitted_string, full_path, boost::is_any_of("/"));
     return splitted_string.back();
   }
-
 };
 
 
@@ -219,4 +216,4 @@ End:
 */
 
 
-#endif /* SR_EDC_H */
+#endif  // SR_EDC_ETHERCAT_DRIVERS_SR_EDC_H

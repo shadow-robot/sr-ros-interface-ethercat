@@ -119,7 +119,7 @@ typedef enum
   MOTOR_SLOW_DATA_INVALID = 0x0000,             // !< For safety, this is not a data type
   MOTOR_SLOW_DATA_SVN_REVISION = 0x0001,             // !< The revision of the code
   MOTOR_SLOW_DATA_SVN_SERVER_REVISION = 0x0002,             // !< The revision of the code on the SVN server at build time.
- // !  Should we have done an Update before building?
+  // !  Should we have done an Update before building?
           MOTOR_SLOW_DATA_SVN_MODIFIED = 0x0003,             // !< Did the local code have any uncomitted modifications at build time?
   MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW = 0x0004,             // !<
   MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH = 0x0005,             // !<
@@ -231,7 +231,7 @@ typedef enum
   MOTOR_DEMAND_INVALID = 0x0,                 // !< A zero is what happens if an EtherCAT packet doesn't get through, so it's considered a special case.
   MOTOR_DEMAND_TORQUE = 0x1,                 // !< Demanding torque activates the Torque PID loop
   MOTOR_DEMAND_PWM = 0x2,                 // !< Demanding PWM bypasses the Torque PID loop, and gives the exact PWM you asked for
- // !  except where
+  // !  except where
 
   MOTOR_SYSTEM_RESET = 0x3,                 // !< Send with a demand value of 0x520x to reset motor x
   MOTOR_SYSTEM_CONTROLS = 0x4,                 // !< Various bits to switch on / off misc things.
@@ -247,7 +247,7 @@ typedef enum
   MOTOR_CONFIG_DEADBAND_SIGN = 0xE,                 // !< MSB=sign. LSB=Deadband.
   MOTOR_CONFIG_LAST_VALUE = 0xE,                 // !< This is the last config (apart from the CRC, which is special)
   MOTOR_CONFIG_CRC = 0xF                  // !< Sending this value, if it matches the CRC of the configs
- // !  above, causes the configs to take effect.
+  // !  above, causes the configs to take effect.
 } TO_MOTOR_DATA_TYPE;
 
 #define MOTOR_SYSTEM_RESET_KEY                              0x5200             // !< | Motor ID.
@@ -361,18 +361,18 @@ typedef struct
 typedef struct
 {
   EDC_COMMAND EDC_command;                       // !< This tells us the contents of the data below.
- // !< This value should be identical to the EDC_command
- // !< value which arrived from the host in the previous
- // !< EtherCAT packet
+  // !< This value should be identical to the EDC_command
+  // !< value which arrived from the host in the previous
+  // !< EtherCAT packet
 
   int16u sensors[SENSORS_NUM_0220 + 1];
 
   FROM_MOTOR_DATA_TYPE motor_data_type;                   // !< Which data does motor[] contain?
- // !< This value should agree with the previous value
- // !< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
+  // !< This value should agree with the previous value
+  // !< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
   int16s which_motors;                      // !< 0: Even motor numbers.  1: Odd motor numbers
- // !< This value should agree with the previous value
- // !< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
+  // !< This value should agree with the previous value
+  // !< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
 
   int32u which_motor_data_arrived;          // !< Bit N set when motor CAN message arrives. Ideally, bits 0..19 get set
   int32u which_motor_data_had_errors;       // !< Bit N set when motor sends bad CAN message Ideally, no bits get set.
@@ -384,7 +384,7 @@ typedef struct
   TACTILE_SENSOR_STATUS_v1 tactile[5];                        // 
 
   int16u idle_time_us;                      // !< The idle time from when the palm has finished dealing with one EtherCAT
- // !< packet, and the next packet arriving. Ideally, this number should be more than 50.
+  // !< packet, and the next packet arriving. Ideally, this number should be more than 50.
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS;
 
@@ -396,7 +396,7 @@ typedef struct
 
   FROM_MOTOR_DATA_TYPE from_motor_data_type;              // !< Which data does the host want from the motors?
   int16s which_motors;                      // !< Which motors does the host want to read?
- // !< 0: Even motor numbers.  1: Odd motor numbers
+  // !< 0: Even motor numbers.  1: Odd motor numbers
 
   TO_MOTOR_DATA_TYPE to_motor_data_type;
   int16s motor_data[NUM_MOTORS];            // !< Data to send to motors. Typically torque/PWM demands, or configs.

@@ -58,7 +58,7 @@ namespace shadow_robot
             muscle_current_state(operation_mode::device_update_state::INITIALIZATION), init_max_duration(timeout),
             lock_init_timeout_(shared_ptr<boost::mutex>(new boost::mutex())),
 
-         // Create a one-shot timer
+          // Create a one-shot timer
             check_init_timeout_timer(this->nh_tilde.createTimer(init_max_duration,
                                                                 boost::bind(
                                                                         &SrMuscleRobotLib<StatusType, CommandType>::init_timer_callback,
@@ -86,10 +86,10 @@ namespace shadow_robot
     XmlRpc::XmlRpcValue calib;
     this->nodehandle_.getParam(param_name, calib);
     ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
-   // iterate on all the joints
+    // iterate on all the joints
     for (int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
     {
-     // check the calibration is well formatted:
+      // check the calibration is well formatted:
       // first joint name, then calibration table
       ROS_ASSERT(calib[index_cal][0].getType() == XmlRpc::XmlRpcValue::TypeString);
       ROS_ASSERT(calib[index_cal][1].getType() == XmlRpc::XmlRpcValue::TypeArray);
@@ -97,11 +97,11 @@ namespace shadow_robot
       string joint_name = static_cast<string> (calib[index_cal][0]);
       vector<joint_calibration::Point> calib_table_tmp;
 
-     // now iterates on the calibration table for the current joint
+      // now iterates on the calibration table for the current joint
       for (int32_t index_table = 0; index_table < calib[index_cal][1].size(); ++index_table)
       {
         ROS_ASSERT(calib[index_cal][1][index_table].getType() == XmlRpc::XmlRpcValue::TypeArray);
-       // only 2 values per calibration point: raw and calibrated (doubles)
+        // only 2 values per calibration point: raw and calibrated (doubles)
         ROS_ASSERT(calib[index_cal][1][index_table].size() == 2);
         ROS_ASSERT(calib[index_cal][1][index_table][0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
         ROS_ASSERT(calib[index_cal][1][index_table][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
@@ -123,14 +123,14 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::update(StatusType *status_data)
   {
-   // read the PIC idle time
+    // read the PIC idle time
     this->main_pic_idle_time = status_data->idle_time_us;
     if (status_data->idle_time_us < this->main_pic_idle_time_min)
     {
       this->main_pic_idle_time_min = status_data->idle_time_us;
     }
 
-   // get the current timestamp
+    // get the current timestamp
     struct timeval tv;
     double timestamp = 0.0;
     if (gettimeofday(&tv, NULL))
@@ -142,10 +142,10 @@ namespace shadow_robot
       timestamp = double(tv.tv_sec) + double(tv.tv_usec) / 1.0e+6;
     }
 
-   // First we read the tactile sensors information
+    // First we read the tactile sensors information
     this->update_tactile_info(status_data);
 
-   // then we read the muscle drivers information
+    // then we read the muscle drivers information
     for (vector<MuscleDriver>::iterator muscle_driver_tmp = this->muscle_drivers_vector_.begin();
          muscle_driver_tmp != this->muscle_drivers_vector_.end();
          ++muscle_driver_tmp)
@@ -153,7 +153,7 @@ namespace shadow_robot
       read_muscle_driver_data(muscle_driver_tmp, status_data);
     }
 
-   // then we read the joints informations
+    // then we read the joints informations
     for (vector<Joint>::iterator joint_tmp = this->joints_vector.begin();
          joint_tmp != this->joints_vector.end();
          ++joint_tmp)
@@ -166,7 +166,7 @@ namespace shadow_robot
       SrMuscleActuator *actuator = this->get_joint_actuator(joint_tmp);
       shared_ptr<MuscleWrapper> muscle_wrapper = static_pointer_cast<MuscleWrapper>(joint_tmp->actuator_wrapper);
 
-     // Fill in the tactiles.
+      // Fill in the tactiles.
       if (this->tactiles != NULL)
       {
         actuator->muscle_state_.tactiles_ = this->tactiles->get_tactile_data();
@@ -174,7 +174,7 @@ namespace shadow_robot
 
       this->process_position_sensor_data(joint_tmp, status_data, timestamp);
 
-     // if no muscle is associated to this joint, then continue
+      // if no muscle is associated to this joint, then continue
       if ((muscle_wrapper->muscle_driver_id[0] == -1))
       {
         continue;
@@ -193,11 +193,11 @@ namespace shadow_robot
     }
     else
     {
-     // build the muscle command
+      // build the muscle command
       muscle_current_state = muscle_updater_->build_command(command);
     }
 
-   // Build the tactile sensors command
+    // Build the tactile sensors command
     this->build_tactile_command(command);
 
     ///////
@@ -208,7 +208,7 @@ namespace shadow_robot
     {
       command->to_muscle_data_type = MUSCLE_DEMAND_VALVES;
 
-     // loop on all the joints and update their muscle: we're sending commands to all the muscles.
+      // loop on all the joints and update their muscle: we're sending commands to all the muscles.
       for (vector<Joint>::iterator joint_tmp = this->joints_vector.begin();
            joint_tmp != this->joints_vector.end();
            ++joint_tmp)
@@ -235,7 +235,7 @@ namespace shadow_robot
           }
           else
           {
-           // We want to send a demand of 0
+            // We want to send a demand of 0
             set_valve_demand(&(command->muscle_data[(muscle_driver_id_0 * 10 + muscle_id_0) / 2]), 0,
                              ((uint8_t) muscle_id_0) & 0x01);
             set_valve_demand(&(command->muscle_data[(muscle_driver_id_1 * 10 + muscle_id_1) / 2]), 0,
@@ -246,35 +246,35 @@ namespace shadow_robot
           }
 
 #ifdef DEBUG_PUBLISHER
-         // publish the debug values for the given muscles.
-          // NB: debug_muscle_indexes_and_data is smaller
-          //     than debug_publishers.
-          int publisher_index = 0;
-          shared_ptr<pair<int, int> > debug_pair;
-          if (this->debug_mutex.try_lock())
-          {
+          // publish the debug values for the given muscles.
+           // NB: debug_muscle_indexes_and_data is smaller
+           //     than debug_publishers.
+           int publisher_index = 0;
+           shared_ptr<pair<int, int> > debug_pair;
+           if (this->debug_mutex.try_lock())
+           {
 
-            BOOST_FOREACH(debug_pair, this->debug_muscle_indexes_and_data)
-            {
-              if (debug_pair != NULL)
-              {
-                MuscleWrapper* actuator_wrapper = static_cast<MuscleWrapper*> (joint_tmp->actuator_wrapper.get());
-               // check if we want to publish some data for the current muscle
-                if (debug_pair->first == actuator_wrapper->muscle_id[0])
-                {
-                 // check if it's the correct data
-                  if (debug_pair->second == -1)
-                  {
-                    this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
-                    this->debug_publishers[publisher_index].publish(this->msg_debug);
-                  }
-                }
-              }
-              publisher_index++;
-            }
+             BOOST_FOREACH(debug_pair, this->debug_muscle_indexes_and_data)
+             {
+               if (debug_pair != NULL)
+               {
+                 MuscleWrapper* actuator_wrapper = static_cast<MuscleWrapper*> (joint_tmp->actuator_wrapper.get());
+                // check if we want to publish some data for the current muscle
+                 if (debug_pair->first == actuator_wrapper->muscle_id[0])
+                 {
+                  // check if it's the correct data
+                   if (debug_pair->second == -1)
+                   {
+                     this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
+                     this->debug_publishers[publisher_index].publish(this->msg_debug);
+                   }
+                 }
+               }
+               publisher_index++;
+             }
 
-            this->debug_mutex.unlock();
-          } // end try_lock
+             this->debug_mutex.unlock();
+           } // end try_lock
 #endif
 
         } // end if has_actuator
@@ -282,7 +282,7 @@ namespace shadow_robot
     } // endif
     else
     {
-     // we have some reset command waiting.
+      // we have some reset command waiting.
       // We'll send all of them
       command->to_muscle_data_type = MUSCLE_SYSTEM_RESET;
 
@@ -291,7 +291,7 @@ namespace shadow_robot
         short muscle_driver_id = reset_muscle_driver_queue.front();
         reset_muscle_driver_queue.pop();
 
-       // reset the CAN messages counters for the muscle driver we're going to reset.
+        // reset the CAN messages counters for the muscle driver we're going to reset.
         for (vector<MuscleDriver>::iterator driver = this->muscle_drivers_vector_.begin();
              driver != this->muscle_drivers_vector_.end();
              ++driver)
@@ -328,15 +328,15 @@ namespace shadow_robot
   {
     uint8_t tmp_valve = 0;
 
-   // The encoding we want for the negative integers is represented in two's complement, but based on a 4 bit data size instead of 8 bit, so
+    // The encoding we want for the negative integers is represented in two's complement, but based on a 4 bit data size instead of 8 bit, so
     // we'll have to do it manually
     if (valve_value < 0)
     {
-     // Take the value as positive
+      // Take the value as positive
       tmp_valve = -valve_value;
-     // Do a bitwise inversion on the 4 lowest bytes only
+      // Do a bitwise inversion on the 4 lowest bytes only
       tmp_valve = (~tmp_valve) & 0x0F;
-     // Add one
+      // Add one
       tmp_valve = tmp_valve + 1;
     }
     else // Positive representation is straightforward
@@ -344,12 +344,12 @@ namespace shadow_robot
       tmp_valve = valve_value & 0x0F;
     }
 
-   // A shift of 0 means that we want to write the value on the 4 least significant bits
+    // A shift of 0 means that we want to write the value on the 4 least significant bits
     // shift of 1 means that we want to write the value on the 4 most significant bits
 
-   // We zero the 4 bits that we want to write our valve value on
+    // We zero the 4 bits that we want to write our valve value on
     *muscle_data_byte_to_set &= (0xF0 >> (shift * 4));
-   // We write our valve value on those 4 bits
+    // We write our valve value on those 4 bits
     *muscle_data_byte_to_set |= (tmp_valve << (shift * 4));
   }
 
@@ -491,7 +491,7 @@ namespace shadow_robot
 
     shared_ptr<MuscleWrapper> muscle_wrapper = static_pointer_cast<MuscleWrapper>(joint_tmp->actuator_wrapper);
 
-   // Every muscle driver sends two muscle_data_packet containing pressures from 5 muscles each
+    // Every muscle driver sends two muscle_data_packet containing pressures from 5 muscles each
     if (muscle_wrapper->muscle_id[0] >= NUM_PRESSURE_SENSORS_PER_MESSAGE)
     {
       packet_offset_muscle_0 = 1;
@@ -502,8 +502,8 @@ namespace shadow_robot
       packet_offset_muscle_1 = 1;
     }
 
-   // check the masks to see if the CAN messages arrived from the muscle driver
-   // the flag should be set to 1 for each muscle driver CAN message (a muscle driver sends 2 separate CAN messages with 5 muscle pressures each.
+    // check the masks to see if the CAN messages arrived from the muscle driver
+    // the flag should be set to 1 for each muscle driver CAN message (a muscle driver sends 2 separate CAN messages with 5 muscle pressures each.
     // Every actuator (every joint) has two muscles, so we check both flags to decide that the actuator is OK
     muscle_wrapper->actuator_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_muscle_data_arrived,
                                                                         muscle_wrapper->muscle_driver_id[0] * 2 +
@@ -564,7 +564,7 @@ namespace shadow_robot
       } // end try_lock
 #endif
 
-     // we received the data and it was correct
+      // we received the data and it was correct
       unsigned int p1 = 0;
       switch (status_data->muscle_data_type)
       {
@@ -575,7 +575,7 @@ namespace shadow_robot
             p1 = get_muscle_pressure(muscle_wrapper->muscle_driver_id[i], muscle_wrapper->muscle_id[i], status_data);
             string name = joint_tmp->joint_name + "_" + boost::lexical_cast<string>(i);
             // XXX: If the joint isn't found we crash
-           // ROS_INFO_STREAM("Calib: "<<name);
+            // ROS_INFO_STREAM("Calib: "<<name);
             pressure_calibration_tmp_ = pressure_calibration_map_.find(name);
             double bar = pressure_calibration_tmp_->compute(static_cast<double> (p1));
             if (bar < 0.0)
@@ -585,10 +585,10 @@ namespace shadow_robot
             actuator->muscle_state_.pressure_[i] = static_cast<int16u> (bar);
           }
           // Raw values
-         // actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0], status_data));
-         // actuator->state_.pressure_[1] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1], status_data));
-         // ROS_WARN("DriverID: %u MuscleID: %u Pressure 0: %u", muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0],  actuator->state_.pressure_[0]);
-         // ROS_WARN("DriverID: %u MuscleID: %u Pressure 1: %u", muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1],  actuator->state_.pressure_[1]);
+          // actuator->state_.pressure_[0] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0], status_data));
+          // actuator->state_.pressure_[1] = static_cast<int16u>(get_muscle_pressure(muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1], status_data));
+          // ROS_WARN("DriverID: %u MuscleID: %u Pressure 0: %u", muscle_wrapper->muscle_driver_id[0], muscle_wrapper->muscle_id[0],  actuator->state_.pressure_[0]);
+          // ROS_WARN("DriverID: %u MuscleID: %u Pressure 1: %u", muscle_wrapper->muscle_driver_id[1], muscle_wrapper->muscle_id[1],  actuator->state_.pressure_[1]);
 
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->muscle_id[0] == 8)
@@ -615,7 +615,7 @@ namespace shadow_robot
     int packet_offset = 0;
     int muscle_index = muscle_id;
 
-   // Every muscle driver sends two muscle_data_packet containing pressures from 5 muscles each
+    // Every muscle driver sends two muscle_data_packet containing pressures from 5 muscles each
     if (muscle_id >= NUM_PRESSURE_SENSORS_PER_MESSAGE)
     {
       packet_offset = 1;
@@ -671,8 +671,8 @@ namespace shadow_robot
   void SrMuscleRobotLib<StatusType, CommandType>::read_muscle_driver_data(
           vector<MuscleDriver>::iterator muscle_driver_tmp, StatusType *status_data)
   {
-   // check one the masks (e.g. the first) for this muscle driver to see if the CAN messages arrived correctly from the muscle driver
-   // the flag should be set to 1 for each message in this driver.
+    // check one the masks (e.g. the first) for this muscle driver to see if the CAN messages arrived correctly from the muscle driver
+    // the flag should be set to 1 for each message in this driver.
     muscle_driver_tmp->driver_ok = sr_math_utils::is_bit_mask_index_true(status_data->which_muscle_data_arrived,
                                                                          muscle_driver_tmp->muscle_driver_id * 2);
     /*
@@ -684,13 +684,13 @@ namespace shadow_robot
 
     if (muscle_driver_tmp->driver_ok)
     {
-     // we received the data and it was correct
+      // we received the data and it was correct
       set_muscle_driver_data_received_flags(status_data->muscle_data_type, muscle_driver_tmp->muscle_driver_id);
 
       switch (status_data->muscle_data_type)
       {
         case MUSCLE_DATA_PRESSURE:
-         // We don't do anything here. This will be treated in a per-joint loop in read_additional_muscle_data
+          // We don't do anything here. This will be treated in a per-joint loop in read_additional_muscle_data
           break;
 
         case MUSCLE_DATA_CAN_STATS:
@@ -706,7 +706,7 @@ namespace shadow_robot
                   static_cast<int16u> (status_data->muscle_data_packet[muscle_driver_tmp->muscle_driver_id *
                                                                        2].misc.can_msgs_tx));
 
-         // CAN bus errors
+          // CAN bus errors
           muscle_driver_tmp->can_err_rx = static_cast<unsigned int> (status_data->muscle_data_packet[
                   muscle_driver_tmp->muscle_driver_id * 2].misc.can_err_rx);
           muscle_driver_tmp->can_err_tx = static_cast<unsigned int> (status_data->muscle_data_packet[
@@ -714,7 +714,7 @@ namespace shadow_robot
           break;
 
         case MUSCLE_DATA_SLOW_MISC:
-         // We received a slow data:
+          // We received a slow data:
           // the slow data type is not transmitted anymore (as it was in the muscle hand protocol)
           // Instead, all the information (of every data type) is contained in the 2 packets that come from every muscle driver
           // So in fact this message is not "slow" anymore.
@@ -739,10 +739,10 @@ namespace shadow_robot
           break;
       }
 
-     // Mutual exclusion with the the initialization timeout
+      // Mutual exclusion with the the initialization timeout
       boost::mutex::scoped_lock l(*lock_init_timeout_);
 
-     // Check the message to see if everything has already been received
+      // Check the message to see if everything has already been received
       if (muscle_current_state == operation_mode::device_update_state::INITIALIZATION)
       {
         if ((check_muscle_driver_data_received_flags())
@@ -750,7 +750,7 @@ namespace shadow_robot
         {
           muscle_updater_->update_state = operation_mode::device_update_state::OPERATION;
           muscle_current_state = operation_mode::device_update_state::OPERATION;
-         // stop the timer
+          // stop the timer
           check_init_timeout_timer.stop();
 
           ROS_INFO("All muscle data initialized.");
@@ -779,7 +779,7 @@ namespace shadow_robot
     map<unsigned int, unsigned int>::iterator it = from_muscle_driver_data_received_flags_.begin();
     for (; it != from_muscle_driver_data_received_flags_.end(); ++it)
     {
-     // We want to detect when the flag for every driver is checked, so, for NUM_MUSCLE_DRIVERS = 4 we want to have 00001111
+      // We want to detect when the flag for every driver is checked, so, for NUM_MUSCLE_DRIVERS = 4 we want to have 00001111
       if (it->second != (1 << NUM_MUSCLE_DRIVERS) - 1)
       {
         return false;
@@ -799,11 +799,11 @@ namespace shadow_robot
 
     if (joint_tmp->joint_to_sensor.calibrate_after_combining_sensors)
     {
-     // first we combine the different sensors and then we
+      // first we combine the different sensors and then we
       // calibrate the value we obtained. This is used for
       // some compound sensors ( THJ5 = cal(THJ5A + THJ5B))
       double raw_position = 0.0;
-     // when combining the values, we use the coefficient imported
+      // when combining the values, we use the coefficient imported
       // from the sensor_to_joint.yaml file (in sr_edc_launch/config)
 
       BOOST_FOREACH(PartialJointToSensor joint_to_sensor, joint_tmp->joint_to_sensor.joint_to_sensor_vector)
@@ -813,14 +813,14 @@ namespace shadow_robot
               raw_position += static_cast<double> (tmp_raw) * joint_to_sensor.coeff;
             }
 
-     // and now we calibrate
+      // and now we calibrate
       this->calibration_tmp = this->calibration_map.find(joint_tmp->joint_name);
       actuator->muscle_state_.position_unfiltered_ = this->calibration_tmp->compute(static_cast<double> (raw_position));
     }
     else
     {
-     // we calibrate the different sensors first and we combine the calibrated
-     // values. This is used in the joint 0s for example ( J0 = cal(J1)+cal(J2) )
+      // we calibrate the different sensors first and we combine the calibrated
+      // values. This is used in the joint 0s for example ( J0 = cal(J1)+cal(J2) )
       double calibrated_position = 0.0;
       PartialJointToSensor joint_to_sensor;
       string sensor_name;
@@ -834,16 +834,16 @@ namespace shadow_robot
         joint_to_sensor = joint_tmp->joint_to_sensor.joint_to_sensor_vector[index_joint_to_sensor];
         sensor_name = joint_tmp->joint_to_sensor.sensor_names[index_joint_to_sensor];
 
-       // get the raw position
+        // get the raw position
         int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
-       // push the new raw values
+        // push the new raw values
         actuator->muscle_state_.raw_sensor_values_.push_back(raw_pos);
 
-       // calibrate and then combine
+        // calibrate and then combine
         this->calibration_tmp = this->calibration_map.find(sensor_name);
         double tmp_cal_value = this->calibration_tmp->compute(static_cast<double> (raw_pos));
 
-       // push the new calibrated values.
+        // push the new calibrated values.
         actuator->muscle_state_.calibrated_sensor_values_.push_back(tmp_cal_value);
 
         calibrated_position += tmp_cal_value * joint_to_sensor.coeff;
@@ -862,15 +862,15 @@ namespace shadow_robot
   {
     SrMuscleActuator *actuator = get_joint_actuator(joint_tmp);
 
-   // calibrate the joint and update the position.
+    // calibrate the joint and update the position.
     calibrate_joint(joint_tmp, status_data);
 
-   // filter the position and velocity
+    // filter the position and velocity
     pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(actuator->muscle_state_.position_unfiltered_,
                                                                           timestamp);
-   // reset the position to the filtered value
+    // reset the position to the filtered value
     actuator->state_.position_ = pos_and_velocity.first;
-   // set the velocity to the filtered velocity
+    // set the velocity to the filtered velocity
     actuator->state_.velocity_ = pos_and_velocity.second;
   }
 
@@ -879,11 +879,11 @@ namespace shadow_robot
   {
     vector<pair<string, bool> > flags;
 
-   // 16 is the number of flags
+    // 16 is the number of flags
     for (unsigned int i = 0; i < 16; ++i)
     {
       pair<string, bool> new_flag;
-     // if the flag is set add the name
+      // if the flag is set add the name
       if (sr_math_utils::is_bit_mask_index_true(flag, i))
       {
         if (sr_math_utils::is_bit_mask_index_true(SERIOUS_ERROR_FLAGS, i))
@@ -905,17 +905,17 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::reinitialize_motors()
   {
-   // Mutual exclusion with the the initialization timeout
+    // Mutual exclusion with the the initialization timeout
     boost::mutex::scoped_lock l(*lock_init_timeout_);
 
-   // stop the timer just in case it was still running
+    // stop the timer just in case it was still running
     check_init_timeout_timer.stop();
-   // Create a new MuscleUpdater object
+    // Create a new MuscleUpdater object
     muscle_updater_ = shared_ptr<MuscleUpdater<CommandType> >(
             new MuscleUpdater<CommandType>(muscle_update_rate_configs_vector,
                                            operation_mode::device_update_state::INITIALIZATION));
     muscle_current_state = operation_mode::device_update_state::INITIALIZATION;
-   // To reschedule the one-shot timer
+    // To reschedule the one-shot timer
     check_init_timeout_timer.setPeriod(init_max_duration);
     check_init_timeout_timer.start();
   }
@@ -923,7 +923,7 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrMuscleRobotLib<StatusType, CommandType>::init_timer_callback(const ros::TimerEvent &event)
   {
-   // Mutual exclusion with the the initialization timeout
+    // Mutual exclusion with the the initialization timeout
     boost::mutex::scoped_lock l(*lock_init_timeout_);
 
     if (muscle_current_state == operation_mode::device_update_state::INITIALIZATION)

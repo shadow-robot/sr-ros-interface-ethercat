@@ -170,7 +170,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
 {
   sh_ = sh;
 
- // get the alias from the parameter server if it exists
+  // get the alias from the parameter server if it exists
   std::string path_to_alias, alias;
   path_to_alias = "/hand/mapping/" + boost::lexical_cast<std::string>(sh_->get_serial());
   ROS_INFO_STREAM("Trying to read mapping for: " << path_to_alias);
@@ -180,8 +180,8 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   }
   else
   {
-   // no alias found, using empty device_id_
-   // Using the serial number as we do in ronex is probably a worse option here.
+    // no alias found, using empty device_id_
+    // Using the serial number as we do in ronex is probably a worse option here.
     device_id_ = "";
   }
 
@@ -189,7 +189,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   nh_tilde_ = ros::NodeHandle(ros::NodeHandle("~"), device_id_);
   serviceServer = nodehandle_.advertiseService("SimpleMotorFlasher", &SrEdc::simple_motor_flasher, this);
 
- // get the alias from the parameter server if it exists
+  // get the alias from the parameter server if it exists
   std::string path_to_prefix, prefix;
   path_to_prefix = "/hand/joint_prefix/" + boost::lexical_cast<std::string>(sh_->get_serial());
   ROS_INFO_STREAM("Trying to read joint_prefix for: " << path_to_prefix);
@@ -199,7 +199,7 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
   }
   else
   {
-   // no prefix found, using empty prefix
+    // no prefix found, using empty prefix
     device_joint_prefix_ = "";
   }
 
@@ -459,10 +459,10 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   ROS_INFO("Flashing the motor");
 
- // Initialize the bfd library: "This routine must be called before any other BFD function to initialize magical internal data structures."
+  // Initialize the bfd library: "This routine must be called before any other BFD function to initialize magical internal data structures."
   bfd_init();
 
- // Open the requested firmware object file
+  // Open the requested firmware object file
   fd = bfd_openr(req.firmware.c_str(), NULL);
   if (fd == NULL)
   {
@@ -472,7 +472,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
     return false;
   }
 
- // Check that bfd recognises the file as a correctly formatted object file
+  // Check that bfd recognises the file as a correctly formatted object file
   if (!bfd_check_format(fd, bfd_object))
   {
     if (bfd_get_error() != bfd_error_file_ambiguously_recognized)
@@ -486,16 +486,16 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   ROS_INFO("firmware %s's format is : %s.", get_filename(req.firmware).c_str(), fd->xvec->name);
 
- // TODO Check if it's necessary to send this dummy packet before the magic packet
+  // TODO Check if it's necessary to send this dummy packet before the magic packet
   ROS_DEBUG("Sending dummy packet");
   send_CAN_msg(can_bus_, 0, 0, NULL, 1, &timedout);
 
   ROS_INFO_STREAM("Switching motor " << motor_being_flashed << " on CAN bus " << can_bus_ << " into bootloader mode");
- // Send the magic packet that will force the microcontroller to go into bootloader mode
+  // Send the magic packet that will force the microcontroller to go into bootloader mode
   int8u magic_packet[] = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA};
   send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | 0b1010, 8, magic_packet, 100, &timedout);
 
- // Send a second magic packet if the first one wasn't acknowledged
+  // Send a second magic packet if the first one wasn't acknowledged
   if (timedout)
   {
     ROS_WARN("First magic CAN packet timedout");
@@ -511,21 +511,21 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
     }
   }
 
- // Erase the PIC18 microcontroller flash memory
+  // Erase the PIC18 microcontroller flash memory
   erase_flash();
 
   sleep(1);
 
- // Look for the start and end address of every section in the hex file,
- // to detect the lowest and highest address of the data we need to write in the PIC's flash.
+  // Look for the start and end address of every section in the hex file,
+  // to detect the lowest and highest address of the data we need to write in the PIC's flash.
   find_address_range(fd, &smallest_start_address, &biggest_end_address);
 
- // Calculate the size of the chunk of data to be flashed
+  // Calculate the size of the chunk of data to be flashed
   total_size = biggest_end_address - smallest_start_address;
   base_addr = smallest_start_address;
 
- // Allocate the memory space to store the data to be flashed
- // This could be done with new bfd_byte[total_size+8] and delete() instead of malloc() and free() but will stay this way for the moment
+  // Allocate the memory space to store the data to be flashed
+  // This could be done with new bfd_byte[total_size+8] and delete() instead of malloc() and free() but will stay this way for the moment
   binary_content = (bfd_byte *) malloc(total_size + 8);
   if (binary_content == NULL)
   {
@@ -535,12 +535,12 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
     return false;
   }
 
- // Set all the bytes in the binary_content to 0xFF initially (i.e. before reading the content from the hex file)
- // This way we make sure that any byte in the region between smallest_start_address and biggest_end_address
- // that is not included in any section of the hex file, will be written with a 0xFF value, which is the default in the PIC
+  // Set all the bytes in the binary_content to 0xFF initially (i.e. before reading the content from the hex file)
+  // This way we make sure that any byte in the region between smallest_start_address and biggest_end_address
+  // that is not included in any section of the hex file, will be written with a 0xFF value, which is the default in the PIC
   memset(binary_content, 0xFF, total_size + 8);
 
- // The content of the firmware is read from the .hex file pointed by fd, to a memory region pointed by binary_content
+  // The content of the firmware is read from the .hex file pointed by fd, to a memory region pointed by binary_content
   if (!read_content_from_object_file(fd, binary_content, base_addr))
   {
     ROS_ERROR("something went wrong while parsing %s.", get_filename(req.firmware).c_str());
@@ -553,7 +553,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   // We do not need the file anymore
   bfd_close(fd);
 
- // The firmware is actually written to the flash memory of the PIC18
+  // The firmware is actually written to the flash memory of the PIC18
   if (!write_flash_data(base_addr, total_size))
   {
     res.value = res.FAIL;
@@ -591,7 +591,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   res.value = res.SUCCESS;
 
- // Reinitialize motor boards or valve controller boards information
+  // Reinitialize motor boards or valve controller boards information
   reinitialize_boards();
 
   return true;
@@ -784,8 +784,8 @@ bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_siz
   // The actual comparison between the content read from the flash and the content read from the hex file is carried out
   // in the can_data_is_ack() function.
   // read_flash(...) will return timedout = true if the 8 byte content read from the flash doesn't match the 8 bytes from the hex file
- // BE CAREFUL with the pos "global" field, because it's being used inside can_data_is_ack() function to check if the response
- // of the READ_FLASH_COMMAND is correct
+  // BE CAREFUL with the pos "global" field, because it's being used inside can_data_is_ack() function to check if the response
+  // of the READ_FLASH_COMMAND is correct
   pos = 0;
   unsigned int retry;
   while (pos < total_size)
@@ -816,20 +816,20 @@ void SrEdc::find_address_range(bfd *fd, unsigned int *smallest_start_address, un
   unsigned int section_size = 0;
   unsigned int section_addr = 0;
 
- // Look for the start and end address of every section in the hex file,
- // to detect the lowest and highest address of the data we need to write in the PIC's flash.
- // The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
- // (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
- // To understand the structure (sections) of the object file containing the firmware (usually a .hex) the following commands can be useful:
+  // Look for the start and end address of every section in the hex file,
+  // to detect the lowest and highest address of the data we need to write in the PIC's flash.
+  // The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
+  // (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
+  // To understand the structure (sections) of the object file containing the firmware (usually a .hex) the following commands can be useful:
   //  \code objdump -x simplemotor.hex \endcode
   //  \code objdump -s simplemotor.hex \endcode
   for (s = fd->sections; s; s = s->next)
   {
-   // Only the sections with the LOAD flag on will be considered
+    // Only the sections with the LOAD flag on will be considered
     if (bfd_get_section_flags(fd, s) & (SEC_LOAD))
     {
-     // Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
-     // http://www.delorie.com/gnu/docs/binutils/ld_7.html
+      // Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
+      // http://www.delorie.com/gnu/docs/binutils/ld_7.html
       if (bfd_section_lma(fd, s) == bfd_section_vma(fd, s))
       {
         section_addr = (unsigned int) bfd_section_lma(fd, s);
@@ -853,16 +853,16 @@ bool SrEdc::read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned i
 
   for (s = fd->sections; s; s = s->next)
   {
-   // Only the sections with the LOAD flag on will be considered
+    // Only the sections with the LOAD flag on will be considered
     if (bfd_get_section_flags(fd, s) & (SEC_LOAD))
     {
-     // Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
-     // http://www.delorie.com/gnu/docs/binutils/ld_7.html
+      // Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
+      // http://www.delorie.com/gnu/docs/binutils/ld_7.html
       if (bfd_section_lma(fd, s) == bfd_section_vma(fd, s))
       {
         section_addr = (unsigned int) bfd_section_lma(fd, s);
-       // The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
-       // (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
+        // The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
+        // (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
         if (section_addr >= 0x7fff)
         {
           continue;
@@ -895,8 +895,8 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
   ROS_INFO("Sending the firmware data");
   while (pos < ((total_size % 32) == 0 ? total_size : (total_size + 32 - (total_size % 32))))
   {
-   // For every WRITE_FLASH_ADDRESS_COMMAND we write 32 bytes of data to flash
-   // and this is done by sending 4 WRITE_FLASH_DATA_COMMAND packets, every one containing 8 bytes of data to be written
+    // For every WRITE_FLASH_ADDRESS_COMMAND we write 32 bytes of data to flash
+    // and this is done by sending 4 WRITE_FLASH_DATA_COMMAND packets, every one containing 8 bytes of data to be written
     if ((pos % 32) == 0)
     {
       packet = 0;

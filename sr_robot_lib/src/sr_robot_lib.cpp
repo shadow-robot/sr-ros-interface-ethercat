@@ -52,11 +52,11 @@ using boost::ptr_vector;
 namespace shadow_robot
 {
 #ifdef DEBUG_PUBLISHER
- // max of 20 publishers for debug
-  template <class StatusType, class CommandType>
-  const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
- // template <class StatusType, class CommandType>
- // const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
+  // max of 20 publishers for debug
+   template <class StatusType, class CommandType>
+   const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
+  // template <class StatusType, class CommandType>
+  // const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
 #endif
 
   template<class StatusType, class CommandType>
@@ -148,38 +148,38 @@ namespace shadow_robot
             nodehandle_(nh),
             nh_tilde(nhtilde),
 
-         // advertise the service to nullify the demand sent to the motor
+          // advertise the service to nullify the demand sent to the motor
           // this makes it possible to easily stop the controllers.
             nullify_demand_server_(
                     nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this)),
 
-         // initialises self tests (false as this is not a simulated hand\)
-         // self_tests_(new SrSelfTest(false)),
+          // initialises self tests (false as this is not a simulated hand\)
+          // self_tests_(new SrSelfTest(false)),
 //  self_test_thread_(new boost::thread(boost::bind(&SrRobotLib::checkSelfTests, this))),
 
-         // read the generic sensor polling frequency from the parameter server
+          // read the generic sensor polling frequency from the parameter server
             generic_sensor_update_rate_configs_vector(
                     read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
-         // read the pst3 sensor polling frequency from the parameter server
+          // read the pst3 sensor polling frequency from the parameter server
             pst3_sensor_update_rate_configs_vector(
                     read_update_rate_configs("pst3_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
-         // read the biotac sensor polling frequency from the parameter server
+          // read the biotac sensor polling frequency from the parameter server
             biotac_sensor_update_rate_configs_vector(
                     read_update_rate_configs("biotac_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
-         // read the UBI0 sensor polling frequency from the parameter server
+          // read the UBI0 sensor polling frequency from the parameter server
             ubi0_sensor_update_rate_configs_vector(
                     read_update_rate_configs("ubi0_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
             tactile_init_max_duration(tactile_timeout),
 
-         // Create a one-shot timer
+          // Create a one-shot timer
             tactile_check_init_timeout_timer(this->nh_tilde.createTimer(tactile_init_max_duration,
                                                                         boost::bind(
                                                                                 &SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback,
@@ -190,7 +190,7 @@ namespace shadow_robot
                                                                  generic_sensor_update_rate_configs_vector,
                                                                  operation_mode::device_update_state::INITIALIZATION))),
 
-         // initialize the calibration map
+          // initialize the calibration map
             calibration_map(read_joint_calibration())
   {
   }
@@ -198,7 +198,7 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrRobotLib<StatusType, CommandType>::reinitialize_sensors()
   {
-   // Create a new GenericTactiles object
+    // Create a new GenericTactiles object
     tactiles_init = shared_ptr<GenericTactiles<StatusType, CommandType> >(
             new GenericTactiles<StatusType, CommandType>(nodehandle_, device_id_,
                                                          generic_sensor_update_rate_configs_vector,
@@ -223,7 +223,7 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrRobotLib<StatusType, CommandType>::build_tactile_command(CommandType *command)
   {
-   // Mutual exclusion with the the initialization timeout
+    // Mutual exclusion with the the initialization timeout
     boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
 
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
@@ -284,7 +284,7 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrRobotLib<StatusType, CommandType>::update_tactile_info(StatusType *status)
   {
-   // Mutual exclusion with the the initialization timeout
+    // Mutual exclusion with the the initialization timeout
     boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
@@ -310,10 +310,10 @@ namespace shadow_robot
     XmlRpc::XmlRpcValue calib;
     nodehandle_.getParam("sr_calibrations", calib);
     ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
-   // iterate on all the joints
+    // iterate on all the joints
     for (int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
     {
-     // check the calibration is well formatted:
+      // check the calibration is well formatted:
       // first joint name, then calibration table
       ROS_ASSERT(calib[index_cal][0].getType() == XmlRpc::XmlRpcValue::TypeString);
       ROS_ASSERT(calib[index_cal][1].getType() == XmlRpc::XmlRpcValue::TypeArray);
@@ -321,11 +321,11 @@ namespace shadow_robot
       string joint_name = static_cast<string> (calib[index_cal][0]);
       vector<joint_calibration::Point> calib_table_tmp;
 
-     // now iterates on the calibration table for the current joint
+      // now iterates on the calibration table for the current joint
       for (int32_t index_table = 0; index_table < calib[index_cal][1].size(); ++index_table)
       {
         ROS_ASSERT(calib[index_cal][1][index_table].getType() == XmlRpc::XmlRpcValue::TypeArray);
-       // only 2 values per calibration point: raw and calibrated (doubles)
+        // only 2 values per calibration point: raw and calibrated (doubles)
         ROS_ASSERT(calib[index_cal][1][index_table].size() == 2);
         ROS_ASSERT(calib[index_cal][1][index_table][0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
         ROS_ASSERT(calib[index_cal][1][index_table][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
@@ -364,11 +364,11 @@ namespace shadow_robot
 
       XmlRpc::XmlRpcValue map_one_joint = joint_to_sensor_mapping[i];
 
-     // The parameter can either start by an array (sensor_name, coeff)
+      // The parameter can either start by an array (sensor_name, coeff)
       // or by an integer to specify if we calibrate before combining
       // the different sensors
       int param_index = 0;
-     // Check if the calibrate after combine int is set to 1
+      // Check if the calibrate after combine int is set to 1
       if (map_one_joint[param_index].getType() == XmlRpc::XmlRpcValue::TypeInt)
       {
         if (1 == static_cast<int> (map_one_joint[0]))
@@ -451,7 +451,7 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback(const ros::TimerEvent &event)
   {
-   // Mutual exclusion with the the initialization timeout
+    // Mutual exclusion with the the initialization timeout
     boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
 
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)

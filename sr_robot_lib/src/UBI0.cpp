@@ -72,12 +72,12 @@ namespace tactiles
     aux_spi_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData> >(
             new realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData>(this->nodehandle_, "tactile_aux_spi", 4));
 
-   // initialize the vector of tactiles
+    // initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr<std::vector<UBI0Data> >(new std::vector<UBI0Data>(this->nb_tactiles));
     this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(
             new std::vector<AllTactileData>(this->nb_tactiles));
 
-   // initialize the palm sensors
+    // initialize the palm sensors
     palm_tactiles = boost::shared_ptr<UBI0PalmData>(new UBI0PalmData());
   }
 
@@ -85,13 +85,13 @@ namespace tactiles
   void UBI0<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-   // TODO: use memcopy instead?
+    // TODO: use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
-     // the rest of the data is sampled at different rates
+      // the rest of the data is sampled at different rates
       switch (static_cast<int32u>(status_data->tactile_data_type))
       {
-       // TACTILE DATA
+        // TACTILE DATA
         case TACTILE_SENSOR_TYPE_UBI0_TACTILE:
           for (unsigned int i = 0; i < tactiles_vector->at(id_sensor).distal.size(); ++i)
           {
@@ -110,7 +110,7 @@ namespace tactiles
           }
           break;
 
-         // COMMON DATA
+          // COMMON DATA
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
@@ -183,7 +183,7 @@ namespace tactiles
       sr_robot_msgs::UBI0All tactiles;
       tactiles.header.stamp = ros::Time::now();
 
-     // tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
+      // tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
 
       for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
       {
@@ -267,7 +267,7 @@ namespace tactiles
     return this->all_tactile_data.get();
   }
 
- // Only to ensure that the template class is compiled for the types we are interested in
+  // Only to ensure that the template class is compiled for the types we are interested in
   template
   class UBI0<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
 

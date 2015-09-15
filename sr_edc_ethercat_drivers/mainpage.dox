@@ -806,6 +806,8 @@ static void write_flash_data(void)
 }
 
 \
+
+
 endcode
 
 \
@@ -875,6 +877,8 @@ static void read_flash(void)
 }
 
 \
+
+
 endcode
 
 \
@@ -951,6 +955,8 @@ static void erase_flash(void)
 
 
 \
+
+
 endcode
 
 
@@ -1043,6 +1049,8 @@ static void write_eeprom(void)
 }
 
 \
+
+
 endcode
 
 
@@ -1107,6 +1115,7 @@ length = 4;
 sendCanMsg();
 
 \
+
 endcode
 
 \
@@ -1177,6 +1186,8 @@ static void write_flash_address(void)
 }
 
 \
+
+
 endcode
 
 \
@@ -1671,6 +1682,7 @@ typedef struct
 } __attribute__((packed)) ETHERCAT_CAN_BRIDGE_DATA;
 
 \
+
 endcode
 
 \

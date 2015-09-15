@@ -62,11 +62,11 @@ namespace shadow_robot
                                                             string device_id, string joint_prefix) :
           SrMuscleRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
 #ifdef DEBUG_PUBLISHER
- // advertise the debug service, used to set which data we want to publish on the debug topics
-  , debug_service(nh_tilde.advertiseService("set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this))
+  // advertise the debug service, used to set which data we want to publish on the debug topics
+   , debug_service(nh_tilde.advertiseService("set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this))
 #endif
   {
-   // read the muscle polling frequency from the parameter server
+    // read the muscle polling frequency from the parameter server
     this->muscle_update_rate_configs_vector = this->read_update_rate_configs("muscle_data_update_rate/", nb_muscle_data,
                                                                              human_readable_muscle_data_types,
                                                                              muscle_data_types);
@@ -76,8 +76,8 @@ namespace shadow_robot
 
     for (unsigned int i = 0; i < this->muscle_update_rate_configs_vector.size(); ++i)
     {
-     // The initialization parameters (assigned a -2 in the config file) are introduced in the flags map that will allow us to determine
-     // if the data has been received from every muscle driver
+      // The initialization parameters (assigned a -2 in the config file) are introduced in the flags map that will allow us to determine
+      // if the data has been received from every muscle driver
       if (this->muscle_update_rate_configs_vector[i].when_to_update == -2)
       {
         this->from_muscle_driver_data_received_flags_[this->muscle_update_rate_configs_vector[i].what_to_update] = 0;
@@ -90,7 +90,7 @@ namespace shadow_robot
 
       ostringstream ss;
       ss << "reset_muscle_driver_" << i;
-     // initialize the reset muscle driver service
+      // initialize the reset muscle driver service
       driver.reset_driver_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(
               ss.str().c_str(),
               boost::bind(&SrMuscleHandLib<StatusType, CommandType>::reset_muscle_driver_callback, this, _1, _2, i));
@@ -100,7 +100,7 @@ namespace shadow_robot
 
     vector<JointToSensor> joint_to_sensor_vect = this->read_joint_to_sensor_mapping();
 
-   // initializing the joints vector
+    // initializing the joints vector
     vector<string> joint_names_tmp;
     vector<JointToMuscle> joint_to_muscle_map = read_joint_to_muscle_mapping();
     vector<JointToSensor> joints_to_sensors;
@@ -132,10 +132,10 @@ namespace shadow_robot
   {
     for (unsigned int index = 0; index < joint_names.size(); ++index)
     {
-     // add the joint and the vector of joints.
+      // add the joint and the vector of joints.
       Joint joint;
 
-     // update the joint variables
+      // update the joint variables
       joint.joint_name = joint_names[index];
       joint.joint_to_sensor = joint_to_sensors[index];
 
@@ -181,7 +181,7 @@ namespace shadow_robot
     XmlRpc::XmlRpcValue mapping;
     this->nodehandle_.getParam(param_name, mapping);
     ROS_ASSERT(mapping.getType() == XmlRpc::XmlRpcValue::TypeArray);
-   // iterate on all the joints
+    // iterate on all the joints
     for (int32_t i = 0; i < mapping.size(); ++i)
     {
       ROS_ASSERT(mapping[i].getType() == XmlRpc::XmlRpcValue::TypeArray);

@@ -69,26 +69,26 @@ extern "C"
 
 namespace operation_mode
 {
-namespace robot_state
-{
-  enum RobotState
+  namespace robot_state
   {
-    INITIALIZATION,
-    OPERATION,
-    SHUTDOWN
-  };
-}  // namespace robot_state
+    enum RobotState
+    {
+      INITIALIZATION,
+      OPERATION,
+      SHUTDOWN
+    };
+  }  // namespace robot_state
 }  // namespace operation_mode
 
 namespace crc_unions
 {
-union CRCUnion
-{
-  int16u word;
-  int8u byte[2];
-};
+  union CRCUnion
+  {
+    int16u word;
+    int8u byte[2];
+  };
 
-typedef CRCUnion union16;
+  typedef CRCUnion union16;
 }
 
 namespace shadow_robot

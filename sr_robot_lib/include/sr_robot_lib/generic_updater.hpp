@@ -46,14 +46,14 @@ extern "C"
 
 namespace operation_mode
 {
-namespace device_update_state
-{
-  enum DeviceUpdateState
+  namespace device_update_state
   {
-    INITIALIZATION,
-    OPERATION
-  };
-}   // namespace device_update_state
+    enum DeviceUpdateState
+    {
+      INITIALIZATION,
+      OPERATION
+    };
+  }   // namespace device_update_state
 }  // namespace operation_mode
 
 namespace generic_updater

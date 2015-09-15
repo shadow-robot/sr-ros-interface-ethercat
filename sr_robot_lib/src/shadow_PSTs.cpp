@@ -65,7 +65,7 @@ namespace tactiles
     tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >(
             new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(this->nodehandle_, "tactile", 4));
 
-   // initialize the vector of tactiles
+    // initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr<std::vector<PST3Data> >(new std::vector<PST3Data>(this->nb_tactiles));
     this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(
             new std::vector<AllTactileData>(this->nb_tactiles));
@@ -75,12 +75,12 @@ namespace tactiles
   void ShadowPSTs<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-   // TODO: use memcopy instead?
+    // TODO: use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
       switch (static_cast<int32u>(status_data->tactile_data_type))
       {
-       // TACTILE DATA
+        // TACTILE DATA
         case TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
@@ -113,7 +113,7 @@ namespace tactiles
           }
           break;
 
-         // COMMON DATA
+          // COMMON DATA
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
@@ -178,15 +178,15 @@ namespace tactiles
   {
     if (tactile_publisher->trylock())
     {
-     // for the time being, we only have PSTs tactile sensors
+      // for the time being, we only have PSTs tactile sensors
       sr_robot_msgs::ShadowPST tactiles;
       tactiles.header.stamp = ros::Time::now();
 
-     // tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
+      // tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
 
       for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
       {
-       // Always publish the last valid data: the data are updated
+        // Always publish the last valid data: the data are updated
         // only if they are valid
         tactiles.pressure.push_back(tactiles_vector->at(id_tact).pressure);
         tactiles.temperature.push_back(tactiles_vector->at(id_tact).temperature);
@@ -239,7 +239,7 @@ namespace tactiles
     return this->all_tactile_data.get();
   }
 
- // Only to ensure that the template class is compiled for the types we are interested in
+  // Only to ensure that the template class is compiled for the types we are interested in
   template
   class ShadowPSTs<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
 

@@ -31,17 +31,20 @@
 
 #include <math.h>
 #include <sstream>
+#include <string>
+#include <vector>
 #include <iomanip>
 #include <boost/foreach.hpp>
 #include <std_msgs/Int16.h>
-#include <math.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <pthread.h>
 
 #include <sr_utilities/sr_math_utils.hpp>
 
-using namespace std;
+using std::string;
+using std::stringstream;
+using std::vector;
 
 #include <sr_external_dependencies/types_for_external.h>
 
@@ -135,7 +138,6 @@ void SR06::construct(EtherCAT_SlaveHandler *sh, int &start_address)
  */
 int SR06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
-
   int retval = SR0X::initialize(hw, allow_unprogrammed);
 
   if (retval != 0)
@@ -143,15 +145,17 @@ int SR06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
     return retval;
   }
 
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> >(
-          new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(
-                  hw, nodehandle_, nh_tilde_, device_id_, device_joint_prefix_));
+  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
+          ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> >(
+          new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
+                  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(hw, nodehandle_, nh_tilde_,
+                                                                 device_id_, device_joint_prefix_));
 
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int> (ETHERCAT_STATUS_DATA_SIZE));
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int> (ETHERCAT_COMMAND_DATA_SIZE));
   ROS_INFO("ETHERCAT_CAN_BRIDGE_DATA_SIZE  = %4d bytes", static_cast<int> (ETHERCAT_CAN_BRIDGE_DATA_SIZE));
 
- // initialise the publisher for the extra analog inputs, gyroscope and accelerometer on the palm
+  // initialise the publisher for the extra analog inputs, gyroscope and accelerometer on the palm
   extra_analog_inputs_publisher.reset(
           new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_, "palm_extras", 10));
 
@@ -189,16 +193,16 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
 
   d.addf("PIC idle time (in microsecs)", "%d", sr_hand_lib->main_pic_idle_time);
   d.addf("Min PIC idle time (since last diagnostics)", "%d", sr_hand_lib->main_pic_idle_time_min);
- // reset the idle time min to a big number, to get a fresh number on next diagnostic
+  // reset the idle time min to a big number, to get a fresh number on next diagnostic
   sr_hand_lib->main_pic_idle_time_min = 1000;
 
   this->ethercatDiagnostics(d, 2);
   vec.push_back(d);
 
- // Add the diagnostics from the hand
+  // Add the diagnostics from the hand
   sr_hand_lib->add_diagnostics(vec, d);
 
- // Add the diagnostics from the tactiles
+  // Add the diagnostics from the tactiles
   if (sr_hand_lib->tactiles != NULL)
   {
     sr_hand_lib->tactiles->add_diagnostics(vec, d);
@@ -224,8 +228,8 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
 
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *command = (ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *) (buffer);
-  ETHERCAT_CAN_BRIDGE_DATA *message = (ETHERCAT_CAN_BRIDGE_DATA *) (buffer + ETHERCAT_COMMAND_DATA_SIZE);
+  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *command = reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *>(buffer);
+  ETHERCAT_CAN_BRIDGE_DATA *message = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
 
   if (!flashing)
   {
@@ -236,33 +240,33 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
     command->EDC_command = EDC_COMMAND_CAN_DIRECT_MODE;
   }
 
- // alternate between even and uneven motors
+  // alternate between even and uneven motors
   // and ask for the different informations.
   sr_hand_lib->build_command(command);
 
-  ROS_DEBUG(
-          "Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
-          command->to_motor_data_type,
-          command->motor_data[0],
-          command->motor_data[1],
-          command->motor_data[2],
-          command->motor_data[3],
-          command->motor_data[4],
-          command->motor_data[5],
-          command->motor_data[6],
-          command->motor_data[7],
-          command->motor_data[8],
-          command->motor_data[9],
-          command->motor_data[10],
-          command->motor_data[11],
-          command->motor_data[12],
-          command->motor_data[13],
-          command->motor_data[14],
-          command->motor_data[15],
-          command->motor_data[16],
-          command->motor_data[17],
-          command->motor_data[18],
-          command->motor_data[19]);
+  ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X "
+                    "0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
+            command->to_motor_data_type,
+            command->motor_data[0],
+            command->motor_data[1],
+            command->motor_data[2],
+            command->motor_data[3],
+            command->motor_data[4],
+            command->motor_data[5],
+            command->motor_data[6],
+            command->motor_data[7],
+            command->motor_data[8],
+            command->motor_data[9],
+            command->motor_data[10],
+            command->motor_data[11],
+            command->motor_data[12],
+            command->motor_data[13],
+            command->motor_data[14],
+            command->motor_data[15],
+            command->motor_data[16],
+            command->motor_data[17],
+            command->motor_data[18],
+            command->motor_data[19]);
 
   build_CAN_message(message);
 }
@@ -287,10 +291,10 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
  */
 bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 {
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *status_data = (ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *) (
-          this_buffer + command_size_);
-  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *) (this_buffer + command_size_ +
-                                                                     ETHERCAT_STATUS_DATA_SIZE);
+  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *status_data =
+          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *>(this_buffer + command_size_);
+  ETHERCAT_CAN_BRIDGE_DATA *can_data = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(this_buffer + command_size_ +
+                                                                                    ETHERCAT_STATUS_DATA_SIZE);
   //  int16u                                        *status_buffer = (int16u*)status_data;
   static unsigned int num_rxed_packets = 0;
 
@@ -321,8 +325,10 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
       debug_publisher->msg_.motor_data_packet_misc.push_back(status_data->motor_data_packet[i].misc);
     }
 
-    debug_publisher->msg_.tactile_data_type = static_cast<unsigned int> (static_cast<int32u> (status_data->tactile_data_type));
-    debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int> (static_cast<int16u> (status_data->tactile_data_valid));
+    debug_publisher->msg_.tactile_data_type = static_cast<unsigned int>(
+            static_cast<int32u>(status_data->tactile_data_type));
+    debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int> (
+            static_cast<int16u> (status_data->tactile_data_valid));
     debug_publisher->msg_.tactile.clear();
     for (unsigned int i = 0; i < 5; ++i)
     {
@@ -337,30 +343,31 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
   if (status_data->EDC_command == EDC_COMMAND_INVALID)
   {
-   // received empty message: the pic is not writing to its mailbox.
+    // received empty message: the pic is not writing to its mailbox.
     ++zero_buffer_read;
-    float percentage_packet_loss = 100.f * ((float) zero_buffer_read / (float) num_rxed_packets);
+    float percentage_packet_loss = 100.f * (static_cast<float>(zero_buffer_read) /
+                                            static_cast<float>(num_rxed_packets));
 
     ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus",
               zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
     return true;
   }
 
- // We received a coherent message.
- // Update the library (positions, diagnostics values, actuators, etc...)
- // with the received information
+  // We received a coherent message.
+  // Update the library (positions, diagnostics values, actuators, etc...)
+  // with the received information
   sr_hand_lib->update(status_data);
 
- // Now publish the additional data at 100Hz (every 10 cycles)
+  // Now publish the additional data at 100Hz (every 10 cycles)
   if (cycle_count >= 10)
   {
-   // publish tactiles if we have them
+    // publish tactiles if we have them
     if (sr_hand_lib->tactiles != NULL)
     {
       sr_hand_lib->tactiles->publish();
     }
 
-   // And we also publish the additional data (accelerometer / gyroscope / analog inputs)
+    // And we also publish the additional data (accelerometer / gyroscope / analog inputs)
     std_msgs::Float64MultiArray extra_analog_msg;
     extra_analog_msg.layout.dim.resize(3);
     extra_analog_msg.data.resize(3 + 3 + 4);
@@ -396,7 +403,7 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   ++cycle_count;
 
 
- // If we're flashing, check is the packet has been acked
+  // If we're flashing, check is the packet has been acked
   if (flashing & !can_packet_acked)
   {
     if (can_data_is_ack(can_data))
@@ -410,7 +417,7 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
 void SR06::reinitialize_boards()
 {
- // Reinitialize motors information
+  // Reinitialize motors information
   sr_hand_lib->reinitialize_motors();
 }
 

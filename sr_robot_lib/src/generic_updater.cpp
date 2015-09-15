@@ -64,7 +64,7 @@ namespace generic_updater
     ROS_DEBUG_STREAM("Init config size" << initialization_configs_vector.size());
     ROS_DEBUG_STREAM("Important config size" << important_update_configs_vector.size());
 
-   // If there isn't any command defined as initializingcommand (-2), state switches to operation
+    // If there isn't any command defined as initializingcommand (-2), state switches to operation
     if (initialization_configs_vector.size() == 0)
     {
       ROS_INFO_STREAM("No init command. Switching to operation");
@@ -84,7 +84,7 @@ namespace generic_updater
     }
   }
 
- // Only to ensure that the template class is compiled for the types we are interested in
+  // Only to ensure that the template class is compiled for the types we are interested in
   template
   class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
 

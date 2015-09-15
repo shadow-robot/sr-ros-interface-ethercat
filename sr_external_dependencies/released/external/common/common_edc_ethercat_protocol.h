@@ -53,7 +53,7 @@ typedef enum
   EDC_COMMAND_SENSOR_ADC_CHANNEL_CS,                         // !< Instead of sending ADC readings, send the chip select channel, so the host can confirm the firmware is correct.
   EDC_COMMAND_CAN_DIRECT_MODE                                // !< Might be used in the future for running automated tests inside the firmware.
 
- // EDC_COMMAND_TEST_RESULTS,                                  // !< Might be used in the future for running automated tests inside the firmware.
+  // EDC_COMMAND_TEST_RESULTS,                                  // !< Might be used in the future for running automated tests inside the firmware.
 } EDC_COMMAND;
 
 

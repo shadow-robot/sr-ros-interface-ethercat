@@ -65,7 +65,7 @@ namespace shadow_robot
                                                                          this)),
             lock_command_sending_(new boost::mutex())
   {
-   // reading the parameters to check for a specified default control type
+    // reading the parameters to check for a specified default control type
     // using FORCE control if no parameters are set
     string default_control_mode;
     this->nh_tilde.template param<string>("default_control_mode", default_control_mode, "FORCE");
@@ -95,14 +95,14 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::update(StatusType *status_data)
   {
-   // read the PIC idle time
+    // read the PIC idle time
     this->main_pic_idle_time = status_data->idle_time_us;
     if (status_data->idle_time_us < this->main_pic_idle_time_min)
     {
       this->main_pic_idle_time_min = status_data->idle_time_us;
     }
 
-   // get the current timestamp
+    // get the current timestamp
     struct timeval tv;
     double timestamp = 0.0;
     if (gettimeofday(&tv, NULL))
@@ -112,7 +112,7 @@ namespace shadow_robot
       timestamp = double(tv.tv_sec) + double(tv.tv_usec) / 1.0e+6;
     }
 
-   // First we read the joints information
+    // First we read the joints information
     for (vector<Joint>::iterator joint_tmp = this->joints_vector.begin();
          joint_tmp != this->joints_vector.end();
          ++joint_tmp)
@@ -129,7 +129,7 @@ namespace shadow_robot
       motor_index_full = motor_wrapper->motor_id;
       motor_actuator->state_.device_id_ = motor_index_full;
 
-     // Fill in the tactiles.
+      // Fill in the tactiles.
       if (this->tactiles != NULL)
       {
         motor_actuator->motor_state_.tactiles_ = this->tactiles->get_tactile_data();
@@ -137,17 +137,17 @@ namespace shadow_robot
 
       this->process_position_sensor_data(joint_tmp, status_data, timestamp);
 
-     // filter the effort
+      // filter the effort
       pair<double, double> effort_and_effort_d = joint_tmp->effort_filter.compute(
               motor_actuator->motor_state_.force_unfiltered_, timestamp);
       motor_actuator->state_.last_measured_effort_ = effort_and_effort_d.first;
 
-     // get the remaining information.
+      // get the remaining information.
       bool read_motor_info = false;
 
       if (status_data->which_motors == 0)
       {
-       // We sampled the even motor numbers
+        // We sampled the even motor numbers
         if (motor_index_full % 2 == 0)
         {
           read_motor_info = true;
@@ -155,39 +155,39 @@ namespace shadow_robot
       }
       else
       {
-       // we sampled the odd motor numbers
+        // we sampled the odd motor numbers
         if (motor_index_full % 2 == 1)
         {
           read_motor_info = true;
         }
       }
 
-     // the position of the motor in the message
+      // the position of the motor in the message
       // is different from the motor index:
       // the motor indexes range from 0 to 19
       // while the message contains information
       // for only 10 motors.
       index_motor_in_msg = motor_index_full / 2;
 
-     // setting the position of the motor in the message,
+      // setting the position of the motor in the message,
       // we'll print that in the diagnostics.
       motor_wrapper->msg_motor_id = index_motor_in_msg;
 
-     // OK now we read the info and add it to the actuator state
+      // OK now we read the info and add it to the actuator state
       if (read_motor_info)
       {
         read_additional_data(joint_tmp, status_data);
       }
     } // end for joint
 
-   // then we read the tactile sensors information
+    // then we read the tactile sensors information
     this->update_tactile_info(status_data);
   } // end update()
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType *command)
   {
-   // Mutual exclusion with the change_control_type service. We have to wait until the control_type_ variable has been set.
+    // Mutual exclusion with the change_control_type service. We have to wait until the control_type_ variable has been set.
     boost::mutex::scoped_lock l(*lock_command_sending_);
 
     if (control_type_changed_flag_)
@@ -207,11 +207,11 @@ namespace shadow_robot
     }
     else
     {
-     // build the motor command
+      // build the motor command
       motor_current_state = motor_updater_->build_command(command);
     }
 
-   // Build the tactile sensors command
+    // Build the tactile sensors command
     this->build_tactile_command(command);
 
     ///////
@@ -224,7 +224,7 @@ namespace shadow_robot
     if (reconfig_queue.empty() && reset_motors_queue.empty()
         && motor_system_control_flags_.empty())
     {
-     // no config to send
+      // no config to send
       switch (control_type_.control_type)
       {
         case sr_robot_msgs::ControlType::FORCE:
@@ -239,7 +239,7 @@ namespace shadow_robot
           break;
       }
 
-     // loop on all the joints and update their motor: we're sending commands to all the motors.
+      // loop on all the joints and update their motor: we're sending commands to all the motors.
       for (vector<Joint>::iterator joint_tmp = this->joints_vector.begin();
            joint_tmp != this->joints_vector.end();
            ++joint_tmp)
@@ -253,47 +253,47 @@ namespace shadow_robot
 
         if (!this->nullify_demand_)
         {
-         // We send the computed demand
+          // We send the computed demand
           command->motor_data[motor_wrapper->motor_id] = motor_wrapper->actuator->command_.effort_;
         }
         else
         {
-         // We want to send a demand of 0
+          // We want to send a demand of 0
           command->motor_data[motor_wrapper->motor_id] = 0;
         }
 
         joint_tmp->actuator_wrapper->actuator->state_.last_commanded_effort_ = joint_tmp->actuator_wrapper->actuator->command_.effort_;
 
 #ifdef DEBUG_PUBLISHER
-       // publish the debug values for the given motors.
-        // NB: debug_motor_indexes_and_data is smaller
-        //     than debug_publishers.
-        int publisher_index = 0;
-        shared_ptr<pair<int, int> > debug_pair;
-        if (this->debug_mutex.try_lock())
-        {
+        // publish the debug values for the given motors.
+         // NB: debug_motor_indexes_and_data is smaller
+         //     than debug_publishers.
+         int publisher_index = 0;
+         shared_ptr<pair<int, int> > debug_pair;
+         if (this->debug_mutex.try_lock())
+         {
 
-          BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
-          {
-            if (debug_pair != NULL)
-            {
-              MotorWrapper* actuator_wrapper = static_cast<MotorWrapper*> (joint_tmp->actuator_wrapper.get());
-             // check if we want to publish some data for the current motor
-              if (debug_pair->first == actuator_wrapper->motor_id)
-              {
-               // check if it's the correct data
-                if (debug_pair->second == -1)
-                {
-                  this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
-                  this->debug_publishers[publisher_index].publish(this->msg_debug);
-                }
-              }
-            }
-            publisher_index++;
-          }
+           BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
+           {
+             if (debug_pair != NULL)
+             {
+               MotorWrapper* actuator_wrapper = static_cast<MotorWrapper*> (joint_tmp->actuator_wrapper.get());
+              // check if we want to publish some data for the current motor
+               if (debug_pair->first == actuator_wrapper->motor_id)
+               {
+                // check if it's the correct data
+                 if (debug_pair->second == -1)
+                 {
+                   this->msg_debug.data = joint_tmp->actuator_wrapper->actuator->command_.effort_;
+                   this->debug_publishers[publisher_index].publish(this->msg_debug);
+                 }
+               }
+             }
+             publisher_index++;
+           }
 
-          this->debug_mutex.unlock();
-        } // end try_lock
+           this->debug_mutex.unlock();
+         } // end try_lock
 #endif
       }  // end for each joint
     } // end if reconfig_queue.empty()
@@ -301,12 +301,12 @@ namespace shadow_robot
     {
       if (!motor_system_control_flags_.empty())
       {
-       // treat the first waiting system control and remove it from the queue
+        // treat the first waiting system control and remove it from the queue
         vector<sr_robot_msgs::MotorSystemControls> system_controls_to_send;
         system_controls_to_send = motor_system_control_flags_.front();
         motor_system_control_flags_.pop();
 
-       // set the correct type of command to send to the hand.
+        // set the correct type of command to send to the hand.
         command->to_motor_data_type = MOTOR_SYSTEM_CONTROLS;
 
         for (vector<sr_robot_msgs::MotorSystemControls>::iterator it = system_controls_to_send.begin();
@@ -358,7 +358,7 @@ namespace shadow_robot
       {
         if (!reset_motors_queue.empty())
         {
-         // reset the CAN messages counters for the motor we're going to reset.
+          // reset the CAN messages counters for the motor we're going to reset.
           short motor_id = reset_motors_queue.front();
 
           for (vector<Joint>::iterator joint_tmp = this->joints_vector.begin();
@@ -380,7 +380,7 @@ namespace shadow_robot
             }
           }
 
-         // we have some reset command waiting.
+          // we have some reset command waiting.
           // We'll send all of them
           command->to_motor_data_type = MOTOR_SYSTEM_RESET;
 
@@ -409,7 +409,7 @@ namespace shadow_robot
         {
           if (!reconfig_queue.empty())
           {
-           // we have a waiting config:
+            // we have a waiting config:
             // we need to send all the config, finishing by the
             // CRC. We'll remove the config from the queue only
             // when the whole config has been sent
@@ -418,13 +418,13 @@ namespace shadow_robot
             // in the config array.
             command->to_motor_data_type = static_cast<TO_MOTOR_DATA_TYPE> (config_index);
 
-           // convert the motor index to the index of the motor in the message
+            // convert the motor index to the index of the motor in the message
             int motor_index = reconfig_queue.front().first;
 
-           // set the data we want to send to the given motor
+            // set the data we want to send to the given motor
             command->motor_data[motor_index] = reconfig_queue.front().second[config_index].word;
 
-           // We're now sending the CRC. We need to send the correct CRC to
+            // We're now sending the CRC. We need to send the correct CRC to
             // the motor we updated, and CRC=0 to all the other motors in its
             // group (odd/even) to tell them to ignore the new
             // configuration.
@@ -433,7 +433,7 @@ namespace shadow_robot
             // config values
             if (config_index == static_cast<int> (MOTOR_CONFIG_CRC))
             {
-             // loop on all the motors and send a CRC of 0
+              // loop on all the motors and send a CRC of 0
               // except for the motor we're reconfiguring
               for (int i = 0; i < NUM_MOTORS; ++i)
               {
@@ -443,7 +443,7 @@ namespace shadow_robot
                 }
               }
 
-             // reset the config_index and remove the configuration
+              // reset the config_index and remove the configuration
               // we just sent from the configurations queue
               reconfig_queue.pop();
               config_index = MOTOR_CONFIG_FIRST_VALUE;
@@ -501,7 +501,7 @@ namespace shadow_robot
             d.addf("Strain Gauge Left", "%d", actuator->motor_state_.strain_gauge_left_);
             d.addf("Strain Gauge Right", "%d", actuator->motor_state_.strain_gauge_right_);
 
-           // if some flags are set
+            // if some flags are set
             ostringstream ss;
             if (actuator->motor_state_.flags_.size() > 0)
             {
@@ -510,7 +510,7 @@ namespace shadow_robot
 
               BOOST_FOREACH(flag, actuator->motor_state_.flags_)
                     {
-                     // Serious error flag
+                      // Serious error flag
                       if (flag.second)
                       {
                         flags_seriousness = d.ERROR;
@@ -610,14 +610,14 @@ namespace shadow_robot
       return;
     }
 
-   // check the masks to see if the CAN messages arrived to the motors
-   // the flag should be set to 1 for each motor
+    // check the masks to see if the CAN messages arrived to the motors
+    // the flag should be set to 1 for each motor
     joint_tmp->actuator_wrapper->actuator_ok = sr_math_utils::is_bit_mask_index_true(
             status_data->which_motor_data_arrived,
             motor_index_full);
 
-   // check the masks to see if a bad CAN message arrived
-   // the flag should be 0
+    // check the masks to see if a bad CAN message arrived
+    // the flag should be 0
     joint_tmp->actuator_wrapper->bad_data = sr_math_utils::is_bit_mask_index_true(
             status_data->which_motor_data_had_errors,
             index_motor_in_msg);
@@ -667,7 +667,7 @@ namespace shadow_robot
       } // end try_lock
 #endif
 
-     // we received the data and it was correct
+      // we received the data and it was correct
       bool read_torque = true;
       switch (status_data->motor_data_type)
       {
@@ -714,7 +714,7 @@ namespace shadow_robot
           actuator->motor_state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
           break;
         case MOTOR_DATA_CURRENT:
-         // we're receiving the current in milli amps
+          // we're receiving the current in milli amps
           actuator->state_.last_measured_current_ =
                   static_cast<double> (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc))
                   / 1000.0;
@@ -763,7 +763,7 @@ namespace shadow_robot
           break;
 
         case MOTOR_DATA_SLOW_MISC:
-         // We received a slow data:
+          // We received a slow data:
           // the slow data type is contained in .torque, while
           // the actual data is in .misc.
           // so we won't read torque information from .torque
@@ -879,7 +879,7 @@ namespace shadow_robot
 #endif
       }
 
-     // Check the message to see if everything has already been received
+      // Check the message to see if everything has already been received
       if (motor_current_state == operation_mode::device_update_state::INITIALIZATION)
       {
         if (motor_data_checker->check_message(
@@ -906,11 +906,11 @@ namespace shadow_robot
 
     if (joint_tmp->joint_to_sensor.calibrate_after_combining_sensors)
     {
-     // first we combine the different sensors and then we
+      // first we combine the different sensors and then we
       // calibrate the value we obtained. This is used for
       // some compound sensors ( THJ5 = cal(THJ5A + THJ5B))
       double raw_position = 0.0;
-     // when combining the values, we use the coefficient imported
+      // when combining the values, we use the coefficient imported
       // from the sensor_to_joint.yaml file (in sr_edc_launch/config)
 
       BOOST_FOREACH(PartialJointToSensor joint_to_sensor, joint_tmp->joint_to_sensor.joint_to_sensor_vector)
@@ -920,14 +920,14 @@ namespace shadow_robot
               raw_position += static_cast<double> (tmp_raw) * joint_to_sensor.coeff;
             }
 
-     // and now we calibrate
+      // and now we calibrate
       this->calibration_tmp = this->calibration_map.find(joint_tmp->joint_name);
       actuator->motor_state_.position_unfiltered_ = this->calibration_tmp->compute(static_cast<double> (raw_position));
     }
     else
     {
-     // we calibrate the different sensors first and we combine the calibrated
-     // values. This is used in the joint 0s for example ( J0 = cal(J1)+cal(J2) )
+      // we calibrate the different sensors first and we combine the calibrated
+      // values. This is used in the joint 0s for example ( J0 = cal(J1)+cal(J2) )
       double calibrated_position = 0.0;
       PartialJointToSensor joint_to_sensor;
       string sensor_name;
@@ -941,16 +941,16 @@ namespace shadow_robot
         joint_to_sensor = joint_tmp->joint_to_sensor.joint_to_sensor_vector[index_joint_to_sensor];
         sensor_name = joint_tmp->joint_to_sensor.sensor_names[index_joint_to_sensor];
 
-       // get the raw position
+        // get the raw position
         int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
-       // push the new raw values
+        // push the new raw values
         actuator->motor_state_.raw_sensor_values_.push_back(raw_pos);
 
-       // calibrate and then combine
+        // calibrate and then combine
         this->calibration_tmp = this->calibration_map.find(sensor_name);
         double tmp_cal_value = this->calibration_tmp->compute(static_cast<double> (raw_pos));
 
-       // push the new calibrated values.
+        // push the new calibrated values.
         actuator->motor_state_.calibrated_sensor_values_.push_back(tmp_cal_value);
 
         calibrated_position += tmp_cal_value * joint_to_sensor.coeff;
@@ -968,15 +968,15 @@ namespace shadow_robot
   {
     SrMotorActuator *actuator = get_joint_actuator(joint_tmp);
 
-   // calibrate the joint and update the position.
+    // calibrate the joint and update the position.
     calibrate_joint(joint_tmp, status_data);
 
-   // filter the position and velocity
+    // filter the position and velocity
     pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(actuator->motor_state_.position_unfiltered_,
                                                                           timestamp);
-   // reset the position to the filtered value
+    // reset the position to the filtered value
     actuator->state_.position_ = pos_and_velocity.first;
-   // set the velocity to the filtered velocity
+    // set the velocity to the filtered velocity
     actuator->state_.velocity_ = pos_and_velocity.second;
   }
 
@@ -985,11 +985,11 @@ namespace shadow_robot
   {
     vector<pair<string, bool> > flags;
 
-   // 16 is the number of flags
+    // 16 is the number of flags
     for (unsigned int i = 0; i < 16; ++i)
     {
       pair<string, bool> new_flag;
-     // if the flag is set add the name
+      // if the flag is set add the name
       if (sr_math_utils::is_bit_mask_index_true(flag, i))
       {
         if (sr_math_utils::is_bit_mask_index_true(SERIOUS_ERROR_FLAGS, i))
@@ -1026,9 +1026,9 @@ namespace shadow_robot
                     " deadband=" << deadband <<
                     " sign=" << sign);
 
-   // the vector is of the size of the TO_MOTOR_DATA_TYPE enum.
-   // the value of the element at a given index is the value
-   // for the given MOTOR_CONFIG.
+    // the vector is of the size of the TO_MOTOR_DATA_TYPE enum.
+    // the value of the element at a given index is the value
+    // for the given MOTOR_CONFIG.
     vector<crc_unions::union16> full_config(MOTOR_CONFIG_CRC + 1);
     crc_unions::union16 value;
 
@@ -1060,7 +1060,7 @@ namespace shadow_robot
     ROS_DEBUG_STREAM("deadband: " << static_cast<int> (static_cast<int8u> (value.byte[0])) << " value: " <<
                      static_cast<int16u> (value.word));
 
-   // compute crc
+    // compute crc
     crc_result = 0;
     for (unsigned int i = MOTOR_CONFIG_FIRST_VALUE; i <= MOTOR_CONFIG_LAST_VALUE; ++i)
     {
@@ -1071,7 +1071,7 @@ namespace shadow_robot
       INSERT_CRC_CALCULATION_HERE;
     }
 
-   // never send a CRC of 0, send 1 if the
+    // never send a CRC of 0, send 1 if the
     // computed CRC is 0 (0 is a code for
     // ignoring the config)
     if (crc_result == 0)
@@ -1084,19 +1084,19 @@ namespace shadow_robot
     ForceConfig config;
     config.first = motor_index;
     config.second = full_config;
-   // push the new config to the configuration queue
+    // push the new config to the configuration queue
     reconfig_queue.push(config);
   }
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::reinitialize_motors()
   {
-   // Create a new MotorUpdater object
+    // Create a new MotorUpdater object
     motor_updater_ = shared_ptr<MotorUpdater<CommandType> >(
             new MotorUpdater<CommandType>(motor_update_rate_configs_vector,
                                           operation_mode::device_update_state::INITIALIZATION));
     motor_current_state = operation_mode::device_update_state::INITIALIZATION;
-   // Initialize the motor data checker
+    // Initialize the motor data checker
     motor_data_checker = shared_ptr<MotorDataChecker>(
             new MotorDataChecker(this->joints_vector, motor_updater_->initialization_configs_vector));
   }
@@ -1106,14 +1106,14 @@ namespace shadow_robot
           sr_robot_msgs::ChangeControlType::Request &request,
           sr_robot_msgs::ChangeControlType::Response &response)
   {
-   // querying which we're control type we're using currently.
+    // querying which we're control type we're using currently.
     if (request.control_type.control_type == sr_robot_msgs::ControlType::QUERY)
     {
       response.result = control_type_;
       return true;
     }
 
-   // We're not querying the control type
+    // We're not querying the control type
     if ((request.control_type.control_type != sr_robot_msgs::ControlType::PWM) &&
         (request.control_type.control_type != sr_robot_msgs::ControlType::FORCE))
     {
@@ -1136,18 +1136,18 @@ namespace shadow_robot
 
     if (control_type_.control_type != request.control_type.control_type)
     {
-     // Mutual exclusion with the build_command() function. We have to wait until the current motor command has been built.
+      // Mutual exclusion with the build_command() function. We have to wait until the current motor command has been built.
       boost::mutex::scoped_lock l(*lock_command_sending_);
 
       ROS_WARN("Changing control type");
 
       control_type_ = request.control_type;
-     // Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
-     // The flag is set in the callback function of the change_control_type_ service.
-     // The flag is checked in build_command() and the necessary actions are taken there.
-     // These actions involve calling services in the controller manager and all the active controllers. This is the
-     // reason why we don't do it directly in the callback function. As we use a single thread to serve the callbacks,
-     // doing so would cause a deadlock, thus we do it in the realtime loop thread instead.
+      // Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
+      // The flag is set in the callback function of the change_control_type_ service.
+      // The flag is checked in build_command() and the necessary actions are taken there.
+      // These actions involve calling services in the controller manager and all the active controllers. This is the
+      // reason why we don't do it directly in the callback function. As we use a single thread to serve the callbacks,
+      // doing so would cause a deadlock, thus we do it in the realtime loop thread instead.
       control_type_changed_flag_ = true;
     }
 
@@ -1193,7 +1193,7 @@ namespace shadow_robot
 
       this->nh_tilde.setParam("default_control_mode", param_value);
 
-     // We need another node handle here, that is at the node's base namespace, as the controllers and the controller manager are unique per ethercat loop.
+      // We need another node handle here, that is at the node's base namespace, as the controllers and the controller manager are unique per ethercat loop.
       ros::NodeHandle nh;
       ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>(
               "controller_manager/list_controllers");
@@ -1258,12 +1258,12 @@ namespace shadow_robot
       }
       else
       {
-       // only pushes the demands with a correct motor_id
+        // only pushes the demands with a correct motor_id
         tmp_motor_controls.push_back(request.motor_system_controls[i]);
       }
     }
 
-   // add the request to the queue if it's not empty
+    // add the request to the queue if it's not empty
     if (tmp_motor_controls.size() > 0)
     {
       motor_system_control_flags_.push(tmp_motor_controls);

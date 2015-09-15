@@ -86,7 +86,7 @@ typedef enum
   MUSCLE_SLOW_DATA_INVALID = 0x0000,             // !< For safety, this is not a data type
   MUSCLE_SLOW_DATA_SVN_REVISION = 0x0001,             // !< The revision of the code
   MUSCLE_SLOW_DATA_SVN_SERVER_REVISION = 0x0002,             // !< The revision of the code on the SVN server at build time.
- // !  Should we have done an Update before building?
+  // !  Should we have done an Update before building?
           MUSCLE_SLOW_DATA_SVN_MODIFIED = 0x0003,             // !< Did the local code have any uncomitted modifications at build time?
   MUSCLE_SLOW_DATA_SERIAL_NUMBER_LOW = 0x0004,             // !<
   MUSCLE_SLOW_DATA_SERIAL_NUMBER_HIGH = 0x0005,             // !<
@@ -242,10 +242,10 @@ typedef union
     int8u nothing[2];
   } misc;
 
- // struct
- // {
+  // struct
+  // {
   int8u raw[8];
- // } raw;
+  // } raw;
 } MUSCLE_DATA_PACKET;
 
 
@@ -268,20 +268,20 @@ typedef union
 typedef struct
 {
   EDC_COMMAND EDC_command;                       // !< This tells us the contents of the data below.
- // !< This value should be identical to the EDC_command
- // !< value which arrived from the host in the previous
- // !< EtherCAT packet
+  // !< This value should be identical to the EDC_command
+  // !< value which arrived from the host in the previous
+  // !< EtherCAT packet
 
   int16u sensors[SENSORS_NUM_0320 + 1];
 
   FROM_MUSCLE_DATA_TYPE muscle_data_type;                  // !< Which data does pressure_sensors[] actually contain?
- // !< This value should agree with the previous value
- // !< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
+  // !< This value should agree with the previous value
+  // !< in ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND
 
   int16u which_muscle_data_arrived;        // !< Bit s indicate which muscle data packet is new this frame
- // !  This variable needst to be 16 bits (even though we use
- // !  only 8 of the bits) to ensure that later words are 16-bit
- // !  aligned. (Mis-alignment causes memory exception).
+  // !  This variable needst to be 16 bits (even though we use
+  // !  only 8 of the bits) to ensure that later words are 16-bit
+  // !  aligned. (Mis-alignment causes memory exception).
   MUSCLE_DATA_PACKET muscle_data_packet[NUM_MUSCLE_DATA_PACKETS];
 
 
@@ -290,7 +290,7 @@ typedef struct
   TACTILE_SENSOR_STATUS_v1 tactile[5];                        // 
 
   int16u idle_time_us;                      // !< The idle time from when the palm has finished dealing with one EtherCAT
- // !< packet, and the next packet arriving. Ideally, this number should be more than 50.
+  // !< packet, and the next packet arriving. Ideally, this number should be more than 50.
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS;
 
@@ -306,7 +306,7 @@ typedef struct
   int8u muscle_data[NUM_MUSCLES / 2];        // !< Data to send to muscles. [-4 .. 4] packed into the nibbles
 
   int32u tactile_data_type;                 // !< Request for specific tactile data
- // int32u                    tactile_data_type_1;                 // !< The host can request up to 2 different values per frame
+  // int32u                    tactile_data_type_1;                 // !< The host can request up to 2 different values per frame
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND;
 

@@ -65,7 +65,7 @@ namespace tactiles
     tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> >(
             new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(this->nodehandle_, "tactile", 4));
 
-   // initialize the vector of tactiles
+    // initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr<std::vector<BiotacData> >(new std::vector<BiotacData>(this->nb_tactiles));
     this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(
             new std::vector<AllTactileData>(this->nb_tactiles));
@@ -75,19 +75,19 @@ namespace tactiles
   void Biotac<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-   // TODO: use memcopy instead?
+    // TODO: use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
-     // We always receive pac0 and pac1
+      // We always receive pac0 and pac1
       tactiles_vector->at(
               id_sensor).pac0 = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
       tactiles_vector->at(
               id_sensor).pac1 = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[1]));
 
-     // the rest of the data is sampled at different rates
+      // the rest of the data is sampled at different rates
       switch (static_cast<int32u>(status_data->tactile_data_type))
       {
-       // TACTILE DATA
+        // TACTILE DATA
         case TACTILE_SENSOR_TYPE_BIOTAC_INVALID:
           ROS_WARN("received invalid tactile type");
           break;
@@ -202,7 +202,7 @@ namespace tactiles
                   id_sensor).electrodes[18] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]));
           break;
 
-         // COMMON DATA
+          // COMMON DATA
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
@@ -263,7 +263,7 @@ namespace tactiles
   {
     if (tactile_publisher->trylock())
     {
-     // for the time being, we only have PSTs tactile sensors
+      // for the time being, we only have PSTs tactile sensors
       sr_robot_msgs::BiotacAll tactiles;
       tactiles.header.stamp = ros::Time::now();
 
@@ -326,7 +326,7 @@ namespace tactiles
     return this->all_tactile_data.get();
   }
 
- // Only to ensure that the template class is compiled for the types we are interested in
+  // Only to ensure that the template class is compiled for the types we are interested in
   template
   class Biotac<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
 

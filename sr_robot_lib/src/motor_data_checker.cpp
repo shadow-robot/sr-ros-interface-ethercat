@@ -51,7 +51,7 @@ namespace generic_updater
   void MotorDataChecker::init(std::vector<shadow_joints::Joint> joints_vector,
                               std::vector<UpdateConfig> initialization_configs_vector)
   {
-   // Create a one-shot timer
+    // Create a one-shot timer
     check_timeout_timer = nh_tilde.createTimer(init_max_duration,
                                                boost::bind(&MotorDataChecker::timer_callback, this, _1), true);
     update_state = operation_mode::device_update_state::INITIALIZATION;
@@ -142,7 +142,7 @@ namespace generic_updater
       }
     }
 
-   // all the motors are initialized -> we stop the timeout timer
+    // all the motors are initialized -> we stop the timeout timer
     check_timeout_timer.stop();
     update_state = operation_mode::device_update_state::OPERATION;
     return true;
@@ -194,7 +194,7 @@ namespace generic_updater
   {
     if (received_ == false)
     {
-     // Check the slow data type as received
+      // Check the slow data type as received
       if (slow_data_type > MOTOR_SLOW_DATA_LAST)
       {
         ROS_ERROR_STREAM("Received bad slow_data_type: " << slow_data_type << " > " << slow_data_received.size());
@@ -202,7 +202,7 @@ namespace generic_updater
       }
       slow_data_received.at(slow_data_type) = true;
 
-     // look if every type is received, then change FROM_MOTOR_SLOW_DATA_TYPE general received state accordingly
+      // look if every type is received, then change FROM_MOTOR_SLOW_DATA_TYPE general received state accordingly
       bool checked = true;
       for (int i = MOTOR_SLOW_DATA_SVN_REVISION; i <= MOTOR_SLOW_DATA_LAST; i++)
       {

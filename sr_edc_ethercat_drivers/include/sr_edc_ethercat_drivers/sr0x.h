@@ -23,12 +23,12 @@
  *
  *
  */
-#ifndef SR0X_H
-#define SR0X_H
+#ifndef SR_EDC_ETHERCAT_DRIVERS_SR0X_H
+#define SR_EDC_ETHERCAT_DRIVERS_SR0X_H
 
 #include <ros_ethercat_hardware/ethercat_hardware.h>
 #include <sr_edc_ethercat_drivers/motor_trace_buffer.h>
-
+#include <string>
 
 class SR0X :
         public EthercatDevice
@@ -67,8 +67,7 @@ protected:
 protected:
   int command_base_;
   int status_base_;
-
 };
 
-#endif /* SR0X_H */
+#endif  // SR_EDC_ETHERCAT_DRIVERS_SR0X_H
 

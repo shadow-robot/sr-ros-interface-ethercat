@@ -53,7 +53,7 @@ namespace tactiles
       reset_service_client_ = nodehandle_.advertiseService("tactiles/reset", &GenericTactiles::reset, this);
     }
 
-   // initialize the vector of tactiles
+    // initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr<std::vector<GenericTactileData> >(
             new std::vector<GenericTactileData>(nb_tactiles));
     all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(new std::vector<AllTactileData>(nb_tactiles));
@@ -69,14 +69,14 @@ namespace tactiles
   void GenericTactiles<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-   // TODO: use memcopy instead?
+    // TODO: use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
     {
       ROS_DEBUG_STREAM(" received: " << static_cast<int32u>(status_data->tactile_data_type));
 
       switch (static_cast<int32u>(status_data->tactile_data_type))
       {
-       // COMMON DATA
+        // COMMON DATA
         case TACTILE_SENSOR_TYPE_WHICH_SENSORS:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
@@ -178,14 +178,14 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void GenericTactiles<StatusType, CommandType>::publish()
   {
-   // We don't publish anything during the initialization phase
+    // We don't publish anything during the initialization phase
   } // end publish
 
   template<class StatusType, class CommandType>
   void GenericTactiles<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                                                  diagnostic_updater::DiagnosticStatusWrapper &d)
   {
-   // We don't publish diagnostics during the initialization phase
+    // We don't publish diagnostics during the initialization phase
   }
 
   /**
@@ -238,7 +238,7 @@ namespace tactiles
     return all_tactile_data.get();
   }
 
- // Only to ensure that the template class is compiled for the types we are interested in
+  // Only to ensure that the template class is compiled for the types we are interested in
   template
   class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
 

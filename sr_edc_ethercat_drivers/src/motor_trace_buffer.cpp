@@ -26,10 +26,10 @@
 
 
 #include <sr_edc_ethercat_drivers/motor_trace_buffer.h>
+#include <string>
 
 namespace sr_edc_ethercat_drivers
 {
-
 /**
  *
  */
@@ -105,7 +105,7 @@ namespace sr_edc_ethercat_drivers
     msg.samples.clear();
     msg.samples.reserve(size);
 
-    // TODO : is there a beter way to copy data between two std::vectors?
+    // @todo is there a beter way to copy data between two std::vectors?
     for (unsigned i = 0; i < size; ++i)
     {
       msg.samples.push_back(trace_buffer_.at((trace_index_ + 1 + i) % size));
@@ -146,7 +146,6 @@ namespace sr_edc_ethercat_drivers
  */
   void MotorTraceBuffer::sample(const sr_edc_ethercat_drivers::MotorTraceSample &s)
   {
-
     {  // Add motor trace sample to trace buffer
       assert(trace_buffer_.size() <= trace_size_);
       if (trace_buffer_.size() >= trace_size_)
@@ -161,6 +160,4 @@ namespace sr_edc_ethercat_drivers
       }
     }
   }
-
-
-};
+}  // namespace sr_edc_ethercat_drivers

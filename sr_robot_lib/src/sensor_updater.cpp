@@ -61,7 +61,7 @@ namespace generic_updater
           this->which_data_to_request = 0;
         }
 
-       // initialization data
+        // initialization data
         command->tactile_data_type = this->initialization_configs_vector[this->which_data_to_request].what_to_update;
         ROS_DEBUG_STREAM("Updating sensor initialization data type: " << command->tactile_data_type << " | [" <<
                          this->which_data_to_request << "/" << this->initialization_configs_vector.size() << "] ");
@@ -69,9 +69,9 @@ namespace generic_updater
     }
     else
     {
-     // For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
-     // we use the TACTILE_SENSOR_TYPE_WHICH_SENSORS message, which is supposed to be always implemented
-     // This is to avoid sending a random command (initialization_configs_vector is empty at this time)
+      // For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
+      // we use the TACTILE_SENSOR_TYPE_WHICH_SENSORS message, which is supposed to be always implemented
+      // This is to avoid sending a random command (initialization_configs_vector is empty at this time)
       ROS_DEBUG_STREAM("Important data size: " << this->important_update_configs_vector.size());
 
 
@@ -104,7 +104,7 @@ namespace generic_updater
 
     if (!this->unimportant_data_queue.empty())
     {
-     // an unimportant data is available
+      // an unimportant data is available
       command->tactile_data_type = this->unimportant_data_queue.front();
       this->unimportant_data_queue.pop();
 
@@ -113,7 +113,7 @@ namespace generic_updater
     }
     else
     {
-     // important data to update as often as possible
+      // important data to update as often as possible
       command->tactile_data_type = this->important_update_configs_vector[this->which_data_to_request].what_to_update;
       ROS_DEBUG_STREAM("Updating sensor important data type: " << command->tactile_data_type << " | [" <<
                        this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
@@ -127,7 +127,7 @@ namespace generic_updater
   template<class CommandType>
   bool SensorUpdater<CommandType>::reset()
   {
-   // We need to send the reset command twice in a row to make sure
+    // We need to send the reset command twice in a row to make sure
     // the tactiles are reset.
     boost::mutex::scoped_lock l(*(this->mutex));
     for (unsigned int i = 0; i < 2; ++i)
@@ -137,7 +137,7 @@ namespace generic_updater
     return true;
   }
 
- // Only to ensure that the template class is compiled for the types we are interested in
+  // Only to ensure that the template class is compiled for the types we are interested in
   template
   class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
 

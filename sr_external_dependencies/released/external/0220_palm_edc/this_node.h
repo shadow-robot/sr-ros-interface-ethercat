@@ -101,7 +101,7 @@
 // ! this enum simply collects together the error codes relevant to this node.
 typedef enum
 {
- // NO_ERROR_CODE,
+  // NO_ERROR_CODE,
           CAN_ERROR_CODES,
   SIMPLE_CAN_ERROR_CODES
 } ERROR_CODE;
@@ -114,7 +114,7 @@ typedef enum
 // ! this enum simply collects together the event codes relevant to this node.
 typedef enum
 {
- // NO_EVENT_CODE,
+  // NO_EVENT_CODE,
           CAN_EVENT_CODES,
 } EVENT_CODE;
 
