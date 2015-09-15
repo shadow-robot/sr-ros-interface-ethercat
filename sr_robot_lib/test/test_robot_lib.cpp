@@ -28,7 +28,9 @@
 #include <sr_mechanism_model/simple_transmission.hpp>
 #include <gtest/gtest.h>
 #include <ros/ros.h>
-
+#include <utility>
+#include <string>
+#include <vector>
 
 #define error_flag_names palm_0200_edc_error_flag_names
 #define STATUS_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS
@@ -94,7 +96,6 @@ public:
     EXPECT_EQ(actuator->state_.device_id_, motor_id);
     // EXPECT_EQ(state.position_ , expected_pos);
   }
-
 };
 
 /**
@@ -106,7 +107,9 @@ TEST(SrRobotLib, Initialization)
 
 //  pr2_hardware_interface::HardwareInterface *hw;
 //  hw = new pr2_hardware_interface::HardwareInterface();
-//  boost::shared_ptr< shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE> > lib_test = boost::shared_ptr< shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE> >( new shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw) );
+//  boost::shared_ptr< shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE> > lib_test =
+// boost::shared_ptr< shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE> >(
+// new shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>(hw) );
 
   EXPECT_TRUE(true);
 }
@@ -157,17 +160,18 @@ TEST(SrRobotLib, UpdateMotor)
   {
     if (joint_tmp->has_actuator)
     {
-      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper = boost::static_pointer_cast<shadow_joints::MotorWrapper>(
-              joint_tmp->actuator_wrapper);
+      boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper =
+              boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
       // we updated the even motors
       if (motor_wrapper->motor_id % 2 == 0)
       {
-        const sr_actuator::SrMotorActuator *sr_actuator = static_cast<sr_actuator::SrMotorActuator *>(motor_wrapper->actuator);
+        const sr_actuator::SrMotorActuator *sr_actuator =
+                static_cast<sr_actuator::SrMotorActuator *>(motor_wrapper->actuator);
 
         ROS_ERROR_STREAM("last measured effort: " << sr_actuator->state_.last_measured_effort_ << " actuator: " <<
                          motor_wrapper->actuator);
 
-        EXPECT_FLOAT_EQ(sr_actuator->motor_state_.force_unfiltered_, 4.0); // (double)motor_wrapper->motor_id/2.0);
+        EXPECT_FLOAT_EQ(sr_actuator->motor_state_.force_unfiltered_, 4.0);  // (double)motor_wrapper->motor_id/2.0);
         EXPECT_EQ(sr_actuator->motor_state_.strain_gauge_right_, motor_wrapper->motor_id);
       }
     }
@@ -435,9 +439,8 @@ public:
  */
 TEST(SrRobotLib, HumanizeFlags)
 {
-
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
-//
+
   std::vector<std::pair<std::string, bool> > flags;
   // all flags set
   flags = lib_test->sr_hand_lib->humanize_flags(0xFFFF);

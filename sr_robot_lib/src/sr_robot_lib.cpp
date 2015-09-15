@@ -26,6 +26,9 @@
 
 #include "sr_robot_lib/sr_robot_lib.hpp"
 #include <string>
+#include <utility>
+#include <map>
+#include <vector>
 #include <boost/foreach.hpp>
 
 #include <sys/time.h>
@@ -36,27 +39,42 @@
 #include "sr_robot_lib/biotac.hpp"
 #include "sr_robot_lib/UBI0.hpp"
 #include <controller_manager_msgs/ListControllers.h>
+#include <sr_robot_lib/motor_updater.hpp>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0200_edc_error_flag_names
 
-using namespace std;
-using namespace sr_actuator;
-using namespace shadow_joints;
-using namespace tactiles;
-using namespace generic_updater;
+using std::vector;
+using std::string;
+using std::pair;
+using std::map;
+using std::ostringstream;
+using sr_actuator::SrMotorActuator;
+using tactiles::GenericTactiles;
+using tactiles::ShadowPSTs;
+using tactiles::Biotac;
+using tactiles::UBI0;
 using ros_ethercat_model::RobotState;
+using generic_updater::MotorUpdater;
+using shadow_joints::CalibrationMap;
+using shadow_joints::Joint;
+using shadow_joints::JointToSensor;
+using shadow_joints::MotorWrapper;
+using shadow_joints::PartialJointToSensor;
+using generic_updater::MotorUpdater;
+using generic_updater::UpdateConfig;
 using boost::shared_ptr;
 using boost::ptr_vector;
+
 
 namespace shadow_robot
 {
 #ifdef DEBUG_PUBLISHER
-  // max of 20 publishers for debug
+   // max of 20 publishers for debug
    template <class StatusType, class CommandType>
    const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
-  // template <class StatusType, class CommandType>
-  // const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
+   // template <class StatusType, class CommandType>
+   // const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
 #endif
 
   template<class StatusType, class CommandType>
@@ -148,49 +166,51 @@ namespace shadow_robot
             nodehandle_(nh),
             nh_tilde(nhtilde),
 
-          // advertise the service to nullify the demand sent to the motor
-          // this makes it possible to easily stop the controllers.
+            // advertise the service to nullify the demand sent to the motor
+            // this makes it possible to easily stop the controllers.
             nullify_demand_server_(
                     nh_tilde.advertiseService("nullify_demand", &SrRobotLib::nullify_demand_callback, this)),
 
-          // initialises self tests (false as this is not a simulated hand\)
-          // self_tests_(new SrSelfTest(false)),
-//  self_test_thread_(new boost::thread(boost::bind(&SrRobotLib::checkSelfTests, this))),
+            // initialises self tests (false as this is not a simulated hand\)
+            // self_tests_(new SrSelfTest(false)),
+            //  self_test_thread_(new boost::thread(boost::bind(&SrRobotLib::checkSelfTests, this))),
 
-          // read the generic sensor polling frequency from the parameter server
+            // read the generic sensor polling frequency from the parameter server
             generic_sensor_update_rate_configs_vector(
                     read_update_rate_configs("generic_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
-          // read the pst3 sensor polling frequency from the parameter server
+            // read the pst3 sensor polling frequency from the parameter server
             pst3_sensor_update_rate_configs_vector(
                     read_update_rate_configs("pst3_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
-          // read the biotac sensor polling frequency from the parameter server
+            // read the biotac sensor polling frequency from the parameter server
             biotac_sensor_update_rate_configs_vector(
                     read_update_rate_configs("biotac_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
-          // read the UBI0 sensor polling frequency from the parameter server
+            // read the UBI0 sensor polling frequency from the parameter server
             ubi0_sensor_update_rate_configs_vector(
                     read_update_rate_configs("ubi0_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
             tactile_init_max_duration(tactile_timeout),
 
-          // Create a one-shot timer
-            tactile_check_init_timeout_timer(this->nh_tilde.createTimer(tactile_init_max_duration,
-                                                                        boost::bind(
-                                                                                &SrRobotLib<StatusType, CommandType>::tactile_init_timer_callback,
-                                                                                this, _1), true)),
+            // Create a one-shot timer
+            tactile_check_init_timeout_timer(
+                    this->nh_tilde.createTimer(tactile_init_max_duration,
+                                               boost::bind(
+                                                       &SrRobotLib<StatusType,
+                                                               CommandType>::tactile_init_timer_callback,
+                                                       this, _1), true)),
             lock_tactile_init_timeout_(boost::shared_ptr<boost::mutex>(new boost::mutex())),
             tactiles_init(shared_ptr<GenericTactiles<StatusType, CommandType> >(
                     new GenericTactiles<StatusType, CommandType>(nodehandle_, device_id_,
                                                                  generic_sensor_update_rate_configs_vector,
                                                                  operation_mode::device_update_state::INITIALIZATION))),
 
-          // initialize the calibration map
+            // initialize the calibration map
             calibration_map(read_joint_calibration())
   {
   }
@@ -212,7 +232,8 @@ namespace shadow_robot
   {
     if (request.nullify_demand)
       ROS_INFO_STREAM(
-              "Nullifying the demand sent to the motor. Will ignore the values computed by the controllers and send 0.");
+              "Nullifying the demand sent to the motor. "
+                      "Will ignore the values computed by the controllers and send 0.");
     else
       ROS_INFO_STREAM("Using the value computed by the controllers to send the demands to the motors.");
 
@@ -342,7 +363,7 @@ namespace shadow_robot
     }
 
     return joint_calibration;
-  } // end read_joint_calibration
+  }  // end read_joint_calibration
 
   template<class StatusType, class CommandType>
   vector<JointToSensor> SrRobotLib<StatusType, CommandType>::read_joint_to_sensor_mapping()
@@ -383,7 +404,8 @@ namespace shadow_robot
         param_index++;
       }
       else
-      { // by default we calibrate before combining the sensors
+      {
+        // by default we calibrate before combining the sensors
         tmp_vect.calibrate_after_combining_sensors = false;
       }
 
@@ -405,13 +427,14 @@ namespace shadow_robot
     }
 
     return joint_to_sensor_vect;
-  } // end read_joint_to_sensor_mapping
+  }  // end read_joint_to_sensor_mapping
 
   template<class StatusType, class CommandType>
-  vector<UpdateConfig> SrRobotLib<StatusType, CommandType>::read_update_rate_configs(string base_param,
-                                                                                     int nb_data_defined,
-                                                                                     const char *human_readable_data_types[],
-                                                                                     const int32u data_types[])
+  vector<UpdateConfig> SrRobotLib<StatusType,
+          CommandType>::read_update_rate_configs(string base_param,
+                                                 int nb_data_defined,
+                                                 const char *human_readable_data_types[],
+                                                 const int32u data_types[])
   {
     vector<UpdateConfig> update_rate_configs_vector;
     typedef pair<string, int32u> ConfPair;
@@ -489,7 +512,7 @@ namespace shadow_robot
   template
   class SrRobotLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 
-} // end namespace
+}  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.
  Local Variables:

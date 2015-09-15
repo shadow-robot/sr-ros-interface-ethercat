@@ -79,7 +79,8 @@ namespace generic_updater
     }
     else
     {
-      // For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
+      // For the last message sent when a change of update_state happens
+      // (after that we use build_command instead of build_init_command)
       // we use the first important message and ask it to the even motors (0)
       // This is to avoid sending a random command
       command->which_motors = 0;

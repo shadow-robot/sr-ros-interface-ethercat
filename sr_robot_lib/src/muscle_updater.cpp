@@ -63,7 +63,9 @@ namespace generic_updater
 
       // initialization data
       command->from_muscle_data_type =
-              static_cast<FROM_MUSCLE_DATA_TYPE>(this->initialization_configs_vector[this->which_data_to_request].what_to_update);
+              static_cast<FROM_MUSCLE_DATA_TYPE>(
+                      this->initialization_configs_vector[this->which_data_to_request].what_to_update);
+
       ROS_DEBUG_STREAM("Updating initialization data type: " << command->from_muscle_data_type << " | [" <<
                        this->which_data_to_request << "/" << this->initialization_configs_vector.size() << "] ");
     }
@@ -129,7 +131,7 @@ namespace generic_updater
   // Only to ensure that the template class is compiled for the types we are interested in
   template
   class MuscleUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-}  // nameespace generic_updater
+}  // namespace generic_updater
 
 
 

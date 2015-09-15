@@ -228,8 +228,7 @@ namespace tactiles
       aux_spi_publisher->msg_ = tactiles;
       aux_spi_publisher->unlockAndPublish();
     }
-
-  } // end publish
+  }  // end publish
 
   template<class StatusType, class CommandType>
   void UBI0<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,

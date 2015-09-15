@@ -27,6 +27,7 @@
 
 #include "sr_robot_lib/motor_updater.hpp"
 #include <gtest/gtest.h>
+#include <vector>
 
 #define COMMAND_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND
 
@@ -107,7 +108,7 @@ public:
       }
 
 
-      if (fabs(time_spent.toSec() - ((double) ((int) time_spent.toSec()))) < tolerancy)
+      if (fabs(time_spent.toSec() - (static_cast<double>(static_cast<int>(time_spent.toSec())))) < tolerancy)
       {
         if (command->from_motor_data_type == MOTOR_DATA_CAN_NUM_RECEIVED)
         {

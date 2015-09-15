@@ -467,12 +467,12 @@ namespace shadow_robot
 
 
 #ifdef DEBUG_PUBLISHER
-
   template <class StatusType, class CommandType>
-  bool SrMotorHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
-                                                                          sr_robot_msgs::SetDebugData::Response& response)
+  bool SrMotorHandLib<StatusType,
+          CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
+                                                  sr_robot_msgs::SetDebugData::Response& response)
   {
-   // check if the publisher_index is correct
+    // check if the publisher_index is correct
     if (request.publisher_index < this->nb_debug_publishers_const)
     {
       if (request.motor_index > NUM_MOTORS)

@@ -29,6 +29,7 @@
 #include "sr_robot_lib/generic_updater.hpp"
 #include <boost/foreach.hpp>
 #include <iostream>
+#include <vector>
 
 namespace generic_updater
 {
@@ -93,7 +94,7 @@ namespace generic_updater
 
   template
   class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-} // end namespace generic_updater
+}  // end namespace generic_updater
 
 /* For the emacs weenies in the crowd.
  Local Variables:

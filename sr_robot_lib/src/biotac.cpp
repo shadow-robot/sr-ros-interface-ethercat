@@ -77,7 +77,7 @@ namespace tactiles
   void Biotac<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-    // TODO: use memcopy instead?
+    // @todo use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
       // We always receive pac0 and pac1
@@ -288,7 +288,7 @@ namespace tactiles
       tactile_publisher->unlockAndPublish();
     }
 
-  } // end publish
+  }  // end publish
 
   template<class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,

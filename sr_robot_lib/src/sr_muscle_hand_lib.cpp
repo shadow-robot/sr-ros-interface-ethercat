@@ -27,6 +27,9 @@
 
 #include "sr_robot_lib/sr_muscle_hand_lib.hpp"
 #include <algorithm>
+#include <utility>
+#include <string>
+#include <vector>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -34,10 +37,21 @@
 
 #include "sr_robot_lib/shadow_PSTs.hpp"
 
-using namespace std;
-using namespace sr_actuator;
-using namespace shadow_joints;
-using namespace generic_updater;
+
+using std::vector;
+using std::string;
+using std::pair;
+using std::ostringstream;
+using sr_actuator::SrMuscleActuator;
+using shadow_joints::Joint;
+using shadow_joints::JointToSensor;
+using shadow_joints::JointToMuscle;
+using shadow_joints::MuscleWrapper;
+using shadow_joints::MuscleDriver;
+using shadow_joints::PartialJointToSensor;
+using generic_updater::MuscleUpdater;
+using boost::shared_ptr;
+using boost::static_pointer_cast;
 using boost::shared_ptr;
 
 namespace shadow_robot
@@ -62,7 +76,7 @@ namespace shadow_robot
                                                             string device_id, string joint_prefix) :
           SrMuscleRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
 #ifdef DEBUG_PUBLISHER
-  // advertise the debug service, used to set which data we want to publish on the debug topics
+   // advertise the debug service, used to set which data we want to publish on the debug topics
    , debug_service(nh_tilde.advertiseService("set_debug_publishers", &SrMuscleHandLib::set_debug_data_to_publish, this))
 #endif
   {
@@ -76,7 +90,8 @@ namespace shadow_robot
 
     for (unsigned int i = 0; i < this->muscle_update_rate_configs_vector.size(); ++i)
     {
-      // The initialization parameters (assigned a -2 in the config file) are introduced in the flags map that will allow us to determine
+      // The initialization parameters (assigned a -2 in the config file)
+      // are introduced in the flags map that will allow us to determine
       // if the data has been received from every muscle driver
       if (this->muscle_update_rate_configs_vector[i].when_to_update == -2)
       {
@@ -91,9 +106,13 @@ namespace shadow_robot
       ostringstream ss;
       ss << "reset_muscle_driver_" << i;
       // initialize the reset muscle driver service
-      driver.reset_driver_service = this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(
-              ss.str().c_str(),
-              boost::bind(&SrMuscleHandLib<StatusType, CommandType>::reset_muscle_driver_callback, this, _1, _2, i));
+      driver.reset_driver_service =
+              this->nh_tilde.template advertiseService<std_srvs::Empty::Request,
+                      std_srvs::Empty::Response>(ss.str().c_str(),
+                                                 boost::bind(
+                                                         &SrMuscleHandLib<StatusType,
+                                                                 CommandType>::reset_muscle_driver_callback,
+                                                         this, _1, _2, i));
 
       this->muscle_drivers_vector_.push_back(driver);
     }
@@ -152,7 +171,8 @@ namespace shadow_robot
                 this->joint_prefix_ + joint.joint_name));
       }
       else
-      { // no muscles associated to this joint. We only check the driver 0 assuming a joint with -1 will have -1 in the driver 1 as well
+      { // no muscles associated to this joint. We only check the driver 0 assuming
+        // a joint with -1 will have -1 in the driver 1 as well
         joint.has_actuator = false;
       }
 
@@ -205,15 +225,15 @@ namespace shadow_robot
     }
 
     return muscle_map;
-  } // end read_joint_to_muscle_mapping
+  }  // end read_joint_to_muscle_mapping
 
 #ifdef DEBUG_PUBLISHER
-
   template <class StatusType, class CommandType>
-  bool SrMuscleHandLib<StatusType, CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
-                                                                           sr_robot_msgs::SetDebugData::Response& response)
+  bool SrMuscleHandLib<StatusType,
+          CommandType>::set_debug_data_to_publish(sr_robot_msgs::SetDebugData::Request& request,
+                                                  sr_robot_msgs::SetDebugData::Response& response)
   {
-   // check if the publisher_index is correct
+    // check if the publisher_index is correct
     if (request.publisher_index < this->nb_debug_publishers_const)
     {
       if (request.motor_index > NUM_MOTORS)
@@ -253,10 +273,10 @@ namespace shadow_robot
   }
 #endif
 
-// Only to ensure that the template class is compiled for the types we are interested in
+  // Only to ensure that the template class is compiled for the types we are interested in
   template
   class SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-}  // end namespace
+}  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.
 Local Variables:

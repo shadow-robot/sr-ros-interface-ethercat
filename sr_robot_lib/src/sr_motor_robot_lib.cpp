@@ -283,7 +283,6 @@ namespace shadow_robot
          shared_ptr<pair<int, int> > debug_pair;
          if (this->debug_mutex.try_lock())
          {
-
            BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
            {
              if (debug_pair != NULL)

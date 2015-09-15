@@ -70,7 +70,8 @@ namespace generic_updater
     }
     else
     {
-      // For the last message sent when a change of update_state happens (after that we use build_command instead of build_init_command)
+      // For the last message sent when a change of update_state happens
+      // (after that we use build_command instead of build_init_command)
       // we use the TACTILE_SENSOR_TYPE_WHICH_SENSORS message, which is supposed to be always implemented
       // This is to avoid sending a random command (initialization_configs_vector is empty at this time)
       ROS_DEBUG_STREAM("Important data size: " << this->important_update_configs_vector.size());
@@ -147,7 +148,7 @@ namespace generic_updater
 
   template
   class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
-}
+}  // namespace generic_updater
 
 
 
