@@ -228,7 +228,8 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
 
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *command = reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *>(buffer);
+  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *command =
+          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *>(buffer);
   ETHERCAT_CAN_BRIDGE_DATA *message = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
 
   if (!flashing)

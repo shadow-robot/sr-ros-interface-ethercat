@@ -28,8 +28,9 @@
 
 #include <realtime_tools/realtime_publisher.h>
 
-#include <math.h>
 #include <sstream>
+#include <string>
+#include <vector>
 #include <iomanip>
 #include <boost/foreach.hpp>
 #include <std_msgs/Int16.h>
@@ -40,7 +41,9 @@
 
 #include <sr_utilities/sr_math_utils.hpp>
 
-using namespace std;
+using std::string;
+using std::stringstream;
+using std::vector;
 
 #include <sr_external_dependencies/types_for_external.h>
 
@@ -144,9 +147,11 @@ int SrEdcMuscle::initialize(hardware_interface::HardwareInterface *hw, bool allo
     return retval;
   }
 
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> >(
-          new shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(
-                  hw, nodehandle_, nh_tilde_, device_id_, device_joint_prefix_));
+  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS,
+          ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND> >(
+          new shadow_robot::SrMuscleHandLib<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS,
+                  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(hw, nodehandle_, nh_tilde_,
+                                                                 device_id_, device_joint_prefix_));
 
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int> (ETHERCAT_STATUS_DATA_SIZE));
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int> (ETHERCAT_COMMAND_DATA_SIZE));
@@ -225,8 +230,8 @@ void SrEdcMuscle::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
 
-  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND *command = (ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND *) (buffer);
-  ETHERCAT_CAN_BRIDGE_DATA *message = (ETHERCAT_CAN_BRIDGE_DATA *) (buffer + ETHERCAT_COMMAND_DATA_SIZE);
+  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND *command = reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND *>(buffer);
+  ETHERCAT_CAN_BRIDGE_DATA *message = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
 
   if (!flashing)
   {
@@ -242,7 +247,8 @@ void SrEdcMuscle::packCommand(unsigned char *buffer, bool halt, bool reset)
   sr_hand_lib->build_command(command);
 
   ROS_DEBUG(
-          "Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
+          "Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X "
+                  "0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
           command->to_muscle_data_type,
           command->muscle_data[0],
           command->muscle_data[1],
@@ -288,10 +294,10 @@ void SrEdcMuscle::packCommand(unsigned char *buffer, bool halt, bool reset)
  */
 bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 {
-  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *status_data = (ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *) (
-          this_buffer + command_size_);
-  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *) (this_buffer + command_size_ +
-                                                                     ETHERCAT_STATUS_DATA_SIZE);
+  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *status_data =
+          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *>(this_buffer + command_size_);
+  ETHERCAT_CAN_BRIDGE_DATA *can_data =
+          reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(this_buffer + command_size_ + ETHERCAT_STATUS_DATA_SIZE);
   //  int16u                                        *status_buffer = (int16u*)status_data;
   static unsigned int num_rxed_packets = 0;
 
@@ -347,8 +353,10 @@ bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_bu
       debug_publisher->msg_.motor_data_packet_misc.push_back( status_data->motor_data_packet[i].misc );
     }
      */
-    debug_publisher->msg_.tactile_data_type = static_cast<unsigned int> (static_cast<int32u> (status_data->tactile_data_type));
-    debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int> (static_cast<int16u> (status_data->tactile_data_valid));
+    debug_publisher->msg_.tactile_data_type =
+            static_cast<unsigned int> (static_cast<int32u> (status_data->tactile_data_type));
+    debug_publisher->msg_.tactile_data_valid =
+            static_cast<unsigned int> (static_cast<int16u> (status_data->tactile_data_valid));
     debug_publisher->msg_.tactile.clear();
     for (unsigned int i = 0; i < 5; ++i)
     {
@@ -365,7 +373,7 @@ bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_bu
   {
     // received empty message: the pic is not writing to its mailbox.
     ++zero_buffer_read;
-    float percentage_packet_loss = 100.f * ((float) zero_buffer_read / (float) num_rxed_packets);
+    float percentage_packet_loss = 100.f * (static_cast<float>(zero_buffer_read)/ static_cast<float>(num_rxed_packets));
 
     ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus",
               zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);

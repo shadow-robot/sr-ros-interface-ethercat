@@ -31,17 +31,20 @@
 
 #include <math.h>
 #include <sstream>
+#include <string>
+#include <vector>
 #include <iomanip>
 #include <boost/foreach.hpp>
 #include <std_msgs/Int16.h>
-#include <math.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <pthread.h>
 
 #include <sr_utilities/sr_math_utils.hpp>
 
-using namespace std;
+using std::string;
+using std::stringstream;
+using std::vector;
 
 #include <sr_external_dependencies/types_for_external.h>
 
@@ -138,7 +141,6 @@ void SR08::construct(EtherCAT_SlaveHandler *sh, int &start_address)
  */
 int SR08::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
-
   int retval = SR0X::initialize(hw, allow_unprogrammed);
 
   if (retval != 0)
@@ -146,9 +148,11 @@ int SR08::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
     return retval;
   }
 
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> >(
-          new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>(
-                  hw, nodehandle_, nh_tilde_, device_id_, device_joint_prefix_));
+  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS,
+          ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> >(
+          new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS,
+                  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>(hw, nodehandle_, nh_tilde_,
+                                                                 device_id_, device_joint_prefix_));
 
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int> (ETHERCAT_STATUS_DATA_SIZE));
   ROS_INFO("ETHERCAT_COMMAND_DATA_SIZE     = %4d bytes", static_cast<int> (ETHERCAT_COMMAND_DATA_SIZE));
@@ -227,8 +231,8 @@ void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
 
-  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *command = (ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *) (buffer);
-  ETHERCAT_CAN_BRIDGE_DATA *message = (ETHERCAT_CAN_BRIDGE_DATA *) (buffer + ETHERCAT_COMMAND_DATA_SIZE);
+  ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *command = reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *>(buffer);
+  ETHERCAT_CAN_BRIDGE_DATA *message = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
 
   if (!flashing)
   {
@@ -243,7 +247,7 @@ void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
   // and ask for the different informations.
   sr_hand_lib->build_command(command);
 
-  // TODO For the moment the aux_data_type in the commend will be fixed here. This is for convenience,
+  // @todo For the moment the aux_data_type in the commend will be fixed here. This is for convenience,
   // before we separate the aux data (and the prox_mid data) from the UBIO sensor type in the driver.
   // After that, this should be done in the aux_data_updater (or something similar ) in the driver
   command->aux_data_type = TACTILE_SENSOR_TYPE_MCP320x_TACTILE;
@@ -297,8 +301,8 @@ bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 {
   ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *status_data = (ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS *) (
           this_buffer + command_size_);
-  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *) (this_buffer + command_size_ +
-                                                                     ETHERCAT_STATUS_DATA_SIZE);
+  ETHERCAT_CAN_BRIDGE_DATA *can_data = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(this_buffer + command_size_ +
+                                                                                    ETHERCAT_STATUS_DATA_SIZE);
   //  int16u                                        *status_buffer = (int16u*)status_data;
   static unsigned int num_rxed_packets = 0;
 
@@ -329,8 +333,10 @@ bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
       debug_publisher->msg_.motor_data_packet_misc.push_back(status_data->motor_data_packet[i].misc);
     }
 
-    debug_publisher->msg_.tactile_data_type = static_cast<unsigned int> (static_cast<int32u> (status_data->tactile_data_type));
-    debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int> (static_cast<int16u> (status_data->tactile_data_valid));
+    debug_publisher->msg_.tactile_data_type = static_cast<unsigned int> (
+            static_cast<int32u>(status_data->tactile_data_type));
+    debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int> (
+            static_cast<int16u> (status_data->tactile_data_valid));
     debug_publisher->msg_.tactile.clear();
     for (unsigned int i = 0; i < 5; ++i)
     {
@@ -347,7 +353,8 @@ bool SR08::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   {
     // received empty message: the pic is not writing to its mailbox.
     ++zero_buffer_read;
-    float percentage_packet_loss = 100.f * ((float) zero_buffer_read / (float) num_rxed_packets);
+    float percentage_packet_loss = 100.f * (static_cast<float>(zero_buffer_read) /
+            static_cast<float>(num_rxed_packets));
 
     ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus",
               zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);

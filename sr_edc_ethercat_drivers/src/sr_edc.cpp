@@ -34,7 +34,8 @@
 
 #include <realtime_tools/realtime_publisher.h>
 
-#include <math.h>
+#include <algorithm>
+#include <string>
 #include <sstream>
 #include <iomanip>
 #include <boost/foreach.hpp>
@@ -47,7 +48,9 @@
 
 #include <sr_utilities/sr_math_utils.hpp>
 
-using namespace std;
+using std::string;
+using std::stringstream;
+using std::vector;
 
 #include <sr_external_dependencies/types_for_external.h>
 
@@ -70,7 +73,7 @@ const unsigned int SrEdc::max_retry = 20;
 #define ETHERCAT_CAN_BRIDGE_DATA_SIZE sizeof(ETHERCAT_CAN_BRIDGE_DATA)
 
 
-#define check_for_pthread_mutex_init_error(x)  switch(x)               \
+#define check_for_pthread_mutex_init_error(x)  switch (x)               \
   {                                                                     \
   case EAGAIN:                                                          \
     ROS_ERROR("The system temporarily lacks the resources to create another mutex : %s:%d", __FILE__, __LINE__); \
@@ -224,12 +227,11 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
                                      command_size_,
                                      0x00,  // Logical Start Bit
                                      0x07,  // Logical End Bit
-                                     ethercat_command_data_address,  // Physical Start Address   (in ET1200 address space?)
+                                     ethercat_command_data_address,  // Physical Start Address(in ET1200 address space?)
                                      0x00,  // Physical Start Bit
                                      false,  // Read Enable
                                      true,  // Write Enable
-                                     true  // Channel Enable
-  );
+                                     true);  // Channel Enable
 
 
 
@@ -338,8 +340,7 @@ void SrEdc::erase_flash(void)
     {
       ROS_ERROR("ERASE command timedout, resending it !");
     }
-  }
-  while (timedout);
+  } while (timedout);
 }
 
 /** \brief Function that reads back 8 bytes from PIC18F program memory
@@ -384,7 +385,6 @@ bool SrEdc::read_flash(unsigned int offset, unsigned int baddr)
     {
       check_for_trylock_error(err);
     }
-
   }
   timedout = false;
   wait_time = 0;
@@ -459,7 +459,8 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   ROS_INFO("Flashing the motor");
 
-  // Initialize the bfd library: "This routine must be called before any other BFD function to initialize magical internal data structures."
+  // Initialize the bfd library: "This routine must be called before any other BFD
+  // function to initialize magical internal data structures."
   bfd_init();
 
   // Open the requested firmware object file
@@ -486,7 +487,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   ROS_INFO("firmware %s's format is : %s.", get_filename(req.firmware).c_str(), fd->xvec->name);
 
-  // TODO Check if it's necessary to send this dummy packet before the magic packet
+  // @todo Check if it's necessary to send this dummy packet before the magic packet
   ROS_DEBUG("Sending dummy packet");
   send_CAN_msg(can_bus_, 0, 0, NULL, 1, &timedout);
 
@@ -525,8 +526,9 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   base_addr = smallest_start_address;
 
   // Allocate the memory space to store the data to be flashed
-  // This could be done with new bfd_byte[total_size+8] and delete() instead of malloc() and free() but will stay this way for the moment
-  binary_content = (bfd_byte *) malloc(total_size + 8);
+  // This could be done with new bfd_byte[total_size+8] and delete() instead of malloc()
+  // and free() but will stay this way for the moment
+  binary_content = reinterpret_cast<bfd_byte *>(malloc(total_size + 8));
   if (binary_content == NULL)
   {
     ROS_ERROR("Error allocating memory for binary_content");
@@ -537,7 +539,8 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   // Set all the bytes in the binary_content to 0xFF initially (i.e. before reading the content from the hex file)
   // This way we make sure that any byte in the region between smallest_start_address and biggest_end_address
-  // that is not included in any section of the hex file, will be written with a 0xFF value, which is the default in the PIC
+  // that is not included in any section of the hex file, will be written with a 0xFF value,
+  // which is the default in the PIC
   memset(binary_content, 0xFF, total_size + 8);
 
   // The content of the firmware is read from the .hex file pointed by fd, to a memory region pointed by binary_content
@@ -581,8 +584,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
   do
   {
     send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | RESET_COMMAND, 0, NULL, 1000, &timedout);
-  }
-  while (timedout);
+  } while (timedout);
 
 
   flashing = false;
@@ -612,7 +614,8 @@ void SrEdc::build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message)
       can_message_sent = true;
 
       ROS_DEBUG(
-              "Sending : SID : 0x%04X ; bus : 0x%02X ; length : 0x%02X ; data : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
+              "Sending : SID : 0x%04X ; bus : 0x%02X ; length : 0x%02X ;"
+                      " data : 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
               message->message_id,
               message->can_bus,
               message->message_length,
@@ -781,11 +784,12 @@ void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u m
 bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_size)
 {
   bool timedout;
-  // The actual comparison between the content read from the flash and the content read from the hex file is carried out
-  // in the can_data_is_ack() function.
-  // read_flash(...) will return timedout = true if the 8 byte content read from the flash doesn't match the 8 bytes from the hex file
-  // BE CAREFUL with the pos "global" field, because it's being used inside can_data_is_ack() function to check if the response
-  // of the READ_FLASH_COMMAND is correct
+  // The actual comparison between the content read from the flash and the content read from
+  // the hex file is carried out in the can_data_is_ack() function.
+  // read_flash(...) will return timedout = true if the 8 byte content read from the flash doesn't
+  // match the 8 bytes from the hex file
+  // BE CAREFUL with the pos "global" field, because it's being used inside can_data_is_ack()
+  // function to check if the response of the READ_FLASH_COMMAND is correct
   pos = 0;
   unsigned int retry;
   while (pos < total_size)
@@ -804,8 +808,7 @@ bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_siz
         ROS_ERROR("Too much retry for READ back, try flashing again");
         return false;
       }
-    }
-    while (timedout);
+    } while (timedout);
   }
   return true;
 }
@@ -818,9 +821,11 @@ void SrEdc::find_address_range(bfd *fd, unsigned int *smallest_start_address, un
 
   // Look for the start and end address of every section in the hex file,
   // to detect the lowest and highest address of the data we need to write in the PIC's flash.
-  // The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
+  // The sections starting at an address higher than 0x7fff will be ignored as they are not proper
+  // "code memory" firmware
   // (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
-  // To understand the structure (sections) of the object file containing the firmware (usually a .hex) the following commands can be useful:
+  // To understand the structure (sections) of the object file containing the firmware (usually a .hex) the following
+  // commands can be useful:
   //  \code objdump -x simplemotor.hex \endcode
   //  \code objdump -s simplemotor.hex \endcode
   for (s = fd->sections; s; s = s->next)
@@ -861,7 +866,8 @@ bool SrEdc::read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned i
       if (bfd_section_lma(fd, s) == bfd_section_vma(fd, s))
       {
         section_addr = (unsigned int) bfd_section_lma(fd, s);
-        // The sections starting at an address higher than 0x7fff will be ignored as they are not proper "code memory" firmware
+        // The sections starting at an address higher than 0x7fff will be ignored as they are
+        // not proper "code memory" firmware
         // (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
         if (section_addr >= 0x7fff)
         {
@@ -896,7 +902,8 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
   while (pos < ((total_size % 32) == 0 ? total_size : (total_size + 32 - (total_size % 32))))
   {
     // For every WRITE_FLASH_ADDRESS_COMMAND we write 32 bytes of data to flash
-    // and this is done by sending 4 WRITE_FLASH_DATA_COMMAND packets, every one containing 8 bytes of data to be written
+    // and this is done by sending 4 WRITE_FLASH_DATA_COMMAND packets, every one containing
+    // 8 bytes of data to be written
     if ((pos % 32) == 0)
     {
       packet = 0;
@@ -942,8 +949,7 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
         {
           ROS_ERROR("WRITE ADDRESS timedout ");
         }
-      }
-      while (timedout);
+      } while (timedout);
     }
     cmd_sent = 0;
     while (!cmd_sent)

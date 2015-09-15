@@ -102,7 +102,7 @@ private:
    *a counter used to publish the tactiles at 100Hz:
    * count 10 cycles, then reset the cycle_count to 0.
    */
-  short cycle_count;
+  int16_t cycle_count;
 
   /// Debug real time publisher: publishes the raw ethercat data
   boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;
