@@ -38,9 +38,10 @@
 #include "sr_robot_lib/generic_updater.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
+
 extern "C"
 {
-  #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
 }
 
 namespace generic_updater
@@ -55,12 +56,13 @@ namespace generic_updater
    * The unimportant data are refreshed at their given rate (the value is defined in
    * the config in seconds).
    */
-  template <class CommandType>
+  template<class CommandType>
   class MotorUpdater :
-      public GenericUpdater<CommandType>
+          public GenericUpdater<CommandType>
   {
   public:
-    MotorUpdater(std::vector<UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
+    MotorUpdater(std::vector<UpdateConfig> update_configs_vector,
+                 operation_mode::device_update_state::DeviceUpdateState update_state);
 
     /**
      * Building the motor initialization command. This function is called at each packCommand() call.
@@ -69,7 +71,7 @@ namespace generic_updater
      * @param command The command which will be sent to the motor.
      * @return the current update state of the motor update
      */
-    operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType* command);
+    operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType *command);
 
     /**
      * Building the motor command. This function is called at each packCommand() call.
@@ -79,14 +81,13 @@ namespace generic_updater
      * @param command The command which will be sent to the motor.
      * @return the current update state of the motor update
      */
-    operation_mode::device_update_state::DeviceUpdateState build_command(CommandType* command);
+    operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command);
 
   private:
-    ///are we sending the command to the even or the uneven motors.
+    // are we sending the command to the even or the uneven motors.
     int even_motors;
-
   };
-}
+}  // namespace generic_updater
 
 
 /* For the emacs weenies in the crowd.

@@ -27,6 +27,7 @@
 
 #include "sr_robot_lib/motor_updater.hpp"
 #include <gtest/gtest.h>
+#include <vector>
 
 #define COMMAND_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND
 
@@ -41,10 +42,12 @@ class MotorUpdaterTest
 {
 public:
   MotorUpdaterTest()
-  {}
+  {
+  }
 
   ~MotorUpdaterTest()
-  {}
+  {
+  }
 
   UpdaterResult check_updates(double tolerancy)
   {
@@ -65,9 +68,10 @@ public:
     test3.when_to_update = 1.0;
     update_configs_vector.push_back(test3);
 
-    generic_updater::MotorUpdater<COMMAND_TYPE> motor_updater = generic_updater::MotorUpdater<COMMAND_TYPE>(update_configs_vector, operation_mode::device_update_state::OPERATION);
+    generic_updater::MotorUpdater<COMMAND_TYPE> motor_updater = generic_updater::MotorUpdater<COMMAND_TYPE>(
+            update_configs_vector, operation_mode::device_update_state::OPERATION);
 
-    COMMAND_TYPE* command = new COMMAND_TYPE();
+    COMMAND_TYPE *command = new COMMAND_TYPE();
     motor_updater.build_command(command);
 
     bool svn_transmitted = false;
@@ -78,34 +82,38 @@ public:
     ros::Time start = ros::Time::now();
     ros::Duration time_spent(0.0);
 
-    while(time_spent.toSec() < 7.2)
+    while (time_spent.toSec() < 7.2)
     {
       ros::spinOnce();
       motor_updater.build_command(command);
 
       time_spent = ros::Time::now() - start;
 
-      if(fabs(time_spent.toSec() - 5.0) < tolerancy )
+      if (fabs(time_spent.toSec() - 5.0) < tolerancy)
       {
-        if(command->from_motor_data_type == MOTOR_DATA_VOLTAGE)
+        if (command->from_motor_data_type == MOTOR_DATA_VOLTAGE)
         {
-          ROS_INFO_STREAM("Correct data received at time : "<<time_spent);
+          ROS_INFO_STREAM("Correct data received at time : " << time_spent);
           svn_transmitted = true;
 
-          if(svn_transmitted_once)
+          if (svn_transmitted_once)
+          {
             svn_transmitted_once = false;
+          }
           else
+          {
             svn_transmitted_once = true;
+          }
         }
       }
 
 
-      if(fabs(time_spent.toSec()-((double)( (int)time_spent.toSec() ) ) ) < tolerancy )
+      if (fabs(time_spent.toSec() - (static_cast<double>(static_cast<int>(time_spent.toSec())))) < tolerancy)
       {
-        if(command->from_motor_data_type == MOTOR_DATA_CAN_NUM_RECEIVED)
+        if (command->from_motor_data_type == MOTOR_DATA_CAN_NUM_RECEIVED)
         {
-          ROS_INFO_STREAM("Correct CAN data received at time : "<<time_spent);
-          can_num_transmitted_counter ++;
+          ROS_INFO_STREAM("Correct CAN data received at time : " << time_spent);
+          can_num_transmitted_counter++;
         }
       }
       usleep(1000);

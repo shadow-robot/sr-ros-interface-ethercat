@@ -26,10 +26,12 @@
 
 #include <ros/ros.h>
 
-//we store the publishers in a map.
+// we store the publishers in a map.
 #include <map>
+#include <string>
+#include <vector>
 
-//You need to send a Float64 message to the joints.
+// You need to send a Float64 message to the joints.
 #include <std_msgs/Float64.h>
 
 class TargetSender
@@ -64,15 +66,16 @@ public:
      *
      * The topic type is Float64.
      */
-    for( unsigned int index_joint=0; index_joint < 20; ++index_joint )
+    for (unsigned int index_joint = 0; index_joint < 20; ++index_joint)
     {
       std::string joint_tmp = joints[index_joint];
-      publisher_map_[joint_tmp] = node_handle_.advertise<std_msgs::Float64>( prefix + joint_tmp + suffix , 2 );
+      publisher_map_[joint_tmp] = node_handle_.advertise<std_msgs::Float64>(prefix + joint_tmp + suffix, 2);
     }
   };
 
   ~TargetSender()
-  {};
+  {
+  };
 
   /**
    * Sends a target to the given joint.
@@ -84,29 +87,29 @@ public:
    */
   bool sendupdate(std::string joint_name, double target)
   {
-    //first we find the joint in the map (or return an error if we
+    // first we find the joint in the map (or return an error if we
     // can't find it)
     std::map<std::string, ros::Publisher>::iterator publisher_iterator;
     publisher_iterator = publisher_map_.find(joint_name);
 
-    if( publisher_iterator == publisher_map_.end() )
+    if (publisher_iterator == publisher_map_.end())
     {
-      ROS_WARN_STREAM("Joint "<< joint_name << " not found.");
+      ROS_WARN_STREAM("Joint " << joint_name << " not found.");
       return false;
     }
 
-    //now we build the message:
+    // now we build the message:
     // the target must be send in RADIANS
     std_msgs::Float64 msg_to_send;
     msg_to_send.data = target * 3.14159 / 360.0;
-    publisher_iterator->second.publish( msg_to_send );
+    publisher_iterator->second.publish(msg_to_send);
 
     return true;
   };
 
 protected:
   /// The map were the publishers are stored.
-  std::map<std::string, ros::Publisher> publisher_map_;
+  std::map <std::string, ros::Publisher> publisher_map_;
   /// A node handle to be able to publish.
   ros::NodeHandle node_handle_;
 };
@@ -126,30 +129,30 @@ protected:
  */
 int main(int argc, char **argv)
 {
-  //Initialize the ROS node.
-  ros::init (argc, argv, "send_targets");
+  // Initialize the ROS node.
+  ros::init(argc, argv, "send_targets");
 
-  //Instantiate the target sender
+  // Instantiate the target sender
   TargetSender target_sender = TargetSender();
 
-  //Builds the vector of targets
+  // Builds the vector of targets
   static const unsigned int length_targets = 1000;
   std::vector<double> targets;
 
-  for( unsigned int i = 0; i < length_targets; ++i)
+  for (unsigned int i = 0; i < length_targets; ++i)
   {
     double target = static_cast<double>(i) / 1000.0 * 90.0;
-    targets.push_back( target );
+    targets.push_back(target);
   }
 
-  //Send the targets until the node is killed.
+  // Send the targets until the node is killed.
   unsigned int step = 0;
-  while( ros::ok() )
+  while (ros::ok())
   {
-    target_sender.sendupdate("ffj3", targets[step % length_targets] );
+    target_sender.sendupdate("ffj3", targets[step % length_targets]);
     usleep(10000);
 
-    ++ step;
+    ++step;
   }
 
   return 0;

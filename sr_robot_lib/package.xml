@@ -2,8 +2,9 @@
   <name>sr_robot_lib</name>
   <version>1.4.0</version>
   <description>sr_robot_lib contains the robot library used in the sr_edc_ethercat_drivers. The
-     library is used to store the incoming etherCAT messages in an easy to access format,
-     and prepare the messages to be send through etherCAT.</description>
+    library is used to store the incoming etherCAT messages in an easy to access format,
+    and prepare the messages to be send through etherCAT.
+  </description>
   <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
 
   <license>GPL</license>

@@ -23,10 +23,10 @@ catkin_package()
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-file(GLOB SCRIPTS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" 
-   "${CMAKE_CURRENT_SOURCE_DIR}/scripts/*")
+file(GLOB SCRIPTS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts/*")
 install(PROGRAMS ${SCRIPTS}
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
 
