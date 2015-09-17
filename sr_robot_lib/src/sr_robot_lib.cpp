@@ -60,7 +60,7 @@ const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
 #endif
 
 template <class StatusType, class CommandType>
-const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 32;
+const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 37;
 
 template <class StatusType, class CommandType>
 const char* SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] = {"TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ",
@@ -91,6 +91,11 @@ const char* SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_type
                                                                                                      "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17",
                                                                                                      "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18",
                                                                                                      "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19",
+                                                                                                     "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20",
+                                                                                                     "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_21",
+                                                                                                     "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_22",
+                                                                                                     "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_23",
+                                                                                                     "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24",
                                                                                                      "TACTILE_SENSOR_TYPE_BIOTAC_PDC",
                                                                                                      "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
                                                                                                      "TACTILE_SENSOR_TYPE_BIOTAC_TDC",
@@ -125,6 +130,11 @@ const int32u SrRobotLib<StatusType, CommandType>::sensor_data_types[nb_sensor_da
                                                                                        TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17,
                                                                                        TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18,
                                                                                        TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19,
+                                                                                       TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20,
+                                                                                       TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_21,
+                                                                                       TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_22,
+                                                                                       TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_23,
+                                                                                       TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24,
                                                                                        TACTILE_SENSOR_TYPE_BIOTAC_PDC,
                                                                                        TACTILE_SENSOR_TYPE_BIOTAC_TAC,
                                                                                        TACTILE_SENSOR_TYPE_BIOTAC_TDC,

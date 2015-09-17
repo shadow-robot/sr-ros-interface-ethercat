@@ -76,12 +76,16 @@ namespace tactiles
 
     virtual std::vector<AllTactileData>* get_tactile_data();
 
+    void set_version_specific_details();
+
   protected:
     /// the vector containing the data for the tactiles.
     boost::shared_ptr< std::vector<BiotacData> > tactiles_vector;
 
     // Tactile sensor real time publisher
     boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> > tactile_publisher;
+
+    size_t nb_electrodes_;
   };//end class
 }//end namespace
 
