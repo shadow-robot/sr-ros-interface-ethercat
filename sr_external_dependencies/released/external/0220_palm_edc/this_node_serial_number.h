@@ -1,7 +1,7 @@
 #ifndef SERIAL_NUMBER_H_INCLUDED
 #define SERIAL_NUMBER_H_INCLUDED
 
-//! This is defined in a separate file so that it doesn't mess with the SVN revision.
+// ! This is defined in a separate file so that it doesn't mess with the SVN revision.
 
 // 0x0002 UPMC ?
 // 0x0015 Syntouch

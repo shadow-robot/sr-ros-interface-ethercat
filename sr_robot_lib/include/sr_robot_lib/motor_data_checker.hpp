@@ -46,25 +46,30 @@ namespace generic_updater
   class MessageFromMotorChecker
   {
   public:
-    MessageFromMotorChecker(int id)
-        : motor_id_(id), received_(false)
-    {}
+    explicit MessageFromMotorChecker(int id)
+            : motor_id_(id), received_(false)
+    {
+    }
 
     virtual ~MessageFromMotorChecker()
-    {}
+    {
+    }
 
     int motor_id_;
+
     virtual void set_received();
+
     bool get_received();
 
   protected:
     bool received_;
   };
 
-  class SlowMessageFromMotorChecker : public MessageFromMotorChecker
+  class SlowMessageFromMotorChecker :
+          public MessageFromMotorChecker
   {
   public:
-    SlowMessageFromMotorChecker(int id);
+    explicit SlowMessageFromMotorChecker(int id);
 
     boost::array<bool, MOTOR_SLOW_DATA_LAST + 1> slow_data_received;
 
@@ -74,12 +79,13 @@ namespace generic_updater
   class MessageChecker
   {
   public:
-    MessageChecker(FROM_MOTOR_DATA_TYPE msg_type)
-        : msg_type(msg_type)
-    {}
+    explicit MessageChecker(FROM_MOTOR_DATA_TYPE msg_type)
+            : msg_type(msg_type)
+    {
+    }
 
     FROM_MOTOR_DATA_TYPE msg_type;
-    std::vector<MessageFromMotorChecker*> msg_from_motor_checkers;
+    std::vector<MessageFromMotorChecker *> msg_from_motor_checkers;
 
     int find(int motor_id);
   };
@@ -93,6 +99,7 @@ namespace generic_updater
   public:
     MotorDataChecker(std::vector<shadow_joints::Joint> joints_vector,
                      std::vector<UpdateConfig> initialization_configs_vector);
+
     ~MotorDataChecker();
 
     /**
@@ -126,14 +133,15 @@ namespace generic_updater
     operation_mode::device_update_state::DeviceUpdateState update_state;
     ros::Duration init_max_duration;
 
-    void timer_callback(const ros::TimerEvent& event);
+    void timer_callback(const ros::TimerEvent &event);
+
     bool is_everything_checked();
+
     int find(FROM_MOTOR_DATA_TYPE motor_data_type);
 
     std::vector<MessageChecker> msg_checkers_;
   };
-
-}
+}  // namespace generic_updater
 
 /* For the emacs weenies in the crowd.
  Local Variables:

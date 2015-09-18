@@ -1,7 +1,9 @@
 <package>
   <name>sr_edc_controller_configuration</name>
   <version>1.4.0</version>
-  <description>contains the different launch files for Shadow Robot hand controllers. The actual configuration files are stored in the sr_config stack.</description>
+  <description>contains the different launch files for Shadow Robot hand controllers. The actual configuration files are
+    stored in the sr_config stack.
+  </description>
   <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
 
   <license>GPL</license>

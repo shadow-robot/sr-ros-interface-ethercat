@@ -5,14 +5,15 @@
        to know where to find the parameters for a certain hand.
        In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories  
        If it's not "" then it must be followed by a "/" e.g. "hand_2/"  -->
-  <arg name="hand_id" default="" />
+  <arg name="hand_id" default=""/>
 
   <!-- For the moment the sensor_to_joint mapping will be the same for all the existing models of hand -->
-  <rosparam command="load" file="$(find sr_edc_launch)/mappings/default_mappings/sensor_to_joint.yaml" />
+  <rosparam command="load" file="$(find sr_edc_launch)/mappings/default_mappings/sensor_to_joint.yaml"/>
   <!-- The joint_to_motor_mapping is different depending on the hand being a right or a left hand -->
-  <include file="$(find sr_ethercat_hand_config)/mappings/$(arg hand_id)/load_joint_mapping.xml" />
+  <include file="$(find sr_ethercat_hand_config)/mappings/$(arg hand_id)/load_joint_mapping.xml"/>
   <!-- The calibration of the position sensors is different for every hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/calibration.yaml" />
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/calibration.yaml"/>
   <!-- The calibration of the pressure sensors is different for every hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/pressure_calibration.yaml" />
+  <rosparam command="load"
+            file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/pressure_calibration.yaml"/>
 </launch>
