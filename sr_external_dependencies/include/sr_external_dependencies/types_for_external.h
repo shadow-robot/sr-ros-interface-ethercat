@@ -30,17 +30,17 @@
 #ifndef _TYPES_FOR_EXTERNAL_H_
 #define _TYPES_FOR_EXTERNAL_H_
 
-typedef unsigned char       int8u;
-typedef   signed char       int8s;
+typedef unsigned char int8u;
+typedef signed char int8s;
 
-typedef unsigned short      int16u;
-typedef   signed short      int16s;
+typedef unsigned short int16u;
+typedef signed short int16s;
 
-typedef unsigned int        int32u;
-typedef   signed int        int32s;
+typedef unsigned int int32u;
+typedef signed int int32s;
 
-typedef unsigned long int        int64u;
-typedef   signed long int        int64s;
+typedef unsigned long int int64u;
+typedef signed long int int64s;
 
 
 /* For the emacs weenies in the crowd.

@@ -23,18 +23,18 @@
  *
  *
  */
-#ifndef SR0X_H
-#define SR0X_H
+#ifndef SR_EDC_ETHERCAT_DRIVERS_SR0X_H
+#define SR_EDC_ETHERCAT_DRIVERS_SR0X_H
 
 #include <ros_ethercat_hardware/ethercat_hardware.h>
 #include <sr_edc_ethercat_drivers/motor_trace_buffer.h>
+#include <string>
 
-
-
-class SR0X : public EthercatDevice
+class SR0X :
+        public EthercatDevice
 {
 public:
-  virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed=true);
+  virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed = true);
 
 protected:
   uint8_t fw_major_;
@@ -55,20 +55,19 @@ protected:
 
   enum
   {
-    EC_PRODUCT_ID_BRIDGE    = 0,
+    EC_PRODUCT_ID_BRIDGE = 0,
     EC_PRODUCT_ID_SHADOWCAN = 2,
     EC_PRODUCT_ID_DUALMOTOR = 3,
   };
 
   string reason_;
   int level_;
-  int device_offset_;      //!< Offset of device position from first device of Shadow Hand
+  int device_offset_;     // !< Offset of device position from first device of Shadow Hand
 
 protected:
   int command_base_;
   int status_base_;
-
 };
 
-#endif /* SR0X_H */
+#endif  // SR_EDC_ETHERCAT_DRIVERS_SR0X_H
 

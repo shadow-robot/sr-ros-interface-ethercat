@@ -1,35 +1,45 @@
-# sr_edc_launch
+|     Service       |  Status  |
+| ----------------- | -------- |
+| Documentation     | [![Documentation Status](https://readthedocs.org/projects/shadow-robot-ethercat-driver/badge/?version=latest)](http://shadow-robot-ethercat-driver.readthedocs.org) |
+| Code style checks | [![Circle CI](https://circleci.com/gh/shadow-robot/sr-ros-interface-ethercat.svg?style=shield)](https://circleci.com/gh/shadow-robot/sr-ros-interface-ethercat) |
+| Unit tests        | [![Build Status](https://img.shields.io/shippable/554b2991edd7f2c052e402bf.svg)](https://app.shippable.com/projects/554b2991edd7f2c052e402bf) |
+| Install tests     | [![Build Status](https://semaphoreci.com/api/v1/projects/8797e7d4-058b-4f0f-bc34-9a1f8c23e31d/539067/shields_badge.svg)](https://semaphoreci.com/shadow-robot/sr-ros-interface-ethercat) |
+| Code Coverage     | [![codecov.io](https://img.shields.io/codecov/c/github/shadow-robot/sr-ros-interface-ethercat/indigo-devel.svg)](http://codecov.io/github/shadow-robot/sr-ros-interface-ethercat?branch=indigo-devel) |
 
-This package contain launchfiles for the Shadow Robot EDC (EtherCAT Dual CAN) hand.
+# Shadow Robot - EtherCAT driver
 
-## Contents
+This stack focuses on the drivers for our [etherCAT hand](http://www.shadowrobot.com/products/).
+
+**Warning: be careful when starting the hand. Make sure you're using the proper config files or you might damage the hardware. If in doubt contact us!**
+
+## Launching the Hand Driver
 
 - `sr_edc.launch` Launches a single hand
 
 - `sr_edc_bimanual.launch` Launches 2 hands (as part of the same bimanual robot)
 
 
-## Use
+### Use
 
-### Direct use
+#### Direct use
 
 For a single hand, with default parameters:
 
-```
+```bash
 roslaunch sr_edc_launch sr_edc.launch
 ```
 
 For a bimanual system you will need to specify at least the serial numbers for the right and left hand:
 
-```
+```bash
 roslaunch sr_edc_launch sr_edc_bimanual.launch rh_serial:=1234 lh_serial:=1235
 ```
 
-### Use from another launchfile
+#### Use from another launchfile
 
 E.g. for a bimanual system:
 
-```
+```xml
 <launch>
   <include file="$(find sr_edc_launch)/sr_edc_bimanual.launch" >
     <arg name="rh_serial" value="1234" />
@@ -42,7 +52,7 @@ E.g. for a bimanual system:
 
 E.g. for a single hand system:
 
-```
+```xml
 <launch>
   <include file="$(find sr_edc_launch)/sr_edc.launch" >
     <arg name="eth_port" value="eth1" />
@@ -51,7 +61,7 @@ E.g. for a single hand system:
 </launch>
 ```
 
-### Available arguments for sr_edc_bimanual.launch
+#### Available arguments for sr_edc_bimanual.launch
 
 - `eth_port`: The ethernet port/s that will be used to search for etherCAT devices (shadow hands or other devices like RoNeX). More than one port can be provided in this argument, using underscore as a separator.
 
@@ -62,23 +72,16 @@ roslaunch sr_edc_launch sr_edc_bimanual.launch rh_serial:=1234 lh_serial:=1235 e
 - `debug`: Set to true for debugging
 - `calibration_controllers`: Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand)
 - `robot_description`: Xacro file containing the robot description we want to load
-- `pwm_control`: The control mode PWM (true) or torque (false) 
+- `pwm_control`: The control mode PWM (true) or torque (false)
 - `rh_serial`: The ethercat serial number for the right hand
 - `rh_id`: The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model.
 - `lh_serial`: The ethercat serial number for the left hand
 - `lh_id`: The id for the left hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model.
 
-### Available arguments for sr_edc.launch
+#### Available arguments for sr_edc.launch
 
 - `eth_port`: The ethernet port/s that will be used to search for etherCAT devices (shadow hands or other devices like RoNeX). More than one port can be provided in this argument, using underscore as a separator.
 - `debug`: Set to true for debugging
 - `calibration_controllers`: Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand)
 - `robot_description`: Xacro file containing the robot description we want to load
-- `pwm_control`: The control mode PWM (true) or torque (false) 
-- `config_dir`: Defines the sub-directory used in
-       $(find sr_ethercat_hand_config)/mappings/
-       and $(find sr_ethercat_hand_config)/calibrations/
-       and $(find sr_ethercat_hand_config)/controls/host/
-       to know where to find the parameters for a certain hand.
-       In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
-       If it's not "" then it must be followed by a "/" e.g. "hand_2/"
+- `pwm_control`: The control mode PWM (true) or torque (false)

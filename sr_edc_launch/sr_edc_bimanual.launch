@@ -29,32 +29,30 @@
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)'"/>
 
   <!-- Load parameters for the right hand -->
-  <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
-    <arg name="config_dir" value="$(arg rh_id)/" />
-    <arg name="hand_id" value="$(arg rh_id)" />
-    <arg name="use_ns" value="true" />
-    <arg name="pwm_control" value="$(arg pwm_control)" />
+  <include file="$(find sr_edc_launch)/load_hand_parameters.xml">
+    <arg name="hand_id" value="$(arg rh_id)"/>
+    <arg name="pwm_control" value="$(arg pwm_control)"/>
   </include>
 
   <!-- Load parameters for the left hand -->
-  <include file="$(find sr_edc_launch)/load_hand_parameters.xml" >
-    <arg name="config_dir" value="$(arg lh_id)/" />
-    <arg name="hand_id" value="$(arg lh_id)" />
-    <arg name="use_ns" value="true" />
-    <arg name="pwm_control" value="$(arg pwm_control)" />
+  <include file="$(find sr_edc_launch)/load_hand_parameters.xml">
+    <arg name="hand_id" value="$(arg lh_id)"/>
+    <arg name="pwm_control" value="$(arg pwm_control)"/>
   </include>
 
-  <include file="$(find sr_edc_launch)/sr_edc.machine" />
+  <include file="$(find sr_edc_launch)/sr_edc.machine"/>
 
   <!-- publishes joint 0s joint states on separate topic for debug/tuning -->
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
 
   <!-- ros_ethercat -->
   <group if="$(arg debug)">
-    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
+    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
+          args="-i $(arg eth_port) -r robot_description" output="screen"
+          launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
       <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
       <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>
 
@@ -65,7 +63,8 @@
     </node>
   </group>
   <group unless="$(arg debug)">
-    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop" args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ros_grant">
+    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
+          args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ethercat_grant">
       <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
       <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>
 
@@ -79,24 +78,24 @@
   <group if="$(arg calibration_controllers)">
     <group if="$(optenv THREE_FINGER 0)">
       <node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
-	    args="cal_sh_rh_ffj0 cal_sh_rh_ffj3 cal_sh_rh_ffj4 cal_sh_rh_rfj0 cal_sh_rh_rfj3 cal_sh_rh_rfj4 cal_sh_rh_thj1 cal_sh_rh_thj2 cal_sh_rh_thj3 cal_sh_rh_thj4 cal_sh_rh_thj5 cal_sh_rh_wrj1 cal_sh_rh_wrj2 cal_sh_lh_ffj0 cal_sh_lh_ffj3 cal_sh_lh_ffj4 cal_sh_lh_rfj0 cal_sh_lh_rfj3 cal_sh_lh_rfj4 cal_sh_lh_thj1 cal_sh_lh_thj2 cal_sh_lh_thj3 cal_sh_lh_thj4 cal_sh_lh_thj5 cal_sh_lh_wrj1 cal_sh_lh_wrj2"/>
+            args="cal_sh_rh_ffj0 cal_sh_rh_ffj3 cal_sh_rh_ffj4 cal_sh_rh_rfj0 cal_sh_rh_rfj3 cal_sh_rh_rfj4 cal_sh_rh_thj1 cal_sh_rh_thj2 cal_sh_rh_thj3 cal_sh_rh_thj4 cal_sh_rh_thj5 cal_sh_rh_wrj1 cal_sh_rh_wrj2 cal_sh_lh_ffj0 cal_sh_lh_ffj3 cal_sh_lh_ffj4 cal_sh_lh_rfj0 cal_sh_lh_rfj3 cal_sh_lh_rfj4 cal_sh_lh_thj1 cal_sh_lh_thj2 cal_sh_lh_thj3 cal_sh_lh_thj4 cal_sh_lh_thj5 cal_sh_lh_wrj1 cal_sh_lh_wrj2"/>
     </group>
     <group unless="$(optenv THREE_FINGER 0)">
       <node name="calibrate_sr_edc" pkg="ros_ethercat_model" type="calibrate" output="screen"
-	    args="cal_sh_rh_ffj0 cal_sh_rh_ffj3 cal_sh_rh_ffj4 cal_sh_rh_mfj0 cal_sh_rh_mfj3 cal_sh_rh_mfj4 cal_sh_rh_rfj0 cal_sh_rh_rfj3 cal_sh_rh_rfj4 cal_sh_rh_lfj0 cal_sh_rh_lfj3 cal_sh_rh_lfj4 cal_sh_rh_lfj5 cal_sh_rh_thj1 cal_sh_rh_thj2 cal_sh_rh_thj3 cal_sh_rh_thj4 cal_sh_rh_thj5 cal_sh_rh_wrj1 cal_sh_rh_wrj2 cal_sh_lh_ffj0 cal_sh_lh_ffj3 cal_sh_lh_ffj4 cal_sh_lh_mfj0 cal_sh_lh_mfj3 cal_sh_lh_mfj4 cal_sh_lh_rfj0 cal_sh_lh_rfj3 cal_sh_lh_rfj4 cal_sh_lh_lfj0 cal_sh_lh_lfj3 cal_sh_lh_lfj4 cal_sh_lh_lfj5 cal_sh_lh_thj1 cal_sh_lh_thj2 cal_sh_lh_thj3 cal_sh_lh_thj4 cal_sh_lh_thj5 cal_sh_lh_wrj1 cal_sh_lh_wrj2"/>
+            args="cal_sh_rh_ffj0 cal_sh_rh_ffj3 cal_sh_rh_ffj4 cal_sh_rh_mfj0 cal_sh_rh_mfj3 cal_sh_rh_mfj4 cal_sh_rh_rfj0 cal_sh_rh_rfj3 cal_sh_rh_rfj4 cal_sh_rh_lfj0 cal_sh_rh_lfj3 cal_sh_rh_lfj4 cal_sh_rh_lfj5 cal_sh_rh_thj1 cal_sh_rh_thj2 cal_sh_rh_thj3 cal_sh_rh_thj4 cal_sh_rh_thj5 cal_sh_rh_wrj1 cal_sh_rh_wrj2 cal_sh_lh_ffj0 cal_sh_lh_ffj3 cal_sh_lh_ffj4 cal_sh_lh_mfj0 cal_sh_lh_mfj3 cal_sh_lh_mfj4 cal_sh_lh_rfj0 cal_sh_lh_rfj3 cal_sh_lh_rfj4 cal_sh_lh_lfj0 cal_sh_lh_lfj3 cal_sh_lh_lfj4 cal_sh_lh_lfj5 cal_sh_lh_thj1 cal_sh_lh_thj2 cal_sh_lh_thj3 cal_sh_lh_thj4 cal_sh_lh_thj5 cal_sh_lh_wrj1 cal_sh_lh_wrj2"/>
     </group>
   </group>
 
   <!-- diagnostic aggregator for being able to see the results in the robot_monitor -->
   <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
-    <rosparam command="load"  file="$(find sr_ethercat_hand_config)/diagnostic_analyzer_bimanual.yaml"/>
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/diagnostic_analyzer_bimanual.yaml"/>
   </node>
 
   <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch"/>
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="100.0" />
+    <param name="publish_frequency" type="double" value="100.0"/>
   </node>
   
     <!-- adding tactile state publisher using the tf prefix as a namespace -->
@@ -110,4 +109,7 @@
    <arg name="config_dir" value="$(arg lh_id)/" />
   </include>  
   
+
+  <node name="teach_mode_node" pkg="sr_robot_launch" type="teach_mode_node" output="screen"/>
+
 </launch>

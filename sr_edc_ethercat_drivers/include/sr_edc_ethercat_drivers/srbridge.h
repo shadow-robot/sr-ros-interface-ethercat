@@ -21,16 +21,19 @@
  * @brief This is a ROS driver for the etherCAT bridge.
  */
 
-#ifndef SRBRIDGE_H
-#define SRBRIDGE_H
+#ifndef SR_EDC_ETHERCAT_DRIVERS_SRBRIDGE_H
+#define SR_EDC_ETHERCAT_DRIVERS_SRBRIDGE_H
 
 #include <sr_edc_ethercat_drivers/sr0x.h>
 
-class SRBridge : public SR0X
+class SRBridge :
+        public SR0X
 {
 public:
   virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed);
+
   virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address);
+
   virtual void diagnostics(diagnostic_updater::DiagnosticStatusWrapper &d, unsigned char *buffer);
 
   enum
@@ -39,5 +42,5 @@ public:
   };
 };
 
-#endif /* SRBRIDGE_H */
+#endif  // SR_EDC_ETHERCAT_DRIVERS_SRBRIDGE_H
 

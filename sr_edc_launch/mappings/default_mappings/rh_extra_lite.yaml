@@ -1,0 +1,38 @@
+##
+# This is the mapping from joint to motor index
+
+joint_to_motor_mapping: [
+        5,      #FFJ0
+        -1,     #FFJ1
+        -1,     #FFJ2
+        6,      #FFJ3
+        15,     #FFJ4
+
+        -1,      #MFJ0
+        -1,     #MFJ1
+        -1,     #MFJ2
+        -1,      #MFJ3
+        -1,      #MFJ4
+
+        1,      #RFJ0
+        -1,     #RFJ1
+        -1,     #RFJ2
+        0,      #RFJ3
+        10,     #RFJ4
+
+        -1,      #LFJ0
+        -1,     #LFJ1
+        -1,     #LFJ2
+        -1,      #LFJ3
+        -1,      #LFJ4
+        -1,     #LFJ5
+
+        14,     #THJ1
+        13,     #THJ2
+        -1,     #THJ3
+        3,      #THJ4
+        2,      #THJ5
+
+        -1,     #WRJ1
+        -1,     #WRJ2
+]

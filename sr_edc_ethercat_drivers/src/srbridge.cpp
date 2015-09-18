@@ -49,18 +49,21 @@ int SRBridge::initialize(hardware_interface::HardwareInterface *hw, bool allow_u
   int rv;
 
   rv = readData(&com, (uint16_t) EC_Slave_RD[PDI_Conf_reg].ado, &data, 2, FIXED_ADDR);
-  ROS_INFO("bridge port type: %s", data&1?"MII":"EBUS");
+  ROS_INFO("bridge port type: %s", data & 1 ? "MII" : "EBUS");
 
   rv = readData(&com, 0x100, &data, 2, FIXED_ADDR);
-  if (rv != 0) ROS_ERROR("can't read open status");
+  if (rv != 0)
+    ROS_ERROR("can't read open status");
 
   new_data = data & ~0xc000;
 
   rv = writeData(&com, 0x100, &new_data, 2, FIXED_ADDR);
-  if (rv != 0) ROS_ERROR("can't write DL values");
+  if (rv != 0)
+    ROS_ERROR("can't write DL values");
 
   rv = readData(&com, 0x100, &data, 2, FIXED_ADDR);
-  if (rv != 0) ROS_ERROR("can't read open status");
+  if (rv != 0)
+    ROS_ERROR("can't read open status");
 
   return 0;
 }
