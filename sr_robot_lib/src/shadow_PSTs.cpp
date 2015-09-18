@@ -68,6 +68,11 @@ namespace tactiles
     tactiles_vector = boost::shared_ptr<std::vector<PST3Data> >(new std::vector<PST3Data>(this->nb_tactiles));
     this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(
             new std::vector<AllTactileData>(this->nb_tactiles));
+
+    for (size_t i = 0; i < this->all_tactile_data->size(); ++i)
+    {
+      this->all_tactile_data->at(i).type = "pst";
+    }
   }
 
   template<class StatusType, class CommandType>
