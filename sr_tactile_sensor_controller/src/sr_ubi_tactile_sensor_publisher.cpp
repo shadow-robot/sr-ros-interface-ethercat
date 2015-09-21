@@ -37,29 +37,22 @@
 //////////////////////////////////////////////////////////////////////////////
 /// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
-#include "sr_tactile_sensor_controller/sr_ubi_tactile_sensor_controller.hpp"
+#include "sr_tactile_sensor_controller/sr_ubi_tactile_sensor_publisher.hpp"
 #include <pluginlib/class_list_macros.h>
 
 using namespace std;
 
 namespace controller
 {
-  bool SrUbiTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
+  void SrUbiTactileSensorPublisher::init()
   {
-    bool ret=SrTactileSensorController::init(hw, root_nh, controller_nh);
-    if (ret)
-    {
-      // realtime publisher
-      ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(nh_prefix_, "tactile", 4));
-      midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(nh_prefix_, "tactile_mid_prox", 4));
-    }
-    return ret;
+    // realtime publisher
+    ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(nh_prefix_, "tactile", 4));
+    midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(nh_prefix_, "tactile_mid_prox", 4));
   }
 
-  void SrUbiTactileSensorController::update(const ros::Time& time, const ros::Duration& period)
+  void SrUbiTactileSensorPublisher::update(const ros::Time& time, const ros::Duration& period)
   {
-    
-    using namespace hardware_interface;
     bool ubi_published=false;
     // limit rate of publishing
     if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
@@ -103,9 +96,6 @@ namespace controller
     }
   }
 }
-
-
-PLUGINLIB_EXPORT_CLASS(controller::SrUbiTactileSensorController, controller_interface::ControllerBase)
 
 /* For the emacs weenies in the crowd.
 Local Variables:

@@ -10,23 +10,25 @@
 
 #pragma once
 
-#include <sr_tactile_sensor_controller/sr_tactile_sensor_controller.hpp>
+#include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
 #include <realtime_tools/realtime_publisher.h>
 #include <sr_robot_msgs/ShadowPST.h>
 
 namespace controller
 {
 
-  class SrPSTTactileSensorController: public SrTactileSensorController
+  class SrPSTTactileSensorPublisher: public SrTactileSensorPublisher
   {
   public:
-    SrPSTTactileSensorController() : SrTactileSensorController() {}
-    virtual bool init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
+    SrPSTTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors, double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
+      : SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix) {}
+    virtual void init();
     virtual void update(const ros::Time& time, const ros::Duration& period);
 
   private:
 
-    typedef boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> > PSTPublisherPtr;
+    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> PSTPublisher;
+    typedef boost::shared_ptr<PSTPublisher > PSTPublisherPtr;
     PSTPublisherPtr pst_realtime_pub_;
   };
 

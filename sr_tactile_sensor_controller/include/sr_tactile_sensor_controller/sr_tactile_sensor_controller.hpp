@@ -46,11 +46,13 @@
 #include <boost/shared_ptr.hpp>
 #include <ros_ethercat_model/robot_state.hpp>
 
-#include <realtime_tools/realtime_publisher.h>
-#include <sr_robot_msgs/ShadowPST.h>
-#include <sr_robot_msgs/BiotacAll.h>
-#include <sr_robot_msgs/UBI0All.h>
-#include <sr_robot_msgs/MidProxDataAll.h>
+#include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
+
+//#include <realtime_tools/realtime_publisher.h>
+//#include <sr_robot_msgs/ShadowPST.h>
+//#include <sr_robot_msgs/BiotacAll.h>
+//#include <sr_robot_msgs/UBI0All.h>
+//#include <sr_robot_msgs/MidProxDataAll.h>
 
 
 namespace controller
@@ -72,28 +74,7 @@ namespace controller
     ros::NodeHandle nh_prefix_;
     std::string prefix_;
     bool initialized_;
-
-    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> PSTPublisher;
-    typedef boost::shared_ptr<PSTPublisher > PSTPublisherPtr;
-    PSTPublisherPtr pst_realtime_pub_;
-
-    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> BiotacPublisher;
-    typedef boost::shared_ptr<BiotacPublisher > BiotacPublisherPtr;
-    BiotacPublisherPtr biotac_realtime_pub_;
-
-    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> UbiPublisher;
-    typedef boost::shared_ptr<UbiPublisher > UbiPublisherPtr;
-    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> MidProxPublisher;
-    typedef boost::shared_ptr<MidProxPublisher > MidProxPublisherPtr;
-    UbiPublisherPtr ubi_realtime_pub_;
-    MidProxPublisherPtr midprox_realtime_pub_;
-
-    virtual void pst_init();
-    virtual void pst_update(const ros::Time& time, const ros::Duration& period);
-    virtual void biotac_init();
-    virtual void biotac_update(const ros::Time& time, const ros::Duration& period);
-    virtual void ubi_init();
-    virtual void ubi_update(const ros::Time& time, const ros::Duration& period);
+    boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher_;
   };
 
 }// namespace

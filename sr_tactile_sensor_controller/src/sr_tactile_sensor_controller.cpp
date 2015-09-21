@@ -39,6 +39,9 @@
 
 #include "sr_tactile_sensor_controller/sr_tactile_sensor_controller.hpp"
 #include <pluginlib/class_list_macros.h>
+#include <sr_tactile_sensor_controller/sr_pst_tactile_sensor_publisher.hpp>
+#include <sr_tactile_sensor_controller/sr_biotac_tactile_sensor_publisher.hpp>
+#include <sr_tactile_sensor_controller/sr_ubi_tactile_sensor_publisher.hpp>
 
 using namespace std;
 
@@ -99,34 +102,29 @@ namespace controller
         {
           if (sensors_->at(0).type == "pst")
           {
-            pst_init();
+            sensor_publisher_.reset(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
           }
           else if (sensors_->at(0).type == "biotac")
           {
-            biotac_init();
+            sensor_publisher_.reset(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
           }
           else if (sensors_->at(0).type == "ubi")
           {
-            ubi_init();
+            sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
           }
+          else
+          {
+            ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
+          }
+
+          sensor_publisher_->init();
           initialized_ = true;
         }
       }
     }
     else
     {
-      if (sensors_->at(0).type == "pst")
-      {
-        pst_update(time, period);
-      }
-      else if (sensors_->at(0).type == "biotac")
-      {
-        biotac_update(time, period);
-      }
-      else if (sensors_->at(0).type == "ubi")
-      {
-        ubi_update(time, period);
-      }
+      sensor_publisher_->update(time, period);
     }
   }
 
@@ -138,132 +136,6 @@ namespace controller
   
   void SrTactileSensorController::stopping(const ros::Time& time)
   {}
-
-  void SrTactileSensorController::pst_init()
-  {
-    // realtime publisher
-    pst_realtime_pub_ = PSTPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nh_prefix_, "tactile", 4));
-  }
-
-  void SrTactileSensorController::pst_update(const ros::Time& time, const ros::Duration& period)
-  {
-    using namespace hardware_interface;
-    bool pst_published=false;
-    // limit rate of publishing
-    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
-    {
-      // try to publish
-      if (pst_realtime_pub_->trylock())
-      {
-        // we're actually publishing, so increment time
-        last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
-        pst_published=true;
-        // populate message
-        pst_realtime_pub_->msg_.header.stamp = time;
-        pst_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
-        // data
-        for (unsigned i=0; i<sensors_->size(); i++)
-        {
-          pst_realtime_pub_->msg_.pressure[i] = sensors_->at(i).pst.pressure;
-          pst_realtime_pub_->msg_.temperature[i] = sensors_->at(i).pst.temperature;
-        }
-        pst_realtime_pub_->unlockAndPublish();
-      }
-    }
-  }
-
-  void SrTactileSensorController::biotac_init()
-  {
-    // realtime publisher
-    biotac_realtime_pub_ = BiotacPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(nh_prefix_, "tactile", 4));
-  }
-
-  void SrTactileSensorController::biotac_update(const ros::Time& time, const ros::Duration& period)
-  {
-    using namespace hardware_interface;
-    bool biotac_published=false;
-    // limit rate of publishing
-    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
-    {
-      // try to publish
-      if (biotac_realtime_pub_->trylock())
-      {
-        // we're actually publishing, so increment time
-        last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
-        biotac_published=true;
-        // populate message
-        biotac_realtime_pub_->msg_.header.stamp = time;
-        biotac_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
-        // data
-        for (unsigned i=0; i<sensors_->size(); i++)
-        {
-          biotac_realtime_pub_->msg_.tactiles[i].pac0 = sensors_->at(i).biotac.pac0;
-          biotac_realtime_pub_->msg_.tactiles[i].pac1 = sensors_->at(i).biotac.pac1;
-          biotac_realtime_pub_->msg_.tactiles[i].pdc = sensors_->at(i).biotac.pdc;
-          biotac_realtime_pub_->msg_.tactiles[i].tac = sensors_->at(i).biotac.tac;
-          biotac_realtime_pub_->msg_.tactiles[i].tdc = sensors_->at(i).biotac.tdc;
-
-          for(size_t j=0 ; j < sensors_->at(i).biotac.electrodes.size() ; ++j)
-            biotac_realtime_pub_->msg_.tactiles[i].electrodes[j] = sensors_->at(i).biotac.electrodes[j];
-        }
-        biotac_realtime_pub_->unlockAndPublish();
-      }
-    }
-  }
-
-  void SrTactileSensorController::ubi_init()
-  {
-    // realtime publisher
-    ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(nh_prefix_, "tactile", 4));
-    midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(nh_prefix_, "tactile_mid_prox", 4));
-  }
-
-  void SrTactileSensorController::ubi_update(const ros::Time& time, const ros::Duration& period)
-  {
-
-    using namespace hardware_interface;
-    bool ubi_published=false;
-    // limit rate of publishing
-    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
-      // try to publish
-      if (ubi_realtime_pub_->trylock()){
-        // we're actually publishing, so increment time
-        last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
-        ubi_published=true;
-        // populate message
-        ubi_realtime_pub_->msg_.header.stamp = time;
-        ubi_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
-        // data
-        for (unsigned i=0; i<sensors_->size(); i++){
-          sr_robot_msgs::UBI0 tactile_tmp;
-
-          tactile_tmp.distal = sensors_->at(i).ubi0.distal;
-          ubi_realtime_pub_->msg_.tactiles[i] = tactile_tmp;
-        }
-        ubi_realtime_pub_->unlockAndPublish();
-
-      }
-
-       // try to publish
-      if (midprox_realtime_pub_->trylock()){
-        // we're actually publishing, so increment time
-        if( !ubi_published)
-          last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
-        // populate message
-        midprox_realtime_pub_->msg_.header.stamp = time;
-        midprox_realtime_pub_->msg_.header.frame_id = prefix_+"proximal";
-        // data
-        for (unsigned i=0; i<sensors_->size(); i++){
-          sr_robot_msgs::MidProxData midprox_tmp;
-
-          midprox_tmp.middle = sensors_->at(i).ubi0.middle;
-          midprox_tmp.proximal = sensors_->at(i).ubi0.proximal;
-          midprox_realtime_pub_->msg_.sensors[i] = midprox_tmp;
-        }
-        midprox_realtime_pub_->unlockAndPublish();
-      }
-    }
-  }
 }
 
 

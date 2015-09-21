@@ -40,7 +40,7 @@
 #ifndef SR_UBI_TACTILE_SENSOR_CONTROLLER_H
 #define SR_UBI_TACTILE_SENSOR_CONTROLLER_H
 
-#include <sr_tactile_sensor_controller/sr_tactile_sensor_controller.hpp>
+#include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
 #include <realtime_tools/realtime_publisher.h>
 #include <sr_robot_msgs/UBI0All.h>
 #include <sr_robot_msgs/MidProxDataAll.h>
@@ -48,17 +48,20 @@
 namespace controller
 {
 
-  class SrUbiTactileSensorController: public SrTactileSensorController
+  class SrUbiTactileSensorPublisher: public SrTactileSensorPublisher
   {
   public:
-    SrUbiTactileSensorController() : SrTactileSensorController() {}
-    virtual bool init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
+    SrUbiTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors, double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
+          : SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix) {}
+    virtual void init();
     virtual void update(const ros::Time& time, const ros::Duration& period);
 
   private:
 
-    typedef boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> > UbiPublisherPtr;
-    typedef boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> > MidProxPublisherPtr;
+    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> UbiPublisher;
+    typedef boost::shared_ptr<UbiPublisher > UbiPublisherPtr;
+    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> MidProxPublisher;
+    typedef boost::shared_ptr<MidProxPublisher > MidProxPublisherPtr;
     UbiPublisherPtr ubi_realtime_pub_;
     MidProxPublisherPtr midprox_realtime_pub_;
 
