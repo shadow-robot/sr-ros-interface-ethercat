@@ -74,6 +74,11 @@
     <param name="publish_frequency" type="double" value="100.0"/>
   </node>
 
+  <!-- adding tactile state publisher using the tf prefix as a namespace -->
+  <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
+   <arg name="hand_id" value="$(arg hand_id)" />
+  </include>
+
   <node name="teach_mode_node" pkg="sr_robot_launch" type="teach_mode_node" output="screen"/>
 
 </launch>

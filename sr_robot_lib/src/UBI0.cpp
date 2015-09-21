@@ -63,13 +63,6 @@ namespace tactiles
   void UBI0<StatusType, CommandType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
                                            operation_mode::device_update_state::DeviceUpdateState update_state)
   {
-    // Distal tactile sensor real time publisher
-    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> >(
-            new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(this->nodehandle_, "tactile", 4));
-    // Middle and proximal tactile sensor real time publisher
-    mid_prox_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> >(
-            new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(this->nodehandle_, "tactile_mid_prox",
-                                                                                 4));
     // Auxiliar Spi data (sometimes it is a palm tactile sensor) real time publisher
     aux_spi_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData> >(
             new realtime_tools::RealtimePublisher<sr_robot_msgs::AuxSpiData>(this->nodehandle_, "tactile_aux_spi", 4));
@@ -179,46 +172,9 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void UBI0<StatusType, CommandType>::publish()
   {
-    if (tactile_publisher->trylock())
-    {
-      sr_robot_msgs::UBI0All tactiles;
-      tactiles.header.stamp = ros::Time::now();
-
-      // tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
-
-      for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
-      {
-        sr_robot_msgs::UBI0 tactile_tmp;
-
-        tactile_tmp.distal = tactiles_vector->at(id_tact).distal;
-
-        tactiles.tactiles[id_tact] = tactile_tmp;
-      }
-
-      tactile_publisher->msg_ = tactiles;
-      tactile_publisher->unlockAndPublish();
-    }
-
-    if (mid_prox_publisher->trylock())
-    {
-      sr_robot_msgs::MidProxDataAll tactiles;
-      tactiles.header.stamp = ros::Time::now();
-
-      for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
-      {
-        sr_robot_msgs::MidProxData tactile_tmp;
-
-        tactile_tmp.middle = tactiles_vector->at(id_tact).middle;
-        tactile_tmp.proximal = tactiles_vector->at(id_tact).proximal;
-
-        tactiles.sensors[id_tact] = tactile_tmp;
-      }
-
-      mid_prox_publisher->msg_ = tactiles;
-      mid_prox_publisher->unlockAndPublish();
-    }
-
-    if (aux_spi_publisher->trylock())
+    //@TODO move this to the controller publisher (issue #38)
+    //this is not easily accessible from the tactile controller publisher yet
+    if(aux_spi_publisher->trylock())
     {
       sr_robot_msgs::AuxSpiData tactiles;
       tactiles.header.stamp = ros::Time::now();
@@ -283,4 +239,3 @@ namespace tactiles
    c-basic-offset: 2
    End:
 */
-
