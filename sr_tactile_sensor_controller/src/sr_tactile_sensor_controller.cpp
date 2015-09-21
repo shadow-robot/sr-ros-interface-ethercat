@@ -38,6 +38,7 @@
 /// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
 #include "sr_tactile_sensor_controller/sr_tactile_sensor_controller.hpp"
+#include <pluginlib/class_list_macros.h>
 
 using namespace std;
 
@@ -266,7 +267,7 @@ namespace controller
 }
 
 
-
+PLUGINLIB_EXPORT_CLASS(controller::SrTactileSensorController, controller_interface::ControllerBase)
 
 /* For the emacs weenies in the crowd.
 Local Variables:
