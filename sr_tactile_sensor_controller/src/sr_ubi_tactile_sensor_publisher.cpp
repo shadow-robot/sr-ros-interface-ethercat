@@ -3,6 +3,7 @@
  * @author Guillaume Walck <gwalck@techfak.uni-bielefeld.de>
  * @date   Aug 25 2014
  *
+ * Copyright 2015 Shadow Robot Company Ltd.
  *
  * @brief  Publishes ubi tactile state.
  *

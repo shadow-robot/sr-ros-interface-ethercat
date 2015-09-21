@@ -2,6 +2,8 @@
  * @file   sr_biotac_tactile_sensor_publisher.hpp
  * @author Ugo Cupcic <ugo@shadowrobot.com>
  *
+ * Copyright 2015 Shadow Robot Company Ltd.
+ *
  * @brief  Publishes Biotac tactile state
  *
  */
