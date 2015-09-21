@@ -1,5 +1,5 @@
 /**
- * @file   sr_biotac_tactile_sensor_controller.hpp
+ * @file   sr_biotac_tactile_sensor_publisher.hpp
  * @author Ugo Cupcic <ugo@shadowrobot.com>
  *
  * @brief  Publishes Biotac tactile state

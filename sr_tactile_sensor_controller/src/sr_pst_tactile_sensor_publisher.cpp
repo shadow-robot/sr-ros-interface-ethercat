@@ -1,5 +1,5 @@
 /**
- * @file   sr_pst_tactile_sensor_controller.hpp
+ * @file   sr_pst_tactile_sensor_publisher.hpp
  * @author Ugo Cupcic <ugo@shadowrobot.com>
  *
  * @brief  Publishes PST tactile state
