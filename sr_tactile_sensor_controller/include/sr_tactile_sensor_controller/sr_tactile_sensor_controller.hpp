@@ -46,14 +46,22 @@
 #include <boost/shared_ptr.hpp>
 #include <ros_ethercat_model/robot_state.hpp>
 
+#include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
+
+//#include <realtime_tools/realtime_publisher.h>
+//#include <sr_robot_msgs/ShadowPST.h>
+//#include <sr_robot_msgs/BiotacAll.h>
+//#include <sr_robot_msgs/UBI0All.h>
+//#include <sr_robot_msgs/MidProxDataAll.h>
+
+
 namespace controller
 {
   // this controller gets access to the SrTactileSensorInterface
   class SrTactileSensorController: public controller_interface::Controller<ros_ethercat_model::RobotState>
   {
   public:
-    SrTactileSensorController(){}
-
+    SrTactileSensorController();
     virtual bool init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
     virtual void starting(const ros::Time& time);
     virtual void update(const ros::Time& time, const ros::Duration& period);
@@ -65,6 +73,8 @@ namespace controller
     double publish_rate_;
     ros::NodeHandle nh_prefix_;
     std::string prefix_;
+    bool initialized_;
+    boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher_;
   };
 
 }// namespace

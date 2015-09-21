@@ -38,11 +38,19 @@
 /// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
 #include "sr_tactile_sensor_controller/sr_tactile_sensor_controller.hpp"
+#include <pluginlib/class_list_macros.h>
+#include <sr_tactile_sensor_controller/sr_pst_tactile_sensor_publisher.hpp>
+#include <sr_tactile_sensor_controller/sr_biotac_tactile_sensor_publisher.hpp>
+#include <sr_tactile_sensor_controller/sr_ubi_tactile_sensor_publisher.hpp>
 
 using namespace std;
 
 namespace controller
 {
+  SrTactileSensorController::SrTactileSensorController()
+      : initialized_(false)
+  {}
+
   bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
   {
     
@@ -86,6 +94,38 @@ namespace controller
   
   void SrTactileSensorController::update(const ros::Time& time, const ros::Duration& period)
   {
+    if (!initialized_)
+    {
+      if (!sensors_->empty())
+      {
+        if (!sensors_->at(0).type.empty())
+        {
+          if (sensors_->at(0).type == "pst")
+          {
+            sensor_publisher_.reset(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+          }
+          else if (sensors_->at(0).type == "biotac")
+          {
+            sensor_publisher_.reset(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+          }
+          else if (sensors_->at(0).type == "ubi")
+          {
+            sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+          }
+          else
+          {
+            ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
+          }
+
+          sensor_publisher_->init();
+          initialized_ = true;
+        }
+      }
+    }
+    else
+    {
+      sensor_publisher_->update(time, period);
+    }
   }
 
   void SrTactileSensorController::starting(const ros::Time& time)
@@ -94,12 +134,12 @@ namespace controller
     last_publish_time_ = time;
   }
   
-   void SrTactileSensorController::stopping(const ros::Time& time)
+  void SrTactileSensorController::stopping(const ros::Time& time)
   {}
 }
 
 
-
+PLUGINLIB_EXPORT_CLASS(controller::SrTactileSensorController, controller_interface::ControllerBase)
 
 /* For the emacs weenies in the crowd.
 Local Variables:
