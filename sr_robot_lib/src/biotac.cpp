@@ -399,7 +399,7 @@ namespace tactiles
   template <class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::set_version_specific_details()
   {
-    if(tactiles_vector->at(0).serial_number.find("BTSP") != std::string::npos) // If biotac version 1 (we only check one finger)
+    if(tactiles_vector->at(0).serial_number.find("BTSP") == std::string::npos) // If biotac version 1 (we only check one finger)
     {
       for(int32u data = TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20; data <= TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24; ++data)
       {
