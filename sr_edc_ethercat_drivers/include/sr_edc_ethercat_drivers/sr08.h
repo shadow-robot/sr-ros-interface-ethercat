@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef SR08_H
-#define SR08_H
+#ifndef SR_EDC_ETHERCAT_DRIVERS_SR08_H
+#define SR_EDC_ETHERCAT_DRIVERS_SR08_H
 
 #include <ros_ethercat_hardware/ethercat_hardware.h>
 #include <sr_edc_ethercat_drivers/sr_edc.h>
@@ -37,6 +37,7 @@
 #include <bfd.h>
 #include <boost/smart_ptr.hpp>
 #include <map>
+#include <vector>
 #include <boost/assign.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
@@ -46,27 +47,31 @@
 #include <sr_robot_msgs/EthercatDebug.h>
 
 #include <sr_external_dependencies/types_for_external.h>
+
 extern "C"
 {
 #include <sr_external_dependencies/external/0230_palm_edc_TS/0230_palm_edc_ethercat_protocol.h>
 }
 
-class SR08 : public SrEdc
+class SR08 :
+        public SrEdc
 {
 public:
   SR08();
 
   virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address);
+
   virtual int initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed = true);
+
   virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
 
   virtual void packCommand(unsigned char *buffer, bool halt, bool reset);
+
   virtual bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
 
 protected:
-
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
-  std::vector< boost::shared_ptr<rt_pub_int16_t> > realtime_pub_;
+  std::vector<boost::shared_ptr<rt_pub_int16_t> > realtime_pub_;
 
   /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
@@ -85,24 +90,22 @@ protected:
   virtual void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id);
 
 private:
+  // std::string                      firmware_file_name;
 
-  //std::string                      firmware_file_name;
-
-  ///counter for the number of empty buffer we're reading.
+  // counter for the number of empty buffer we're reading.
   unsigned int zero_buffer_read;
 
-  boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> > sr_hand_lib;
+  boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS,
+          ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> > sr_hand_lib;
 
   /**
    *a counter used to publish the tactiles at 100Hz:
    * count 10 cycles, then reset the cycle_count to 0.
    */
-  short cycle_count;
+  int16_t cycle_count;
 
   /// Debug real time publisher: publishes the raw ethercat data
   boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;
-
-
 };
 
 
@@ -113,5 +116,5 @@ End:
  */
 
 
-#endif /* SR08_H */
+#endif  // SR_EDC_ETHERCAT_DRIVERS_SR08_H
 

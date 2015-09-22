@@ -17,6 +17,6 @@ catkin_package()
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
 install(FILES sr_edc.launch sr_edc.machine
-   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 

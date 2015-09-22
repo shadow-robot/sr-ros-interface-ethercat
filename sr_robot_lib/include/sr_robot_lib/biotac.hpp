@@ -29,6 +29,7 @@
 #define _BIOTAC_HPP_
 
 #include <vector>
+#include <string>
 #include <sr_robot_msgs/BiotacAll.h>
 #include <sr_robot_msgs/Biotac.h>
 #include <realtime_tools/realtime_publisher.h>
@@ -38,18 +39,23 @@
 
 namespace tactiles
 {
-  template <class StatusType, class CommandType>
+  template<class StatusType, class CommandType>
   class Biotac :
-    public GenericTactiles<StatusType, CommandType>
+          public GenericTactiles<StatusType, CommandType>
   {
   public:
-    Biotac(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
-    Biotac(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state, boost::shared_ptr< std::vector<GenericTactileData> > init_tactiles_vector);
+    Biotac(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
+           operation_mode::device_update_state::DeviceUpdateState update_state);
+
+    Biotac(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
+           operation_mode::device_update_state::DeviceUpdateState update_state,
+           boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
 
     /**
      * This function is called in the constructors, to initialize the necessary objects
      */
-    void init(std::vector<generic_updater::UpdateConfig> update_configs_vector, operation_mode::device_update_state::DeviceUpdateState update_state);
+    void init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
+              operation_mode::device_update_state::DeviceUpdateState update_state);
 
     /**
      * This function is called each time a new etherCAT message
@@ -58,7 +64,7 @@ namespace tactiles
      *
      * @param status_data the received etherCAT message
      */
-    virtual void update(StatusType* status_data);
+    virtual void update(StatusType *status_data);
 
     /**
      * Publish the information to a ROS topic.
@@ -74,20 +80,17 @@ namespace tactiles
                                  diagnostic_updater::DiagnosticStatusWrapper &d);
 
 
-    virtual std::vector<AllTactileData>* get_tactile_data();
+    virtual std::vector<AllTactileData> *get_tactile_data();
 
     void set_version_specific_details();
 
   protected:
     /// the vector containing the data for the tactiles.
-    boost::shared_ptr< std::vector<BiotacData> > tactiles_vector;
-
-    // Tactile sensor real time publisher
-    boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> > tactile_publisher;
+    boost::shared_ptr<std::vector<BiotacData> > tactiles_vector;
 
     size_t nb_electrodes_;
-  };//end class
-}//end namespace
+  };  // end class
+}  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
 Local Variables:

@@ -28,11 +28,11 @@ By Tom Torfs - donated to the public domain
 #define B8(d) ((int8)B8__(HEX__(d)))
 
 /* for upto 16-bit binary constants, MSB first */
-#define B16(dmsb,dlsb) (((int16)B8(dmsb)<< \
+#define B16(dmsb, dlsb) (((int16)B8(dmsb)<< \
 + B8(dlsb))
 
 /* for upto 32-bit binary constants, MSB first */
-#define B32(dmsb,db2,db3,dlsb) (((int32)B8(dmsb)<<24) \
+#define B32(dmsb, db2, db3, dlsb) (((int32)B8(dmsb)<<24) \
 + ((int32)B8(db2)<<16) \
 + ((int32)B8(db3)<< \
 + B8(dlsb))

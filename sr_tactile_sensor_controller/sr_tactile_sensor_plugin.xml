@@ -1,0 +1,7 @@
+<library path="lib/libsr_tactile_sensor_controller">  
+  <class name="sr_tactile_sensor_controller/SrTactileSensorController" type="controller::SrTactileSensorController" base_class_type="controller_interface::ControllerBase">
+    <description>
+    This controller publishes the readings of all available tactile sensors. The controller expects a RobotState type of hardware interface.
+    </description>
+  </class>
+</library>

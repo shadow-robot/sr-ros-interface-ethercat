@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<package>
+  <name>sr_tactile_sensor_controller</name>
+  <version>0.0.1</version>
+  <description>The sr_tactile_sensor_controller package</description>
+
+  <maintainer email="gwalck@techfak.uni-bielefeld.de">Guillaume Walck</maintainer>
+  <license>BSD</license>
+
+  <url type="website">http://wiki.ros.org/sr_ros_controllers</url>
+
+  <author email="gwalck@techfak.uni-bielefeld.de">Guillaume Walck</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>controller_interface</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>realtime_tools</build_depend>
+  <build_depend>ros_ethercat_model</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sr_robot_lib</build_depend>
+  <build_depend>sr_robot_msgs</build_depend>
+  <build_depend>sr_hardware_interface</build_depend>
+  
+  <run_depend>controller_interface</run_depend>
+  <run_depend>pluginlib</run_depend>
+  <run_depend>realtime_tools</run_depend>
+  <run_depend>ros_ethercat_model</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>sr_robot_lib</run_depend>
+  <run_depend>sr_robot_msgs</run_depend>
+  <run_depend>sr_hardware_interface</run_depend>
+
+
+  <export>
+    <controller_interface plugin="${prefix}/sr_tactile_sensor_plugin.xml"/>
+  </export>
+</package>
