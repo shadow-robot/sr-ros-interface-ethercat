@@ -48,7 +48,9 @@ namespace controller
           biotac_realtime_pub_->msg_.tactiles[i].tdc = sensors_->at(i).biotac.tdc;
 
           for(size_t j=0 ; j < sensors_->at(i).biotac.electrodes.size() ; ++j)
+          {
             biotac_realtime_pub_->msg_.tactiles[i].electrodes[j] = sensors_->at(i).biotac.electrodes[j];
+          }
         }
         biotac_realtime_pub_->unlockAndPublish();
       }

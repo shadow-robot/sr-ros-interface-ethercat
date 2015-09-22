@@ -11,8 +11,7 @@
 
 /// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
-#ifndef SR_UBI_TACTILE_SENSOR_CONTROLLER_H
-#define SR_UBI_TACTILE_SENSOR_CONTROLLER_H
+#pragma once
 
 #include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
 #include <realtime_tools/realtime_publisher.h>
@@ -49,4 +48,3 @@ Local Variables:
 End:
 */
 
-#endif /* SR_UBI_TACTILE_SENSOR_CONTROLLER_H */

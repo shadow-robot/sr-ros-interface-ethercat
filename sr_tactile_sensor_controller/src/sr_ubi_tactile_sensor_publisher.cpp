@@ -29,9 +29,11 @@ namespace controller
   {
     bool ubi_published=false;
     // limit rate of publishing
-    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
+    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
+    {
       // try to publish
-      if (ubi_realtime_pub_->trylock()){
+      if (ubi_realtime_pub_->trylock())
+      {
         // we're actually publishing, so increment time
         last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
         ubi_published=true;
@@ -39,26 +41,30 @@ namespace controller
         ubi_realtime_pub_->msg_.header.stamp = time;
         ubi_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
         // data
-        for (unsigned i=0; i<sensors_->size(); i++){
+        for (unsigned i=0; i<sensors_->size(); i++)
+        {
           sr_robot_msgs::UBI0 tactile_tmp;
 
           tactile_tmp.distal = sensors_->at(i).ubi0.distal;
           ubi_realtime_pub_->msg_.tactiles[i] = tactile_tmp;
         }
         ubi_realtime_pub_->unlockAndPublish();
-
       }
 
        // try to publish
-      if (midprox_realtime_pub_->trylock()){
+      if (midprox_realtime_pub_->trylock())
+      {
         // we're actually publishing, so increment time
         if( !ubi_published)
+        {
           last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
+        }
         // populate message
         midprox_realtime_pub_->msg_.header.stamp = time;
         midprox_realtime_pub_->msg_.header.frame_id = prefix_+"proximal";
         // data
-        for (unsigned i=0; i<sensors_->size(); i++){
+        for (unsigned i=0; i<sensors_->size(); i++)
+        {
           sr_robot_msgs::MidProxData midprox_tmp;
 
           midprox_tmp.middle = sensors_->at(i).ubi0.middle;

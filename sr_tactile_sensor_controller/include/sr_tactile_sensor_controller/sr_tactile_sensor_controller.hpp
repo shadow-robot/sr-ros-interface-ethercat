@@ -37,8 +37,7 @@
 //////////////////////////////////////////////////////////////////////////////
 /// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
-#ifndef SR_TACTILE_SENSOR_CONTROLLER_H
-#define SR_TACTILE_SENSOR_CONTROLLER_H
+#pragma once
 
 #include <controller_interface/controller.h>
 #include <sr_robot_lib/generic_tactiles.hpp>
@@ -47,13 +46,6 @@
 #include <ros_ethercat_model/robot_state.hpp>
 
 #include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
-
-//#include <realtime_tools/realtime_publisher.h>
-//#include <sr_robot_msgs/ShadowPST.h>
-//#include <sr_robot_msgs/BiotacAll.h>
-//#include <sr_robot_msgs/UBI0All.h>
-//#include <sr_robot_msgs/MidProxDataAll.h>
-
 
 namespace controller
 {
@@ -85,4 +77,3 @@ Local Variables:
 End:
 */
 
-#endif /* SR_TACTILE_SENSOR_CONTROLLER_H */

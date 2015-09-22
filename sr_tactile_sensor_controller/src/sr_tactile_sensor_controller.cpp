@@ -54,7 +54,8 @@ namespace controller
   bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
   {
     
-    if (!controller_nh.getParam("prefix", prefix_)){
+    if (!controller_nh.getParam("prefix", prefix_))
+    {
       ROS_ERROR("Parameter 'prefix' not set");
       return false;
     }
@@ -78,7 +79,8 @@ namespace controller
       sensors_ = motor_actuator->motor_state_.tactiles_;
 
       // get publishing period
-      if (!controller_nh.getParam("publish_rate", publish_rate_)){
+      if (!controller_nh.getParam("publish_rate", publish_rate_))
+      {
         ROS_ERROR("Parameter 'publish_rate' not set");
         return false;
       }
