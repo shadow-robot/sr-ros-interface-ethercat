@@ -37,8 +37,7 @@
 //////////////////////////////////////////////////////////////////////////////
 /// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
-#ifndef SR_TACTILE_SENSOR_CONTROLLER_H
-#define SR_TACTILE_SENSOR_CONTROLLER_H
+#pragma once
 
 #include <controller_interface/controller.h>
 #include <sr_robot_lib/generic_tactiles.hpp>
@@ -46,26 +45,29 @@
 #include <boost/shared_ptr.hpp>
 #include <ros_ethercat_model/robot_state.hpp>
 
+#include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
+
 namespace controller
 {
-  // this controller gets access to the SrTactileSensorInterface
-  class SrTactileSensorController: public controller_interface::Controller<ros_ethercat_model::RobotState>
-  {
-  public:
-    SrTactileSensorController(){}
+// this controller gets access to the SrTactileSensorInterface
+class SrTactileSensorController: public controller_interface::Controller<ros_ethercat_model::RobotState>
+{
+public:
+  SrTactileSensorController();
+  virtual bool init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
+  virtual void starting(const ros::Time& time);
+  virtual void update(const ros::Time& time, const ros::Duration& period);
+  virtual void stopping(const ros::Time& time);
 
-    virtual bool init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
-    virtual void starting(const ros::Time& time);
-    virtual void update(const ros::Time& time, const ros::Duration& period);
-    virtual void stopping(const ros::Time& time);
-
-  protected:
-    std::vector<tactiles::AllTactileData>* sensors_;
-    ros::Time last_publish_time_;
-    double publish_rate_;
-    ros::NodeHandle nh_prefix_;
-    std::string prefix_;
-  };
+protected:
+  std::vector<tactiles::AllTactileData>* sensors_;
+  ros::Time last_publish_time_;
+  double publish_rate_;
+  ros::NodeHandle nh_prefix_;
+  std::string prefix_;
+  bool initialized_;
+  boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher_;
+};
 
 }// namespace
 
@@ -75,4 +77,3 @@ Local Variables:
 End:
 */
 
-#endif /* SR_TACTILE_SENSOR_CONTROLLER_H */
