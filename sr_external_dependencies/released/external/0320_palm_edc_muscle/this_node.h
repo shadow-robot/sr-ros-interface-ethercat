@@ -1,11 +1,11 @@
-// 
-// ï¿½ 2010 Shadow Robot Company Limited.
-// 
+//
+// © 2010 Shadow Robot Company Limited.
+//
 // FileName:        this_node.h
 // Dependencies:    
 // Processor:       PIC32
-// Compiler:        MPLABï¿½ C32 
-// 
+// Compiler:        MPLAB® C32 
+//
 //  +------------------------------------------------------------------------+
 //  | This file is part of The Shadow Robot PIC32 firmware code base.        |
 //  |                                                                        |
@@ -23,20 +23,20 @@
 //  | along with this code repository. The text of the license can be found  |
 //  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
 //  +------------------------------------------------------------------------+
-// 
-// 
-// 
+//
+//
+//
 //  Doxygen
 //  -------
-// 
-// ! @file 
-// ! This Node definition for the 0320 Palm EDC node
-// ! 
-// ! 
-// ! 
-// ! 
-// ! @addtogroup NodeName
-// 
+//
+//! @file 
+//! This Node definition for the 0320 Palm EDC node
+//! 
+//! 
+//! 
+//! 
+//! @addtogroup NodeName
+//
 
 #ifndef THIS_NODE_H_INCLUDED
 #define THIS_NODE_H_INCLUDED
@@ -53,12 +53,11 @@
 #include "tests/assert_shadow.h"
 
 #include "this_node_serial_number.h"        // contains E.G.      #define THIS_NODE_SERIAL_NUMBER  0x0016
-// This file is not in the SVN so that we can alter the serial
-// number without having to modify the SVN contents.
+                                            // This file is not in the SVN so that we can alter the serial 
+                                            // number without having to modify the SVN contents.
 
 
 #define NO_STRINGS
-
 #include "0320_palm_edc_ethercat_protocol.h"
 #include "simple_can/simple_can_muscle.h"
 
@@ -73,58 +72,55 @@
  *  All other code should not be exposed to implementation details.
  */
 #define INCLUDE_IMPLEMENTATION_DETAILS
-
-#include "hardware/spi/spi_32.h"
-#include "hardware/uart/uart_32.h"
-
+    #include "hardware/spi/spi_32.h"
+    #include "hardware/uart/uart_32.h"
 #undef INCLUDE_IMPLEMENTATION_DETAILS
 
 
+
 #ifndef  CAN_ERROR_CODES
-#error CAN_ERROR_CODES not defined
+    #error CAN_ERROR_CODES not defined
 #endif
 
 #ifndef  CAN_EVENT_CODES
-#error CAN_EVENT_CODES not defined
+    #error CAN_EVENT_CODES not defined
 #endif
 
 #ifndef  SIMPLE_CAN_ERROR_CODES
-#error SIMPLE_CAN_ERROR_CODES not defined
+    #error SIMPLE_CAN_ERROR_CODES not defined
 #endif
 
 
-// ! Used for reporting error events, or a change in error state.
-// ! E.G. the change from CAN1_HAPPY to CAN1_SAD
-// 
-// ! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
-// ! this enum simply collects together the error codes relevant to this node.
+//! Used for reporting error events, or a change in error state.
+//! E.G. the change from CAN1_HAPPY to CAN1_SAD
+//
+//! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
+//! this enum simply collects together the error codes relevant to this node.
 typedef enum
 {
-  // NO_ERROR_CODE,
-          CAN_ERROR_CODES,
-  SIMPLE_CAN_ERROR_CODES
-} ERROR_CODE;
+    //NO_ERROR_CODE,
+    CAN_ERROR_CODES,
+    SIMPLE_CAN_ERROR_CODES
+}ERROR_CODE;
 
 
-// ! Used for reporting general events, or a change in state.
-// ! E.G. the change from Idle mode to Active mode
-// 
-// ! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
-// ! this enum simply collects together the event codes relevant to this node.
+//! Used for reporting general events, or a change in state.
+//! E.G. the change from Idle mode to Active mode
+//
+//! Error and event codes relevant to CAN are defined in the shadow_can.h etc.
+//! this enum simply collects together the event codes relevant to this node.
 typedef enum
 {
-  // NO_EVENT_CODE,
-          CAN_EVENT_CODES,
-} EVENT_CODE;
+    //NO_EVENT_CODE,
+    CAN_EVENT_CODES,
+}EVENT_CODE;
 
 
-void initialise_this_node(
-        void);                            // ALL setup for this node, apart from what's explicitly listed in main.c
 
-void handle_configuration_message(CAN_message *message);
+void initialise_this_node(void);                            // ALL setup for this node, apart from what's explicitly listed in main.c
 
+void handle_configuration_message(CAN_message* message);
 void Service_EtherCAT_Packet(void);
-
 void Check_For_EtherCAT_Packet(void);
 
 
@@ -161,172 +157,164 @@ void Check_For_EtherCAT_Packet(void);
 #include "../support/svnversion.h"
 
 void Send_Sensor_Data_Structure(void);
-
 void Fill_Sensor_Data_Structure(I2C_MODULE I2Cm);
 
 void Read_Commands_From_ET1200(void);
-
 void Send_All_CAN_Messages(void);
-
 void Translate_SOMI_Bits(void);
-
 void Read_All_Sensors(void);
-
 void collect_muscle_data_CAN_messages(CAN_MODULE can_bus);
 
-int32u get_frame_time_us(void);
+       int32u get_frame_time_us(void);
+       void   Wait_For_Until_Frame_Time(int32u frame_time_us);
+inline void   write_status_data_To_ET1200(void);
 
-void Wait_For_Until_Frame_Time(int32u frame_time_us);
-
-inline void write_status_data_To_ET1200(void);
-
-void delay_us(int32u microseconds);
-
+void delay_us(int32u microseconds) ;
 void delay_ms(int32u milliseconds);
 
-void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_driver_number,
-                          MUSCLE_DATA_PACKET *muscle_data_packet);
+void Received_Muscle_Data(FROM_MUSCLE_DATA_TYPE data_type, int8u muscle_driver_number, MUSCLE_DATA_PACKET *muscle_data_packet);
 
 
 extern int8u palm_EDC_0200_sensor_mapping[64];
 extern int64u node_id;
 
-extern ETHERCAT_CAN_BRIDGE_DATA can_bridge_data_from_ROS;
-extern ETHERCAT_CAN_BRIDGE_DATA can_bridge_data_to_ROS;
+extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_from_ROS;
+extern ETHERCAT_CAN_BRIDGE_DATA                        can_bridge_data_to_ROS;
 
 
-#define PALM_PCB_01                                    // !< Use PALM_PCB_00 for the old prototype board.
-// !  Use PALM_PCB_00 for the real palm board
+
+#define PALM_PCB_01                                     //!< Use PALM_PCB_00 for the old prototype board.
+                                                        //!  Use PALM_PCB_00 for the real palm board
 
 #ifdef PALM_PCB_00                                      // Definitions for big square prototype board
-// #define USE_SMALL_EEPROM
+    //#define USE_SMALL_EEPROM
 
-#define USE_SIMPLE_PST_CS
-#define AUTO_TRIGGER         0                     // !< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
+    #define USE_SIMPLE_PST_CS
+    #define AUTO_TRIGGER         0                      //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
 
-#define ET1200_CHIP_SELECT_PIN      'C', 14
-#define ET1200_RESET_PIN            'F',  3
-#define ET1200_EEPROM_PIN           'G',  2
-#define SPI_CS_PIN                  'B',  9
-#define SPI_CLOCK_PIN               'B', 15
-#define SPI_MOSI_PIN                'G',  9
-#define ET1200_SOMI_PIN             'D',  2
-#define LED_CAN1_TX_PIN             'D',  4
-#define LED_CAN1_RX_PIN             'D',  5
-#define LED_CAN1_ERR_PIN            'D',  0
-#define LED_CAN2_TX_PIN             'D',  7
-#define LED_CAN2_ERR_PIN            'D',  6
-#define LED_AL_ERR_PIN              'D', 11
-#define LED_CFG_PIN                 'D',  8
+    #define ET1200_CHIP_SELECT_PIN      'C', 14
+    #define ET1200_RESET_PIN            'F',  3
+    #define ET1200_EEPROM_PIN           'G',  2
+    #define SPI_CS_PIN                  'B',  9
+    #define SPI_CLOCK_PIN               'B', 15
+    #define SPI_MOSI_PIN                'G',  9
+    #define ET1200_SOMI_PIN             'D',  2
+    #define LED_CAN1_TX_PIN             'D',  4
+    #define LED_CAN1_RX_PIN             'D',  5
+    #define LED_CAN1_ERR_PIN            'D',  0
+    #define LED_CAN2_TX_PIN             'D',  7
+    #define LED_CAN2_ERR_PIN            'D',  6
+    #define LED_AL_ERR_PIN              'D', 11
+    #define LED_CFG_PIN                 'D',  8
 
-#define SPI_PORT                    SPI_CHANNEL1A, 10, ET1200_chip_select
-#define I2C_PORT                    I2C1, 400000
+    #define SPI_PORT                    SPI_CHANNEL1A, 10, ET1200_chip_select
+    #define I2C_PORT                    I2C1, 400000
 
-#define ALL_LED_BITS
+    #define ALL_LED_BITS                
 
-#define ALL_LED_BITS_PORTB          0b0000000000000000
-#define ALL_LED_BITS_PORTC          0b0000000000000000
-#define ALL_LED_BITS_PORTD          0b0000100111110001
-#define ALL_LED_BITS_PORTE          0b0000000000000000
-#define ALL_LED_BITS_PORTF          0b0000000000000000
+    #define ALL_LED_BITS_PORTB          0b0000000000000000
+    #define ALL_LED_BITS_PORTC          0b0000000000000000
+    #define ALL_LED_BITS_PORTD          0b0000100111110001
+    #define ALL_LED_BITS_PORTE          0b0000000000000000
+    #define ALL_LED_BITS_PORTF          0b0000000000000000
 
-#define     SPIP_INPUT_BIT_0        (spi_somi_port & 0x0001)
-#define     SPIP_INPUT_BIT_1        (spi_somi_port & 0x0002)
-#define     SPIP_INPUT_BIT_2        (spi_somi_port & 0x0004)
-#define     SPIP_INPUT_BIT_3        (spi_somi_port & 0x0008)
-#define     SPIP_INPUT_BIT_4        (spi_somi_port & 0x0010)
-#define     SPIP_INPUT_BIT_5        (spi_somi_port & 0x0020)
-#define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
-#define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
+    #define     SPIP_INPUT_BIT_0        (spi_somi_port & 0x0001)
+    #define     SPIP_INPUT_BIT_1        (spi_somi_port & 0x0002)
+    #define     SPIP_INPUT_BIT_2        (spi_somi_port & 0x0004)
+    #define     SPIP_INPUT_BIT_3        (spi_somi_port & 0x0008)
+    #define     SPIP_INPUT_BIT_4        (spi_somi_port & 0x0010)
+    #define     SPIP_INPUT_BIT_5        (spi_somi_port & 0x0020)
+    #define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
+    #define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
+    
+    #define     FF_SOMI                 (spi_somi_port & 0x0001)
+    #define     MF_SOMI                 (spi_somi_port & 0x0002)
+    #define     RF_SOMI                 (spi_somi_port & 0x0004)
+    #define     LF_SOMI                 (spi_somi_port & 0x0008)
+    #define     TH_SOMI                 (spi_somi_port & 0x0040)
 
-#define     FF_SOMI                 (spi_somi_port & 0x0001)
-#define     MF_SOMI                 (spi_somi_port & 0x0002)
-#define     RF_SOMI                 (spi_somi_port & 0x0004)
-#define     LF_SOMI                 (spi_somi_port & 0x0008)
-#define     TH_SOMI                 (spi_somi_port & 0x0040)
+    #define     PIN_BIT(x)              (1<<x)
+    
+    #define     SPIP_CHIP_SELECT_UP     LATBSET = PIN_BIT(9);
+    #define     SPIP_CHIP_SELECT_DOWN   LATBCLR = PIN_BIT(9);
+    
+    #define     SPIP_CLOCK_UP           LATBSET = PIN_BIT(15);
+    #define     SPIP_CLOCK_DOWN         LATBCLR = PIN_BIT(15);
+    
+    #define     SPIP_MOSI_UP            LATGSET = PIN_BIT(9);
+    #define     SPIP_MOSI_DOWN          LATGCLR = PIN_BIT(9);
 
-#define     PIN_BIT(x)              (1<<x)
-
-#define     SPIP_CHIP_SELECT_UP     LATBSET = PIN_BIT(9);
-#define     SPIP_CHIP_SELECT_DOWN   LATBCLR = PIN_BIT(9);
-
-#define     SPIP_CLOCK_UP           LATBSET = PIN_BIT(15);
-#define     SPIP_CLOCK_DOWN         LATBCLR = PIN_BIT(15);
-
-#define     SPIP_MOSI_UP            LATGSET = PIN_BIT(9);
-#define     SPIP_MOSI_DOWN          LATGCLR = PIN_BIT(9);
-
-#define     SPI_BUF                 SPI1ABUF
-#define     SPI_STAT                SPI1ASTAT
-#define     SPI_CON                 SPI1ACON
-#define     SPI_STATbits            SPI1ASTATbits
+    #define     SPI_BUF                 SPI1ABUF
+    #define     SPI_STAT                SPI1ASTAT
+    #define     SPI_CON                 SPI1ACON 
+    #define     SPI_STATbits            SPI1ASTATbits
 
 #endif
 
 
 #ifdef PALM_PCB_01                                          // Definitions for actual palm board inside hand
-#define USE_SIMPLE_PST_CS
-#define AUTO_TRIGGER         0                         // !< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
+    #define USE_SIMPLE_PST_CS
+    #define AUTO_TRIGGER         0                          //!< Trigger sampling even if there is no EtherCAT activity. Useful for debugging
 
-#define ET1200_CHIP_SELECT_PIN      'C', 14
-#define ET1200_RESET_PIN            'F',  3
-#define ET1200_EEPROM_PIN           'G',  2
-#define SPI2_CS_PIN                 'D',  11
-#define SPI_CS_PIN                  'D',  7
-#define SPI_CLOCK_PIN               'D',  6
-#define SPI_MOSI_PIN                'D',  5
-#define ET1200_SOMI_PIN             'G',  7
-#define ACCEL_CS_PIN                'G',  9
-#define LED_CAN1_TX_PIN             'D',  0
-#define LED_CAN1_RX_PIN             'D',  4
-#define LED_CAN1_ERR_PIN            'D',  8
-#define LED_CAN2_TX_PIN             'F',  4
-#define LED_CAN2_RX_PIN             'B', 15
-#define LED_CAN2_ERR_PIN            'F',  5
-#define LED_AL_ERR_PIN              'C', 13
+    #define ET1200_CHIP_SELECT_PIN      'C', 14
+    #define ET1200_RESET_PIN            'F',  3
+    #define ET1200_EEPROM_PIN           'G',  2
+    #define SPI2_CS_PIN                 'D',  11
+    #define SPI_CS_PIN                  'D',  7
+    #define SPI_CLOCK_PIN               'D',  6
+    #define SPI_MOSI_PIN                'D',  5
+    #define ET1200_SOMI_PIN             'G',  7
+    #define ACCEL_CS_PIN                'G',  9
+    #define LED_CAN1_TX_PIN             'D',  0
+    #define LED_CAN1_RX_PIN             'D',  4
+    #define LED_CAN1_ERR_PIN            'D',  8
+    #define LED_CAN2_TX_PIN             'F',  4
+    #define LED_CAN2_RX_PIN             'B', 15
+    #define LED_CAN2_ERR_PIN            'F',  5
+    #define LED_AL_ERR_PIN              'C', 13
+    
+    #define SPI_PORT                    SPI_CHANNEL2A, 10, ET1200_chip_select
+    #define I2C_PORT                    I2C1, 400000
 
-#define SPI_PORT                    SPI_CHANNEL2A, 10, ET1200_chip_select
-#define I2C_PORT                    I2C1, 400000
+    #define ALL_LED_BITS_PORTB          0b1000000000000000
+    #define ALL_LED_BITS_PORTC          0b0010000000000000
+    #define ALL_LED_BITS_PORTD          0b0000000100010001
+    #define ALL_LED_BITS_PORTE          0b0000000000000000
+    #define ALL_LED_BITS_PORTF          0b0000000000100000
 
-#define ALL_LED_BITS_PORTB          0b1000000000000000
-#define ALL_LED_BITS_PORTC          0b0010000000000000
-#define ALL_LED_BITS_PORTD          0b0000000100010001
-#define ALL_LED_BITS_PORTE          0b0000000000000000
-#define ALL_LED_BITS_PORTF          0b0000000000100000
+    
+    #define     SPIP_INPUT_BIT_0        (spi_somi_port & 0x0001)
+    #define     SPIP_INPUT_BIT_1        (spi_somi_port & 0x0002)
+    #define     SPIP_INPUT_BIT_2        (spi_somi_port & 0x0004)
+    #define     SPIP_INPUT_BIT_3        (spi_somi_port & 0x0008)
+    #define     SPIP_INPUT_BIT_4        (spi_somi_port & 0x0010)
+    #define     SPIP_INPUT_BIT_5        (spi_somi_port & 0x0020)
+    #define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
+    #define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
 
+    #define     SPIP_INPUT_PORT         PORTE
 
-#define     SPIP_INPUT_BIT_0        (spi_somi_port & 0x0001)
-#define     SPIP_INPUT_BIT_1        (spi_somi_port & 0x0002)
-#define     SPIP_INPUT_BIT_2        (spi_somi_port & 0x0004)
-#define     SPIP_INPUT_BIT_3        (spi_somi_port & 0x0008)
-#define     SPIP_INPUT_BIT_4        (spi_somi_port & 0x0010)
-#define     SPIP_INPUT_BIT_5        (spi_somi_port & 0x0020)
-#define     SPIP_INPUT_BIT_6        (spi_somi_port & 0x0040)
-#define     SPIP_INPUT_BIT_7        (spi_somi_port & 0x0080)
-
-#define     SPIP_INPUT_PORT         PORTE
-
-#define     FF_SOMI                 (spi_somi_port & 0x0004)
-#define     MF_SOMI                 (spi_somi_port & 0x0002)
-#define     RF_SOMI                 (spi_somi_port & 0x0001)
-#define     LF_SOMI                 (spi_somi_port & 0x0008)
-#define     TH_SOMI                 (spi_somi_port & 0x0040)
-
-#define     PIN_BIT(x)              (1<<x)
-
-#define     SPIP_CHIP_SELECT_UP     LATDSET = PIN_BIT(7);
-#define     SPIP_CHIP_SELECT_DOWN   LATDCLR = PIN_BIT(7);
-
-#define     SPIP_CLOCK_UP           LATDSET = PIN_BIT(6);
-#define     SPIP_CLOCK_DOWN         LATDCLR = PIN_BIT(6);
-
-#define     SPIP_MOSI_UP            LATDSET = PIN_BIT(5);
-#define     SPIP_MOSI_DOWN          LATDCLR = PIN_BIT(5);
-
-#define     SPI_BUF                 SPI2ABUF
-#define     SPI_STAT                SPI2ASTAT
-#define     SPI_CON                 SPI2ACON
-#define     SPI_STATbits            SPI2ASTATbits
+    #define     FF_SOMI                 (spi_somi_port & 0x0004)
+    #define     MF_SOMI                 (spi_somi_port & 0x0002)
+    #define     RF_SOMI                 (spi_somi_port & 0x0001)
+    #define     LF_SOMI                 (spi_somi_port & 0x0008)
+    #define     TH_SOMI                 (spi_somi_port & 0x0040)
+    
+    #define     PIN_BIT(x)              (1<<x)
+    
+    #define     SPIP_CHIP_SELECT_UP     LATDSET = PIN_BIT(7);
+    #define     SPIP_CHIP_SELECT_DOWN   LATDCLR = PIN_BIT(7);
+    
+    #define     SPIP_CLOCK_UP           LATDSET = PIN_BIT(6);
+    #define     SPIP_CLOCK_DOWN         LATDCLR = PIN_BIT(6);
+    
+    #define     SPIP_MOSI_UP            LATDSET = PIN_BIT(5);
+    #define     SPIP_MOSI_DOWN          LATDCLR = PIN_BIT(5);
+    
+    #define     SPI_BUF                 SPI2ABUF
+    #define     SPI_STAT                SPI2ASTAT
+    #define     SPI_CON                 SPI2ACON 
+    #define     SPI_STATbits            SPI2ASTATbits
 
 #endif
 

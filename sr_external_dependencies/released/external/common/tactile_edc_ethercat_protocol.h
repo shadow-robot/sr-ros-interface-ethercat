@@ -29,16 +29,16 @@
 //  Doxygen
 //  -------
 //
-// ! @file
-// !
-// ! The term "Command" means data going from the ROS PC to the Node on the robot
-// ! Previously known as "Incoming"
-// !
-// ! The term "Status"  means data going from Node on the robot the to the ROS PC
-// ! Previously known as "Outgoing"
-// !
-// !
-// ! @addtogroup
+//! @file
+//!
+//! The term "Command" means data going from the ROS PC to the Node on the robot
+//! Previously known as "Incoming"
+//!
+//! The term "Status"  means data going from Node on the robot the to the ROS PC
+//! Previously known as "Outgoing"
+//!
+//!
+//! @addtogroup
 //
 
 #ifndef TACTILE_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -55,23 +55,23 @@
 
 typedef union
 {
-  int16u word[TACTILE_DATA_LENGTH_WORDS_v1];                           // !< As yet unspecified
-  char string[TACTILE_DATA_LENGTH_BYTES_v1];
-} TACTILE_SENSOR_STATUS_v1;
+    int16u  word[TACTILE_DATA_LENGTH_WORDS_v1];                            //!< As yet unspecified
+    char    string[TACTILE_DATA_LENGTH_BYTES_v1];
+}TACTILE_SENSOR_STATUS_v1;
 
-typedef enum                                                           // ! Data you can request from tactile sensors in general
+typedef enum                                                            //! Data you can request from tactile sensors in general
 {
-  TACTILE_SENSOR_TYPE_WHICH_SENSORS = 0xFFF9,              // !< Is this a PST, a BioTac, or what? Returns a TACTILE_SENSOR_PROTOCOL_TYPE
-  TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ = 0xFFFA,              // !< word[0] = frequency in Hz. currently only used by BioTacs
-  TACTILE_SENSOR_TYPE_MANUFACTURER = 0xFFFB,              // !< e.g. "Shadow" or "Syntouch"
-  TACTILE_SENSOR_TYPE_SERIAL_NUMBER = 0xFFFC,              // !< e.g. "PST3200110190001"
-  TACTILE_SENSOR_TYPE_SOFTWARE_VERSION = 0xFFFD,              // !< e.g. "1825"
-  TACTILE_SENSOR_TYPE_PCB_VERSION = 0xFFFE,              // !< e.g. "FB". Currently only used by BioTacs
-  TACTILE_SENSOR_TYPE_RESET_COMMAND = 0xFFFF               // !< Requesting this causes the tactile sensors to reset if they support it.
-} FROM_TACTILE_SENSOR_TYPE;
+    TACTILE_SENSOR_TYPE_WHICH_SENSORS           = 0xFFF9,               //!< Is this a PST, a BioTac, or what? Returns a TACTILE_SENSOR_PROTOCOL_TYPE
+    TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ     = 0xFFFA,               //!< word[0] = frequency in Hz. currently only used by BioTacs
+    TACTILE_SENSOR_TYPE_MANUFACTURER            = 0xFFFB,               //!< e.g. "Shadow" or "Syntouch"
+    TACTILE_SENSOR_TYPE_SERIAL_NUMBER           = 0xFFFC,               //!< e.g. "PST3200110190001"
+    TACTILE_SENSOR_TYPE_SOFTWARE_VERSION        = 0xFFFD,               //!< e.g. "1825"
+    TACTILE_SENSOR_TYPE_PCB_VERSION             = 0xFFFE,               //!< e.g. "FB". Currently only used by BioTacs
+    TACTILE_SENSOR_TYPE_RESET_COMMAND           = 0xFFFF                //!< Requesting this causes the tactile sensors to reset if they support it.
+}FROM_TACTILE_SENSOR_TYPE;
 
 
-typedef enum                                                           // ! This is the protocol that the palm is using for the tactile sensors.
+typedef enum                                                            //! This is the protocol that the palm is using for the tactile sensors.
 {
     TACTILE_SENSOR_PROTOCOL_TYPE_INVALID        = 0x0000,               //!< No supported sensors were found.
     TACTILE_SENSOR_PROTOCOL_TYPE_PST3           = 0x0001,               //!< Shadow's Pressure Tactile sensor, Hugo's firmware
@@ -92,16 +92,16 @@ typedef enum                                                            //!< Thi
 
 typedef enum                                                            // Data you can request from PST3s
 {
-  TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE = 0x0000,      // !< 0: Pressure.       1: Temperature
-  TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING = 0x0002,      // !< 0: Raw pressure    1: Zero tracking
-  TACTILE_SENSOR_TYPE_PST3_DAC_VALUE = 0x0004       // !< 0: DAC value       1: ----
-} FROM_TACTILE_SENSOR_TYPE_PST3;
+    TACTILE_SENSOR_TYPE_PST3_PRESSURE_TEMPERATURE       = 0x0000,       //!< 0: Pressure.       1: Temperature
+    TACTILE_SENSOR_TYPE_PST3_PRESSURE_RAW_ZERO_TRACKING = 0x0002,       //!< 0: Raw pressure    1: Zero tracking
+    TACTILE_SENSOR_TYPE_PST3_DAC_VALUE                  = 0x0004        //!< 0: DAC value       1: ----
+}FROM_TACTILE_SENSOR_TYPE_PST3;
 
 typedef enum                                                            // Data you can request from UBI0 tactiles
 {
-  TACTILE_SENSOR_TYPE_UBI0_INVALID = 0x0000,      // !<
-  TACTILE_SENSOR_TYPE_UBI0_TACTILE = 0x0001      // !< Only one type of sensor
-} FROM_TACTILE_SENSOR_TYPE_UBI0;
+    TACTILE_SENSOR_TYPE_UBI0_INVALID                    = 0x0000,       //!<
+    TACTILE_SENSOR_TYPE_UBI0_TACTILE                    = 0x0001       //!< Only one type of sensor
+}FROM_TACTILE_SENSOR_TYPE_UBI0;
 
 typedef enum                                                            // Data you can request from BioTacs
 {
@@ -140,8 +140,8 @@ typedef enum                                                            // Data 
 
 typedef enum                                                   // Data you can request from MCP320x ADC
 {
-  TACTILE_SENSOR_TYPE_MCP320x_INVALID = 0x0000,      // !<
-  TACTILE_SENSOR_TYPE_MCP320x_TACTILE = 0x0001      // !< Only one type of sensor
+    TACTILE_SENSOR_TYPE_MCP320x_INVALID        = 0x0000,       //!<
+    TACTILE_SENSOR_TYPE_MCP320x_TACTILE        = 0x0001       //!< Only one type of sensor
 } FROM_TACTILE_SENSOR_TYPE_MCP320x;
 
 
@@ -174,51 +174,51 @@ typedef struct
 
 typedef union
 {
-  int16u word[TACTILE_DATA_LENGTH_WORDS_v2];                           // !< As yet unspecified
-  char string[TACTILE_DATA_LENGTH_BYTES_v2];
-} TACTILE_SENSOR_STATUS_v2;
+    int16u  word[TACTILE_DATA_LENGTH_WORDS_v2];                            //!< As yet unspecified
+    char    string[TACTILE_DATA_LENGTH_BYTES_v2];
+}TACTILE_SENSOR_STATUS_v2;
 
 typedef struct
 {
-  int16u distal[TACTILE_DATA_LENGTH_WORDS_v2];
-  int16u misc;
-} TACTILE_SENSOR_UNIBI_DATA_CONTENTS;
+    int16u  distal[TACTILE_DATA_LENGTH_WORDS_v2];
+    int16u  misc;
+}TACTILE_SENSOR_UNIBI_DATA_CONTENTS;
 
 typedef union
 {
-  struct
-  {
-    int16u middle[4];
-    int16u proximal[4];
-  } named;
+    struct
+    {
+        int16u    middle[4];
+        int16u  proximal[4];
+    }named;
 
-  int16u integers[8];
-} TACTILE_SENSOR_MID_PROX;
+    int16u integers[8];
+}TACTILE_SENSOR_MID_PROX;
 
 typedef enum
 {
-  MID_0 = 0,
-  MID_1 = 1,
-  MID_2 = 2,
-  MID_3 = 3,
+    MID_0   = 0,
+    MID_1   = 1,
+    MID_2   = 2,
+    MID_3   = 3,
 
-  PROX_0 = 4,
-  PROX_1 = 5,
-  PROX_2 = 6,
-  PROX_3 = 7
-} TACTILE_MID_PROX_SENSOR_NUMBERS;
-
-
-typedef struct
-{
-  int16u sensor[16];
-} TACTILE_SENSOR_PALM;
+    PROX_0   = 4,
+    PROX_1   = 5,
+    PROX_2   = 6,
+    PROX_3   = 7
+}TACTILE_MID_PROX_SENSOR_NUMBERS;
 
 
 typedef struct
 {
-  int16u sensor[16];
-} AUX_SPI_SENSOR;
+    int16u  sensor[16];
+}TACTILE_SENSOR_PALM;
+
+
+typedef struct
+{
+    int16u  sensor[16];
+}AUX_SPI_SENSOR;
 
 
 
