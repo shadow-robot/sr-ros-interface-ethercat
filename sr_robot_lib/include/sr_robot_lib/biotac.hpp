@@ -82,9 +82,13 @@ namespace tactiles
 
     virtual std::vector<AllTactileData> *get_tactile_data();
 
+    void set_version_specific_details();
+
   protected:
     /// the vector containing the data for the tactiles.
     boost::shared_ptr<std::vector<BiotacData> > tactiles_vector;
+
+    size_t nb_electrodes_;
   };  // end class
 }  // namespace tactiles
 

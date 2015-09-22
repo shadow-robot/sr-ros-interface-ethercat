@@ -77,11 +77,11 @@ namespace shadow_robot
   // const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
 #endif
 
-  template<class StatusType, class CommandType>
-  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 32;
+  template <class StatusType, class CommandType>
+  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 37;
 
-  template<class StatusType, class CommandType>
-  const char *SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] = {
+  template <class StatusType, class CommandType>
+  const char* SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] = {
           "TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ",
           "TACTILE_SENSOR_TYPE_MANUFACTURER",
           "TACTILE_SENSOR_TYPE_SERIAL_NUMBER",
@@ -110,12 +110,17 @@ namespace shadow_robot
           "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17",
           "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18",
           "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19",
+          "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20",
+          "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_21",
+          "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_22",
+          "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_23",
+          "TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24",
           "TACTILE_SENSOR_TYPE_BIOTAC_PDC",
           "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
           "TACTILE_SENSOR_TYPE_BIOTAC_TDC",
           "TACTILE_SENSOR_TYPE_UBI0_TACTILE"};
 
-  template<class StatusType, class CommandType>
+  template <class StatusType, class CommandType>
   const int32u SrRobotLib<StatusType, CommandType>::sensor_data_types[nb_sensor_data] = {
           TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ,
           TACTILE_SENSOR_TYPE_MANUFACTURER,
@@ -145,6 +150,11 @@ namespace shadow_robot
           TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17,
           TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18,
           TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19,
+          TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20,
+          TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_21,
+          TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_22,
+          TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_23,
+          TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24,
           TACTILE_SENSOR_TYPE_BIOTAC_PDC,
           TACTILE_SENSOR_TYPE_BIOTAC_TAC,
           TACTILE_SENSOR_TYPE_BIOTAC_TDC,

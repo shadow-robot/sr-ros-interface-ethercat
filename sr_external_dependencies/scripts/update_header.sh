@@ -12,8 +12,10 @@ function checkout_or_update {
     SVN_PATH=${2}
     if [ -d ${DIR_NAME} ] ; then
 	chmod -R a+w ${DIR_NAME}
-	echo "Updating ${DIR_NAME}"
 	pushd ${DIR_NAME}
+	echo "Upgrading ${DIR_NAME}"
+	svn upgrade
+	echo "Updating ${DIR_NAME}"
 	svn up
 	popd
 

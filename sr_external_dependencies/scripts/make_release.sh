@@ -21,8 +21,8 @@ VERS_0230_TS=`svnversion include/sr_external_dependencies/external/0230_palm_edc
 VERS_0320_MUSCLE=`svnversion include/sr_external_dependencies/external/0320_palm_edc_muscle/`
 VERS_BOOTLD=`svnversion include/sr_external_dependencies/external/simplemotor-bootloader/`
 VERS_FW=`svnversion compiled_firmware/released_firmware/`
-VERS_GIT_ETHERCAT=`git --git-dir \`rosstack find shadow_robot_ethercat\`/.git log --pretty=format:%h -n 1`
-VERS_GIT_SHADOW=`git --git-dir \`rosstack find shadow_robot\`/.git log --pretty=format:%h -n 1`
+VERS_GIT_ETHERCAT=`git --git-dir $(dirname $(rosstack find shadow_robot_ethercat))/.git log --pretty=format:%h -n 1`
+VERS_GIT_SHADOW=`git --git-dir $(dirname $(rosstack find shadow_robot))/.git log --pretty=format:%h -n 1`
 
 echo "protocol_common:"${VERS_COMMON} "; protocol_motor:"${VERS_0220} "; protocol_muscle:"${VERS_0320_MUSCLE} "; protocol_ubi_ts:"${VERS_0230_TS} "; bootloader:"${VERS_BOOTLD}" ; firmware:"${VERS_FW}" ; git_shadow:"${VERS_GIT_SHADOW} "; git_ethercat:"${VERS_GIT_ETHERCAT} > tested_version.yaml
 

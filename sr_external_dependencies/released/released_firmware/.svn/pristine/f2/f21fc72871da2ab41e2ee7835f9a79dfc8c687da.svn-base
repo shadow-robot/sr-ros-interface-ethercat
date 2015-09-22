@@ -1,0 +1,13 @@
+1930 - Workaround for spiky strain gauge readings. Second sample is taken.
+1926 - Increased temperature cutout to 60 dec
+1911 - Shortened code by removing some tests. See if the bootloader likes this now.
+1909 - New straingauge tracking algorithm. New jiggling algorithm.
+1903 - Sampling voltage. Enabled message rollover
+1816 - Added coupled jiggle algorithm.
+1802 - Integral wind-down enabled.
+
+
+
+
+
+

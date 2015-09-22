@@ -21,6 +21,12 @@ void SrBiotacTactileSensorPublisher::init()
 {
   // realtime publisher
   biotac_realtime_pub_ = BiotacPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(nh_prefix_, "tactile", 4));
+  biotac_realtime_pub_->lock();
+  for (unsigned i=0; i<sensors_->size(); i++)
+  {
+    biotac_realtime_pub_->msg_.tactiles[i].electrodes.resize(sensors_->at(i).biotac.electrodes.size());
+  }
+  biotac_realtime_pub_->unlock();
 }
 
 void SrBiotacTactileSensorPublisher::update(const ros::Time& time, const ros::Duration& period)
@@ -46,11 +52,7 @@ void SrBiotacTactileSensorPublisher::update(const ros::Time& time, const ros::Du
         biotac_realtime_pub_->msg_.tactiles[i].pdc = sensors_->at(i).biotac.pdc;
         biotac_realtime_pub_->msg_.tactiles[i].tac = sensors_->at(i).biotac.tac;
         biotac_realtime_pub_->msg_.tactiles[i].tdc = sensors_->at(i).biotac.tdc;
-
-        for(size_t j=0 ; j < sensors_->at(i).biotac.electrodes.size() ; ++j)
-        {
-          biotac_realtime_pub_->msg_.tactiles[i].electrodes[j] = sensors_->at(i).biotac.electrodes[j];
-        }
+        biotac_realtime_pub_->msg_.tactiles[i].electrodes = sensors_->at(i).biotac.electrodes;
       }
       biotac_realtime_pub_->unlockAndPublish();
     }
