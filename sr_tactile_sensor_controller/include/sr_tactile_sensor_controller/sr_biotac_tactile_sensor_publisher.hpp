@@ -19,20 +19,20 @@
 namespace controller
 {
 
-  class SrBiotacTactileSensorPublisher: public SrTactileSensorPublisher
-  {
-  public:
-    SrBiotacTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors, double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
-      : SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix) {}
-    virtual void init();
-    virtual void update(const ros::Time& time, const ros::Duration& period);
+class SrBiotacTactileSensorPublisher: public SrTactileSensorPublisher
+{
+public:
+  SrBiotacTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors, double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
+    : SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix) {}
+  virtual void init();
+  virtual void update(const ros::Time& time, const ros::Duration& period);
 
-  private:
+private:
 
-    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> BiotacPublisher;
-    typedef boost::shared_ptr<BiotacPublisher > BiotacPublisherPtr;
-    BiotacPublisherPtr biotac_realtime_pub_;
-  };
+  typedef realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll> BiotacPublisher;
+  typedef boost::shared_ptr<BiotacPublisher > BiotacPublisherPtr;
+  BiotacPublisherPtr biotac_realtime_pub_;
+};
 
 }// namespace
 

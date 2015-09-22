@@ -49,25 +49,25 @@
 
 namespace controller
 {
-  // this controller gets access to the SrTactileSensorInterface
-  class SrTactileSensorController: public controller_interface::Controller<ros_ethercat_model::RobotState>
-  {
-  public:
-    SrTactileSensorController();
-    virtual bool init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
-    virtual void starting(const ros::Time& time);
-    virtual void update(const ros::Time& time, const ros::Duration& period);
-    virtual void stopping(const ros::Time& time);
+// this controller gets access to the SrTactileSensorInterface
+class SrTactileSensorController: public controller_interface::Controller<ros_ethercat_model::RobotState>
+{
+public:
+  SrTactileSensorController();
+  virtual bool init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
+  virtual void starting(const ros::Time& time);
+  virtual void update(const ros::Time& time, const ros::Duration& period);
+  virtual void stopping(const ros::Time& time);
 
-  protected:
-    std::vector<tactiles::AllTactileData>* sensors_;
-    ros::Time last_publish_time_;
-    double publish_rate_;
-    ros::NodeHandle nh_prefix_;
-    std::string prefix_;
-    bool initialized_;
-    boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher_;
-  };
+protected:
+  std::vector<tactiles::AllTactileData>* sensors_;
+  ros::Time last_publish_time_;
+  double publish_rate_;
+  ros::NodeHandle nh_prefix_;
+  std::string prefix_;
+  bool initialized_;
+  boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher_;
+};
 
 }// namespace
 

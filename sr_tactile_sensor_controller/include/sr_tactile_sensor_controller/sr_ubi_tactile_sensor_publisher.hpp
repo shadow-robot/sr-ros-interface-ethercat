@@ -21,24 +21,24 @@
 namespace controller
 {
 
-  class SrUbiTactileSensorPublisher: public SrTactileSensorPublisher
-  {
-  public:
-    SrUbiTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors, double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
-          : SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix) {}
-    virtual void init();
-    virtual void update(const ros::Time& time, const ros::Duration& period);
+class SrUbiTactileSensorPublisher: public SrTactileSensorPublisher
+{
+public:
+  SrUbiTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors, double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
+        : SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix) {}
+  virtual void init();
+  virtual void update(const ros::Time& time, const ros::Duration& period);
 
-  private:
+private:
 
-    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> UbiPublisher;
-    typedef boost::shared_ptr<UbiPublisher > UbiPublisherPtr;
-    typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> MidProxPublisher;
-    typedef boost::shared_ptr<MidProxPublisher > MidProxPublisherPtr;
-    UbiPublisherPtr ubi_realtime_pub_;
-    MidProxPublisherPtr midprox_realtime_pub_;
+  typedef realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> UbiPublisher;
+  typedef boost::shared_ptr<UbiPublisher > UbiPublisherPtr;
+  typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> MidProxPublisher;
+  typedef boost::shared_ptr<MidProxPublisher > MidProxPublisherPtr;
+  UbiPublisherPtr ubi_realtime_pub_;
+  MidProxPublisherPtr midprox_realtime_pub_;
 
-  };
+};
 
 }// namespace
 
