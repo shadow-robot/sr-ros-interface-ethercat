@@ -20,6 +20,8 @@ void SrPSTTactileSensorPublisher::init()
 {
   // realtime publisher
   pst_realtime_pub_ = PSTPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nh_prefix_, "tactile", 4));
+  pst_realtime_pub_->msg_.pressure.resize(sensors_->size());
+  pst_realtime_pub_->msg_.temperature.resize(sensors_->size());
 }
 
 void SrPSTTactileSensorPublisher::update(const ros::Time& time, const ros::Duration& period)
