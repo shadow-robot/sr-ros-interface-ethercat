@@ -1,7 +1,7 @@
 <launch>
   <!-- The id of the hand will be used to namespace the hand parameters
        the id should   -->
-  <arg name="hand_id" default="rh/"/>
+  <arg name="hand_id" default="rh"/>
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_ethercat.yaml"/>
 
