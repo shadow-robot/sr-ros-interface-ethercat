@@ -1237,6 +1237,10 @@ namespace shadow_robot
           {
             continue;
           }
+          if (controllers_list.response.controller[i].name.find("tactile_sensor_controller") != std::string::npos)
+          {
+            continue;
+          }
           ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(
                   controllers_list.response.controller[i].name + "/reset_gains");
           std_srvs::Empty empty_message;
