@@ -64,14 +64,15 @@ namespace tactiles
   void ShadowPSTs<StatusType, CommandType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
                                                  operation_mode::device_update_state::DeviceUpdateState update_state)
   {
-    // Tactile sensor real time publisher
-    tactile_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST> >(
-            new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(this->nodehandle_, "tactile", 4));
-
     // initialize the vector of tactiles
     tactiles_vector = boost::shared_ptr<std::vector<PST3Data> >(new std::vector<PST3Data>(this->nb_tactiles));
     this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(
             new std::vector<AllTactileData>(this->nb_tactiles));
+
+    for (size_t i = 0; i < this->all_tactile_data->size(); ++i)
+    {
+      this->all_tactile_data->at(i).type = "pst";
+    }
   }
 
   template<class StatusType, class CommandType>
@@ -178,28 +179,10 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void ShadowPSTs<StatusType, CommandType>::publish()
   {
-    if (tactile_publisher->trylock())
-    {
-      // for the time being, we only have PSTs tactile sensors
-      sr_robot_msgs::ShadowPST tactiles;
-      tactiles.header.stamp = ros::Time::now();
+    //left empty, this is published from the controller publisher
+  }//end publish
 
-      // tactiles.pressure.push_back(sr_hand_lib->tactile_data_valid);
-
-      for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
-      {
-        // Always publish the last valid data: the data are updated
-        // only if they are valid
-        tactiles.pressure.push_back(tactiles_vector->at(id_tact).pressure);
-        tactiles.temperature.push_back(tactiles_vector->at(id_tact).temperature);
-      }
-
-      tactile_publisher->msg_ = tactiles;
-      tactile_publisher->unlockAndPublish();
-    }
-  }  // end publish
-
-  template<class StatusType, class CommandType>
+  template <class StatusType, class CommandType>
   void ShadowPSTs<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                                             diagnostic_updater::DiagnosticStatusWrapper &d)
   {
@@ -255,5 +238,3 @@ namespace tactiles
    c-basic-offset: 2
    End:
 */
-
-

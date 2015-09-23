@@ -108,12 +108,13 @@ namespace generic_updater
     // Contains all the initialization data types.
     std::vector<UpdateConfig> initialization_configs_vector;
 
+    /// Contains all the important data types.
+    std::vector<UpdateConfig> important_update_configs_vector;
+
   protected:
     ros::NodeHandle nh_tilde;
 
-    // Contains all the important data types.
-    std::vector<UpdateConfig> important_update_configs_vector;
-    // iterate through the important or initialization data types.
+    /// iterate through the important or initialization data types.
     int which_data_to_request;
 
     // All the timers for the unimportant data types.

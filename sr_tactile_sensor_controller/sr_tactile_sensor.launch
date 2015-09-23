@@ -1,0 +1,10 @@
+<launch>
+  <!-- prefix for the spawner node and the controller (might be different from joint_name prefix) -->
+  <arg name="hand_id" default=""/>
+
+  <rosparam command="load" file="$(find sr_ethercat_hand_config)/controls/tactiles/$(arg hand_id)/sr_tactile_sensor_controller.yaml" />
+
+  <!-- spawn controller -->
+  <node name="sr_$(arg hand_id)_tactile_sensor_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="--shutdown-timeout=1 sr_$(arg hand_id)_tactile_sensor_controller" />
+ 
+</launch>
