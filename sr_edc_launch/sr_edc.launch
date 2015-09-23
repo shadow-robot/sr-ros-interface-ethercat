@@ -14,6 +14,8 @@
   <arg name="hand_serial" default="1050"/>
   <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
   <arg name="hand_id" default="rh"/>
+  <!-- the path to the mapping files -->
+  <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_ethercat.yaml"/>
 
   <param name="/use_sim_time" value="false"/>
 
@@ -28,6 +30,7 @@
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml">
     <arg name="hand_id" value="$(arg hand_id)"/>
     <arg name="pwm_control" value="$(arg pwm_control)"/>
+    <arg name="mapping_path" value="$(arg mapping_path)"/>
   </include>
 
   <include file="$(find sr_edc_launch)/sr_edc.machine"/>
