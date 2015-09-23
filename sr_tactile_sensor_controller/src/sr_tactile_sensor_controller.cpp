@@ -48,7 +48,7 @@ using namespace std;
 namespace controller
 {
 SrTactileSensorController::SrTactileSensorController()
-    : initialized_(false)
+  : initialized_(false), sensors_(NULL)
 {}
 
 bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
@@ -98,29 +98,32 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
 {
   if (!initialized_)
   {
-    if (!sensors_->empty())
+    if(sensors_)
     {
-      if (!sensors_->at(0).type.empty())
+      if (!sensors_->empty())
       {
-        if (sensors_->at(0).type == "pst")
-        {
-          sensor_publisher_.reset(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-        }
-        else if (sensors_->at(0).type == "biotac")
-        {
-          sensor_publisher_.reset(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-        }
-        else if (sensors_->at(0).type == "ubi")
-        {
-          sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-        }
-        else
-        {
-          ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
-        }
+	if (!sensors_->at(0).type.empty())
+	{
+	  if (sensors_->at(0).type == "pst")
+	  {
+	    sensor_publisher_.reset(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+	  }
+	  else if (sensors_->at(0).type == "biotac")
+	  {
+	    sensor_publisher_.reset(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+	  }
+	  else if (sensors_->at(0).type == "ubi")
+	  {
+	    sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+	  }
+	  else
+	  {
+	    ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
+	  }
 
-        sensor_publisher_->init();
-        initialized_ = true;
+	  sensor_publisher_->init();
+	  initialized_ = true;
+	}
       }
     }
   }
@@ -148,5 +151,3 @@ Local Variables:
    c-basic-offset: 2
 End:
  */
-
-
