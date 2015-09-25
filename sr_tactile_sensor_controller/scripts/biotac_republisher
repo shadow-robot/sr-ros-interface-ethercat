@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+# Copyright 2015 Shadow Robot Company Ltd.
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 2 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import rospy
+from sr_robot_msgs.msg import BiotacAll, Biotac
+from sr_utilities.hand_finder import HandFinder
+
+
+class BiotacRepublisher(object):
+    """
+    Listens to BiotacAll and republished 5 Biotac
+    """
+
+    _nb_fingers = 5
+
+    def __init__(self):
+        self._hand_finder = HandFinder()
+        self._hand_mapping = self._hand_finder.get_hand_parameters().mapping
+        self._publishers = {}
+        self._subscribers = {}
+
+        for hand in self._hand_mapping.values():
+            self._publishers[hand] = []
+            for i in range(self._nb_fingers):
+                self._publishers[hand].append(rospy.Publisher(hand + "/biotac_" + str(i), Biotac, queue_size=10))
+            self._subscribers[hand] = rospy.Subscriber(hand + "/tactile", BiotacAll, self._tactile_cb, hand)
+
+    def _tactile_cb(self, msg, hand):
+        for i in range(self._nb_fingers):
+            self._publishers[hand][i].publish(msg.tactiles[i])
+
+
+if __name__ == '__main__':
+    rospy.init_node("biotac_republisher")
+    repub = BiotacRepublisher()
+    rospy.spin()
