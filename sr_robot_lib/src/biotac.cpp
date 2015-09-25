@@ -34,6 +34,13 @@
 
 namespace tactiles
 {
+
+  template <class StatusType, class CommandType>
+  const size_t Biotac<StatusType, CommandType>::nb_electrodes_v1_ = 19;
+
+  template <class StatusType, class CommandType>
+  const size_t Biotac<StatusType, CommandType>::nb_electrodes_v2_ = 24;
+
   template<class StatusType, class CommandType>
   Biotac<StatusType, CommandType>::Biotac(ros::NodeHandle nh, std::string device_id,
                                           std::vector<generic_updater::UpdateConfig> update_configs_vector,
@@ -399,7 +406,21 @@ namespace tactiles
   template <class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::set_version_specific_details()
   {
-    if(tactiles_vector->at(0).serial_number.find("BTSP") == std::string::npos) // If biotac version 1 (we only check one finger)
+
+
+    nb_electrodes_ = nb_electrodes_v1_; // We consider biotac version one to be the default
+
+    for(size_t i = 0; i < this->nb_tactiles; ++i)
+    {
+      // At least one of the fingers has a biotac version 2
+      if(tactiles_vector->at(i).serial_number.find("BTSP") != std::string::npos)
+      {
+        nb_electrodes_ = nb_electrodes_v2_;
+        break;
+      }
+    }
+
+    if(nb_electrodes_ == nb_electrodes_v1_) // If biotac version 1 remove polling for non-existing electrodes
     {
       for(int32u data = TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20; data <= TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24; ++data)
       {
@@ -416,11 +437,6 @@ namespace tactiles
           }
         }
       }
-      nb_electrodes_ = 19;
-    }
-    else
-    {
-      nb_electrodes_ = 24;
     }
 
     for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)

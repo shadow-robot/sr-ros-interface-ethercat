@@ -89,6 +89,9 @@ namespace tactiles
     boost::shared_ptr<std::vector<BiotacData> > tactiles_vector;
 
     size_t nb_electrodes_;
+
+    static const size_t nb_electrodes_v1_;
+    static const size_t nb_electrodes_v2_;
   };  // end class
 }  // namespace tactiles
 

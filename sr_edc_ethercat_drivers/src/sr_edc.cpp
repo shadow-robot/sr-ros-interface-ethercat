@@ -581,6 +581,7 @@ bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req
 
   ROS_INFO("Resetting microcontroller.");
   // Then we send the RESET command to PIC18F
+  timedout = true;
   while (timedout)
   {
     send_CAN_msg(can_bus_, 0x0600 | (motor_being_flashed << 5) | RESET_COMMAND, 0, NULL, 1000, &timedout);
@@ -782,7 +783,6 @@ void SrEdc::send_CAN_msg(int8u can_bus, int16u msg_id, int8u msg_length, int8u m
 
 bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_size)
 {
-  bool timedout = true;
   // The actual comparison between the content read from the flash and the content read from
   // the hex file is carried out in the can_data_is_ack() function.
   // read_flash(...) will return timedout = true if the 8 byte content read from the flash doesn't
@@ -793,6 +793,8 @@ bool SrEdc::read_back_and_check_flash(unsigned int baddr, unsigned int total_siz
   unsigned int retry;
   while (pos < total_size)
   {
+    bool timedout = true;
+
     retry = 0;
     while (timedout)
     {
@@ -893,13 +895,14 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
   int err;
   unsigned char cmd_sent;
   int wait_time, timeout;
-  bool timedout;
 
   pos = 0;
   unsigned int packet = 0;
   ROS_INFO("Sending the firmware data");
   while (pos < ((total_size % 32) == 0 ? total_size : (total_size + 32 - (total_size % 32))))
   {
+    bool timedout = true;
+
     // For every WRITE_FLASH_ADDRESS_COMMAND we write 32 bytes of data to flash
     // and this is done by sending 4 WRITE_FLASH_DATA_COMMAND packets, every one containing
     // 8 bytes of data to be written
