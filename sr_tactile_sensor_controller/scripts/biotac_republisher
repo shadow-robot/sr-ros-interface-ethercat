@@ -37,7 +37,7 @@ class BiotacRepublisher(object):
             self._publishers[hand] = []
             for i in range(self._nb_fingers):
                 self._publishers[hand].append(rospy.Publisher(hand + "/biotac_" + str(i), Biotac, queue_size=10))
-            self._subscribers[hand] = rospy.Subscriber(hand + "/tactiles", BiotacAll, self._tactile_cb, hand)
+            self._subscribers[hand] = rospy.Subscriber(hand + "/tactile", BiotacAll, self._tactile_cb, hand)
 
     def _tactile_cb(self, msg, hand):
         for i in range(self._nb_fingers):
