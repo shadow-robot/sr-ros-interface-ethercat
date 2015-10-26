@@ -55,21 +55,28 @@ SrTactileSensorController::SrTactileSensorController()
 
 bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
 {
+  bool use_ns = true;
   std::string serial_id;
   std::string hand_id;
   std::string joint_prefix;
   std::map<std::string, std::string> joint_prefix_mapping;
-
+  ros::NodeHandle nh_priv("~");
+  
+  if (!nh_priv.getParam("use_ns", use_ns))
+  {
+    ROS_INFO("Private parameter 'use_ns' not set, default is using namespace");
+  }
+  
   if (!controller_nh.getParam("prefix", joint_prefix))
   {
     ROS_ERROR("Parameter 'prefix' not set");
     return false;
   }
-
+  
   if (!joint_prefix.empty())
   {
     prefix_ = joint_prefix + "_";
-
+ 
     // find the serial that matches the joint_prefix
     ros::param::get("/hand/joint_prefix", joint_prefix_mapping);
     for (map<string, string>::const_iterator prefix_iter = joint_prefix_mapping.begin();
@@ -78,7 +85,7 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::No
       if (prefix_ == prefix_iter->second)
         serial_id = prefix_iter->first;
     }
-
+    
     // find the mapping for this serial
     if (!serial_id.empty())
     {
@@ -99,7 +106,10 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::No
 
   if (!hand_id.empty())
   {
-    nh_prefix_ = ros::NodeHandle(root_nh, hand_id);
+    if(use_ns)
+      nh_prefix_ = ros::NodeHandle(root_nh, hand_id);
+    else
+      nh_prefix_ = ros::NodeHandle(root_nh);
     if (prefix_.empty())
     {
       prefix_ = hand_id + "_";
@@ -123,6 +133,7 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::No
       ROS_ERROR("Parameter 'publish_rate' not set");
       return false;
     }
+
     return true;
   }
   else
