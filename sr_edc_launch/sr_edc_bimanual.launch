@@ -20,8 +20,8 @@
   <!-- The id for the left hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
   <arg name="lh_id" default="lh"/>
   <!-- the path to the mapping files -->
-  <arg name="rh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_ethercat.yaml"/>
-  <arg name="lh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/lh_ethercat.yaml"/>
+  <arg name="rh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
+  <arg name="lh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/lh_E_v3.yaml"/>
 
 
   <param name="/hand/mapping/$(arg rh_serial)" value="$(arg rh_id)"/>
