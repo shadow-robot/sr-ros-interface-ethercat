@@ -19,4 +19,6 @@ catkin_package()
 install(FILES sr_edc.launch sr_edc.machine sr_edc_bimanual.launch load_hand_parameters.xml
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-
+install(DIRECTORY mappings
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
