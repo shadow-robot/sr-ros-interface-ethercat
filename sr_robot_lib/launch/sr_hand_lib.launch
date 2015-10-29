@@ -7,7 +7,7 @@
        If it's not "" then it's usually "rh"  -->
   <arg name="hand_id" default="rh"/>
   <!-- the path to the mapping files -->
-  <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_ethercat.yaml"/>
+  <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
 
   <!-- For the moment the sensor_to_joint mapping will be the same for all the existing models of hand -->
   <rosparam command="load" file="$(find sr_edc_launch)/mappings/default_mappings/sensor_to_joint.yaml"/>
