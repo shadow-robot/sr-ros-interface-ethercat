@@ -35,3 +35,6 @@ sr_robot_lib/build/
 sr_robot_lib/cmake_install.cmake
 sr_robot_lib/lib/
 *.pyc
+
+# PyCharm project
+.idea
