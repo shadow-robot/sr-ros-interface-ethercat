@@ -120,8 +120,8 @@ namespace shadow_joints
             : muscle_driver_id(id),
               can_msgs_received_(0),
               can_msgs_transmitted_(0),
-              pic_firmware_svn_revision_(0),
-              server_firmware_svn_revision_(0),
+              pic_firmware_git_revision_(0),
+              server_firmware_git_revision_(0),
               firmware_modified_(0),
               serial_number(0),
               assembly_date_year(0),
@@ -135,8 +135,8 @@ namespace shadow_joints
     }
 
     int muscle_driver_id;
-    unsigned int pic_firmware_svn_revision_;
-    unsigned int server_firmware_svn_revision_;
+    unsigned int pic_firmware_git_revision_;
+    unsigned int server_firmware_git_revision_;
     bool firmware_modified_;
     unsigned int serial_number;
     unsigned int assembly_date_year;
