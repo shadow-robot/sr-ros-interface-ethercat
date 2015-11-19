@@ -746,12 +746,12 @@ namespace shadow_robot
           // that come from every muscle driver
           // So in fact this message is not "slow" anymore.
           muscle_driver_tmp->pic_firmware_git_revision_ = static_cast<unsigned int> (status_data->muscle_data_packet[
-                  muscle_driver_tmp->muscle_driver_id * 2].slow_0.GIT_revision);
+                  muscle_driver_tmp->muscle_driver_id * 2].slow_0.SVN_revision);
           muscle_driver_tmp->server_firmware_git_revision_ = static_cast<unsigned int> (status_data->muscle_data_packet[
-                  muscle_driver_tmp->muscle_driver_id * 2].slow_0.GIT_server);
+                  muscle_driver_tmp->muscle_driver_id * 2].slow_0.SVN_server);
           muscle_driver_tmp->firmware_modified_ =
                   static_cast<bool> (static_cast<unsigned int> (status_data->muscle_data_packet[
-                  muscle_driver_tmp->muscle_driver_id * 2].slow_0.GIT_modified));
+                  muscle_driver_tmp->muscle_driver_id * 2].slow_0.SVN_modified));
 
           muscle_driver_tmp->serial_number = static_cast<unsigned int> (status_data->muscle_data_packet[
                   muscle_driver_tmp->muscle_driver_id * 2 + 1].slow_1.serial_number);
