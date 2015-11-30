@@ -206,7 +206,7 @@ namespace generic_updater
 
       // look if every type is received, then change FROM_MOTOR_SLOW_DATA_TYPE general received state accordingly
       bool checked = true;
-      for (int i = MOTOR_SLOW_DATA_GIT_REVISION; i <= MOTOR_SLOW_DATA_LAST; i++)
+      for (int i = MOTOR_SLOW_DATA_SVN_REVISION; i <= MOTOR_SLOW_DATA_LAST; i++)
       {
         checked = checked && slow_data_received.at(i);
         if (!checked)

@@ -778,17 +778,17 @@ namespace shadow_robot
 
           switch (static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].torque))
           {
-            case MOTOR_SLOW_DATA_GIT_REVISION:
+            case MOTOR_SLOW_DATA_SVN_REVISION:
               actuator->motor_state_.pic_firmware_git_revision_ =
                       static_cast<unsigned int> (
                               static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
-            case MOTOR_SLOW_DATA_GIT_SERVER_REVISION:
+            case MOTOR_SLOW_DATA_SVN_SERVER_REVISION:
               actuator->motor_state_.server_firmware_git_revision_ =
                       static_cast<unsigned int> (
                               static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
               break;
-            case MOTOR_SLOW_DATA_GIT_MODIFIED:
+            case MOTOR_SLOW_DATA_SVN_MODIFIED:
               actuator->motor_state_.firmware_modified_ =
                       static_cast<bool> (
                               static_cast<int16u> (status_data->motor_data_packet[index_motor_in_msg].misc));
