@@ -16,7 +16,7 @@ function copy_released_files {
 
 	echo "Updating ${DIR_NAME} from ${GIT_PATH}"
 	mkdir -p ${DIR_NAME}
-	cp -R ${GIT_PATH}/*.h ${GIT_PATH}/*.hpp ${GIT_PATH}/*.hex ${GIT_PATH}/*.txt ${DIR_NAME}
+	cp -Rf ${GIT_PATH}/*.h ${GIT_PATH}/*.hpp ${GIT_PATH}/*.hex ${GIT_PATH}/*.txt ${DIR_NAME}
 	rm -f ${DIR_NAME}/this_node.h
 
     #removes write access
@@ -35,7 +35,6 @@ copy_released_files simplemotor-bootloader EDC/simplemotor-bootloader
 cd ${START_PATH}
 cd ".."
 chmod -R a+w ./released_firmware
-rm -rf ./released_firmware
 copy_released_files released_firmware EDC/simplemotor/released_firmware
 
 rm -rf ${TEMP_GIT_REPO_PATH}
