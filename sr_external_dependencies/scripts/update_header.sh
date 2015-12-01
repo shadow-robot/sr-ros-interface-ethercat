@@ -25,6 +25,10 @@ function copy_released_files {
 
 rm -rf ${TEMP_GIT_REPO_PATH}
 git clone https://github.com/shadow-robot/hand-firmware.git ${TEMP_GIT_REPO_PATH}
+if [ $? -ne 0 ]; then
+    echo "Error: Could not clone hand-firmware repository. Exiting script!"
+    exit 1
+fi
 
 copy_released_files common PIC32/nodes/common
 copy_released_files 0220_palm_edc PIC32/nodes/0220_palm_edc
