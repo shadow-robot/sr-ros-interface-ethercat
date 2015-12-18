@@ -111,9 +111,7 @@ install(TARGETS sr_hand_lib
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
         DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-        FILES_MATCHING PATTERN "*.hpp"
-        PATTERN ".svn" EXCLUDE
-)
+        FILES_MATCHING PATTERN "*.hpp")
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination

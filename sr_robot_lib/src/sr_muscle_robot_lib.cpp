@@ -469,13 +469,13 @@ namespace shadow_robot
 
           if (muscle_driver->firmware_modified_)
           {
-            d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / True",
-                   muscle_driver->server_firmware_svn_revision_, muscle_driver->pic_firmware_svn_revision_);
+            d.addf("Firmware git revision (server / pic / modified)", "%d / %d / True",
+                   muscle_driver->server_firmware_git_revision_, muscle_driver->pic_firmware_git_revision_);
           }
           else
           {
-            d.addf("Firmware svn revision (server / pic / modified)", "%d / %d / False",
-                   muscle_driver->server_firmware_svn_revision_, muscle_driver->pic_firmware_svn_revision_);
+            d.addf("Firmware git revision (server / pic / modified)", "%d / %d / False",
+                   muscle_driver->server_firmware_git_revision_, muscle_driver->pic_firmware_git_revision_);
           }
         }
       }
@@ -745,9 +745,9 @@ namespace shadow_robot
           // Instead, all the information (of every data type) is contained in the 2 packets
           // that come from every muscle driver
           // So in fact this message is not "slow" anymore.
-          muscle_driver_tmp->pic_firmware_svn_revision_ = static_cast<unsigned int> (status_data->muscle_data_packet[
+          muscle_driver_tmp->pic_firmware_git_revision_ = static_cast<unsigned int> (status_data->muscle_data_packet[
                   muscle_driver_tmp->muscle_driver_id * 2].slow_0.SVN_revision);
-          muscle_driver_tmp->server_firmware_svn_revision_ = static_cast<unsigned int> (status_data->muscle_data_packet[
+          muscle_driver_tmp->server_firmware_git_revision_ = static_cast<unsigned int> (status_data->muscle_data_packet[
                   muscle_driver_tmp->muscle_driver_id * 2].slow_0.SVN_server);
           muscle_driver_tmp->firmware_modified_ =
                   static_cast<bool> (static_cast<unsigned int> (status_data->muscle_data_packet[

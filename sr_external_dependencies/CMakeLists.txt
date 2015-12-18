@@ -5,21 +5,6 @@ project(sr_external_dependencies)
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED)
 
-
-SET(internal_firmware $ENV{INTERNAL_FIRMWARE})
-IF (internal_firmware)
-    MESSAGE(" [x] Fetching new development firmware from Shadow's internal repository and headers.")
-ELSE(internal_firmware)
-    MESSAGE(" [x] Fetching latest RELEASED firmware and headers.")
-ENDIF (internal_firmware)
-
-IF (internal_firmware)
-    EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/scripts/update_header.sh")
-ELSE(internal_firmware)
-    EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/scripts/update_released_header.sh")
-ENDIF (internal_firmware)
-
-
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
         INCLUDE_DIRS include
@@ -34,12 +19,10 @@ catkin_package(
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
-        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-        PATTERN ".svn" EXCLUDE
-)
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
-install(DIRECTORY released/
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/released)
+install(DIRECTORY released_firmware/
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/released_firmware)
 
 install(FILES tested_version.yaml
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

@@ -16,24 +16,24 @@ This package implements those classes, to control the EtherCAT slaves on the SR 
 
 This document will describe how the EtherCAT driver works, but first we have to understand how the ros_etherCAT node works.
 
-<!-- 
+<!--
 Provide an overview of your package.
 -->
 
 \section wheretofind Where to find what ?
 
-- The PIC32 source code is in svn://pericles/Pic32
-  - The project to load in MPLAB is svn://pericles/Pic32/trunk/nodes/0220_palm_edc/220_palm_edc.mcp
-- The PIC18F bootloader is in svn://pericles/EDC/simplemotor-bootloader/
-  - The project to load in MPLAB is svn://pericles/EDC/simplemotor-bootloader/pic18-bootloader.mcp
-- The SimpleMotor code is in svn://pericles/EDC/simplemotor/
-  - The project to load in MPLAB is svn://pericles/EDC/simplemotor/simplemotor.mcp
+- The PIC32 source code is in https://github.com/shadow-robot/hand-firmware/tree/master/PIC32
+  - The project to load in MPLAB is https://github.com/shadow-robot/hand-firmware/tree/master/PIC32/nodes/0220_palm_edc/220_palm_edc.mcp
+- The PIC18F bootloader is in https://github.com/shadow-robot/hand-firmware/tree/master/EDC/simplemotor-bootloader/
+  - The project to load in MPLAB is https://github.com/shadow-robot/hand-firmware/tree/master/EDC/simplemotor-bootloader/pic18-bootloader.mcp
+- The SimpleMotor code is in https://github.com/shadow-robot/hand-firmware/tree/master/EDC/simplemotor/
+  - The project to load in MPLAB is https://github.com/shadow-robot/hand-firmware/tree/master/EDC/simplemotor/simplemotor.mcp
 - The SR06 EtherCAT ROS driver code is documented via doxygen, you can find the documentation there : SR06.
-- The documentation of the PIC32<->PIC18F(SimpleMotor) CAN protocol (asking motor data and sending torque demands) : svn://thoth/trunk/Projects/Palm_EDC_Development/Docs/Specification/Palm_EDC_Specification.odt
+- The documentation of the PIC32<->PIC18F(SimpleMotor) CAN protocol (asking motor data and sending torque demands) : https://github.com/shadow-robot/hand-firmware/blob/master/EDC/documentation/Palm_EDC_Specification.odt
 
 \section howtoburnthebootloader How to burn the PIC18F CAN bootloader ?
 
-- Get the source at svn://pericles/EDC/simplemotor-bootloader/
+- Get the source at https://github.com/shadow-robot/hand-firmware/tree/master/EDC/simplemotor-bootloader/
 - Open the pic18-bootloader.mcp file with MPLAB
 - Compile it in Release mode.
 - Read back the data from the device, check the last byte of the EEPROM is 0xFF, if not set it to 0xFF
@@ -43,14 +43,14 @@ Provide an overview of your package.
 \section howtoflashafirmware How to flash a firmware using the CAN bootloader ?
 
 - Run the roscore
-- Run the sr_edc.launch as root : 
+- Run the sr_edc.launch as root :
 
 \code
 root@rosethercat:~# roslaunch sr_edc_launch sr_edc.launch
 \endcode
 
 - Wait for it to initialize the EtherCAT device, the RX LED should be blinking on the palm PCB.
-- Then open a new terminal and enter this command : 
+- Then open a new terminal and enter this command :
 
 \code
 rosservice call SimpleMotorFlasher "/home/hand/test-firmware.hex" 8
@@ -62,12 +62,12 @@ This means we call the "SimpleMotorFlasher" service, and tell it to flash the "t
 
 - If all goes OK, then the motor board will be rebooted and will start running the freshly uploaded firmware.
 
-At the moment the flashing procedure has been tested with 2 firmwares : 
+At the moment the flashing procedure has been tested with 2 firmwares :
 
 - A LED blinker test-firmware
 - The SimpleMotor firmware
 
-BEWARE : the firmware you flash has to be "bootloader aware" in order to allow future re-flashing. Upon reception of a Magic Packet it has to : 
+BEWARE : the firmware you flash has to be "bootloader aware" in order to allow future re-flashing. Upon reception of a Magic Packet it has to :
 
 - Write 0xFF to last location of EEPROM.
 - Reboot itself (_asm goto 0x0 _endasm).
@@ -78,15 +78,15 @@ The current SimpleMotor firmware is bootloader aware and therefore can be flashe
 
 \section howtodoabootloaderawareuserapp How to do a bootloader-aware firmware ?
 
-There is basically three things to do in order to do a bootloader-aware firmware : 
+There is basically three things to do in order to do a bootloader-aware firmware :
 
 - Use a custom linkerscript
 - Use a custom c018i.o startup code
-- Make sure your firmware listens to CAN packets and reacts well to Magic Packets. Upon reception of a Magic Packet the firmware should : 
+- Make sure your firmware listens to CAN packets and reacts well to Magic Packets. Upon reception of a Magic Packet the firmware should :
   - Write 0xFF to the last location of EEPROM.
   - Reboot itself (_asm goto 0x0 _endasm).
 
-Here is the linkerscript used for the SimpleMotor and led-blinker firmwares : 
+Here is the linkerscript used for the SimpleMotor and led-blinker firmwares :
 
 \code
 
@@ -151,9 +151,9 @@ DATABANK   NAME=sfr15      START=0xF00             END=0xF5F          PROTECTED
 
 \endcode
 
-Note : this file is located at svn://pericles/EDC/simplemotor/simplemotor.lkr
+Note : this file is located at https://github.com/shadow-robot/hand-firmware/tree/master/EDC/simplemotor/simplemotor.lkr
 
-Here is the startup code you will need to put in your project : 
+Here is the startup code you will need to put in your project :
 
 \code
 
@@ -398,7 +398,7 @@ endcode
         Note :
 This code
 is located
-at svn://pericles/EDC/simplemotor/c018i-userapp.c
+at https://github.com/shadow-robot/hand-firmware/tree/master/EDC/simplemotor/c018i-userapp.c
 
         \
 
@@ -1934,8 +1934,7 @@ CAN protocol
 
 The protocol
 described in
-svn
-        ://thoth/trunk/Projects/Palm_EDC_Development/Docs/Specification/Palm_EDC_Specification.odt for the communication between PIC32 and PIC18F is quite messy and has been re-thought differently, using more efficiently the SID and in a more "standardized" way.
+https://github.com/shadow-robot/hand-firmware/blob/master/EDC/documentation/Palm_EDC_Specification.odt for the communication between PIC32 and PIC18F is quite messy and has been re-thought differently, using more efficiently the SID and in a more "standardized" way.
 
         This
 new

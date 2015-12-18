@@ -33,8 +33,8 @@
 
 struct UpdaterResult
 {
-  bool svn_transmitted;
-  bool svn_transmitted_once;
+  bool git_transmitted;
+  bool git_transmitted_once;
   int can_num_transmitted_counter;
 };
 
@@ -74,8 +74,8 @@ public:
     COMMAND_TYPE *command = new COMMAND_TYPE();
     motor_updater.build_command(command);
 
-    bool svn_transmitted = false;
-    bool svn_transmitted_once = false;
+    bool git_transmitted = false;
+    bool git_transmitted_once = false;
 
     int can_num_transmitted_counter = 0;
 
@@ -94,15 +94,15 @@ public:
         if (command->from_motor_data_type == MOTOR_DATA_VOLTAGE)
         {
           ROS_INFO_STREAM("Correct data received at time : " << time_spent);
-          svn_transmitted = true;
+          git_transmitted = true;
 
-          if (svn_transmitted_once)
+          if (git_transmitted_once)
           {
-            svn_transmitted_once = false;
+            git_transmitted_once = false;
           }
           else
           {
-            svn_transmitted_once = true;
+            git_transmitted_once = true;
           }
         }
       }
@@ -120,8 +120,8 @@ public:
     }
 
     UpdaterResult updater_result;
-    updater_result.svn_transmitted = svn_transmitted;
-    updater_result.svn_transmitted_once = svn_transmitted_once;
+    updater_result.git_transmitted = git_transmitted;
+    updater_result.git_transmitted_once = git_transmitted_once;
     updater_result.can_num_transmitted_counter = can_num_transmitted_counter;
 
     delete command;
@@ -135,8 +135,8 @@ TEST(Utils, motor_updater_freq_low_tolerancy)
   MotorUpdaterTest mut = MotorUpdaterTest();
   UpdaterResult updater_result = mut.check_updates(0.01);
 
-  EXPECT_TRUE(updater_result.svn_transmitted);
-  EXPECT_TRUE(updater_result.svn_transmitted_once);
+  EXPECT_TRUE(updater_result.git_transmitted);
+  EXPECT_TRUE(updater_result.git_transmitted_once);
 
   EXPECT_EQ(updater_result.can_num_transmitted_counter, 7);
 }
@@ -146,8 +146,8 @@ TEST(Utils, motor_updater_freq_medium_tolerancy)
   MotorUpdaterTest mut = MotorUpdaterTest();
   UpdaterResult updater_result = mut.check_updates(0.05);
 
-  EXPECT_TRUE(updater_result.svn_transmitted);
-  EXPECT_TRUE(updater_result.svn_transmitted_once);
+  EXPECT_TRUE(updater_result.git_transmitted);
+  EXPECT_TRUE(updater_result.git_transmitted_once);
 
   EXPECT_EQ(updater_result.can_num_transmitted_counter, 7);
 }
@@ -157,8 +157,8 @@ TEST(Utils, motor_updater_freq_high_tolerancy)
   MotorUpdaterTest mut = MotorUpdaterTest();
   UpdaterResult updater_result = mut.check_updates(0.1);
 
-  EXPECT_TRUE(updater_result.svn_transmitted);
-  EXPECT_TRUE(updater_result.svn_transmitted_once);
+  EXPECT_TRUE(updater_result.git_transmitted);
+  EXPECT_TRUE(updater_result.git_transmitted_once);
 
   EXPECT_EQ(updater_result.can_num_transmitted_counter, 7);
 }
