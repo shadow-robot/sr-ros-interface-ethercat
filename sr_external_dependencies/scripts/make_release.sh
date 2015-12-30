@@ -36,6 +36,6 @@ echo "git_firmware:"${VERS_GIT_FIRMWARE}" ; git_sr_common:"${VERS_GIT_COMMON}" ;
 
 git tag --force $tag_name
 
-git push origin $tag_name
+git push origin $tag_name --force
 
 cd ${PREVIOUS_PATH}
