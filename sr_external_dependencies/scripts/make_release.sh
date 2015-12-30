@@ -30,8 +30,12 @@ rm -rf /tmp/firmware
 rm -rf /tmp/sr_common
 rm -rf /tmp/sr_core
 
+export tag_name="git_firmware_"${VERS_GIT_FIRMWARE}"__git_sr_common_"${VERS_GIT_COMMON}"__git_sr_core_"${VERS_GIT_CORE}"__git_shadow_"${VERS_GIT_SHADOW}"__git_ethercat_"${VERS_GIT_ETHERCAT}
+
 echo "git_firmware:"${VERS_GIT_FIRMWARE}" ; git_sr_common:"${VERS_GIT_COMMON}" ; git_sr_core:"${VERS_GIT_CORE}" ; git_shadow:"${VERS_GIT_SHADOW}"; git_ethercat:"${VERS_GIT_ETHERCAT} > ../tested_version.yaml
 
-git tag --force "git_firmware_"${VERS_GIT_FIRMWARE}"__git_sr_common_"${VERS_GIT_COMMON}"__git_sr_core_"${VERS_GIT_CORE}"__git_shadow_"${VERS_GIT_SHADOW}"__git_ethercat_"${VERS_GIT_ETHERCAT}
+git tag --force $tag_name
+
+git push origin $tag_name --force
 
 cd ${PREVIOUS_PATH}
