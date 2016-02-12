@@ -17,8 +17,11 @@ using namespace std;
 
 namespace controller
 {
-void SrBiotacTactileSensorPublisher::init()
+void SrBiotacTactileSensorPublisher::init(const ros::Time& time)
 {
+  // initialize time
+  last_publish_time_ = time;
+  
   // realtime publisher
   biotac_realtime_pub_ = BiotacPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::BiotacAll>(nh_prefix_, "tactile", 4));
   biotac_realtime_pub_->lock();

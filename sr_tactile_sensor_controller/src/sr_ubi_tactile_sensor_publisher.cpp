@@ -18,8 +18,11 @@ using namespace std;
 
 namespace controller
 {
-void SrUbiTactileSensorPublisher::init()
+void SrUbiTactileSensorPublisher::init(const ros::Time& time)
 {
+  // initialize time
+  last_publish_time_ = time;
+  
   // realtime publisher
   ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All>(nh_prefix_, "tactile", 4));
   midprox_realtime_pub_ = MidProxPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll>(nh_prefix_, "tactile_mid_prox", 4));

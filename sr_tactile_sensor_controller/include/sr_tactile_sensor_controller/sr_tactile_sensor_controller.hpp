@@ -61,7 +61,6 @@ public:
 
 protected:
   std::vector<tactiles::AllTactileData>* sensors_;
-  ros::Time last_publish_time_;
   double publish_rate_;
   ros::NodeHandle nh_prefix_;
   std::string prefix_;
