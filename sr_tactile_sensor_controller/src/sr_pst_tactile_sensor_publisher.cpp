@@ -16,8 +16,11 @@ using namespace std;
 
 namespace controller
 {
-void SrPSTTactileSensorPublisher::init()
+void SrPSTTactileSensorPublisher::init(const ros::Time& time)
 {
+  // initialize time
+  last_publish_time_ = time;
+  
   // realtime publisher
   pst_realtime_pub_ = PSTPublisherPtr(new realtime_tools::RealtimePublisher<sr_robot_msgs::ShadowPST>(nh_prefix_, "tactile", 4));
   pst_realtime_pub_->msg_.pressure.resize(sensors_->size());
