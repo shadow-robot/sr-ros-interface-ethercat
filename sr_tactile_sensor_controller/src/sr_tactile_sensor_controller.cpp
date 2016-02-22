@@ -51,8 +51,23 @@ SrTactileSensorController::SrTactileSensorController()
   : initialized_(false), sensors_(NULL)
 {}
 
-bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
+bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
 {
+  ROS_ASSERT(hw);
+
+  ros_ethercat_model::RobotState* robot_state;
+  std::string robot_state_name;
+  controller_nh.param<std::string>("robot_state_name", robot_state_name, "unique_robot_hw");
+
+  try
+  {
+    robot_state = hw->getHandle(robot_state_name).getState();
+  }
+  catch(const hardware_interface::HardwareInterfaceException& e)
+  {
+    ROS_ERROR_STREAM("Could not find robot state: " << robot_state_name << " Not loading the controller. " << e.what());
+    return false;
+  }
 
   if (!controller_nh.getParam("prefix", prefix_))
   {
@@ -73,7 +88,7 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::No
 
   // get all sensors from the hardware interface
   // apparently all the actuators have the tactile data copied in, so take the first one.
-  sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*> (hw->getActuator(prefix_+"FFJ0"));
+  sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*> (robot_state->getActuator(prefix_+"FFJ0"));
   if (motor_actuator)
   {
     sensors_ = motor_actuator->motor_state_.tactiles_;

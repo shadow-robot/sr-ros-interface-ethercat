@@ -43,18 +43,18 @@
 #include <sr_robot_lib/generic_tactiles.hpp>
 #include <sr_hardware_interface/sr_actuator.hpp>
 #include <boost/shared_ptr.hpp>
-#include <ros_ethercat_model/robot_state.hpp>
+#include <ros_ethercat_model/robot_state_interface.hpp>
 
 #include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
 
 namespace controller
 {
 // this controller gets access to the SrTactileSensorInterface
-class SrTactileSensorController: public controller_interface::Controller<ros_ethercat_model::RobotState>
+class SrTactileSensorController: public controller_interface::Controller<ros_ethercat_model::RobotStateInterface>
 {
 public:
   SrTactileSensorController();
-  virtual bool init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
+  virtual bool init(ros_ethercat_model::RobotStateInterface* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
   virtual void starting(const ros::Time& time);
   virtual void update(const ros::Time& time, const ros::Duration& period);
   virtual void stopping(const ros::Time& time);
