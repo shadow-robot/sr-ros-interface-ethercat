@@ -23,8 +23,10 @@
 
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>controller_manager</run_depend>
-  <run_depend>ros_controllers</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
   <run_depend>sr_ethercat_hand_config</run_depend>
   <run_depend>pr2_mechanism_msgs</run_depend>
-
+  <run_depend>diagnostic_msgs</run_depend>
+  <run_depend>ros_ethercat_model</run_depend>
+  
 </package>
