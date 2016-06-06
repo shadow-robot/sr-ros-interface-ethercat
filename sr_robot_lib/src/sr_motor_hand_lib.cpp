@@ -131,6 +131,15 @@ namespace shadow_robot
     {
       // add the joint and the vector of joints.
       Joint joint;
+      float tau;
+
+      // read the parameters tau from the parameter server
+      ostringstream full_param;
+      string act_name = boost::to_lower_copy(joint_names[index]);
+      full_param << act_name << "/pos_filter/tau";
+      this->nodehandle_.template param<float>(full_param.str(), tau, 0.05);
+      full_param.str("");
+      joint.pos_filter = sr_math_utils::filters::LowPassFilter(tau);
 
       // update the joint variables
       joint.joint_name = joint_names[index];
