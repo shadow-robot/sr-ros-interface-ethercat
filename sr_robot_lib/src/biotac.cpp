@@ -90,15 +90,16 @@ namespace tactiles
     // @todo use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
-      TACTILE_SENSOR_BIOTAC_DATA_CONTENTS *tactile_data = reinterpret_cast<TACTILE_SENSOR_BIOTAC_DATA_CONTENTS*> (&(status_data->tactile[id_sensor]));
-      //We always receive pac0 and pac1
+      TACTILE_SENSOR_BIOTAC_DATA_CONTENTS *tactile_data =
+        reinterpret_cast<TACTILE_SENSOR_BIOTAC_DATA_CONTENTS*> (&(status_data->tactile[id_sensor]));
+      // We always receive pac0 and pac1
       tactiles_vector->at(id_sensor).pac0 = static_cast<int>(tactile_data->Pac[0]);
       tactiles_vector->at(id_sensor).pac1 = static_cast<int>(tactile_data->Pac[1]);
 
-      //the rest of the data is sampled at different rates
-      switch( static_cast<int32u>(status_data->tactile_data_type) )
+      // the rest of the data is sampled at different rates
+      switch (static_cast<int32u>(status_data->tactile_data_type))
       {
-        //TACTILE DATA
+        // TACTILE DATA
         case TACTILE_SENSOR_TYPE_BIOTAC_INVALID:
           ROS_WARN("received invalid tactile type");
           break;
@@ -110,7 +111,7 @@ namespace tactiles
           }
           else
           {
-            // TODO add some error stats
+            // TODO(shadow_team): add some error stats
           }
           if (tactile_data->data_valid.other_sensor_1)
           {
@@ -118,9 +119,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_TAC:
-  //        tactiles_vector->at(id_sensor).tac = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_TAC:
+        //   tactiles_vector->at(id_sensor).tac =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]));
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_TDC:
           if (tactile_data->data_valid.other_sensor_0)
@@ -133,9 +135,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1:
-  //        tactiles_vector->at(id_sensor).electrodes[0] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_1:
+        //   tactiles_vector->at(id_sensor).electrodes[0] =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_2:
           if (tactile_data->data_valid.other_sensor_0)
@@ -148,9 +151,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3:
-  //        tactiles_vector->at(id_sensor).electrodes[2] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_3:
+        //   tactiles_vector->at(id_sensor).electrodes[2] =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4:
           if (tactile_data->data_valid.other_sensor_0)
@@ -163,9 +167,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5:
-  //        tactiles_vector->at(id_sensor).electrodes[4] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5:
+        //   tactiles_vector->at(id_sensor).electrodes[4] =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6:
           if (tactile_data->data_valid.other_sensor_0)
@@ -178,9 +183,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7:
-  //        tactiles_vector->at(id_sensor).electrodes[6] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7:
+        //   tactiles_vector->at(id_sensor).electrodes[6] =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8:
           if (tactile_data->data_valid.other_sensor_0)
@@ -193,9 +199,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9:
-  //        tactiles_vector->at(id_sensor).electrodes[8] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9:
+        //  tactiles_vector->at(id_sensor).electrodes[8] =
+        //    static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //  break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10:
           if (tactile_data->data_valid.other_sensor_0)
@@ -208,9 +215,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11:
-  //        tactiles_vector->at(id_sensor).electrodes[10] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_11:
+        //    tactiles_vector->at(id_sensor).electrodes[10] =
+        //      static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //    break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12:
           if (tactile_data->data_valid.other_sensor_0)
@@ -223,9 +231,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13:
-  //        tactiles_vector->at(id_sensor).electrodes[12] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_13:
+        //   tactiles_vector->at(id_sensor).electrodes[12] =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14:
           if (tactile_data->data_valid.other_sensor_0)
@@ -238,9 +247,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15:
-  //        tactiles_vector->at(id_sensor).electrodes[14] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_15:
+        //   tactiles_vector->at(id_sensor).electrodes[14] =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16:
           if (tactile_data->data_valid.other_sensor_0)
@@ -253,9 +263,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17:
-  //        tactiles_vector->at(id_sensor).electrodes[16] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_17:
+        //   tactiles_vector->at(id_sensor).electrodes[16] =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18:
           if (tactile_data->data_valid.other_sensor_0)
@@ -268,9 +279,10 @@ namespace tactiles
           }
           break;
 
-  //      case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19:
-  //        tactiles_vector->at(id_sensor).electrodes[18] = static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
-  //        break;
+        // case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_19:
+        //   tactiles_vector->at(id_sensor).electrodes[18] =
+        //     static_cast<int>(static_cast<int16u>(status_data->tactile[id_sensor].word[2]) );
+        //   break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20:
           if (tactile_data->data_valid.other_sensor_0)
@@ -299,10 +311,10 @@ namespace tactiles
           {
             tactiles_vector->at(id_sensor).electrodes[23] = static_cast<int>(tactile_data->other_sensor_0);
           }
-  //        if (tactile_data->data_valid.other_sensor_1)
-  //        {
-  //          tactiles_vector->at(id_sensor).pdc = static_cast<int>(tactile_data->other_sensor_1);
-  //        }
+          // if (tactile_data->data_valid.other_sensor_1)
+          // {
+          //   tactiles_vector->at(id_sensor).pdc = static_cast<int>(tactile_data->other_sensor_1);
+          // }
           break;
 
           // COMMON DATA
@@ -363,8 +375,8 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::publish()
   {
-    //left empty, this is published from the controller publisher
-  }//end publish
+    // left empty, this is published from the controller publisher
+  }  // end publish
 
   template <class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
@@ -406,28 +418,28 @@ namespace tactiles
   template <class StatusType, class CommandType>
   void Biotac<StatusType, CommandType>::set_version_specific_details()
   {
+    nb_electrodes_ = nb_electrodes_v1_;  // We consider biotac version one to be the default
 
-
-    nb_electrodes_ = nb_electrodes_v1_; // We consider biotac version one to be the default
-
-    for(size_t i = 0; i < this->nb_tactiles; ++i)
+    for (size_t i = 0; i < this->nb_tactiles; ++i)
     {
       // At least one of the fingers has a biotac version 2
-      if(tactiles_vector->at(i).serial_number.find("BTSP") != std::string::npos)
+      if (tactiles_vector->at(i).serial_number.find("BTSP") != std::string::npos)
       {
         nb_electrodes_ = nb_electrodes_v2_;
         break;
       }
     }
 
-    if(nb_electrodes_ == nb_electrodes_v1_) // If biotac version 1 remove polling for non-existing electrodes
+    if (nb_electrodes_ == nb_electrodes_v1_)  // If biotac version 1 remove polling for non-existing electrodes
     {
-      for(int32u data = TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20; data <= TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24; ++data)
+      for (int32u data = TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20;
+           data <= TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24; ++data)
       {
-        std::vector<generic_updater::UpdateConfig>::iterator it = this->sensor_updater->important_update_configs_vector.begin();
-        while(it != this->sensor_updater->important_update_configs_vector.end())
+        std::vector<generic_updater::UpdateConfig>::iterator it =
+          this->sensor_updater->important_update_configs_vector.begin();
+        while (it != this->sensor_updater->important_update_configs_vector.end())
         {
-          if(it->what_to_update == data)
+          if (it->what_to_update == data)
           {
             it = this->sensor_updater->important_update_configs_vector.erase(it);
           }
@@ -439,7 +451,7 @@ namespace tactiles
       }
     }
 
-    for(unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
+    for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
     {
       tactiles_vector->at(id_tact).electrodes.resize(nb_electrodes_);
     }
