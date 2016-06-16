@@ -46,86 +46,86 @@ extern "C"
 
 namespace operation_mode
 {
-  namespace device_update_state
+namespace device_update_state
+{
+  enum DeviceUpdateState
   {
-    enum DeviceUpdateState
-    {
-      INITIALIZATION,
-      OPERATION
-    };
-  }   // namespace device_update_state
+    INITIALIZATION,
+    OPERATION
+  };
+}   // namespace device_update_state
 }  // namespace operation_mode
 
 namespace generic_updater
 {
-  struct UpdateConfig
+struct UpdateConfig
+{
+  int32u what_to_update;
+  double when_to_update;
+};
+
+/**
+ * The Generic Updater builds the next command we want to send to the hand.
+ * We can ask for different types of data at different rates. The data and
+ * their rates are defined in the sr_ethercat_hand_config/rates/xxxxx.yaml
+ * The important data are refreshed as often as possible (they have a -1. refresh
+ * rate in the config file).
+ *
+ * The unimportant data are refreshed at their given rate (the value is defined in
+ * the config in seconds).
+ */
+template<class CommandType>
+class GenericUpdater
+{
+public:
+  GenericUpdater(std::vector<UpdateConfig> update_configs_vector,
+                 operation_mode::device_update_state::DeviceUpdateState update_state);
+
+  virtual ~GenericUpdater()
   {
-    int32u what_to_update;
-    double when_to_update;
-  };
+  }
 
   /**
-   * The Generic Updater builds the next command we want to send to the hand.
-   * We can ask for different types of data at different rates. The data and
-   * their rates are defined in the sr_ethercat_hand_config/rates/xxxxx.yaml
-   * The important data are refreshed as often as possible (they have a -1. refresh
-   * rate in the config file).
+   * Building the motor command. This function is called at each packCommand() call.
+   * If an unimportant data is waiting then we send it, otherwise, we send the next
+   * important data.
    *
-   * The unimportant data are refreshed at their given rate (the value is defined in
-   * the config in seconds).
+   * @param command The command which will be sent to the motor.
+   * @return the current state of the device.
    */
-  template<class CommandType>
-  class GenericUpdater
-  {
-  public:
-    GenericUpdater(std::vector<UpdateConfig> update_configs_vector,
-                   operation_mode::device_update_state::DeviceUpdateState update_state);
+  virtual operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command) = 0;
 
-    virtual ~GenericUpdater()
-    {
-    }
+  /**
+   * A timer callback for the unimportant data. The frequency of this callback
+   * is defined in the config file.
+   *
+   * @param event
+   * @param data_type The unimportant data type we want to ask for.
+   */
+  void timer_callback(const ros::TimerEvent &event, int32u data_type);
 
-    /**
-     * Building the motor command. This function is called at each packCommand() call.
-     * If an unimportant data is waiting then we send it, otherwise, we send the next
-     * important data.
-     *
-     * @param command The command which will be sent to the motor.
-     * @return the current state of the device.
-     */
-    virtual operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command) = 0;
+  operation_mode::device_update_state::DeviceUpdateState update_state;
+  // Contains all the initialization data types.
+  std::vector<UpdateConfig> initialization_configs_vector;
 
-    /**
-     * A timer callback for the unimportant data. The frequency of this callback
-     * is defined in the config file.
-     *
-     * @param event
-     * @param data_type The unimportant data type we want to ask for.
-     */
-    void timer_callback(const ros::TimerEvent &event, int32u data_type);
+  /// Contains all the important data types.
+  std::vector<UpdateConfig> important_update_configs_vector;
 
-    operation_mode::device_update_state::DeviceUpdateState update_state;
-    // Contains all the initialization data types.
-    std::vector<UpdateConfig> initialization_configs_vector;
+protected:
+  ros::NodeHandle nh_tilde;
 
-    /// Contains all the important data types.
-    std::vector<UpdateConfig> important_update_configs_vector;
+  /// iterate through the important or initialization data types.
+  int which_data_to_request;
 
-  protected:
-    ros::NodeHandle nh_tilde;
+  // All the timers for the unimportant data types.
+  std::vector<ros::Timer> timers;
+  // A queue containing the unimportant data types we want to ask for next time (empty most of the time).
+  std::queue<int32u, std::list<int32u> > unimportant_data_queue;
+  // Contains the vector with the update configs for every command. We store it to be able to reinitialize.
+  std::vector<UpdateConfig> update_configs_vector;
 
-    /// iterate through the important or initialization data types.
-    int which_data_to_request;
-
-    // All the timers for the unimportant data types.
-    std::vector<ros::Timer> timers;
-    // A queue containing the unimportant data types we want to ask for next time (empty most of the time).
-    std::queue<int32u, std::list<int32u> > unimportant_data_queue;
-    // Contains the vector with the update configs for every command. We store it to be able to reinitialize.
-    std::vector<UpdateConfig> update_configs_vector;
-
-    boost::shared_ptr<boost::mutex> mutex;
-  };
+  boost::shared_ptr<boost::mutex> mutex;
+};
 }  // namespace generic_updater
 
 

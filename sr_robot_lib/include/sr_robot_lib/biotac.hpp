@@ -39,60 +39,60 @@
 
 namespace tactiles
 {
-  template<class StatusType, class CommandType>
-  class Biotac :
-          public GenericTactiles<StatusType, CommandType>
-  {
-  public:
-    Biotac(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
-           operation_mode::device_update_state::DeviceUpdateState update_state);
+template<class StatusType, class CommandType>
+class Biotac :
+        public GenericTactiles<StatusType, CommandType>
+{
+public:
+  Biotac(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
+         operation_mode::device_update_state::DeviceUpdateState update_state);
 
-    Biotac(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
-           operation_mode::device_update_state::DeviceUpdateState update_state,
-           boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
+  Biotac(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
+         operation_mode::device_update_state::DeviceUpdateState update_state,
+         boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
 
-    /**
-     * This function is called in the constructors, to initialize the necessary objects
-     */
-    void init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
-              operation_mode::device_update_state::DeviceUpdateState update_state);
+  /**
+   * This function is called in the constructors, to initialize the necessary objects
+   */
+  void init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
+            operation_mode::device_update_state::DeviceUpdateState update_state);
 
-    /**
-     * This function is called each time a new etherCAT message
-     * is received in the sr06.cpp driver. It  updates the tactile
-     * sensors values contained in tactiles_vector.
-     *
-     * @param status_data the received etherCAT message
-     */
-    virtual void update(StatusType *status_data);
+  /**
+   * This function is called each time a new etherCAT message
+   * is received in the sr06.cpp driver. It  updates the tactile
+   * sensors values contained in tactiles_vector.
+   *
+   * @param status_data the received etherCAT message
+   */
+  virtual void update(StatusType *status_data);
 
-    /**
-     * Publish the information to a ROS topic.
-     *
-     */
-    virtual void publish();
+  /**
+   * Publish the information to a ROS topic.
+   *
+   */
+  virtual void publish();
 
-    /**
-     * This function adds the diagnostics for the tactiles to the
-     * multi diagnostic status published by the hand.
-     */
-    virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
-                                 diagnostic_updater::DiagnosticStatusWrapper &d);
+  /**
+   * This function adds the diagnostics for the tactiles to the
+   * multi diagnostic status published by the hand.
+   */
+  virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
+                               diagnostic_updater::DiagnosticStatusWrapper &d);
 
 
-    virtual std::vector<AllTactileData> *get_tactile_data();
+  virtual std::vector<AllTactileData> *get_tactile_data();
 
-    void set_version_specific_details();
+  void set_version_specific_details();
 
-  protected:
-    /// the vector containing the data for the tactiles.
-    boost::shared_ptr<std::vector<BiotacData> > tactiles_vector;
+protected:
+  /// the vector containing the data for the tactiles.
+  boost::shared_ptr<std::vector<BiotacData> > tactiles_vector;
 
-    size_t nb_electrodes_;
+  size_t nb_electrodes_;
 
-    static const size_t nb_electrodes_v1_;
-    static const size_t nb_electrodes_v2_;
-  };  // end class
+  static const size_t nb_electrodes_v1_;
+  static const size_t nb_electrodes_v2_;
+};  // end class
 }  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
