@@ -34,15 +34,15 @@ class EtherCAT_Hand_Lib(object):
     """
     Useful python library to communicate with the etherCAT hand.
     """
-    sensors = ["FFJ1",  "FFJ2",  "FFJ3", "FFJ4",
-               "MFJ1",  "MFJ2",  "MFJ3", "MFJ4",
-               "RFJ1",  "RFJ2",  "RFJ3", "RFJ4",
-               "LFJ1",  "LFJ2",  "LFJ3", "LFJ4", "LFJ5",
-               "THJ1",  "THJ2",  "THJ3", "THJ4", "THJ5A", "THJ5B",
+    sensors = ["FFJ1", "FFJ2", "FFJ3", "FFJ4",
+               "MFJ1", "MFJ2", "MFJ3", "MFJ4",
+               "RFJ1", "RFJ2", "RFJ3", "RFJ4",
+               "LFJ1", "LFJ2", "LFJ3", "LFJ4", "LFJ5",
+               "THJ1", "THJ2", "THJ3", "THJ4", "THJ5A", "THJ5B",
                "WRJ1A", "WRJ1B", "WRJ2",
-               "ACCX",  "ACCY",  "ACCZ",
-               "GYRX",  "GYRY",  "GYRZ",
-               "AN0",   "AN1",   "AN2",  "AN3"]
+               "ACCX", "ACCY", "ACCZ",
+               "GYRX", "GYRY", "GYRZ",
+               "AN0", "AN1", "AN2", "AN3"]
 
     def __init__(self):
         """
@@ -75,8 +75,7 @@ class EtherCAT_Hand_Lib(object):
                                    EthercatDebug, timeout=0.2)
             try:
                 joint_to_sensor_mapping \
-                    = rospy.get_param(self.hand_id
-                                      + "/joint_to_sensor_mapping")
+                    = rospy.get_param(self.hand_id + "/joint_to_sensor_mapping")
             except:
                 rospy.logwarn("The parameter joint_to_sensor_mapping "
                               "was not found, you won't be able to get the "
