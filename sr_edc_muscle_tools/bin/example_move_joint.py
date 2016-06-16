@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import roslib
-roslib.load_manifest('sr_edc_muscle_tools')
 import rospy
 from std_msgs.msg import Float64
 import math
