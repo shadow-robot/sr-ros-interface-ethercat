@@ -17,6 +17,8 @@
 #include <realtime_tools/realtime_publisher.h>
 #include <sr_robot_msgs/UBI0All.h>
 #include <sr_robot_msgs/MidProxDataAll.h>
+#include <vector>
+#include <string>
 
 namespace controller
 {
@@ -24,23 +26,22 @@ namespace controller
 class SrUbiTactileSensorPublisher: public SrTactileSensorPublisher
 {
 public:
-  SrUbiTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors, double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
+  SrUbiTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors, double publish_rate,
+                              ros::NodeHandle nh_prefix, std::string prefix)
         : SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix) {}
   virtual void init(const ros::Time& time);
   virtual void update(const ros::Time& time, const ros::Duration& period);
 
 private:
-
   typedef realtime_tools::RealtimePublisher<sr_robot_msgs::UBI0All> UbiPublisher;
   typedef boost::shared_ptr<UbiPublisher > UbiPublisherPtr;
   typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MidProxDataAll> MidProxPublisher;
   typedef boost::shared_ptr<MidProxPublisher > MidProxPublisherPtr;
   UbiPublisherPtr ubi_realtime_pub_;
   MidProxPublisherPtr midprox_realtime_pub_;
-
 };
 
-}// namespace
+}  // namespace controller
 
 /* For the emacs weenies in the crowd.
 Local Variables:
