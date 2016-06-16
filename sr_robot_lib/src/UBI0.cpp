@@ -177,9 +177,9 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void UBI0<StatusType, CommandType>::publish()
   {
-    //@TODO move this to the controller publisher (issue #38)
-    //this is not easily accessible from the tactile controller publisher yet
-    if(aux_spi_publisher->trylock())
+    // @TODO move this to the controller publisher (issue #38)
+    // this is not easily accessible from the tactile controller publisher yet
+    if (aux_spi_publisher->trylock())
     {
       sr_robot_msgs::AuxSpiData tactiles;
       tactiles.header.stamp = ros::Time::now();
