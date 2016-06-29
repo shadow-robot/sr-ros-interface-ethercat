@@ -11,7 +11,7 @@
   <!-- The control mode PWM (true) or torque (false) -->
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 1)"/>
   <!-- use ns or not -->
-  <arg name="use_ns" default="false" />
+  <arg name="use_ns" default="true" />
   <!-- The ethercat serial number for the hand -->
   <arg name="hand_serial" default="1050"/>
   <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->

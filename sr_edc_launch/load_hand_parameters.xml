@@ -1,6 +1,6 @@
 <launch>
   <!-- Set use_ns to true if the hand_id is not empty string. This is necessary as group tag doesn't accept an empty 'ns' attribute   -->
-  <arg name="use_ns" default="false"/>
+  <arg name="use_ns" default="true"/>
   <!-- The id of the hand will be used to namespace the hand parameters
        the id should   -->
   <arg name="hand_id" default="rh"/>
