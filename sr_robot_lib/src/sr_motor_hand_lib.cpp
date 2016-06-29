@@ -144,6 +144,14 @@ namespace shadow_robot
         motor_wrapper->motor_id = actuator_ids[index];
         motor_wrapper->actuator = static_cast<SrMotorActuator *> (this->hw_->getActuator(
                 this->joint_prefix_ + joint.joint_name));
+        if (motor_wrapper->actuator == NULL)
+        {
+          ROS_WARN_STREAM("No actuator found for joint " <<
+                          this->joint_prefix_ + joint.joint_name <<
+                          " (check the robot_description contains it)");
+          joint.has_actuator = false;
+          continue;
+        }
 
         ostringstream ss;
         ss << "change_force_PID_" << joint_names[index];
