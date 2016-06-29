@@ -46,47 +46,47 @@ extern "C"
 
 namespace generic_updater
 {
+/**
+ * The Motor Updater builds the next command we want to send to the hand.
+ * We can ask for different types of data at different rates. The data and
+ * their rates are defined in the sr_ethercat_hand_config/rates/motor_data_polling.yaml
+ * The important data are refreshed as often as possible (they have a -1. refresh
+ * rate in the config file).
+ *
+ * The unimportant data are refreshed at their given rate (the value is defined in
+ * the config in seconds).
+ */
+template<class CommandType>
+class MotorUpdater :
+        public GenericUpdater<CommandType>
+{
+public:
+  MotorUpdater(std::vector<UpdateConfig> update_configs_vector,
+               operation_mode::device_update_state::DeviceUpdateState update_state);
+
   /**
-   * The Motor Updater builds the next command we want to send to the hand.
-   * We can ask for different types of data at different rates. The data and
-   * their rates are defined in the sr_ethercat_hand_config/rates/motor_data_polling.yaml
-   * The important data are refreshed as often as possible (they have a -1. refresh
-   * rate in the config file).
+   * Building the motor initialization command. This function is called at each packCommand() call.
+   * It builds initialization commands if the update state is operation_mode::device_update_state::INITIALIZATION.
    *
-   * The unimportant data are refreshed at their given rate (the value is defined in
-   * the config in seconds).
+   * @param command The command which will be sent to the motor.
+   * @return the current update state of the motor update
    */
-  template<class CommandType>
-  class MotorUpdater :
-          public GenericUpdater<CommandType>
-  {
-  public:
-    MotorUpdater(std::vector<UpdateConfig> update_configs_vector,
-                 operation_mode::device_update_state::DeviceUpdateState update_state);
+  operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType *command);
 
-    /**
-     * Building the motor initialization command. This function is called at each packCommand() call.
-     * It builds initialization commands if the update state is operation_mode::device_update_state::INITIALIZATION.
-     *
-     * @param command The command which will be sent to the motor.
-     * @return the current update state of the motor update
-     */
-    operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType *command);
+  /**
+   * Building the motor command. This function is called at each packCommand() call.
+   * If an unimportant data is waiting then we send it, otherwise, we send the next
+   * important data.
+   *
+   * @param command The command which will be sent to the motor.
+   * @return the current update state of the motor update
+   */
+  operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command);
 
-    /**
-     * Building the motor command. This function is called at each packCommand() call.
-     * If an unimportant data is waiting then we send it, otherwise, we send the next
-     * important data.
-     *
-     * @param command The command which will be sent to the motor.
-     * @return the current update state of the motor update
-     */
-    operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command);
-
-  private:
-    // are we sending the command to the even or the uneven motors.
-    int even_motors;
-  };
+private:
+  // are we sending the command to the even or the uneven motors.
+  int even_motors;
+};
 }  // namespace generic_updater
 
 

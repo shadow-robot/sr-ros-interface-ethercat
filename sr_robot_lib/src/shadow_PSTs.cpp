@@ -179,8 +179,8 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void ShadowPSTs<StatusType, CommandType>::publish()
   {
-    //left empty, this is published from the controller publisher
-  }//end publish
+    // left empty, this is published from the controller publisher
+  }  // end publish
 
   template <class StatusType, class CommandType>
   void ShadowPSTs<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,

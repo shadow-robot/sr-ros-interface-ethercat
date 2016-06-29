@@ -45,55 +45,55 @@ extern "C"
 
 namespace generic_updater
 {
+/**
+ * The Sensor Updater builds the next command we want to send to the hand.
+ * We can ask for different types of data at different rates. The data and
+ * their rates are defined in the sr_ethercat_hand_config/rates/sensor_data_polling.yaml
+ * The important data are refreshed as often as possible (they have a -1. refresh
+ * rate in the config file).
+ *
+ * The unimportant data are refreshed at their given rate (the value is defined in
+ * the config in seconds).
+ */
+template<class CommandType>
+class SensorUpdater :
+        public GenericUpdater<CommandType>
+{
+public:
+  SensorUpdater(std::vector<UpdateConfig> update_configs_vector,
+                operation_mode::device_update_state::DeviceUpdateState update_state);
+
   /**
-   * The Sensor Updater builds the next command we want to send to the hand.
-   * We can ask for different types of data at different rates. The data and
-   * their rates are defined in the sr_ethercat_hand_config/rates/sensor_data_polling.yaml
-   * The important data are refreshed as often as possible (they have a -1. refresh
-   * rate in the config file).
+   * Updates the initialization command to send to the hand. This function is called
+   * at each packCommand() call. Ask for the relevant information for the tactiles.
    *
-   * The unimportant data are refreshed at their given rate (the value is defined in
-   * the config in seconds).
+   * @param command The command which will be sent to the palm.
+   * @return current update state
    */
-  template<class CommandType>
-  class SensorUpdater :
-          public GenericUpdater<CommandType>
-  {
-  public:
-    SensorUpdater(std::vector<UpdateConfig> update_configs_vector,
-                  operation_mode::device_update_state::DeviceUpdateState update_state);
+  operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType *command);
 
-    /**
-     * Updates the initialization command to send to the hand. This function is called
-     * at each packCommand() call. Ask for the relevant information for the tactiles.
-     *
-     * @param command The command which will be sent to the palm.
-     * @return current update state
-     */
-    operation_mode::device_update_state::DeviceUpdateState build_init_command(CommandType *command);
+  /**
+   * Updates the command to send to the hand. This function is called
+   * at each packCommand() call. Ask for the relevant information for the tactiles.
+   * If an unimportant data is waiting then we send it, otherwise, we send the next
+   * important data.
+   *
+   * @param command The command which will be sent to the palm.
+   * @return current update state
+   */
+  operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command);
 
-    /**
-     * Updates the command to send to the hand. This function is called
-     * at each packCommand() call. Ask for the relevant information for the tactiles.
-     * If an unimportant data is waiting then we send it, otherwise, we send the next
-     * important data.
-     *
-     * @param command The command which will be sent to the palm.
-     * @return current update state
-     */
-    operation_mode::device_update_state::DeviceUpdateState build_command(CommandType *command);
-
-    /**
-     * Will send the reset command to the tactiles, on next build
-     * command call.
-     *
-     * Simply adds the reset command to the unimportant_data_queue.
-     *
-     *
-     * @return true if RESET added to the top queue.
-     */
-    bool reset();
-  };
+  /**
+   * Will send the reset command to the tactiles, on next build
+   * command call.
+   *
+   * Simply adds the reset command to the unimportant_data_queue.
+   *
+   *
+   * @return true if RESET added to the top queue.
+   */
+  bool reset();
+};
 }  // namespace generic_updater
 
 

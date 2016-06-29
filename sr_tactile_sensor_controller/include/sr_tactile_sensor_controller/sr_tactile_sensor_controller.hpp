@@ -3,11 +3,12 @@
  * @author Guillaume Walck <gwalck@techfak.uni-bielefeld.de>
  * @date   Aug 22 2014
  *
+ * Copyright 2014 University of Bielefeld
  *
  * @brief  Generic controller for tactile sensor data publishing.
  *
  */
- 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 2012, hiDOF INC.
 // Copyright (C) 2013, PAL Robotics S.L.
@@ -46,6 +47,8 @@
 #include <ros_ethercat_model/robot_state_interface.hpp>
 
 #include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
+#include <vector>
+#include <string>
 
 namespace controller
 {
@@ -54,7 +57,9 @@ class SrTactileSensorController: public controller_interface::Controller<ros_eth
 {
 public:
   SrTactileSensorController();
-  virtual bool init(ros_ethercat_model::RobotStateInterface* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh);
+  virtual bool init(ros_ethercat_model::RobotStateInterface* hw,
+                    ros::NodeHandle &root_nh,
+                    ros::NodeHandle& controller_nh);
   virtual void starting(const ros::Time& time);
   virtual void update(const ros::Time& time, const ros::Duration& period);
   virtual void stopping(const ros::Time& time);
@@ -68,7 +73,7 @@ protected:
   boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher_;
 };
 
-}// namespace
+}  // namespace controller
 
 /* For the emacs weenies in the crowd.
 Local Variables:

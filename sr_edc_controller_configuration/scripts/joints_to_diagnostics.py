@@ -28,6 +28,7 @@
 
 from __future__ import with_statement
 
+import sys
 import rospy
 
 from pr2_mechanism_msgs.msg import MechanismStatistics
@@ -41,7 +42,7 @@ mutex = threading.Lock()
 has_warned_invalid = False
 
 # Math.isnan is new in python 2.6, need to check version
-import sys
+
 check_nan = False
 my_version = sys.version_info
 if my_version[0] == 2 and my_version[1] >= 6:

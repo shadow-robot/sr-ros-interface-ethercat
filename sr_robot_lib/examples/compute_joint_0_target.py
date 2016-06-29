@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import roslib
-roslib.load_manifest('sr_robot_lib')
 import rospy
 
 from sensor_msgs.msg import JointState

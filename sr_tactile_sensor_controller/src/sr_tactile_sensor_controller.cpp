@@ -3,6 +3,7 @@
  * @author Guillaume Walck <gwalck@techfak.uni-bielefeld.de>
  * @date   Aug 22 2014
  *
+ * Copyright 2014 University of Bielefeld
  *
  * @brief  Generic controller for tactile sensor data publishing.
  *
@@ -42,8 +43,8 @@
 #include <sr_tactile_sensor_controller/sr_pst_tactile_sensor_publisher.hpp>
 #include <sr_tactile_sensor_controller/sr_biotac_tactile_sensor_publisher.hpp>
 #include <sr_tactile_sensor_controller/sr_ubi_tactile_sensor_publisher.hpp>
+#include <string>
 
-using namespace std;
 
 namespace controller
 {
@@ -51,7 +52,8 @@ SrTactileSensorController::SrTactileSensorController()
   : initialized_(false), sensors_(NULL)
 {}
 
-bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
+bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw,
+                                     ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
 {
   ROS_ASSERT(hw);
 
@@ -75,7 +77,7 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
     return false;
   }
 
-  //this should handle the case where we don't want a prefix
+  // this should handle the case where we don't want a prefix
   if (!prefix_.empty())
   {
     nh_prefix_ = ros::NodeHandle(root_nh, prefix_);
@@ -88,7 +90,8 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
 
   // get all sensors from the hardware interface
   // apparently all the actuators have the tactile data copied in, so take the first one.
-  sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*> (robot_state->getActuator(prefix_+"FFJ0"));
+  sr_actuator::SrMotorActuator* motor_actuator = static_cast<sr_actuator::SrMotorActuator*>(
+    robot_state->getActuator(prefix_+"FFJ0"));
   if (motor_actuator)
   {
     sensors_ = motor_actuator->motor_state_.tactiles_;
@@ -104,7 +107,7 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
   }
   else
   {
-    ROS_ERROR_STREAM("Could not find the "<<prefix_<<"FFJ0 actuator");
+    ROS_ERROR_STREAM("Could not find the " << prefix_ << "FFJ0 actuator");
     return false;
   }
 }
@@ -113,33 +116,33 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
 {
   if (!initialized_)
   {
-    if(sensors_)
+    if (sensors_)
     {
       if (!sensors_->empty())
       {
-	if (!sensors_->at(0).type.empty())
-	{
-	  if (sensors_->at(0).type == "pst")
-	  {
-	    sensor_publisher_.reset(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-	  }
-	  else if (sensors_->at(0).type == "biotac")
-	  {
-	    sensor_publisher_.reset(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-	  }
-	  else if (sensors_->at(0).type == "ubi")
-	  {
-	    sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-	  }
-	  else
-	  {
-	    ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
-	  }
+  if (!sensors_->at(0).type.empty())
+  {
+    if (sensors_->at(0).type == "pst")
+    {
+      sensor_publisher_.reset(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+    }
+    else if (sensors_->at(0).type == "biotac")
+    {
+      sensor_publisher_.reset(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+    }
+    else if (sensors_->at(0).type == "ubi")
+    {
+      sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+    }
+    else
+    {
+      ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
+    }
 
-	  // initialize pusblisher and starting time
-	  sensor_publisher_->init(time);
-	  initialized_ = true;
-	}
+    // initialize pusblisher and starting time
+    sensor_publisher_->init(time);
+    initialized_ = true;
+  }
       }
     }
   }
@@ -158,7 +161,7 @@ void SrTactileSensorController::stopping(const ros::Time& time)
   // remove initialized flag to permit data type change and time resetting
   initialized_ = false;
 }
-}
+}  // namespace controller
 
 
 PLUGINLIB_EXPORT_CLASS(controller::SrTactileSensorController, controller_interface::ControllerBase)
