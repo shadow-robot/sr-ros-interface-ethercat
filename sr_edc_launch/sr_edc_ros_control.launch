@@ -48,12 +48,12 @@
   <rosparam  subst_value="True">
     robot_hardware:
       - rh_sr_hand_robot_hw
-    rh_sr_robot_hw:
+    rh_sr_hand_robot_hw:
       type: ros_ethercat_model/RosEthercat
-      eth_port: $(arg eth_port)
+      ethercat_port: $(arg eth_port)
+      robot_description_param: robot_description
     joint_filter:
       - rh_
-    robot_description_param: robot_description
   </rosparam>
 
   <node if="$(arg debug)" name="sr_hand_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="gdb -ex run -args"/>
