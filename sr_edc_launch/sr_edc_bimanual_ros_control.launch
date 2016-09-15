@@ -54,22 +54,18 @@
 
   <!-- publishes joint 0s joint states on separate topic for debug/tuning -->
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
-
   
-  <rosparam  subst_value="True">
+  <rosparam>
     robot_hardware:
       - sr_hands_bimanual_robot_hw
-    sr_hands_bimanual_robot_hw:
-      type: ros_ethercat_model/RosEthercat
-      ethercat_port: $(arg eth_port)
-      robot_description_param: robot_description
-    joint_filter:
-      - rh_
-      - lh_
   </rosparam>
+  <include file="$(find sr_edc_launch)/hand_ros_control_robot_params.xml">
+    <arg name="eth_port" value="$(arg eth_port)"/>
+    <arg name="robot_hardware_name" value="sr_hands_bimanual_robot_hw"/>
+    <arg name="bimanual" value="true"/>
+  </include>
 
   <!-- ros_ethercat -->
-
 
   <node if="$(arg debug)" name="sr_bimanual_hands_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="gdb -ex run -args">
 

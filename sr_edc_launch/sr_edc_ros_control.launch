@@ -19,6 +19,9 @@
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
 
+  <!-- this should be false if robot_hardware param is defined elsewhere -->
+  <arg name="define_robot_hardware" default="true"/>
+
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
@@ -44,17 +47,15 @@
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
 
   <!-- ros_ethercat -->
-  
-  <rosparam  subst_value="True">
+  <rosparam if="$(arg define_robot_hardware)">
     robot_hardware:
       - rh_sr_hand_robot_hw
-    rh_sr_hand_robot_hw:
-      type: ros_ethercat_model/RosEthercat
-      ethercat_port: $(arg eth_port)
-      robot_description_param: robot_description
-    joint_filter:
-      - rh_
   </rosparam>
+  <include file="$(find sr_edc_launch)/hand_ros_control_robot_params.xml">
+    <arg name="eth_port" value="$(arg eth_port)"/>
+    <arg name="robot_hardware_name" value="rh_sr_hand_robot_hw"/>
+    <arg name="right_hand_filter" value="true"/>
+  </include>
 
   <node if="$(arg debug)" name="sr_hand_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="gdb -ex run -args">
     <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
