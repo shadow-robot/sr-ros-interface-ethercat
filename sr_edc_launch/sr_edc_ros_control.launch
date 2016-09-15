@@ -56,8 +56,19 @@
       - rh_
   </rosparam>
 
-  <node if="$(arg debug)" name="sr_hand_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="gdb -ex run -args"/>
-  <node unless="$(arg debug)" name="sr_hand_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="ethercat_grant"/>
+  <node if="$(arg debug)" name="sr_hand_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="gdb -ex run -args">
+    <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
+    <param unless="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="FORCE"/>
+    <param name="use_ns" value="$(arg use_ns)"/>
+    <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
+  </node>
+
+  <node unless="$(arg debug)" name="sr_hand_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="ethercat_grant">
+    <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
+    <param unless="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="FORCE"/>
+    <param name="use_ns" value="$(arg use_ns)"/>
+    <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
+  </node>
 
   <group if="$(arg calibration_controllers)">
     <node name="calibrate_sr_edc" pkg="sr_utilities" type="calibrate_hand_finder.py" output="screen"/>
