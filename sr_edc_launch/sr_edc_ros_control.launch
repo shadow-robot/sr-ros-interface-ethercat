@@ -21,6 +21,7 @@
 
   <!-- this should be false if robot_hardware param is defined elsewhere -->
   <arg name="define_robot_hardware" default="true"/>
+  <arg name="hand_robot_hardware_name" default="rh_sr_hand_robot_hw"/>
 
   <param name="/use_sim_time" value="false"/>
 
@@ -29,7 +30,7 @@
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
-   
+
   <!-- The prefix used by the robot_state_publisher -->
   <arg name="tf_prefix" default="" />
 
@@ -47,13 +48,13 @@
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
 
   <!-- ros_ethercat -->
-  <rosparam if="$(arg define_robot_hardware)">
+  <rosparam if="$(arg define_robot_hardware)" subst_value="true">
     robot_hardware:
-      - rh_sr_hand_robot_hw
+      - $(arg hand_robot_hardware_name)
   </rosparam>
   <include file="$(find sr_edc_launch)/hand_ros_control_robot_params.xml">
     <arg name="eth_port" value="$(arg eth_port)"/>
-    <arg name="robot_hardware_name" value="rh_sr_hand_robot_hw"/>
+    <arg name="robot_hardware_name" value="$(arg hand_robot_hardware_name)"/>
     <arg name="right_hand_filter" value="true"/>
   </include>
 
