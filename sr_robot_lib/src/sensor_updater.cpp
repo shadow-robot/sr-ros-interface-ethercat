@@ -27,6 +27,8 @@
 
 #include "sr_robot_lib/sensor_updater.hpp"
 #include <boost/foreach.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/smart_ptr.hpp>
 #include <iostream>
 #include <vector>
 
