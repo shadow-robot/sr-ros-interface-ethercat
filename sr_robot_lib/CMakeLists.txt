@@ -24,14 +24,13 @@ include_directories(include ${Boost_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS} ${
 
 #if you compile with "DEBUG=1 make", some debug data are going to be published
 SET(debug $ENV{DEBUG})
-MESSAGE(" ----- Shadow Robot EtherCAT driver configuration:")
+MESSAGE(STATUS "Shadow Robot EtherCAT driver configuration:")
 IF (DEFINED debug)
     SET(CMAKE_CXX_FLAGS "-D DEBUG_PUBLISHER")
-    MESSAGE(" [x] Debug publisher")
+    MESSAGE(STATUS " [x] Debug publisher")
 ELSE(DEFINED debug)
-    MESSAGE(" [ ] Debug publisher")
+    MESSAGE(STATUS " [ ] Debug publisher")
 ENDIF (DEFINED debug)
-MESSAGE(" ----- ")
 
 catkin_python_setup()
 

@@ -29,7 +29,6 @@ generate_messages(
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
-        DEPENDS binutils
         CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_external_dependencies message_runtime
         INCLUDE_DIRS include
         LIBRARIES sr_edc_ethercat_drivers
