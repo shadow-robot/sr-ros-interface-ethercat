@@ -33,7 +33,6 @@
 #include <vector>
 #include <list>
 #include <queue>
-#include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
 #include "sr_robot_lib/generic_updater.hpp"
 

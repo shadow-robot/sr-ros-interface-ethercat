@@ -29,7 +29,8 @@
 
 #include <boost/smart_ptr.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/thread.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
 #include <vector>
 #include <utility>
 #include <string>
