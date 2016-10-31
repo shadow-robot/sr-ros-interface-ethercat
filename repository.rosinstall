@@ -9,11 +9,6 @@
     local-name: sr_core
 
 - git:
-    uri: 'https://github.com/shadow-robot/sr_interface'
-    version: 'indigo-devel'
-    local-name: sr_interface
-
-- git:
     uri: 'https://github.com/shadow-robot/ros_ethercat'
     version: 'indigo-devel'
     local-name: ros_ethercat
