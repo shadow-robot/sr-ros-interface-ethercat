@@ -19,7 +19,7 @@
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
   <!-- z coordinate of the robot (w.r.t. world frame) -->
-  <arg name="initial_z" default="0.1"/>
+  <arg name="initial_z" default="0.0"/>
 
   <param name="/use_sim_time" value="false"/>
 
