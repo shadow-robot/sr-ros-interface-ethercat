@@ -18,11 +18,13 @@
   <arg name="hand_id" default="rh"/>
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
+  <!-- z coordinate of the robot (w.r.t. world frame) -->
+  <arg name="initial_z" default="0.1"/>
 
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)' prefix:=$(arg hand_id)_"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)' prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
