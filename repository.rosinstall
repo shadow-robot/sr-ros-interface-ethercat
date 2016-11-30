@@ -5,7 +5,7 @@
 
 - git:
     uri: 'https://github.com/shadow-robot/sr_core'
-    version: 'indigo-devel'
+    version: 'kinetic-devel'
     local-name: sr_core
 
 - git:
