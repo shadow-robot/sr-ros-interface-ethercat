@@ -28,7 +28,7 @@
 
 import rospy
 
-from pr2_mechanism_msgs.msg import MechanismStatistics
+from sr_robot_msgs.msg import MechanismStatistics
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 
