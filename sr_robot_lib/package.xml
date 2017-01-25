@@ -32,7 +32,6 @@
   <build_depend>diagnostic_updater</build_depend>
   <build_depend>realtime_tools</build_depend>
   <build_depend>controller_manager_msgs</build_depend>
-  <build_depend>sr_self_test</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rostest</build_depend>
 
@@ -47,7 +46,6 @@
   <run_depend>diagnostic_updater</run_depend>
   <run_depend>realtime_tools</run_depend>
   <run_depend>controller_manager_msgs</run_depend>
-  <run_depend>sr_self_test</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
 

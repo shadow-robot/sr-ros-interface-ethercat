@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
         diagnostic_updater
         realtime_tools
         controller_manager_msgs
-        sr_self_test
         roscpp
         rostest
 )
@@ -47,7 +46,6 @@ catkin_package(
         diagnostic_updater
         realtime_tools
         controller_manager_msgs
-        sr_self_test
         roscpp
         rospy
         INCLUDE_DIRS include

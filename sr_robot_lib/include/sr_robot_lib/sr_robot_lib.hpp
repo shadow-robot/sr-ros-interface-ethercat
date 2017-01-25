@@ -53,7 +53,7 @@
 #include <sr_utilities/calibration.hpp>
 #include <sr_utilities/thread_safe_map.hpp>
 
-#include <sr_self_test/sr_self_test.hpp>
+// #include <sr_self_test/sr_self_test.hpp>
 
 #include "sr_robot_lib/sr_joint_motor.hpp"
 #include "sr_robot_lib/generic_tactiles.hpp"
