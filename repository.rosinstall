@@ -1,6 +1,6 @@
 - git:
     uri: 'https://github.com/shadow-robot/sr_common'
-    version: 'indigo-devel'
+    version: 'kinetic-devel'
     local-name: sr_common
 
 - git:
@@ -10,11 +10,5 @@
 
 - git:
     uri: 'https://github.com/shadow-robot/ros_ethercat'
-    version: 'indigo-devel'
+    version: 'kinetic-devel'
     local-name: ros_ethercat
-
-- git:
-    uri: 'https://github.com/shadow-robot/ethercat_grant'
-    version: 'indigo-devel'
-    local-name: ethercat_grant
-
