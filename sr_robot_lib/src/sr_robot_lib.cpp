@@ -499,18 +499,6 @@ namespace shadow_robot
     }
   }
 
-//  template <class StatusType, class CommandType>
-// void SrRobotLib<StatusType, CommandType>::checkSelfTests()
-// {
-//  ros::Rate loop_rate(1);
-//  while (ros::ok())
-//  {
-//   // check if we have some self diagnostics test to run and run them
-//    // in a separate thread
-//   // self_tests_->checkTest();
-//    loop_rate.sleep();
-//  }
-// }
 
 // Only to ensure that the template class is compiled for the types we are interested in
   template
