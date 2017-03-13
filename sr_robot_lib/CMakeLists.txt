@@ -17,9 +17,8 @@ find_package(catkin REQUIRED COMPONENTS
         rostest
 )
 find_package(Boost REQUIRED COMPONENTS thread)
-find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
-include_directories(include ${Boost_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 #if you compile with "DEBUG=1 make", some debug data are going to be published
 SET(debug $ENV{DEBUG})
