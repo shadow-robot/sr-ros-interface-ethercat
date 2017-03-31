@@ -29,6 +29,7 @@
   <run_depend>sr_edc_launch</run_depend>
   <run_depend>sr_edc_muscle_tools</run_depend>
   <run_depend>sr_robot_lib</run_depend>
+  <run_depend>ethercat_grant</run_depend>
 
   <export>
     <metapackage/>
