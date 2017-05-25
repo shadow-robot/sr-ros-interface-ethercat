@@ -387,12 +387,12 @@ namespace shadow_robot
       return false;
     }
 
-    if (!((request.torque_limiter_gain >= MOTOR_CONFIG_TORQUE_LIMITER_GAIN_MIN) &&
-          (request.torque_limiter_gain <= MOTOR_CONFIG_TORQUE_LIMITER_GAIN_MAX)))
+    if (!((request.torque_limiter_gain >= MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MIN) &&
+          (request.torque_limiter_gain <= MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MAX)))
     {
       ROS_WARN_STREAM (" torque limiter gain out or range  : " << request.torque_limiter_gain << " -> not in [" <<
-                       MOTOR_CONFIG_TORQUE_LIMITER_GAIN_RANGE_MIN << " ; " <<
-                       MOTOR_CONFIG_TORQUE_LIMITER_GAIN_RANGE_MAX << "]");
+                       MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MIN << " ; " <<
+                       MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MAX << "]");
       response.configured = false;
       return false;
     }
@@ -407,7 +407,7 @@ namespace shadow_robot
     update_force_control_in_param_server(find_joint_name(motor_index), request.maxpwm, request.sgleftref,
                                          request.sgrightref, request.f, request.p, request.i,
                                          request.d, request.imax, request.deadband, request.sign,
-                                         request.torque_limit, request.torque_limiter_gain););
+                                         request.torque_limit, request.torque_limiter_gain);
     response.configured = true;
 
     // Reinitialize motors information
@@ -433,11 +433,9 @@ namespace shadow_robot
   }
 
   template<class StatusType, class CommandType>
-  void SrMotorHandLib<StatusType, CommandType>::update_force_control_in_param_server(string joint_name, int max_pwm,
-                                                                                     int sg_left, int sg_right, int f,
-                                                                                     int p,
-                                                                                     int i, int d, int imax,
-                                                                                     int deadband, int sign)
+  void SrMotorHandLib<StatusType, CommandType>::update_force_control_in_param_server(
+    string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p, int i,
+    int d, int imax, int deadband, int sign, int torque_limit, int torque_limiter_gain)
   {
     if (joint_name != "")
     {
