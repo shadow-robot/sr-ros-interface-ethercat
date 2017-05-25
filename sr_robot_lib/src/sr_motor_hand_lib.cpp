@@ -387,14 +387,27 @@ namespace shadow_robot
       return false;
     }
 
+    if (!((request.torque_limiter_gain >= MOTOR_CONFIG_TORQUE_LIMITER_GAIN_MIN) &&
+          (request.torque_limiter_gain <= MOTOR_CONFIG_TORQUE_LIMITER_GAIN_MAX)))
+    {
+      ROS_WARN_STREAM (" torque limiter gain out or range  : " << request.torque_limiter_gain << " -> not in [" <<
+                       MOTOR_CONFIG_TORQUE_LIMITER_GAIN_RANGE_MIN << " ; " <<
+                       MOTOR_CONFIG_TORQUE_LIMITER_GAIN_RANGE_MAX << "]");
+      response.configured = false;
+      return false;
+    }
+
+
     // ok, the parameters sent are coherent, send the demand to the motor.
     this->generate_force_control_config(motor_index, request.maxpwm, request.sgleftref,
                                         request.sgrightref, request.f, request.p, request.i,
-                                        request.d, request.imax, request.deadband, request.sign);
+                                        request.d, request.imax, request.deadband, request.sign,
+                                        request.torque_limit, request.torque_limiter_gain);
 
     update_force_control_in_param_server(find_joint_name(motor_index), request.maxpwm, request.sgleftref,
                                          request.sgrightref, request.f, request.p, request.i,
-                                         request.d, request.imax, request.deadband, request.sign);
+                                         request.d, request.imax, request.deadband, request.sign,
+                                         request.torque_limit, request.torque_limiter_gain););
     response.configured = true;
 
     // Reinitialize motors information
