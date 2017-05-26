@@ -471,6 +471,11 @@ namespace shadow_robot
       full_param.str("");
       full_param << act_name << "/pid/sign";
       this->nodehandle_.setParam(full_param.str(), sign);
+      full_param << act_name << "/pid/torque_limit";
+      this->nodehandle_.setParam(full_param.str(), torque_limit);
+      full_param << act_name << "/pid/torque_limiter_gain";
+      this->nodehandle_.setParam(full_param.str(), torque_limiter_gain);
+
     }
   }
 

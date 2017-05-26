@@ -1081,6 +1081,13 @@ namespace shadow_robot
     ROS_DEBUG_STREAM("deadband: " << static_cast<int> (static_cast<int8u> (value.byte[0])) << " value: " <<
                      static_cast<int16u> (value.word));
 
+    value.word = torque_limit;
+    full_config.at(MOTOR_CONFIG_TORQUE_LIMIT) = value;
+
+    value.word = torque_limiter_gain;
+    full_config.at(MOTOR_CONFIG_TORQUE_LIMITER_GAIN) = value;
+
+
     // compute crc
     crc_result = 0;
     for (unsigned int i = MOTOR_CONFIG_FIRST_VALUE; i <= MOTOR_CONFIG_LAST_VALUE; ++i)
