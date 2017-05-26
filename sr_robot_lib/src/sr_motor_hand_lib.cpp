@@ -221,7 +221,7 @@ namespace shadow_robot
     // values.
     ostringstream full_param;
 
-    int f, p, i, d, imax, max_pwm, sg_left, sg_right, deadband, sign;
+    int f, p, i, d, imax, max_pwm, sg_left, sg_right, deadband, sign, torque_limit, torque_limiter_gain;
     string act_name = boost::to_lower_copy(joint_name);
 
     full_param << act_name << "/pid/f";
@@ -254,6 +254,13 @@ namespace shadow_robot
     full_param << act_name << "/pid/sign";
     this->nodehandle_.template param<int>(full_param.str(), sign, 0);
     full_param.str("");
+    full_param << act_name << "/pid/torque_limit";
+    this->nodehandle_.template param<int>(full_param.str(), torque_limit, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/torque_limiter_gain";
+    this->nodehandle_.template param<int>(full_param.str(), torque_limiter_gain, 0);
+    full_param.str("");
+
 
     sr_robot_msgs::ForceController::Request pid_request;
     pid_request.maxpwm = max_pwm;
@@ -266,6 +273,8 @@ namespace shadow_robot
     pid_request.imax = imax;
     pid_request.deadband = deadband;
     pid_request.sign = sign;
+    pid_request.torque_limit = torque_limit;
+    pid_request.torque_limiter_gain = torque_limiter_gain;
     sr_robot_msgs::ForceController::Response pid_response;
     bool pid_success = force_pid_callback(pid_request, pid_response, motor_index);
 
