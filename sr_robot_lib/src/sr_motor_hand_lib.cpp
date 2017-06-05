@@ -399,7 +399,7 @@ namespace shadow_robot
     if (!((request.torque_limiter_gain >= MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MIN) &&
           (request.torque_limiter_gain <= MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MAX)))
     {
-      ROS_WARN_STREAM (" torque limiter gain out or range  : " << request.torque_limiter_gain << " -> not in [" <<
+      ROS_WARN_STREAM(" torque limiter gain out or range  : " << request.torque_limiter_gain << " -> not in [" <<
                        MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MIN << " ; " <<
                        MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MAX << "]");
       response.configured = false;
@@ -486,7 +486,6 @@ namespace shadow_robot
       full_param.str("");
       full_param << act_name << "/pid/torque_limiter_gain";
       this->nodehandle_.setParam(full_param.str(), torque_limiter_gain);
-
     }
   }
 
