@@ -221,7 +221,7 @@ namespace shadow_robot
     // values.
     ostringstream full_param;
 
-    int f, p, i, d, imax, max_pwm, sg_left, sg_right, deadband, sign;
+    int f, p, i, d, imax, max_pwm, sg_left, sg_right, deadband, sign, torque_limit, torque_limiter_gain;
     string act_name = boost::to_lower_copy(joint_name);
 
     full_param << act_name << "/pid/f";
@@ -254,6 +254,13 @@ namespace shadow_robot
     full_param << act_name << "/pid/sign";
     this->nodehandle_.template param<int>(full_param.str(), sign, 0);
     full_param.str("");
+    full_param << act_name << "/pid/torque_limit";
+    this->nodehandle_.template param<int>(full_param.str(), torque_limit, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/torque_limiter_gain";
+    this->nodehandle_.template param<int>(full_param.str(), torque_limiter_gain, 0);
+    full_param.str("");
+
 
     sr_robot_msgs::ForceController::Request pid_request;
     pid_request.maxpwm = max_pwm;
@@ -266,6 +273,8 @@ namespace shadow_robot
     pid_request.imax = imax;
     pid_request.deadband = deadband;
     pid_request.sign = sign;
+    pid_request.torque_limit = torque_limit;
+    pid_request.torque_limiter_gain = torque_limiter_gain;
     sr_robot_msgs::ForceController::Response pid_response;
     bool pid_success = force_pid_callback(pid_request, pid_response, motor_index);
 
@@ -387,14 +396,27 @@ namespace shadow_robot
       return false;
     }
 
+    if (!((request.torque_limiter_gain >= MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MIN) &&
+          (request.torque_limiter_gain <= MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MAX)))
+    {
+      ROS_WARN_STREAM(" torque limiter gain out or range  : " << request.torque_limiter_gain << " -> not in [" <<
+                       MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MIN << " ; " <<
+                       MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MAX << "]");
+      response.configured = false;
+      return false;
+    }
+
+
     // ok, the parameters sent are coherent, send the demand to the motor.
     this->generate_force_control_config(motor_index, request.maxpwm, request.sgleftref,
                                         request.sgrightref, request.f, request.p, request.i,
-                                        request.d, request.imax, request.deadband, request.sign);
+                                        request.d, request.imax, request.deadband, request.sign,
+                                        request.torque_limit, request.torque_limiter_gain);
 
     update_force_control_in_param_server(find_joint_name(motor_index), request.maxpwm, request.sgleftref,
                                          request.sgrightref, request.f, request.p, request.i,
-                                         request.d, request.imax, request.deadband, request.sign);
+                                         request.d, request.imax, request.deadband, request.sign,
+                                         request.torque_limit, request.torque_limiter_gain);
     response.configured = true;
 
     // Reinitialize motors information
@@ -420,11 +442,9 @@ namespace shadow_robot
   }
 
   template<class StatusType, class CommandType>
-  void SrMotorHandLib<StatusType, CommandType>::update_force_control_in_param_server(string joint_name, int max_pwm,
-                                                                                     int sg_left, int sg_right, int f,
-                                                                                     int p,
-                                                                                     int i, int d, int imax,
-                                                                                     int deadband, int sign)
+  void SrMotorHandLib<StatusType, CommandType>::update_force_control_in_param_server(
+    string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p, int i,
+    int d, int imax, int deadband, int sign, int torque_limit, int torque_limiter_gain)
   {
     if (joint_name != "")
     {
@@ -460,6 +480,12 @@ namespace shadow_robot
       full_param.str("");
       full_param << act_name << "/pid/sign";
       this->nodehandle_.setParam(full_param.str(), sign);
+      full_param.str("");
+      full_param << act_name << "/pid/torque_limit";
+      this->nodehandle_.setParam(full_param.str(), torque_limit);
+      full_param.str("");
+      full_param << act_name << "/pid/torque_limiter_gain";
+      this->nodehandle_.setParam(full_param.str(), torque_limiter_gain);
     }
   }
 
