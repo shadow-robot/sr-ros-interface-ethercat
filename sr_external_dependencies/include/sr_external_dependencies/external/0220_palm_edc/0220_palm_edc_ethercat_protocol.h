@@ -1,10 +1,10 @@
 //
-// © 2010 Shadow Robot Company Limited.
+// Â© 2010 Shadow Robot Company Limited.
 //
 // FileName:        this_node.h
 // Dependencies:
 // Processor:       PIC32
-// Compiler:        MPLAB® C32
+// Compiler:        MPLABÂ® C32
 //
 //  +------------------------------------------------------------------------+
 //  | This file is part of The Shadow Robot PIC32 firmware code base.        |
@@ -53,9 +53,9 @@
 
 
 // ========================================================
-// 
+//
 //       F R O M    M O T O R    D A T A    T Y P E
-// 
+//
 // ========================================================
 
 
@@ -108,9 +108,9 @@ typedef enum
 
 
 // ========================================================
-// 
+//
 //                 S L O W    D A T A
-// 
+//
 // ========================================================
 
 
@@ -121,8 +121,8 @@ typedef enum
     MOTOR_SLOW_DATA_SVN_SERVER_REVISION  = 0x0002,              //!< The revision of the code on the SVN server at build time.
                                                                 //!  Should we have done an Update before building?
     MOTOR_SLOW_DATA_SVN_MODIFIED         = 0x0003,              //!< Did the local code have any uncomitted modifications at build time?
-    MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW    = 0x0004,              //!< 
-    MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH   = 0x0005,              //!< 
+    MOTOR_SLOW_DATA_SERIAL_NUMBER_LOW    = 0x0004,              //!<
+    MOTOR_SLOW_DATA_SERIAL_NUMBER_HIGH   = 0x0005,              //!<
     MOTOR_SLOW_DATA_GEAR_RATIO           = 0x0006,              //!< The gear ratio of the motor. E.G. 131 or 128
     MOTOR_SLOW_DATA_ASSEMBLY_DATE_YYYY   = 0x0007,              //!< Year of assembly, E.G. 2012
     MOTOR_SLOW_DATA_ASSEMBLY_DATE_MMDD   = 0x0008,              //!< Day/Month of assembly. E.G. 0x0A1F means October 31st
@@ -145,9 +145,9 @@ typedef enum
 
 
 // ========================================================
-// 
+//
 //                       F L A G S
-// 
+//
 // ========================================================
 
 
@@ -217,9 +217,9 @@ typedef enum
 
 
 // ========================================================
-// 
+//
 //         T O    M O T O R    D A T A    T Y P E
-// 
+//
 // ========================================================
 
 //! The host can send different types of data from the motors.
@@ -236,7 +236,9 @@ typedef enum
     MOTOR_SYSTEM_RESET                  = 0x3,                  //!< Send with a demand value of 0x520x to reset motor x
     MOTOR_SYSTEM_CONTROLS               = 0x4,                  //!< Various bits to switch on / off misc things.
 
-    MOTOR_CONFIG_FIRST_VALUE            = 0x7,                  //!< This is the first TO_MOTOR_DATA_TYPE which is actually a configuration and should be stored in EEPROM
+    MOTOR_CONFIG_FIRST_VALUE            = 0x5,                  //!< This is the first TO_MOTOR_DATA_TYPE which is actually a configuration and should be stored in EEPROM
+    MOTOR_CONFIG_TORQUE_LIMIT           = 0x5,                  //!< This is the torque value at which the torque limiter will kick in
+    MOTOR_CONFIG_TORQUE_LIMITER_GAIN    = 0x6,                  //!< This is the proportional gain term for the torque limit controller
     MOTOR_CONFIG_MAX_PWM                = 0x7,                  //!< Put an upper limit on the absolute value of the motor PWM. Range [0..0x03FF]
     MOTOR_CONFIG_SG_REFS                = 0x8,                  //!< Strain gauge amp references. LSB = ref for SGL, MSB = ref for SGR.
     MOTOR_CONFIG_F                      = 0x9,                  //!< Feed forward gain
@@ -290,6 +292,9 @@ typedef enum
 
 #define MOTOR_CONFIG_SIGN_RANGE_MIN          0x00
 #define MOTOR_CONFIG_SIGN_RANGE_MAX          0x01
+
+#define MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MIN -0x0200
+#define MOTOR_DEMAND_TORQUE_LIMITER_GAIN_MAX  0x0200
 
 
 #ifndef NO_STRINGS													                    // The PIC compiler doesn't deal well with strings.
