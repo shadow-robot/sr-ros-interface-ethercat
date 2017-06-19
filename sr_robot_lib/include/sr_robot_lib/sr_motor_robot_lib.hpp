@@ -155,9 +155,9 @@ protected:
    * @param deadband the deadband on the force.
    * @param sign can be 0 or 1 depending on the way the motor is plugged in.
    */
-  void generate_force_control_config(int motor_index, int max_pwm, int sg_left, int sg_right,
-                                     int f, int p, int i, int d, int imax,
-                                     int deadband, int sign);
+  void generate_force_control_config(
+    int motor_index, int max_pwm, int sg_left, int sg_right, int f, int p, int i, int d,
+    int imax, int deadband, int sign, int torque_limit, int torque_limiter_gain);
 
   /**
    * Returns a pointer to the actuator for a certain joint.

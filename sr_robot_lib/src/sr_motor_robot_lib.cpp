@@ -1029,10 +1029,9 @@ namespace shadow_robot
   }
 
   template<class StatusType, class CommandType>
-  void SrMotorRobotLib<StatusType, CommandType>::generate_force_control_config(int motor_index, int max_pwm,
-                                                                               int sg_left, int sg_right, int f, int p,
-                                                                               int i, int d, int imax, int deadband,
-                                                                               int sign)
+  void SrMotorRobotLib<StatusType, CommandType>::generate_force_control_config(
+    int motor_index, int max_pwm, int sg_left, int sg_right, int f, int p, int i, int d,
+    int imax, int deadband, int sign, int torque_limit, int torque_limiter_gain)
   {
     ROS_INFO_STREAM("Setting new pid values for motor" << motor_index <<
                     ": max_pwm=" << max_pwm <<
@@ -1044,7 +1043,9 @@ namespace shadow_robot
                     " d=" << d <<
                     " imax=" << imax <<
                     " deadband=" << deadband <<
-                    " sign=" << sign);
+                    " sign=" << sign <<
+                    " torque_limit=" << torque_limit <<
+                    " torque_limiter_gain=" << torque_limiter_gain);
 
     // the vector is of the size of the TO_MOTOR_DATA_TYPE enum.
     // the value of the element at a given index is the value
@@ -1079,6 +1080,13 @@ namespace shadow_robot
     full_config.at(MOTOR_CONFIG_DEADBAND_SIGN) = value;
     ROS_DEBUG_STREAM("deadband: " << static_cast<int> (static_cast<int8u> (value.byte[0])) << " value: " <<
                      static_cast<int16u> (value.word));
+
+    value.word = torque_limit;
+    full_config.at(MOTOR_CONFIG_TORQUE_LIMIT) = value;
+
+    value.word = torque_limiter_gain;
+    full_config.at(MOTOR_CONFIG_TORQUE_LIMITER_GAIN) = value;
+
 
     // compute crc
     crc_result = 0;

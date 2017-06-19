@@ -13,25 +13,22 @@ find_package(catkin REQUIRED COMPONENTS
         diagnostic_updater
         realtime_tools
         controller_manager_msgs
-        sr_self_test
         roscpp
         rostest
 )
 find_package(Boost REQUIRED COMPONENTS thread)
-find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
-include_directories(include ${Boost_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 #if you compile with "DEBUG=1 make", some debug data are going to be published
 SET(debug $ENV{DEBUG})
-MESSAGE(" ----- Shadow Robot EtherCAT driver configuration:")
+MESSAGE(STATUS "Shadow Robot EtherCAT driver configuration:")
 IF (DEFINED debug)
     SET(CMAKE_CXX_FLAGS "-D DEBUG_PUBLISHER")
-    MESSAGE(" [x] Debug publisher")
+    MESSAGE(STATUS " [x] Debug publisher")
 ELSE(DEFINED debug)
-    MESSAGE(" [ ] Debug publisher")
+    MESSAGE(STATUS " [ ] Debug publisher")
 ENDIF (DEFINED debug)
-MESSAGE(" ----- ")
 
 catkin_python_setup()
 
@@ -47,7 +44,6 @@ catkin_package(
         diagnostic_updater
         realtime_tools
         controller_manager_msgs
-        sr_self_test
         roscpp
         rospy
         INCLUDE_DIRS include

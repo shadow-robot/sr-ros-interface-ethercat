@@ -33,7 +33,7 @@
 #include <vector>
 #include <list>
 #include <queue>
-#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/smart_ptr.hpp>
 #include <sr_external_dependencies/types_for_external.h>
 

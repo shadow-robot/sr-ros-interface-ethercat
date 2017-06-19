@@ -6,13 +6,12 @@ project(sr_edc_ethercat_drivers)
 # TODO: remove all from COMPONENTS that are not catkin packages.
 find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_robot_msgs sr_external_dependencies message_generation)
 find_package(Boost REQUIRED COMPONENTS)
-find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
 find_library(BFD_LIBRARY bfd)
 
 message(STATUS "Found libbfd: ${BFD_LIBRARY}")
 
-include_directories(include ${Boost_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 
 add_message_files(
@@ -29,7 +28,7 @@ generate_messages(
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
-        DEPENDS binutils
+        DEPENDS bfd
         CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_external_dependencies message_runtime
         INCLUDE_DIRS include
         LIBRARIES sr_edc_ethercat_drivers

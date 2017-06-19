@@ -118,9 +118,9 @@ protected:
    * @param deadband the deadband on the force.
    * @param sign can be 0 or 1 depending on the way the motor is plugged in.
    */
-  void update_force_control_in_param_server(std::string joint_name, int max_pwm, int sg_left, int sg_right, int f,
-                                            int p,
-                                            int i, int d, int imax, int deadband, int sign);
+  void update_force_control_in_param_server(
+    std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p, int i,
+    int d, int imax, int deadband, int sign, int torque_limit, int torque_limiter_gain);
 
   /**
    * Finds the joint name for a certain motor index
