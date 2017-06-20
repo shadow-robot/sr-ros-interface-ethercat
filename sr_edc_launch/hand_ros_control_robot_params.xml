@@ -17,8 +17,9 @@
       - lh_
   </rosparam>
   <rosparam if="$(arg right_hand_filter)">
-    joint_filter:
-      - rh_
+    unique_robot_hw:
+      joint_filter:
+        - rh_
   </rosparam>
   <rosparam if="$(arg bimanual_filter)">
     joint_filter:
