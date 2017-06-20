@@ -12,19 +12,21 @@
       ethercat_port: $(arg eth_port)
       robot_description_param: $(arg robot_description_param)
   </rosparam>
-  <rosparam if="$(arg left_hand_filter)">
-    joint_filter:
-      - lh_
+  <rosparam if="$(arg left_hand_filter)" subst_value="True">
+    $(arg robot_hardware_name):
+      joint_filter:
+        - lh_
   </rosparam>
-  <rosparam if="$(arg right_hand_filter)">
-    unique_robot_hw:
+  <rosparam if="$(arg right_hand_filter)" subst_value="True">
+    $(arg robot_hardware_name):
       joint_filter:
         - rh_
   </rosparam>
-  <rosparam if="$(arg bimanual_filter)">
-    joint_filter:
-      - rh_
-      - lh_
+  <rosparam if="$(arg bimanual_filter)" subst_value="True">
+    $(arg robot_hardware_name):
+      joint_filter:
+        - rh_
+        - lh_
   </rosparam>
 
 </launch>
