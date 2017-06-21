@@ -1,0 +1,32 @@
+<launch>
+  <arg name="eth_port"/>
+  <arg name="left_hand_filter" default="false"/>
+  <arg name="right_hand_filter" default="false"/>
+  <arg name="bimanual_filter" default="false"/>
+  <arg name="robot_description_param" default="robot_description"/>
+  <arg name="robot_hardware_name"/>
+
+  <rosparam  subst_value="True">
+    $(arg robot_hardware_name):
+      type: ros_ethercat_model/RosEthercat
+      ethercat_port: $(arg eth_port)
+      robot_description_param: $(arg robot_description_param)
+  </rosparam>
+  <rosparam if="$(arg left_hand_filter)" subst_value="True">
+    $(arg robot_hardware_name):
+      joint_filter:
+        - lh_
+  </rosparam>
+  <rosparam if="$(arg right_hand_filter)" subst_value="True">
+    $(arg robot_hardware_name):
+      joint_filter:
+        - rh_
+  </rosparam>
+  <rosparam if="$(arg bimanual_filter)" subst_value="True">
+    $(arg robot_hardware_name):
+      joint_filter:
+        - rh_
+        - lh_
+  </rosparam>
+
+</launch>
