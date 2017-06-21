@@ -57,7 +57,7 @@
 
   <!-- ros_ethercat -->
   <group if="$(arg debug)">
-    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
+    <node name="sr_hand_robot" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
           args="-i $(arg eth_port) -r robot_description" output="screen"
           launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
       <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
@@ -70,7 +70,7 @@
     </node>
   </group>
   <group unless="$(arg debug)">
-    <node name="realtime_loop" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
+    <node name="sr_hand_robot" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
           args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ethercat_grant">
       <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
       <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>

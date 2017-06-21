@@ -158,7 +158,7 @@ class EtherCAT_Hand_Lib(object):
         """
         """
         if joint_name not in self.pid_services:
-            service_name = "realtime_loop/change_force_PID_" + joint_name
+            service_name = "sr_hand_robot/change_force_PID_" + joint_name
             self.pid_services[joint_name] = rospy.ServiceProxy(service_name,
                                                                ForceController)
 
