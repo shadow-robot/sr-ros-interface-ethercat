@@ -57,7 +57,8 @@
   <include file="$(find sr_edc_launch)/hand_ros_control_robot_params.xml">
     <arg name="eth_port" value="$(arg eth_port)"/>
     <arg name="robot_hardware_name" value="$(arg hand_robot_hardware_name)"/>
-    <arg name="right_hand_filter" value="true"/>
+    <arg name="right_hand_filter" value="$(eval arg('hand_id') == 'rh')"/>
+    <arg name="left_hand_filter" value="$(eval arg('hand_id') == 'lh')"/>
   </include>
 
   <node if="$(arg debug)" name="sr_hand_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="gdb -ex run -args">
