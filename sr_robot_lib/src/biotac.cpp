@@ -422,8 +422,9 @@ namespace tactiles
 
     for (size_t i = 0; i < this->nb_tactiles; ++i)
     {
-      // At least one of the fingers has a biotac version 2
-      if (tactiles_vector->at(i).serial_number.find("BTSP") != std::string::npos)
+      // At least one of the fingers has a newer serial number, i.e. starting BTSP or BTTB
+      if (tactiles_vector->at(i).serial_number.find("BTSP") != std::string::npos ||
+          tactiles_vector->at(i).serial_number.find("BTTB") != std::string::npos)
       {
         nb_electrodes_ = nb_electrodes_v2_;
         break;
