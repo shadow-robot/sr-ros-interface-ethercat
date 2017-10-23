@@ -145,9 +145,8 @@ int SR06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
     return retval;
   }
 
-  hw->imu_states_;
-  ROS_WARN_STREAM(device_joint_prefix_);
-
+  hw_ = static_cast<ros_ethercat_model::RobotState *> (hw);
+  imu_state_ = hw_->getImuState("rh_imu");
   sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> >(
           new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
@@ -303,6 +302,21 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   static unsigned int num_rxed_packets = 0;
 
   ++num_rxed_packets;
+
+  imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
+  imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
+
+  for (size_t x = 0; x < 6; ++x)
+  {
+    imu_state_->data_.linear_acceleration[x] = 0.0;
+    imu_state_->data_.angular_velocity[x] = 0.0;
+  }
+
+  for (size_t x = 0; x < 9; ++x)
+  {
+    imu_state_->data_.linear_acceleration_covariance[x] = 0.0;
+    imu_state_->data_.angular_velocity_covariance[x] = 0.0;
+  }
 
 
   // publishes the debug information (a slightly formatted version of the incoming ethercat packet):
