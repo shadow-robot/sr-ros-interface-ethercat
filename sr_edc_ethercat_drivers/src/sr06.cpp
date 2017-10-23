@@ -145,6 +145,9 @@ int SR06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
     return retval;
   }
 
+  hw->imu_states_;
+  ROS_WARN_STREAM(device_joint_prefix_);
+
   sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> >(
           new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
