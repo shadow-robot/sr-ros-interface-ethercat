@@ -1312,6 +1312,9 @@ namespace shadow_robot
 
   template
   class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
+
+   template
+   class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
 }  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.

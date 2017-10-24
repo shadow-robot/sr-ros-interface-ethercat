@@ -35,7 +35,7 @@ catkin_package(
 )
 
 
-add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/sr_edc_muscle.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
+add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/sr09.cpp src/sr_edc_muscle.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
 add_dependencies(sr_edc_ethercat_drivers ${sr_edc_ethercat_drivers_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(sr_edc_ethercat_drivers ${BFD_LIBRARY} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 
@@ -86,7 +86,3 @@ install(DIRECTORY examples/
 
 install(FILES ethercat_device_plugin.xml
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-
-
-
-

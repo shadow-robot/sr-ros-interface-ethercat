@@ -1,7 +1,8 @@
 /**
  * @file   sr06.h
  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
- *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+ *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>,
+ *         Dan Greenwald <dg@shadowrobot.com>, contact <software@shadowrobot.com>
  * @date   Mon May 23 13:33:30 2011
  *
  * Copyright 2011 Shadow Robot Company Ltd.
@@ -24,8 +25,8 @@
  *
  */
 
-#ifndef SR_EDC_ETHERCAT_DRIVERS_SR06_H
-#define SR_EDC_ETHERCAT_DRIVERS_SR06_H
+#ifndef SR_EDC_ETHERCAT_DRIVERS_SR09_H
+#define SR_EDC_ETHERCAT_DRIVERS_SR09_H
 
 #include <ros_ethercat_hardware/ethercat_hardware.h>
 #include <ros_ethercat_model/robot_state.hpp>
@@ -51,14 +52,14 @@
 
 extern "C"
 {
-#include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0240_palm_edc_IMU/0240_palm_edc_IMU_ethercat_protocol.h>
 }
 
-class SR06 :
+class SR09 :
         public SrEdc
 {
 public:
-  SR06();
+  SR09();
 
   virtual void construct(EtherCAT_SlaveHandler *sh, int &start_address);
 
@@ -100,8 +101,8 @@ private:
   ros_ethercat_model::RobotState * hw_;
 
   ros_ethercat_model::ImuState * imu_state_;
-  boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
-          ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> > sr_hand_lib;
+  boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
+          ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND> > sr_hand_lib;
 
   /**
    *a counter used to publish the tactiles at 100Hz:
@@ -121,4 +122,4 @@ End:
  */
 
 
-#endif  // SR_EDC_ETHERCAT_DRIVERS_SR06_H
+#endif  // SR_EDC_ETHERCAT_DRIVERS_SR09_H

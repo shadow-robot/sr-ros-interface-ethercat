@@ -1,5 +1,5 @@
 /**
- * @file   sr06.cpp
+ * @file   sr09.cpp
  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
  *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
  * @date   Mon May 23 13:33:30 2011
@@ -25,7 +25,7 @@
  */
 
 
-#include <sr_edc_ethercat_drivers/sr06.h>
+#include <sr_edc_ethercat_drivers/sr09.h>
 
 #include <realtime_tools/realtime_publisher.h>
 
@@ -57,26 +57,26 @@ namespace is_edc_command_32_bits
   BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
 }  // namespace is_edc_command_32_bits
 
-#define ETHERCAT_STATUS_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS)
-#define ETHERCAT_COMMAND_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND)
+#define ETHERCAT_STATUS_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS)
+#define ETHERCAT_COMMAND_DATA_SIZE sizeof(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND)
 
 #define ETHERCAT_CAN_BRIDGE_DATA_SIZE sizeof(ETHERCAT_CAN_BRIDGE_DATA)
 
-#define ETHERCAT_COMMAND_DATA_ADDRESS                   PALM_0200_ETHERCAT_COMMAND_DATA_ADDRESS
-#define ETHERCAT_STATUS_DATA_ADDRESS                    PALM_0200_ETHERCAT_STATUS_DATA_ADDRESS
-#define ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS        PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
-#define ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS         PALM_0200_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
+#define ETHERCAT_COMMAND_DATA_ADDRESS                   PALM_0240_ETHERCAT_COMMAND_DATA_ADDRESS
+#define ETHERCAT_STATUS_DATA_ADDRESS                    PALM_0240_ETHERCAT_STATUS_DATA_ADDRESS
+#define ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS        PALM_0240_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS
+#define ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS         PALM_0240_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS
 
 
-PLUGINLIB_EXPORT_CLASS(SR06, EthercatDevice);
+PLUGINLIB_EXPORT_CLASS(SR09, EthercatDevice);
 
-/** \brief Constructor of the SR06 driver
+/** \brief Constructor of the SR09 driver
  *
  *  This is the Constructor of the driver. We
  *  initialize a few boolean values, a mutex
  *  and create the Bootloading service.
  */
-SR06::SR06()
+SR09::SR09()
         : zero_buffer_read(0),
           cycle_count(0)
 {
@@ -120,23 +120,23 @@ SR06::SR06()
  *
  * This function sets the two private members command_size_ and status_size_ to be the size of each Mailbox.
  * It is important for these numbers to be accurate since they are used by the EthercatHardware class when manipulating the buffers.
- * If you need to have several commands like in this SR06 driver, put the sum of the size, same thing for the status.
+ * If you need to have several commands like in this SR09 driver, put the sum of the size, same thing for the status.
  *
  */
-void SR06::construct(EtherCAT_SlaveHandler *sh, int &start_address)
+void SR09::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 {
   SrEdc::construct(sh, start_address, ETHERCAT_COMMAND_DATA_SIZE, ETHERCAT_STATUS_DATA_SIZE,
                    ETHERCAT_CAN_BRIDGE_DATA_SIZE,
                    ETHERCAT_COMMAND_DATA_ADDRESS, ETHERCAT_STATUS_DATA_ADDRESS,
                    ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS, ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS);
 
-  ROS_INFO("Finished constructing the SR06 driver");
+  ROS_INFO("Finished constructing the SR09 driver");
 }
 
 /**
  *
  */
-int SR06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int SR09::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
   int retval = SR0X::initialize(hw, allow_unprogrammed);
 
@@ -147,10 +147,10 @@ int SR06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
 
   hw_ = static_cast<ros_ethercat_model::RobotState *> (hw);
   imu_state_ = hw_->getImuState("rh_imu");
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
-          ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> >(
-          new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
-                  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(hw, nodehandle_, nh_tilde_,
+  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
+          ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND> >(
+          new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
+                  ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>(hw, nodehandle_, nh_tilde_,
                                                                  device_id_, device_joint_prefix_));
 
   ROS_INFO("ETHERCAT_STATUS_DATA_SIZE      = %4d bytes", static_cast<int> (ETHERCAT_STATUS_DATA_SIZE));
@@ -174,7 +174,7 @@ int SR06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
  *  the runtime_monitor node. We use the mutliDiagnostics as it publishes
  *  the diagnostics for each motors.
  */
-void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer)
+void SR09::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer)
 {
   diagnostic_updater::DiagnosticStatusWrapper &d(diagnostic_status_);
 
@@ -222,16 +222,16 @@ void SR06::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
  *  We just cast the buffer to our structure type, fill the structure with our data, then add the structure size to the buffer address to shift into memory and access the second command.
  *  The buffer has been allocated with command_size_ bytes, which is the sum of the two command size, so we have to put the two commands one next to the other.
  *  In fact we access the buffer using this kind of code : \code
- *  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND  *command = (ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *)buffer;
+ *  ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND  *command = (ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND *)buffer;
  *  ETHERCAT_CAN_BRIDGE_DATA                       *message = (ETHERCAT_CAN_BRIDGE_DATA *)(buffer + ETHERCAT_COMMAND_DATA_SIZE);
  *  \endcode
  */
-void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
+void SR09::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
 
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *command =
-          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND *>(buffer);
+  ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND *command =
+          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND *>(buffer);
   ETHERCAT_CAN_BRIDGE_DATA *message = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
 
   if (!flashing)
@@ -285,17 +285,17 @@ void SR06::packCommand(unsigned char *buffer, bool halt, bool reset)
  *
  *  We access the data sent by PIC32 here using the same tricks we used in packCommand().
  *  \code
- *  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *tbuffer = (ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *)(this_buffer + command_size_);
+ *  ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS *tbuffer = (ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS *)(this_buffer + command_size_);
  *  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *)(this_buffer + command_size_ + ETHERCAT_STATUS_DATA_SIZE);
  *  \endcode
  *
  * @param this_buffer The data just being received by EtherCAT
  * @param prev_buffer The previous data received by EtherCAT
  */
-bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
+bool SR09::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 {
-  ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *status_data =
-          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS *>(this_buffer + command_size_);
+  ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS *status_data =
+          reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS *>(this_buffer + command_size_);
   ETHERCAT_CAN_BRIDGE_DATA *can_data = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(this_buffer + command_size_ +
                                                                                     ETHERCAT_STATUS_DATA_SIZE);
   //  int16u                                        *status_buffer = (int16u*)status_data;
@@ -306,11 +306,13 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
   imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
 
-  for (size_t x = 0; x < 6; ++x)
-  {
-    imu_state_->data_.linear_acceleration[x] = 0.0;
-    imu_state_->data_.angular_velocity[x] = 0.0;
-  }
+  imu_state_->data_.linear_acceleration[0] = status_data->imu.acceleration_x;
+  imu_state_->data_.linear_acceleration[1] = status_data->imu.acceleration_y;
+  imu_state_->data_.linear_acceleration[2] = status_data->imu.acceleration_z;
+
+  imu_state_->data_.angular_velocity[0] = status_data->imu.gyro_x;
+  imu_state_->data_.angular_velocity[1] = status_data->imu.gyro_y;
+  imu_state_->data_.angular_velocity[2] = status_data->imu.gyro_z;
 
   for (size_t x = 0; x < 9; ++x)
   {
@@ -434,13 +436,13 @@ bool SR06::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   return true;
 }
 
-void SR06::reinitialize_boards()
+void SR09::reinitialize_boards()
 {
   // Reinitialize motors information
   sr_hand_lib->reinitialize_motors();
 }
 
-void SR06::get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id)
+void SR09::get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id)
 {
   // We're using 2 can busses,
   // if motor id is between 0 and 9, then we're using the can_bus 1

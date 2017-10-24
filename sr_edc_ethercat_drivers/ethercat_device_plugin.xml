@@ -24,6 +24,11 @@
       SR08 etherCAT driver (left hand)
     </description>
   </class>
+  <class name="9" type="SR09" base_class_type="EthercatDevice">
+    <description>
+      SR09 etherCAT driver (IMU)
+    </description>
+  </class>
   <class name="16777218" type="SrEdcMuscle" base_class_type="EthercatDevice">
     <description>
       SrEdcMuscle etherCAT driver (right hand)

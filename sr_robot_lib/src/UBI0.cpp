@@ -231,7 +231,7 @@ namespace tactiles
   // Only to ensure that the template class is compiled for the types we are interested in
   template
   class UBI0<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
-
+  
   template
   class UBI0<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
 
