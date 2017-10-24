@@ -149,6 +149,9 @@ namespace generic_updater
   class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
 
   template
+  class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
   class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }  // namespace generic_updater
 

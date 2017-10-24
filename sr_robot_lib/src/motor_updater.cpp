@@ -152,6 +152,9 @@ namespace generic_updater
 
   template
   class MotorUpdater<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
+
+  template
+  class MotorUpdater<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
 }  // namespace generic_updater
 
 
