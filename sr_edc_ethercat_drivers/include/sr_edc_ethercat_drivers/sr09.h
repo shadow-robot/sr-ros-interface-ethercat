@@ -28,6 +28,7 @@
 #define SR_EDC_ETHERCAT_DRIVERS_SR06_H
 
 #include <ros_ethercat_hardware/ethercat_hardware.h>
+#include <ros_ethercat_model/robot_state.hpp>
 #include <sr_edc_ethercat_drivers/sr_edc.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <std_msgs/Int16.h>
@@ -95,6 +96,10 @@ private:
   // counter for the number of empty buffer we're reading.
   unsigned int zero_buffer_read;
 
+  // Robot state interface
+  ros_ethercat_model::RobotState * hw_;
+
+  ros_ethercat_model::ImuState * imu_state_;
   boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> > sr_hand_lib;
 
@@ -117,4 +122,3 @@ End:
 
 
 #endif  // SR_EDC_ETHERCAT_DRIVERS_SR06_H
-
