@@ -82,13 +82,12 @@ typedef struct
     int16u                      tactile_data_valid;                 //!< Bit 0: FF. Bit 4: TH.
     TACTILE_SENSOR_STATUS_v1    tactile[5];                         //
 
-    IMU_DATA                    imu;                                //
+//    IMU_DATA                    imu;                                //
 
     int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
-																    //!< packet, and the next packet arriving. Ideally, this number should be more than 50.
+                                                                    //!< packet, and the next packet arriving. Ideally, this number should be more than 50.
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS;
-
 
 
 //! These are the data sent by the host.

@@ -306,13 +306,13 @@ bool SR09::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
   imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
 
-  imu_state_->data_.linear_acceleration[0] = status_data->imu.acceleration_x;
-  imu_state_->data_.linear_acceleration[1] = status_data->imu.acceleration_y;
-  imu_state_->data_.linear_acceleration[2] = status_data->imu.acceleration_z;
-
-  imu_state_->data_.angular_velocity[0] = status_data->imu.gyro_x;
-  imu_state_->data_.angular_velocity[1] = status_data->imu.gyro_y;
-  imu_state_->data_.angular_velocity[2] = status_data->imu.gyro_z;
+  imu_state_->data_.linear_acceleration[0] = (int16s) status_data->sensors[ACCX];
+  imu_state_->data_.linear_acceleration[1] = (int16s) status_data->sensors[ACCY];
+  imu_state_->data_.linear_acceleration[2] = (int16s) status_data->sensors[ACCZ];
+  
+  imu_state_->data_.angular_velocity[0] = (int16s) status_data->sensors[GYRX];
+  imu_state_->data_.angular_velocity[1] = (int16s) status_data->sensors[GYRY];
+  imu_state_->data_.angular_velocity[2] = (int16s) status_data->sensors[GYRZ];
 
   for (size_t x = 0; x < 9; ++x)
   {
