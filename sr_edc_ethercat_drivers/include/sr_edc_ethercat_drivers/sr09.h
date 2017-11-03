@@ -94,6 +94,8 @@ protected:
 private:
   // std::string                      firmware_file_name;
 
+
+
   // counter for the number of empty buffer we're reading.
   unsigned int zero_buffer_read;
 
@@ -109,6 +111,8 @@ private:
    * count 10 cycles, then reset the cycle_count to 0.
    */
   int16_t cycle_count;
+  // Function to read imu data from edc status into interface
+  void readImu(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS * status);
 
   /// Debug real time publisher: publishes the raw ethercat data
   boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;

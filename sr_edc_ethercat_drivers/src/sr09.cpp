@@ -247,6 +247,9 @@ void SR09::packCommand(unsigned char *buffer, bool halt, bool reset)
   // and ask for the different informations.
   sr_hand_lib->build_command(command);
 
+  command->imu_command.command = 0;
+  command->imu_command.argument = 0;
+
   ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X "
                     "0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
             command->to_motor_data_type,
@@ -272,6 +275,29 @@ void SR09::packCommand(unsigned char *buffer, bool halt, bool reset)
             command->motor_data[19]);
 
   build_CAN_message(message);
+}
+
+/** \brief This funcion reads the ethercat status and fills the imu_state with the relevant values. */
+
+void SR09::readImu(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS * status_data)
+{
+  imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
+  imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
+
+  imu_state_->data_.linear_acceleration[0] = (int16s) status_data->sensors[ACCX];
+  imu_state_->data_.linear_acceleration[1] = (int16s) status_data->sensors[ACCY];
+  imu_state_->data_.linear_acceleration[2] = (int16s) status_data->sensors[ACCZ];
+
+  imu_state_->data_.angular_velocity[0] = (int16s) status_data->sensors[GYRX];
+  imu_state_->data_.angular_velocity[1] = (int16s) status_data->sensors[GYRY];
+  imu_state_->data_.angular_velocity[2] = (int16s) status_data->sensors[GYRZ];
+
+  for (size_t x = 0; x < 9; ++x)
+  {
+    imu_state_->data_.linear_acceleration_covariance[x] = 0.0;
+    imu_state_->data_.angular_velocity_covariance[x] = 0.0;
+    imu_state_->data_.orientation_covariance[x] = 0.0;
+  }
 }
 
 /** \brief This functions receives data from the EtherCAT bus
@@ -303,24 +329,7 @@ bool SR09::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
   ++num_rxed_packets;
 
-  imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
-  imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
-
-  imu_state_->data_.linear_acceleration[0] = (int16s) status_data->sensors[ACCX];
-  imu_state_->data_.linear_acceleration[1] = (int16s) status_data->sensors[ACCY];
-  imu_state_->data_.linear_acceleration[2] = (int16s) status_data->sensors[ACCZ];
-  
-  imu_state_->data_.angular_velocity[0] = (int16s) status_data->sensors[GYRX];
-  imu_state_->data_.angular_velocity[1] = (int16s) status_data->sensors[GYRY];
-  imu_state_->data_.angular_velocity[2] = (int16s) status_data->sensors[GYRZ];
-
-  for (size_t x = 0; x < 9; ++x)
-  {
-    imu_state_->data_.linear_acceleration_covariance[x] = 0.0;
-    imu_state_->data_.angular_velocity_covariance[x] = 0.0;
-    imu_state_->data_.orientation_covariance[x] = 0.0;
-  }
-
+  readImu(status_data);
 
   // publishes the debug information (a slightly formatted version of the incoming ethercat packet):
   if (debug_publisher->trylock())
