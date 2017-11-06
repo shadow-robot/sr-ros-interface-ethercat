@@ -34,6 +34,7 @@
 #include <realtime_tools/realtime_publisher.h>
 #include <std_msgs/Int16.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <sr_robot_msgs/SetImuScale.h>
 #include <sr_robot_msgs/SimpleMotorFlasher.h>
 #include <pthread.h>
 #include <bfd.h>
@@ -94,9 +95,13 @@ protected:
 private:
   // std::string                      firmware_file_name;
 
+  bool imu_scale_callback_(sr_robot_msgs::SetImuScale::Request &request,
+                           sr_robot_msgs::SetImuScale::Response &response, const char *which);
 
+  ros::ServiceServer imu_gyr_scale_server_;
+  ros::ServiceServer imu_acc_scale_server_;
 
-  // counter for the number of empty buffer we're reading.
+  // Counter for the number of empty buffer we're reading.
   unsigned int zero_buffer_read;
 
   // Robot state interface

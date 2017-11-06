@@ -165,8 +165,25 @@ int SR09::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   // Debug real time publisher: publishes the raw ethercat data
   debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(
           new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
+
+  imu_gyr_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
+    "set_imu_gyr_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "gyr"));
+  imu_acc_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
+    "set_imu_acc_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "acc"));
+
+
   return retval;
 }
+
+bool imu_scale_callback_(sr_robot_msgs::SetImuScale::Request & request,
+                         sr_robot_msgs::SetImuScale::Response & response,
+                         const char *which)
+{
+
+  ROS_INFO_STREAM(which);
+  return true;
+}
+
 
 /** \brief This function gives some diagnostics data
  *
@@ -299,6 +316,8 @@ void SR09::readImu(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS * status_data)
     imu_state_->data_.orientation_covariance[x] = 0.0;
   }
 }
+
+
 
 /** \brief This functions receives data from the EtherCAT bus
  *
