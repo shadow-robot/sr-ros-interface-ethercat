@@ -46,14 +46,16 @@
 
 #include "../0220_palm_edc/0220_palm_edc_ethercat_protocol.h"
 
-#define  IMU_NO_COMMAND  0;
-#define  IMU_SET_ACC_FS  1;
-#define  IMU_SET_GYR_FS  2;
+#define  IMU_COMMAND_NONE        0
+#define  IMU_COMMAND_SET_SCALE   1
+
+#define IMU_ACC_BASE_RANGE       0.00006103515 // g/LSB            (-2  ->+2  g over 2^16 LSB)
+#define IMU_GYR_BASE_RANGE       0.00762939453 // degrees/s/LSB    (-250->+250)
 
 typedef struct
 {
   int16u command;
-  int16u argument;
+  int8u  argument[2];
 } IMU_COMMAND_TYPE;
 
 //! These are the data sent from the Palm to the host.

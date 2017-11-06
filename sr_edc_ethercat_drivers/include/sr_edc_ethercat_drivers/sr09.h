@@ -92,11 +92,12 @@ protected:
    */
   virtual void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id);
 
-private:
-  // std::string                      firmware_file_name;
-
   bool imu_scale_callback_(sr_robot_msgs::SetImuScale::Request &request,
                            sr_robot_msgs::SetImuScale::Response &response, const char *which);
+
+
+private:
+  // std::string                      firmware_file_name;
 
   ros::ServiceServer imu_gyr_scale_server_;
   ros::ServiceServer imu_acc_scale_server_;
@@ -111,6 +112,9 @@ private:
   boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND> > sr_hand_lib;
 
+  int8u imu_scale_gyr_;
+  int8u imu_scale_acc_;
+  bool imu_scale_change_;
   /**
    *a counter used to publish the tactiles at 100Hz:
    * count 10 cycles, then reset the cycle_count to 0.

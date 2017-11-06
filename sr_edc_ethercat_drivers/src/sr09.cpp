@@ -78,7 +78,8 @@ PLUGINLIB_EXPORT_CLASS(SR09, EthercatDevice);
  */
 SR09::SR09()
         : zero_buffer_read(0),
-          cycle_count(0)
+          cycle_count(0),
+          imu_scale_change_(false)
 {
   /*
     ROS_INFO("There are %d sensors", nb_sensors_const);
@@ -167,21 +168,41 @@ int SR09::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
           new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
 
   imu_gyr_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
-    "set_imu_gyr_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "gyr"));
+    "/rh_imu/set_gyr_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "gyr"));
   imu_acc_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
-    "set_imu_acc_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "acc"));
+    "/rh_imu/set_acc_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "acc"));
 
+  imu_scale_acc_ = 0;  // TODO(@dg): get from parameter.
+  imu_scale_gyr_ = 0;
+  imu_scale_change_ = true;
 
   return retval;
 }
 
-bool imu_scale_callback_(sr_robot_msgs::SetImuScale::Request & request,
+bool SR09::imu_scale_callback_(sr_robot_msgs::SetImuScale::Request & request,
                          sr_robot_msgs::SetImuScale::Response & response,
                          const char *which)
 {
 
-  ROS_INFO_STREAM(which);
-  return true;
+  if (request.scale == 0 || request.scale == 1 || request.scale == 2)
+  {
+    if (which == "acc")
+    {
+      imu_scale_acc_ = request.scale;
+    }
+    else if (which == "gyr")
+    {
+      imu_scale_gyr_ = request.scale;
+    }
+
+    imu_scale_change_= true;
+    return true;
+  }
+  else
+  {
+    ROS_WARN_STREAM("Tried to set illegal value: " << (int) request.scale);
+    return false;
+  }
 }
 
 
@@ -260,12 +281,22 @@ void SR09::packCommand(unsigned char *buffer, bool halt, bool reset)
     command->EDC_command = EDC_COMMAND_CAN_DIRECT_MODE;
   }
 
+  if (imu_scale_change_)
+  {
+    command->imu_command.command = IMU_COMMAND_SET_SCALE;
+    command->imu_command.argument[0] = imu_scale_acc_;
+    command->imu_command.argument[1] = imu_scale_gyr_;
+    imu_scale_change_ = false;
+  }
+  else
+  {
+    command->imu_command.command = IMU_COMMAND_NONE;
+  }
+
   // alternate between even and uneven motors
   // and ask for the different informations.
   sr_hand_lib->build_command(command);
 
-  command->imu_command.command = 0;
-  command->imu_command.argument = 0;
 
   ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X "
                     "0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",
@@ -301,13 +332,19 @@ void SR09::readImu(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS * status_data)
   imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
   imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
 
-  imu_state_->data_.linear_acceleration[0] = (int16s) status_data->sensors[ACCX];
-  imu_state_->data_.linear_acceleration[1] = (int16s) status_data->sensors[ACCY];
-  imu_state_->data_.linear_acceleration[2] = (int16s) status_data->sensors[ACCZ];
+  imu_state_->data_.linear_acceleration[0] = (((int32s) ((int16s) status_data->sensors[ACCX])) << imu_scale_acc_);
+  imu_state_->data_.linear_acceleration[1] = (((int32s) ((int16s) status_data->sensors[ACCY])) << imu_scale_acc_);
+  imu_state_->data_.linear_acceleration[2] = (((int32s) ((int16s) status_data->sensors[ACCZ])) << imu_scale_acc_);
+  imu_state_->data_.linear_acceleration[0] *= IMU_ACC_BASE_RANGE;
+  imu_state_->data_.linear_acceleration[1] *= IMU_ACC_BASE_RANGE;
+  imu_state_->data_.linear_acceleration[2] *= IMU_ACC_BASE_RANGE;
 
-  imu_state_->data_.angular_velocity[0] = (int16s) status_data->sensors[GYRX];
-  imu_state_->data_.angular_velocity[1] = (int16s) status_data->sensors[GYRY];
-  imu_state_->data_.angular_velocity[2] = (int16s) status_data->sensors[GYRZ];
+  imu_state_->data_.angular_velocity[0] = (((int32s) ((int16s) status_data->sensors[GYRX])) << imu_scale_gyr_);
+  imu_state_->data_.angular_velocity[1] = (((int32s) ((int16s) status_data->sensors[GYRY])) << imu_scale_gyr_);
+  imu_state_->data_.angular_velocity[2] = (((int32s) ((int16s) status_data->sensors[GYRZ])) << imu_scale_gyr_);
+  imu_state_->data_.angular_velocity[0] *= IMU_GYR_BASE_RANGE;
+  imu_state_->data_.angular_velocity[1] *= IMU_GYR_BASE_RANGE;
+  imu_state_->data_.angular_velocity[2] *= IMU_GYR_BASE_RANGE;
 
   for (size_t x = 0; x < 9; ++x)
   {
