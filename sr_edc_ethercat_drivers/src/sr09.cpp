@@ -145,9 +145,8 @@ int SR09::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   {
     return retval;
   }
-
   hw_ = static_cast<ros_ethercat_model::RobotState *> (hw);
-  imu_state_ = hw_->getImuState("rh_imu");
+
   sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND> >(
           new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
@@ -167,13 +166,18 @@ int SR09::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(
           new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
 
-  imu_gyr_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
-    "/rh_imu/set_gyr_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "gyr"));
-  imu_acc_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
-    "/rh_imu/set_acc_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "acc"));
 
-  imu_scale_acc_ = 0;  // TODO(@dg): get from parameter.
-  imu_scale_gyr_ = 0;
+  std::string imu_name = device_joint_prefix_ + "imu";
+  imu_state_ = hw_->getImuState(imu_name);
+
+  imu_gyr_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
+    "/" + imu_name + "/set_gyr_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "gyr"));
+  imu_acc_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
+    "/" + imu_name + "/set_acc_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "acc"));
+
+  ros::param::param<int>("/" + imu_name + "/acc_scale", imu_scale_acc_, 0);
+  ros::param::param<int>("/" + imu_name + "/gyr_scale", imu_scale_gyr_, 0);
+
   imu_scale_change_ = true;
 
   return retval;

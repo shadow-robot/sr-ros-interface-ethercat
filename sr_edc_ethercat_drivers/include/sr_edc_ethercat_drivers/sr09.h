@@ -112,8 +112,8 @@ private:
   boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND> > sr_hand_lib;
 
-  int8u imu_scale_gyr_;
-  int8u imu_scale_acc_;
+  int imu_scale_gyr_;
+  int imu_scale_acc_;
   bool imu_scale_change_;
   /**
    *a counter used to publish the tactiles at 100Hz:
