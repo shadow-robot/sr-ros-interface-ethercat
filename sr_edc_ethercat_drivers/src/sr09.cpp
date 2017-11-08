@@ -170,10 +170,12 @@ int SR09::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   std::string imu_name = device_joint_prefix_ + "imu";
   imu_state_ = hw_->getImuState(imu_name);
 
-  imu_gyr_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
-    "/" + imu_name + "/set_gyr_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "gyr"));
-  imu_acc_scale_server_ =  nodehandle_.advertiseService<sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>(
-    "/" + imu_name + "/set_acc_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "acc"));
+  imu_gyr_scale_server_ =  nodehandle_.advertiseService
+    <sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>
+    ("/" + imu_name + "/set_gyr_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "gyr"));
+  imu_acc_scale_server_ =  nodehandle_.advertiseService
+    <sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>
+    ("/" + imu_name + "/set_acc_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "acc"));
 
   ros::param::param<int>("/" + imu_name + "/acc_scale", imu_scale_acc_, 0);
   ros::param::param<int>("/" + imu_name + "/gyr_scale", imu_scale_gyr_, 0);
@@ -187,7 +189,6 @@ bool SR09::imu_scale_callback_(sr_robot_msgs::SetImuScale::Request & request,
                          sr_robot_msgs::SetImuScale::Response & response,
                          const char *which)
 {
-
   if (request.scale == 0 || request.scale == 1 || request.scale == 2)
   {
     if (which == "acc")
@@ -199,7 +200,7 @@ bool SR09::imu_scale_callback_(sr_robot_msgs::SetImuScale::Request & request,
       imu_scale_gyr_ = request.scale;
     }
 
-    imu_scale_change_= true;
+    imu_scale_change_ = true;
     return true;
   }
   else
