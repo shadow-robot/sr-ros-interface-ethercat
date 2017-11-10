@@ -49,9 +49,6 @@
 #define  IMU_COMMAND_NONE        0
 #define  IMU_COMMAND_SET_SCALE   1
 
-#define IMU_ACC_BASE_RANGE       0.00006103515 *  9.80665  //  ms-2/LSB
-#define IMU_GYR_BASE_RANGE       0.00762939453  / 57.2958  // rad/s/LSB
-
 typedef struct
 {
   int16u command;

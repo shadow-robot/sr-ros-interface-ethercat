@@ -337,19 +337,16 @@ void SR09::readImu(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS * status_data)
   imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
   imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
 
-  imu_state_->data_.linear_acceleration[0] = (((int32s) ((int16s) status_data->sensors[ACCX])) << imu_scale_acc_);
-  imu_state_->data_.linear_acceleration[1] = (((int32s) ((int16s) status_data->sensors[ACCY])) << imu_scale_acc_);
-  imu_state_->data_.linear_acceleration[2] = (((int32s) ((int16s) status_data->sensors[ACCZ])) << imu_scale_acc_);
-  imu_state_->data_.linear_acceleration[0] *= IMU_ACC_BASE_RANGE;
-  imu_state_->data_.linear_acceleration[1] *= IMU_ACC_BASE_RANGE;
-  imu_state_->data_.linear_acceleration[2] *= IMU_ACC_BASE_RANGE;
+  double acc_multiplier = 1 << imu_scale_acc_;
+  double gyr_multiplier = 1 << imu_scale_gyr_;
 
-  imu_state_->data_.angular_velocity[0] = (((int32s) ((int16s) status_data->sensors[GYRX])) << imu_scale_gyr_);
-  imu_state_->data_.angular_velocity[1] = (((int32s) ((int16s) status_data->sensors[GYRY])) << imu_scale_gyr_);
-  imu_state_->data_.angular_velocity[2] = (((int32s) ((int16s) status_data->sensors[GYRZ])) << imu_scale_gyr_);
-  imu_state_->data_.angular_velocity[0] *= IMU_GYR_BASE_RANGE;
-  imu_state_->data_.angular_velocity[1] *= IMU_GYR_BASE_RANGE;
-  imu_state_->data_.angular_velocity[2] *= IMU_GYR_BASE_RANGE;
+  imu_state_->data_.linear_acceleration[0] = acc_multiplier * (int16s) status_data->sensors[ACCX];
+  imu_state_->data_.linear_acceleration[1] = acc_multiplier * (int16s) status_data->sensors[ACCY];
+  imu_state_->data_.linear_acceleration[2] = acc_multiplier * (int16s) status_data->sensors[ACCZ];
+
+  imu_state_->data_.angular_velocity[0] = gyr_multiplier * (int16s) status_data->sensors[GYRX];
+  imu_state_->data_.angular_velocity[1] = gyr_multiplier * (int16s) status_data->sensors[GYRY];
+  imu_state_->data_.angular_velocity[2] = gyr_multiplier * (int16s) status_data->sensors[GYRZ];
 
   for (size_t x = 0; x < 9; ++x)
   {
