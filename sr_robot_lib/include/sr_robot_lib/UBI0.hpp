@@ -187,7 +187,7 @@ public:
   {
   };
 };  // end class
-  
+
 }  // namespace tactiles
 
 /* For the emacs weenies in the crowd.
