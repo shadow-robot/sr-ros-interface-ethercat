@@ -2,9 +2,9 @@
  * @file   sr09.cpp
  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
  *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
- * @date   Mon May 23 13:33:30 2011
+ * @date   Friday Nov 17 17:14 2017
  *
- * Copyright 2011 Shadow Robot Company Ltd.
+ * Copyright 2017 Shadow Robot Company Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -340,13 +340,13 @@ void SR09::readImu(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS * status_data)
   double acc_multiplier = 1 << imu_scale_acc_;
   double gyr_multiplier = 1 << imu_scale_gyr_;
 
-  imu_state_->data_.linear_acceleration[0] = acc_multiplier * (int16s) status_data->sensors[ACCX];
-  imu_state_->data_.linear_acceleration[1] = acc_multiplier * (int16s) status_data->sensors[ACCY];
-  imu_state_->data_.linear_acceleration[2] = acc_multiplier * (int16s) status_data->sensors[ACCZ];
+  imu_state_->data_.linear_acceleration[0] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCX]);
+  imu_state_->data_.linear_acceleration[1] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCY]);
+  imu_state_->data_.linear_acceleration[2] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCZ]);
 
-  imu_state_->data_.angular_velocity[0] = gyr_multiplier * (int16s) status_data->sensors[GYRX];
-  imu_state_->data_.angular_velocity[1] = gyr_multiplier * (int16s) status_data->sensors[GYRY];
-  imu_state_->data_.angular_velocity[2] = gyr_multiplier * (int16s) status_data->sensors[GYRZ];
+  imu_state_->data_.angular_velocity[0] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRX]);
+  imu_state_->data_.angular_velocity[1] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRY]);
+  imu_state_->data_.angular_velocity[2] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRZ]);
 
   for (size_t x = 0; x < 9; ++x)
   {
