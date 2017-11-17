@@ -93,6 +93,9 @@ namespace generic_updater
   class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND>;
 
   template
+  class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
   class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
 }  // end namespace generic_updater
 
