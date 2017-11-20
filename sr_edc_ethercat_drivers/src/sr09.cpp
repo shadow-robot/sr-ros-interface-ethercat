@@ -340,14 +340,29 @@ void SR09::readImu(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS * status_data)
   double acc_multiplier = 1 << imu_scale_acc_;
   double gyr_multiplier = 1 << imu_scale_gyr_;
 
-  imu_state_->data_.linear_acceleration[0] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCX]);
-  imu_state_->data_.linear_acceleration[1] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCY]);
-  imu_state_->data_.linear_acceleration[2] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCZ]);
+  int zero_catch = 0;
 
-  imu_state_->data_.angular_velocity[0] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRX]);
-  imu_state_->data_.angular_velocity[1] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRY]);
-  imu_state_->data_.angular_velocity[2] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRZ]);
+  for (size_t x = 0; x < 2; ++x)
+  {
+    if (status_data->sensors[ACCX + 0] == 0)
+    {
+      ++zero_catch;
+    }
+    if (status_data->sensors[GYRX + 0] == 0)
+    {
+      ++zero_catch;
+    }
+  }
+  if (zero_catch <= 1)
+  {
+    imu_state_->data_.linear_acceleration[0] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCX]);
+    imu_state_->data_.linear_acceleration[1] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCY]);
+    imu_state_->data_.linear_acceleration[2] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCZ]);
 
+    imu_state_->data_.angular_velocity[0] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRX]);
+    imu_state_->data_.angular_velocity[1] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRY]);
+    imu_state_->data_.angular_velocity[2] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRZ]);
+  }
   for (size_t x = 0; x < 9; ++x)
   {
     imu_state_->data_.linear_acceleration_covariance[x] = 0.0;
