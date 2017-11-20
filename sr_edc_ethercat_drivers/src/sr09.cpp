@@ -339,9 +339,9 @@ void SR09::readImu(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS * status_data)
 
   double acc_multiplier = 1 << imu_scale_acc_;
   double gyr_multiplier = 1 << imu_scale_gyr_;
- 
+
   int zero_catch = 0;
-  
+
   for (size_t x = 0; x < 2; ++x)
   {
     if (status_data->sensors[ACCX + 0] == 0)
