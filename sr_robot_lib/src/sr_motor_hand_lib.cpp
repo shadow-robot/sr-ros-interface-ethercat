@@ -58,18 +58,21 @@ namespace shadow_robot
 
   template<class StatusType, class CommandType>
   const char *SrMotorHandLib<StatusType,
-          CommandType>::human_readable_motor_data_types[nb_motor_data] = {"sgl", "sgr",
-                                                                          "pwm", "flags",
-                                                                          "current",
-                                                                          "voltage",
-                                                                          "temperature",
-                                                                          "can_num_received",
-                                                                          "can_num_transmitted",
-                                                                          "slow_data",
-                                                                          "can_error_counters",
-                                                                          "pterm",
-                                                                          "iterm",
-                                                                          "dterm"};
+          CommandType>::human_readable_motor_data_types[nb_motor_data] =
+          {
+            "sgl", "sgr",
+            "pwm", "flags",
+            "current",
+            "voltage",
+            "temperature",
+            "can_num_received",
+            "can_num_transmitted",
+            "slow_data",
+            "can_error_counters",
+            "pterm",
+            "iterm",
+            "dterm"
+          };
 
   template<class StatusType, class CommandType>
   const int32u SrMotorHandLib<StatusType,
