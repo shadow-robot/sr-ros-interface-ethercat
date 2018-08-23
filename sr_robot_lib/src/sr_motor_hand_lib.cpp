@@ -74,22 +74,24 @@ namespace shadow_robot
             "dterm"
           };
 
-  template<class StatusType, class CommandType>
-  const int32u SrMotorHandLib<StatusType,
-          CommandType>::motor_data_types[nb_motor_data] = {MOTOR_DATA_SGL,
-                                                           MOTOR_DATA_SGR,
-                                                           MOTOR_DATA_PWM,
-                                                           MOTOR_DATA_FLAGS,
-                                                           MOTOR_DATA_CURRENT,
-                                                           MOTOR_DATA_VOLTAGE,
-                                                           MOTOR_DATA_TEMPERATURE,
-                                                           MOTOR_DATA_CAN_NUM_RECEIVED,
-                                                           MOTOR_DATA_CAN_NUM_TRANSMITTED,
-                                                           MOTOR_DATA_SLOW_MISC,
-                                                           MOTOR_DATA_CAN_ERROR_COUNTERS,
-                                                           MOTOR_DATA_PTERM,
-                                                           MOTOR_DATA_ITERM,
-                                                           MOTOR_DATA_DTERM};
+  template <class StatusType, class CommandType>
+  const int32u SrMotorHandLib<StatusType, CommandType>::motor_data_types[nb_motor_data] =
+  {
+    MOTOR_DATA_SGL,
+    MOTOR_DATA_SGR,
+    MOTOR_DATA_PWM,
+    MOTOR_DATA_FLAGS,
+    MOTOR_DATA_CURRENT,
+    MOTOR_DATA_VOLTAGE,
+    MOTOR_DATA_TEMPERATURE,
+    MOTOR_DATA_CAN_NUM_RECEIVED,
+    MOTOR_DATA_CAN_NUM_TRANSMITTED,
+    MOTOR_DATA_SLOW_MISC,
+    MOTOR_DATA_CAN_ERROR_COUNTERS,
+    MOTOR_DATA_PTERM,
+    MOTOR_DATA_ITERM,
+    MOTOR_DATA_DTERM
+  };
 
   template<class StatusType, class CommandType>
   SrMotorHandLib<StatusType, CommandType>::SrMotorHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh,
