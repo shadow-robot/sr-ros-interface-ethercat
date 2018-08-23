@@ -68,9 +68,12 @@ namespace shadow_robot
   };
 
   template<class StatusType, class CommandType>
-  const int32u SrMuscleHandLib<StatusType, CommandType>::muscle_data_types[nb_muscle_data] = {MUSCLE_DATA_PRESSURE,
-                                                                                              MUSCLE_DATA_CAN_STATS,
-                                                                                              MUSCLE_DATA_SLOW_MISC};
+  const int32u SrMuscleHandLib<StatusType, CommandType>::muscle_data_types[nb_muscle_data] =
+  {
+    MUSCLE_DATA_PRESSURE,
+    MUSCLE_DATA_CAN_STATS,
+    MUSCLE_DATA_SLOW_MISC
+  };
 
   template<class StatusType, class CommandType>
   SrMuscleHandLib<StatusType, CommandType>::SrMuscleHandLib(hardware_interface::HardwareInterface *hw,

@@ -48,7 +48,7 @@ public:
      * This array of joints could also be guessed either using the controller
      * or listening to the joint_states topic.
      */
-    static const std::string joints[20] = 
+    static const std::string joints[20] =
     {
       "ffj0", "ffj3", "ffj4",
       "mfj0", "mfj3", "mfj4",
