@@ -81,7 +81,8 @@ namespace shadow_robot
   const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 37;
 
   template <class StatusType, class CommandType>
-  const char* SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] = {
+  const char *SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] =
+      {
           "TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ",
           "TACTILE_SENSOR_TYPE_MANUFACTURER",
           "TACTILE_SENSOR_TYPE_SERIAL_NUMBER",
@@ -118,10 +119,12 @@ namespace shadow_robot
           "TACTILE_SENSOR_TYPE_BIOTAC_PDC",
           "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
           "TACTILE_SENSOR_TYPE_BIOTAC_TDC",
-          "TACTILE_SENSOR_TYPE_UBI0_TACTILE"};
+          "TACTILE_SENSOR_TYPE_UBI0_TACTILE"
+        };
 
   template <class StatusType, class CommandType>
-  const int32u SrRobotLib<StatusType, CommandType>::sensor_data_types[nb_sensor_data] = {
+  const int32u SrRobotLib<StatusType, CommandType>::sensor_data_types[nb_sensor_data] =
+  {
           TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ,
           TACTILE_SENSOR_TYPE_MANUFACTURER,
           TACTILE_SENSOR_TYPE_SERIAL_NUMBER,
@@ -158,7 +161,8 @@ namespace shadow_robot
           TACTILE_SENSOR_TYPE_BIOTAC_PDC,
           TACTILE_SENSOR_TYPE_BIOTAC_TAC,
           TACTILE_SENSOR_TYPE_BIOTAC_TDC,
-          TACTILE_SENSOR_TYPE_UBI0_TACTILE};
+          TACTILE_SENSOR_TYPE_UBI0_TACTILE
+    };
 
   template<class StatusType, class CommandType>
   const double SrRobotLib<StatusType, CommandType>::tactile_timeout = 10.0;

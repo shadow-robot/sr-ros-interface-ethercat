@@ -48,12 +48,15 @@ public:
      * This array of joints could also be guessed either using the controller
      * or listening to the joint_states topic.
      */
-    static const std::string joints[20] = {"ffj0", "ffj3", "ffj4",
-                                           "mfj0", "mfj3", "mfj4",
-                                           "rfj0", "rfj3", "rfj4",
-                                           "lfj0", "lfj3", "lfj4", "lfj5",
-                                           "thj1", "thj2", "thj3", "thj4", "thj5",
-                                           "wrj1", "wrj2"};
+    static const std::string joints[20] =
+    {
+      "ffj0", "ffj3", "ffj4",
+      "mfj0", "mfj3", "mfj4",
+      "rfj0", "rfj3", "rfj4",
+      "lfj0", "lfj3", "lfj4", "lfj5",
+      "thj1", "thj2", "thj3", "thj4", "thj5",
+      "wrj1", "wrj2"
+    };
 
     static const std::string prefix = "/sh_";
     static const std::string suffix = "_position_controller/command";
