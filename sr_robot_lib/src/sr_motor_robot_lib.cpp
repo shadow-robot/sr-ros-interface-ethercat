@@ -1249,7 +1249,7 @@ namespace shadow_robot
           {
             continue;
           }
-          if (controllers_list.response.controller[i].name.find("imu_sensor_controller") != std::string::npos)
+          if (controllers_list.response.controller[i].name.find("imu_controller") != std::string::npos)
           {
             continue;
           }
