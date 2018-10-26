@@ -1233,34 +1233,17 @@ namespace shadow_robot
       {
         for (unsigned int i = 0; i < controllers_list.response.controller.size(); ++i)
         {
-          if (controllers_list.response.controller[i].name.compare("joint_state_controller") == 0)
+          if (ros::service::exists(controllers_list.response.controller[i].name + "/reset_gains", false))
           {
-            continue;
-          }
-          if (controllers_list.response.controller[i].name.find("trajectory_controller") != std::string::npos)
-          {
-            continue;
-          }
-          if (controllers_list.response.controller[i].name.find("sr_ur_controller") != std::string::npos)
-          {
-            continue;
-          }
-          if (controllers_list.response.controller[i].name.find("tactile_sensor_controller") != std::string::npos)
-          {
-            continue;
-          }
-          if (controllers_list.response.controller[i].name.find("imu_sensor_controller") != std::string::npos)
-          {
-            continue;
-          }
-
-          ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(
-                  controllers_list.response.controller[i].name + "/reset_gains");
-          std_srvs::Empty empty_message;
-          if (!reset_gains_client.call(empty_message))
-          {
-            ROS_ERROR_STREAM("Failed to reset gains for controller: " << controllers_list.response.controller[i].name);
-            return false;
+            ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(
+              controllers_list.response.controller[i].name + "/reset_gains");
+            std_srvs::Empty empty_message;
+            if (!reset_gains_client.call(empty_message))
+            {
+              ROS_ERROR_STREAM(
+                "Failed to reset gains for controller: " << controllers_list.response.controller[i].name);
+              return false;
+            }
           }
         }
       }
