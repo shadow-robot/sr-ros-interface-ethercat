@@ -1233,8 +1233,10 @@ namespace shadow_robot
       {
         for (unsigned int i = 0; i < controllers_list.response.controller.size(); ++i)
         {
-          if ros::service::exists(controllers_list.response.controller[i].name + "/reset_gains")
+          if (ros::service::exists(controllers_list.response.controller[i].name + "/reset_gains"))
           {
+            ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(
+              controllers_list.response.controller[i].name + "/reset_gains");
             std_srvs::Empty empty_message;
             if (!reset_gains_client.call(empty_message))
             {
