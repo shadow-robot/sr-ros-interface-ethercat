@@ -1240,7 +1240,8 @@ namespace shadow_robot
             std_srvs::Empty empty_message;
             if (!reset_gains_client.call(empty_message))
             {
-              ROS_ERROR_STREAM("Failed to reset gains for controller: " << controllers_list.response.controller[i].name);
+              ROS_ERROR_STREAM(
+                "Failed to reset gains for controller: " << controllers_list.response.controller[i].name);
               return false;
             }
           }
