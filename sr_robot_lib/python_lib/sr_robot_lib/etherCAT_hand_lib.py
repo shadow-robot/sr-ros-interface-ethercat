@@ -174,7 +174,10 @@ class EtherCAT_Hand_Lib(object):
                                       pid_parameters["sign"])
 
     def debug_callback(self, msg):
-        self.raw_values = msg.sensors
+        if not(all(v == 0 for v in msg.sensors)):
+            self.raw_values = msg.sensors
+        else:
+            rospy.logerr("ZERO VALUE!!!!!") # this line will be removed after show and tell
 
     def joint_state_callback(self, msg):
         for name, pos, vel, effort in \
@@ -213,11 +216,8 @@ class EtherCAT_Hand_Lib(object):
         """
         tmp_raw_values = []
         for i in range(0, number_of_samples):
-            if self.get_raw_value(sensor_name) is not 0:
-                tmp_raw_values.append(self.get_raw_value(sensor_name))
-                time.sleep(0.002)
-            else:
-                rospy.logerr("ZERO VALUE!!!!!") # this line will be removed after show and tell
+            tmp_raw_values.append(self.get_raw_value(sensor_name))
+            time.sleep(0.002)
 
         average = float(sum(tmp_raw_values)) / len(tmp_raw_values)
         return average
