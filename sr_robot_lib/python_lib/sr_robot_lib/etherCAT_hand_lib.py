@@ -176,8 +176,6 @@ class EtherCAT_Hand_Lib(object):
     def debug_callback(self, msg):
         if not(all(v == 0 for v in msg.sensors)):
             self.raw_values = msg.sensors
-        else:
-            rospy.logerr("ZERO VALUE!!!!!") # this line will be removed after show and tell
 
     def joint_state_callback(self, msg):
         for name, pos, vel, effort in \
