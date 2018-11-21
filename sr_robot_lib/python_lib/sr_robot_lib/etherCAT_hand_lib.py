@@ -174,7 +174,8 @@ class EtherCAT_Hand_Lib(object):
                                       pid_parameters["sign"])
 
     def debug_callback(self, msg):
-        self.raw_values = msg.sensors
+        if not(all(v == 0 for v in msg.sensors)):
+            self.raw_values = msg.sensors
 
     def joint_state_callback(self, msg):
         for name, pos, vel, effort in \
