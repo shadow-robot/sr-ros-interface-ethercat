@@ -57,6 +57,7 @@
 #include "sr_robot_lib/generic_tactiles.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
+#include "sr_robot_lib/pwl_interp_2d_scattered.hpp"
 
 extern "C"
 {
@@ -333,6 +334,98 @@ public:
 
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
+
+  int element_neighbor[3*2*25];
+  int element_num;
+  int element_order = 3;
+  int ni = 1;
+  int node_num = 25;
+  //raw J1, raw J2
+  double node_xy[2*25] = {
+    2738, 2301,
+    2693, 2154,
+    2680, 1978,
+    2677, 1840,
+    2664, 1707,
+    2334, 2287,
+    2242, 2095,
+    2230, 1953,
+    2223, 1807,
+    2206, 1685,
+    1839, 2243,
+    1772, 2112,
+    1764, 1928,
+    1755, 1762,
+    1683, 1650,
+    1387, 2219,
+    1375, 2056,
+    1370, 1884,
+    1337, 1741,
+    1329, 1630,
+    1141, 2206,
+    1132, 2055,
+    1114, 1877,
+    1103, 1730,
+    1092, 1615
+    };
+  int triangle[3*2*25];
+  //Sample coordinates
+  double xyi[2*1];
+  double zd_thj1[25] = {
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    22.5,
+    22.5,
+    22.5,
+    22.5,
+    22.5,
+    45.0,
+    45.0,
+    45.0,
+    45.0,
+    45.0,
+    67.5,
+    67.5,
+    67.5,
+    67.5,
+    67.5,
+    90.0,
+    90.0,
+    90.0,
+    90.0,
+    90.0
+  };
+  double zd_thj2[25] = {
+    40.0,
+    20.0,
+    0.0,
+    -20.0,
+    -40.0,
+    40.0,
+    20.0,
+    0.0,
+    -20.0,
+    -40.0,
+    40.0,
+    20.0,
+    0.0,
+    -20.0,
+    -40.0,
+    40.0,
+    20.0,
+    0.0,
+    -20.0,
+    -40.0,
+    40.0,
+    20.0,
+    0.0,
+    -20.0,
+    -40.0
+  };
+  double *zi;
 };  // end class
 }  // namespace shadow_robot
 

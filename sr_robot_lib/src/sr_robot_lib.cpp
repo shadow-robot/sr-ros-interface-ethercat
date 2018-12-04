@@ -227,6 +227,23 @@ namespace shadow_robot
             // initialize the calibration map
             calibration_map(read_joint_calibration())
   {
+    //
+    //  Set up the Delaunay triangulation.
+    //
+      r8tris2 ( node_num, node_xy, element_num, triangle, element_neighbor );
+
+      for ( int j = 0; j < element_num; j++ )
+      {
+        for ( int i = 0; i < 3; i++ )
+        {
+          if ( 0 < element_neighbor[i+j*3] )
+          {
+            element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
+          }
+        }
+      }
+
+      triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
   }
 
   template<class StatusType, class CommandType>

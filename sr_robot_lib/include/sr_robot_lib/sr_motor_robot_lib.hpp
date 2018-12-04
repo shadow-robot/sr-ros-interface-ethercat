@@ -270,6 +270,9 @@ protected:
    */
   bool motor_system_controls_callback_(sr_robot_msgs::ChangeMotorSystemControls::Request &request,
                                        sr_robot_msgs::ChangeMotorSystemControls::Response &response);
+
+
+  int find_joint_by_name(string joint_name);
 };  // end class
 }  // namespace shadow_robot
 
