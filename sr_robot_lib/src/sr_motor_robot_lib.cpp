@@ -976,7 +976,7 @@ namespace shadow_robot
           this->zi = pwl_interp_2d_scattered_value (this->node_num, this->node_xy, this->zd_thj1, this->element_num,
                                                     this->triangle, this->element_neighbor, this->ni, this->xyi);
           tmp_cal_value = this->zi[0];
-          ROS_INFO("THJ1: %f THJ2: %f Interpolated THJ1: %f", this->xyi[0], this->xyi[1], tmp_cal_value);
+          // ROS_INFO("THJ1: %f THJ2: %f Interpolated THJ1: %f", this->xyi[0], this->xyi[1], tmp_cal_value);
           delete [] this->zi;
         }
         else if (joint_tmp->joint_name.find("THJ2")!= std::string::npos)
@@ -987,7 +987,7 @@ namespace shadow_robot
           this->zi = pwl_interp_2d_scattered_value (this->node_num, this->node_xy, this->zd_thj2, this->element_num,
                                                     this->triangle, this->element_neighbor, this->ni, this->xyi);
           tmp_cal_value = this->zi[0];
-          ROS_INFO("THJ1: %f THJ2: %f Interpolated THJ2: %f", this->xyi[0], this->xyi[1], tmp_cal_value);
+          // ROS_INFO("THJ1: %f THJ2: %f Interpolated THJ2: %f", this->xyi[0], this->xyi[1], tmp_cal_value);
           delete [] this->zi;
         }
         else
