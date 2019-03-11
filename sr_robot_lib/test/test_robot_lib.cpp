@@ -61,9 +61,9 @@ public:
 
   HandLibTest()
   {
-    TiXmlElement *root;
-    TiXmlElement *root_element;
-    TiXmlDocument xml;
+    tinyxml2::XMLElement *root;
+    tinyxml2::XMLElement *root_element;
+    tinyxml2::XMLDocument xml;
     std::string robot_description;
     if (ros::param::get("/robot_description", robot_description))
     {
