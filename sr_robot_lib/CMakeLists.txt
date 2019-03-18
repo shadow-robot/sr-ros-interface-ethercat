@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
         sr_external_dependencies
         sr_robot_msgs
         std_srvs
+        cmake_modules
         diagnostic_updater
         realtime_tools
         controller_manager_msgs
@@ -17,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
         rostest
 )
 find_package(Boost REQUIRED COMPONENTS thread)
+find_package(TinyXML2 REQUIRED)
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
@@ -48,6 +50,7 @@ catkin_package(
         rospy
         INCLUDE_DIRS include
         LIBRARIES sr_hand_lib
+        DEPENDS tinyxml2
 )
 
 add_library(sr_hand_lib
@@ -82,8 +85,9 @@ IF (DEFINED jenkins)
 ENDIF (DEFINED jenkins)
 
 if (COMMAND add_rostest_gtest)
+    include_directories(${TinyXML2_INCLUDE_DIRS})
     add_rostest_gtest(test_robot_lib test/sr_hand_lib.test test/test_robot_lib.cpp)
-    target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+    target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${TinyXML2_LIBRARIES} ${GTEST_LIBRARIES})
 
     add_rostest_gtest(motor_updater_test test/motor_updater.test test/motor_updater_test.cpp)
     target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
