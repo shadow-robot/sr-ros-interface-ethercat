@@ -81,6 +81,7 @@ public:
 
     ros::Time start = ros::Time::now();
     ros::Duration time_spent(0.0);
+    ros::Rate r(1000);
 
     while (time_spent.toSec() < 7.2)
     {
@@ -107,7 +108,6 @@ public:
         }
       }
 
-
       if (fabs(time_spent.toSec() - (static_cast<double>(static_cast<int>(time_spent.toSec())))) < tolerancy)
       {
         if (command->from_motor_data_type == MOTOR_DATA_CAN_NUM_RECEIVED)
@@ -116,7 +116,7 @@ public:
           can_num_transmitted_counter++;
         }
       }
-      usleep(1000);
+      r.sleep();
     }
 
     UpdaterResult updater_result;
