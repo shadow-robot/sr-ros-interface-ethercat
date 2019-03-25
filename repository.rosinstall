@@ -10,5 +10,5 @@
 
 - git:
     uri: https://github.com/shadow-robot/ros_ethercat.git
-    version: 'kinetic-devel'
+    version: 'melodic-devel'
     local-name: ros_ethercat
