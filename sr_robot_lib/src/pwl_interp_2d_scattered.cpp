@@ -2166,3 +2166,9 @@ void vbedg ( double x, double y, int node_num, double node_xy[],
 
   return;
 }
+
+// void filter_edge_triangles_by_min_angle  ( int node_num, double node_xy[], int &triangle_num,
+//   int triangle_node[], int triangle_neighbor[] )
+// {
+  
+// }
