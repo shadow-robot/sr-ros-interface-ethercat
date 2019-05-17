@@ -275,7 +275,7 @@ int main(int argc, char** argv)
   log_z << "z = [";
   t1 = high_resolution_clock::now();
   // the power used in the distance weighting
-  double p = 8.0;
+  double p = 4.0;
 
   for(int i=0; i<nb_samples; i++)
   {
