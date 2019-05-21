@@ -28,3 +28,11 @@ void triangulation_search_delaunay ( int node_num, double node_xy[],
 void vbedg ( double x, double y, int node_num, double node_xy[],
   int triangle_num, int triangle_node[], int triangle_neighbor[],
   int &ltri, int &ledg, int &rtri, int &redg );
+void re_index_triangles ( int deleted_triangle_index, int &triangle_num,
+  int triangle_node[], int triangle_neighbor[] );
+void remove_exterior_triangle ( int triangle_index, int &triangle_num,
+  int triangle_node[], int triangle_neighbor[] );
+double get_smallest_angle ( int triangle_index, double node_xy[], int &triangle_num,
+  int triangle_node[]);
+void filter_edge_triangles_by_min_angle ( int node_num, double node_xy[], int &triangle_num,
+  int triangle_node[], int triangle_neighbor[], double min_angle );

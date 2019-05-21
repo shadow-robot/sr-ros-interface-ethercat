@@ -181,7 +181,7 @@ void print_double_array(double *data, int length, int stride, int start_at)
 
 int main(int argc, char** argv)
 {
-  int nb_samples = 1000;
+  int nb_samples = 10000;
   // Print data points
   print_double_array(node_xy, 50, 2, 0);
   print_double_array(node_xy, 50, 2, 1);
@@ -205,6 +205,11 @@ int main(int argc, char** argv)
 
     triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
 
+
+  filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
+
+  triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
+
   std::stringstream log_triangles;
   log_triangles << "triangles = [";
   for(int i=0; i<element_num; i++)
@@ -227,8 +232,11 @@ int main(int argc, char** argv)
   log_z << "z = [";
   std::default_random_engine generator;
   std::uniform_int_distribution<int> distribution_x(1000,2800);
-  std::uniform_int_distribution<int> distribution_y(1500,2400);
-
+  std::uniform_int_distribution<int> distribution_y(1550,2350);
+  // std::uniform_int_distribution<int> distribution_x(950,2850);
+  // std::uniform_int_distribution<int> distribution_y(1450,2450);
+  // std::uniform_int_distribution<int> distribution_x(0,4000);
+  // std::uniform_int_distribution<int> distribution_y(1000,4000);
 
   // Delaunay triangulation interpolation
   using namespace std::chrono;
@@ -266,45 +274,45 @@ int main(int argc, char** argv)
 
 
 
-  // Shepard interpolation
-  log_x.str(std::string());
-  log_y.str(std::string());
-  log_z.str(std::string());
-  log_x << "x = [";
-  log_y << "y = [";
-  log_z << "z = [";
-  t1 = high_resolution_clock::now();
-  // the power used in the distance weighting
-  double p = 4.0;
+  // // Shepard interpolation
+  // log_x.str(std::string());
+  // log_y.str(std::string());
+  // log_z.str(std::string());
+  // log_x << "x = [";
+  // log_y << "y = [";
+  // log_z << "z = [";
+  // t1 = high_resolution_clock::now();
+  // // the power used in the distance weighting
+  // double p = 10;
 
-  for(int i=0; i<nb_samples; i++)
-  {
-    raw_1 = distribution_x(generator);
-    raw_2 = distribution_y(generator);
-    xyi[0] = static_cast<double> (raw_1);
-    xyi[1] = static_cast<double> (raw_2);
-    log_x << xyi[0] << ",";
-    log_y << xyi[1] << ",";
+  // for(int i=0; i<nb_samples; i++)
+  // {
+  //   raw_1 = distribution_x(generator);
+  //   raw_2 = distribution_y(generator);
+  //   xyi[0] = static_cast<double> (raw_1);
+  //   xyi[1] = static_cast<double> (raw_2);
+  //   log_x << xyi[0] << ",";
+  //   log_y << xyi[1] << ",";
 
-    zi = shepard_interp_2d ( node_num, xd, yd, zd_thj1, p, ni, &(xyi[0]), &(xyi[1]) );
-    log_z << zi[0] << ",";
-    // ROS_INFO("THJ1: %f THJ2: %f Interpolated THJ1: %f", this->xyi[0], this->xyi[1], tmp_cal_value);
-    delete [] zi;
-  }
+  //   zi = shepard_interp_2d ( node_num, xd, yd, zd_thj1, p, ni, &(xyi[0]), &(xyi[1]) );
+  //   log_z << zi[0] << ",";
+  //   // ROS_INFO("THJ1: %f THJ2: %f Interpolated THJ1: %f", this->xyi[0], this->xyi[1], tmp_cal_value);
+  //   delete [] zi;
+  // }
 
-  t2 = high_resolution_clock::now();
+  // t2 = high_resolution_clock::now();
 
-  time_span = duration_cast<duration<double>>(t2 - t1);
+  // time_span = duration_cast<duration<double>>(t2 - t1);
 
-  std::cout << "Shepard took " << (time_span.count() * 1000000) << " us.";
-  std::cout << std::endl;
+  // std::cout << "Shepard took " << (time_span.count() * 1000000) << " us.";
+  // std::cout << std::endl;
 
-  log_x << "]";
-  log_y << "]";
-  log_z << "]";
-  std::cout << log_x.str() << std::endl << std::endl;
-  std::cout << log_y.str() << std::endl << std::endl;
-  std::cout << log_z.str() << std::endl << std::endl;
+  // log_x << "]";
+  // log_y << "]";
+  // log_z << "]";
+  // std::cout << log_x.str() << std::endl << std::endl;
+  // std::cout << log_y.str() << std::endl << std::endl;
+  // std::cout << log_z.str() << std::endl << std::endl;
 
   return 0;
 }

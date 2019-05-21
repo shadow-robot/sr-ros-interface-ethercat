@@ -2167,8 +2167,189 @@ void vbedg ( double x, double y, int node_num, double node_xy[],
   return;
 }
 
-// void filter_edge_triangles_by_min_angle  ( int node_num, double node_xy[], int &triangle_num,
-//   int triangle_node[], int triangle_neighbor[] )
-// {
+double get_smallest_angle ( int triangle_index, double node_xy[], int &triangle_num,
+  int triangle_node[])
+{
+  // https://socratic.org/questions/how-do-you-find-the-three-angles-of-the-triangle-with-the-given-vertices-a-1-0-b
+  // Read the coordinates of the vertices
+  double ax = node_xy[(triangle_node[(triangle_index * 3) + 0] * 2) + 0];
+  double ay = node_xy[(triangle_node[(triangle_index * 3) + 0] * 2) + 1];
+  double bx = node_xy[(triangle_node[(triangle_index * 3) + 1] * 2) + 0];
+  double by = node_xy[(triangle_node[(triangle_index * 3) + 1] * 2) + 1];
+  double cx = node_xy[(triangle_node[(triangle_index * 3) + 2] * 2) + 0];
+  double cy = node_xy[(triangle_node[(triangle_index * 3) + 2] * 2) + 1];
+
+  // Compute length of edges
+  double a = sqrt(pow(bx - cx, 2) + pow(by - cy, 2));
+  double b = sqrt(pow(ax - cx, 2) + pow(ay - cy, 2));
+  double c = sqrt(pow(ax - bx, 2) + pow(ay - by, 2));
+
+  // Use law of cosines to obtain the angles
+  double angle_a = acos((pow(b, 2) + pow(c, 2) - pow(a, 2)) / (2 * b * c));
+  double angle_b = acos((pow(a, 2) + pow(c, 2) - pow(b, 2)) / (2 * a * c));
+  double angle_c = acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b));
   
-// }
+  return std::min(angle_a, std::min(angle_b, angle_c));
+}
+
+void re_index_triangles ( int deleted_triangle_index, int &triangle_num,
+  int triangle_node[], int triangle_neighbor[] )
+{
+  for ( int i = deleted_triangle_index + 1; i < triangle_num; i++ )
+  {
+    // Re-index triangle nodes
+    for ( int j = 0; j < 3; j++ )
+    {
+      triangle_node[(i - 1) * 3 + j] = triangle_node[i * 3 + j];
+    }
+
+    // Re-index triangle neighbors
+
+    // Copy next triangle into the deleted triangle position
+    for ( int j = 0; j < 3; j++ )
+    {
+      triangle_neighbor[(i - 1) * 3 + j] = triangle_neighbor[i * 3 + j];
+    }
+
+    // Search for references to i and convert them to i-1
+    // Search for negative exterior border references to i and convert them to i-1
+    for ( int j = 0; j < triangle_num; j++ )
+    {
+      for ( int k = 0; k < 3; k++ )
+      {
+        // Search for references to i and convert them to i-1
+        if ( triangle_neighbor[j * 3 + k] == i)
+        {
+          triangle_neighbor[j * 3 + k] = i - 1;
+        }
+        // Search for negative exterior border references to i and convert them to i-1
+        if (( triangle_neighbor[j * 3 + k] < 0) &&
+           (((-triangle_neighbor[j * 3 + k] / 3) - 1) == i))
+        {
+          int hull_index = (-triangle_neighbor[j * 3 + k] % 3);
+          triangle_neighbor[j * 3 + k] = -((((i-1) + 1) * 3) + hull_index);
+        }
+      }
+    }
+  }
+  triangle_num--;
+}
+
+void remove_exterior_triangle ( int triangle_index, int &triangle_num,
+  int triangle_node[], int triangle_neighbor[] )
+{
+  int i;
+  int s;
+  int t;
+
+  for ( i = 0; i < 3; i++ )
+  {
+    // This method only considers external edge triangles
+    if ( triangle_neighbor[i+triangle_index*3] < 0 )
+    {
+      if (( triangle_neighbor[((i + 1) % 3)+triangle_index*3] < 0 )
+        || ( triangle_neighbor[((i + 2) % 3)+triangle_index*3] < 0 ))
+      {
+        cout << "\n";
+        cout << "  Sorry, triangle " << triangle_index << "has more than one external edge\n";
+        return;
+      }
+      int next_triangle_index = triangle_neighbor[((i + 1) % 3)+triangle_index*3];
+      int previous_triangle_index = triangle_neighbor[((i + 2) % 3)+triangle_index*3];
+      int next_triangle_hull_index = 3;
+      int previous_triangle_hull_index = 3;
+
+      // In the next_triangle, we replace the index of the removed triangle, with the
+      // negative link to the next edge
+      for (int j = 0; j < 3; j++)
+      {
+        if (triangle_neighbor[next_triangle_index * 3 + j] == triangle_index)
+        {
+          triangle_neighbor[next_triangle_index * 3 + j] = triangle_neighbor[i+triangle_index*3];
+          next_triangle_hull_index = j;
+        }
+      }
+      if (next_triangle_hull_index == 3)
+      {
+        cout << "\n";
+        cout << "  Sorry, next_triangle_hull_index not found\n";
+        return;
+      }
+
+      // In the previous_triangle, we replace the index of the removed triangle, with a new 
+      // negative link to the next edge (that now belongs to the next_triangle)
+      for (int j = 0; j < 3; j++)
+      {
+        if (triangle_neighbor[previous_triangle_index * 3 + j] == triangle_index)
+        {
+          triangle_neighbor[previous_triangle_index * 3 + j] = -(((next_triangle_index + 1) * 3) + next_triangle_hull_index);
+          previous_triangle_hull_index = j;
+        }
+      }
+      if (previous_triangle_hull_index == 3)
+      {
+        cout << "\n";
+        cout << "  Sorry, previous_triangle_hull_index not found\n";
+        return;
+      }
+
+      // We now search for the negative pointer that was pointing to the triangle we are removing
+      // We will make it point to previous_triangle_index instead
+      for (int j = 0; j < triangle_num; j++)
+      {
+        for (int k = 0; k < 3; k++)
+        {
+          if (triangle_neighbor[j * 3 + k] == -(((triangle_index + 1) * 3) + i))
+          {
+            triangle_neighbor[j * 3 + k] = -(((previous_triangle_index + 1) * 3) + previous_triangle_hull_index);
+          }
+        }
+      }
+    }
+  }
+  re_index_triangles ( triangle_index, triangle_num, triangle_node, triangle_neighbor );
+}
+
+void filter_edge_triangles_by_min_angle ( int node_num, double node_xy[], int &triangle_num,
+  int triangle_node[], int triangle_neighbor[], double min_angle )
+{
+  int i;
+  int j;
+  bool done_filtering = false;
+  bool skip;
+  
+  while (!done_filtering)
+  {
+    skip = false;
+    for ( i = 0; i < triangle_num; i++ )
+    {
+      for ( j = 0; j < 3; j++ )
+      {
+        if ( triangle_neighbor[j+i*3] < 0 )
+        {
+          if (get_smallest_angle( i, node_xy, triangle_num, triangle_node) < min_angle)
+          {
+            cout << "Filtering triangle: " << i << " angle is: " << get_smallest_angle( i, node_xy, triangle_num, triangle_node) << std::endl;
+            // Remove this triangle
+            remove_exterior_triangle (i, triangle_num, triangle_node, triangle_neighbor);
+            // After removing a triangle we want to start the top level while loop from fresh
+            skip = true;
+            break;
+          }
+          else
+          {
+            cout << "Not Filtering triangle: " << i << " angle is: " << get_smallest_angle( i, node_xy, triangle_num, triangle_node) << std::endl;
+          }
+        }
+      }
+      if(skip)
+      {
+        break;
+      }
+    }
+    if (!skip)
+    {
+      done_filtering = true;
+    }
+  }
+}
