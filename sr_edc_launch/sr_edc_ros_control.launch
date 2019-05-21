@@ -22,6 +22,8 @@
   <arg name="initial_z" default="0.0"/>
   <!-- setting this parameter to false allows to load the robot_description from a higher level -->
   <arg name="load_robot_description" default="true"/>
+  <!-- The robot state publisher publishing frequency  -->
+  <arg name="publish_frequency" default="100"/>
 
   <!-- this should be false if robot_hardware param is defined elsewhere -->
   <arg name="define_robot_hardware" default="true"/>
@@ -91,7 +93,7 @@
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="100.0"/>
+    <param name="publish_frequency" type="double" value="$(arg publish_frequency)"/>
     <param name="tf_prefix" type="string" value="$(arg tf_prefix)"/>
   </node>
 
