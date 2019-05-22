@@ -242,7 +242,7 @@ namespace shadow_robot
           }
         }
       }
-
+      filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
       triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
   }
 
