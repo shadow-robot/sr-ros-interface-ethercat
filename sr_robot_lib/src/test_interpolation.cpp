@@ -1,7 +1,9 @@
 #include <iostream>
+#include <Eigen/Dense>
 #include <ctime>
 #include <ratio>
 #include <chrono>
+#include <cmath>
 #include <random>
 #include <sstream>
 #include <string>
@@ -9,14 +11,17 @@ using std::string;
 #include "sr_robot_lib/pwl_interp_2d_scattered.hpp"
 #include "sr_robot_lib/shepard_interp_2d.hpp"
 
+  #define NB_CALIBRATION_POINTS  (25)
+  #define NB_SURROUNDING_POINTS  (10)
+  #define NB_TOTAL_POINTS (NB_CALIBRATION_POINTS + NB_SURROUNDING_POINTS)
 
-  int element_neighbor[3*2*25];
+  int element_neighbor[3*2*NB_TOTAL_POINTS];
   int element_num;
   int element_order = 3;
   int ni = 1;
-  int node_num = 25;
+  int node_num = NB_TOTAL_POINTS;
   //raw J1, raw J2
-  double node_xy[2*25] = {
+  double node_xy[2*NB_TOTAL_POINTS] = {
     2738, 2301,
     2693, 2154,
     2680, 1978,
@@ -43,20 +48,15 @@ using std::string;
     1103, 1730,
     1092, 1615
     };
-  int triangle[3*2*25];
+  int triangle[3*2*NB_TOTAL_POINTS];
   //Sample coordinates
   double xyi[2*1];
-  double zd_thj1[25] = {
+  double zd_thj1[NB_TOTAL_POINTS] = {
     0.0,
     0.0,
     0.0,
     0.0,
     0.0,
-    // -0.5,
-    // -0.5,
-    // -0.5,
-    // -0.5,
-    // -0.5,
     0.3927,
     0.3927,
     0.3927,
@@ -78,7 +78,7 @@ using std::string;
     1.5708,
     1.5708
   };
-  double zd_thj2[25] = {
+  double zd_thj2[NB_TOTAL_POINTS] = {
     0.6981,
     0.34906,
     0.0,
@@ -107,7 +107,7 @@ using std::string;
   };
   double *zi;
 
-  double xd[25] = {
+  double xd[NB_TOTAL_POINTS] = {
     2738,
     2693,
     2680,
@@ -135,7 +135,7 @@ using std::string;
     1092
     };
 
-   double yd[25] = {
+   double yd[NB_TOTAL_POINTS] = {
     2301,
     2154,
     1978,
@@ -179,14 +179,84 @@ void print_double_array(double *data, int length, int stride, int start_at)
   std::cout << ss.str() << std::endl;
 }
 
+// https://gist.github.com/ialhashim/0a2554076a6cf32831ca
+template<class Vector3>
+std::pair<Vector3, Vector3> best_plane_from_points(const std::vector<Vector3> & c)
+{
+	// copy coordinates to  matrix in Eigen format
+	size_t num_atoms = c.size();
+	Eigen::Matrix< typename Vector3:: Scalar, Eigen::Dynamic, Eigen::Dynamic > coord(3, num_atoms);
+	for (size_t i = 0; i < num_atoms; ++i) coord.col(i) = c[i];
+
+	// calculate centroid
+	Vector3 centroid(coord.row(0).mean(), coord.row(1).mean(), coord.row(2).mean());
+
+	// subtract centroid
+	coord.row(0).array() -= centroid(0); coord.row(1).array() -= centroid(1); coord.row(2).array() -= centroid(2);
+
+	// we only need the left-singular matrix here
+	//  http://math.stackexchange.com/questions/99299/best-fitting-plane-given-a-set-of-points
+	auto svd = coord.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
+	Vector3 plane_normal = svd.matrixU().template rightCols<1>();
+	return std::make_pair(centroid, plane_normal);
+}
+
+double evaluate_plane_point(double x, double y, std::pair<Eigen::Vector3d, Eigen::Vector3d> plane)
+{
+  // http://www.easy-math.net/transforming-between-plane-forms/
+  double z = (plane.second.dot(plane.first) - plane.second(0) * x - plane.second(1) * y) / plane.second(2);
+  return z;
+}
+
+void add_surrounding_points(int nb_calibration_points, double node_xy[], double z_data[], int nb_surrounding_points)
+{
+  std::vector<Eigen::Vector3d> calibration_points;
+  for (int i = 0; i < nb_calibration_points; i++)
+  {
+    Eigen::Vector3d point(node_xy[i * 2], node_xy[i * 2 + 1], z_data[i]);
+    calibration_points.push_back(point);
+  }
+  // Fit a plane to the actual calibration points
+  std::pair<Eigen::Vector3d, Eigen::Vector3d> plane;
+  plane = best_plane_from_points(calibration_points);
+
+  // Find the maximum distance of a calibration point to the centroid
+  // (only in XY, as we are trying to generate new XY points)
+  // To determine the radius where we want the new surrounding points (perhaps R= 2 * max_distance)
+  double max_distance = 0.0;
+  for (int i = 0; i < nb_calibration_points; i++)
+  {
+    max_distance = std::max(max_distance, (calibration_points[i].head(2) - plane.first.head(2)).norm());
+  }
+
+  double radius = 2 * max_distance;
+  double angular_interval = 2 * M_PI / nb_surrounding_points;
+  for (int i = 0; i < nb_surrounding_points; i++)
+  {
+    // https://stackoverflow.com/questions/5300938/calculating-the-position-of-points-in-a-circle/5300976
+    // We generate points in a circle (in xy) around the actual calibration points
+    // then evaluate their z by projecting them on the plane that we fitted to the calibration points
+    double theta = angular_interval * i;
+    double x = plane.first(0) + radius * cos(theta);
+    double y = plane.first(1) + radius * sin(theta);
+    double z = evaluate_plane_point(x, y, plane);
+    node_xy[(NB_CALIBRATION_POINTS * 2) + i * 2] = x;
+    node_xy[(NB_CALIBRATION_POINTS * 2) + i * 2 + 1] = y;
+    z_data[NB_CALIBRATION_POINTS + i] = z;
+  }
+}
+
+
 int main(int argc, char** argv)
 {
   int nb_samples = 10000;
+
+  add_surrounding_points(NB_CALIBRATION_POINTS, node_xy, zd_thj1, NB_SURROUNDING_POINTS);
   // Print data points
-  print_double_array(node_xy, 50, 2, 0);
-  print_double_array(node_xy, 50, 2, 1);
-  print_double_array(zd_thj1, 25, 1, 0);
-  print_double_array(zd_thj2, 25, 1, 0);
+  print_double_array(node_xy,2*NB_TOTAL_POINTS, 2, 0);
+  print_double_array(node_xy, 2*NB_TOTAL_POINTS, 2, 1);
+  print_double_array(zd_thj1, NB_TOTAL_POINTS, 1, 0);
+  print_double_array(zd_thj2, NB_TOTAL_POINTS, 1, 0);
   //
   //  Set up the Delaunay triangulation.
   //
@@ -206,9 +276,9 @@ int main(int argc, char** argv)
     triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
 
 
-  filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
+  // filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
 
-  triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
+  // triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
 
   std::stringstream log_triangles;
   log_triangles << "triangles = [";
