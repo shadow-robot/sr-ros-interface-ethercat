@@ -94,6 +94,10 @@ typedef CRCUnion union16;
 
 namespace shadow_robot
 {
+#define NB_CALIBRATION_POINTS  (25)
+#define NB_SURROUNDING_POINTS  (10)
+#define NB_TOTAL_POINTS (NB_CALIBRATION_POINTS + NB_SURROUNDING_POINTS)
+
 template<class StatusType, class CommandType>
 class SrRobotLib
 {
@@ -425,7 +429,7 @@ public:
     -0.34906,
     -0.6981
   };
-  double *zi;
+  double zi[1];
 };  // end class
 }  // namespace shadow_robot
 

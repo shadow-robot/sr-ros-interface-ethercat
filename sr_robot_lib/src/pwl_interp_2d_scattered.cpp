@@ -879,8 +879,8 @@ void perm_inverse ( int n, int p[] )
 }
 //****************************************************************************80
 
-double *pwl_interp_2d_scattered_value ( int nd, double xyd[], double zd[], 
-  int t_num, int t[], int t_neighbor[], int ni, double xyi[] )
+void pwl_interp_2d_scattered_value ( int nd, double xyd[], double zd[],
+  int t_num, int t[], int t_neighbor[], int ni, double xyi[], double zi[] )
 
 //****************************************************************************80
 //
@@ -928,9 +928,6 @@ double *pwl_interp_2d_scattered_value ( int nd, double xyd[], double zd[],
   int i;
   int j;
   int step_num;
-  double *zi;
-
-  zi = new double[ni];
 
   for ( i = 0; i < ni; i++ )
   {
@@ -946,7 +943,7 @@ double *pwl_interp_2d_scattered_value ( int nd, double xyd[], double zd[],
           + beta  * zd[t[1+j*3]] 
           + gamma * zd[t[2+j*3]];
   }
-  return zi;
+  return;
 }
 //****************************************************************************80
 
@@ -2351,5 +2348,72 @@ void filter_edge_triangles_by_min_angle ( int node_num, double node_xy[], int &t
     {
       done_filtering = true;
     }
+  }
+}
+
+// https://gist.github.com/ialhashim/0a2554076a6cf32831ca
+template<class Vector3>
+std::pair<Vector3, Vector3> best_plane_from_points(const std::vector<Vector3> & c)
+{
+	// copy coordinates to  matrix in Eigen format
+	size_t num_atoms = c.size();
+	Eigen::Matrix< typename Vector3:: Scalar, Eigen::Dynamic, Eigen::Dynamic > coord(3, num_atoms);
+	for (size_t i = 0; i < num_atoms; ++i) coord.col(i) = c[i];
+
+	// calculate centroid
+	Vector3 centroid(coord.row(0).mean(), coord.row(1).mean(), coord.row(2).mean());
+
+	// subtract centroid
+	coord.row(0).array() -= centroid(0); coord.row(1).array() -= centroid(1); coord.row(2).array() -= centroid(2);
+
+	// we only need the left-singular matrix here
+	//  http://math.stackexchange.com/questions/99299/best-fitting-plane-given-a-set-of-points
+	auto svd = coord.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
+	Vector3 plane_normal = svd.matrixU().template rightCols<1>();
+	return std::make_pair(centroid, plane_normal);
+}
+
+double evaluate_plane_point(double x, double y, std::pair<Eigen::Vector3d, Eigen::Vector3d> plane)
+{
+  // http://www.easy-math.net/transforming-between-plane-forms/
+  double z = (plane.second.dot(plane.first) - plane.second(0) * x - plane.second(1) * y) / plane.second(2);
+  return z;
+}
+
+void add_surrounding_points(int nb_calibration_points, double node_xy[], double z_data[], int nb_surrounding_points)
+{
+  std::vector<Eigen::Vector3d> calibration_points;
+  for (int i = 0; i < nb_calibration_points; i++)
+  {
+    Eigen::Vector3d point(node_xy[i * 2], node_xy[i * 2 + 1], z_data[i]);
+    calibration_points.push_back(point);
+  }
+  // Fit a plane to the actual calibration points
+  std::pair<Eigen::Vector3d, Eigen::Vector3d> plane;
+  plane = best_plane_from_points(calibration_points);
+
+  // Find the maximum distance of a calibration point to the centroid
+  // (only in XY, as we are trying to generate new XY points)
+  // To determine the radius where we want the new surrounding points (perhaps R= 2 * max_distance)
+  double max_distance = 0.0;
+  for (int i = 0; i < nb_calibration_points; i++)
+  {
+    max_distance = std::max(max_distance, (calibration_points[i].head(2) - plane.first.head(2)).norm());
+  }
+
+  double radius = 2 * max_distance;
+  double angular_interval = 2 * M_PI / nb_surrounding_points;
+  for (int i = 0; i < nb_surrounding_points; i++)
+  {
+    // https://stackoverflow.com/questions/5300938/calculating-the-position-of-points-in-a-circle/5300976
+    // We generate points in a circle (in xy) around the actual calibration points
+    // then evaluate their z by projecting them on the plane that we fitted to the calibration points
+    double theta = angular_interval * i;
+    double x = plane.first(0) + radius * cos(theta);
+    double y = plane.first(1) + radius * sin(theta);
+    double z = evaluate_plane_point(x, y, plane);
+    node_xy[(nb_calibration_points * 2) + i * 2] = x;
+    node_xy[(nb_calibration_points * 2) + i * 2 + 1] = y;
+    z_data[nb_calibration_points + i] = z;
   }
 }
