@@ -339,13 +339,13 @@ public:
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
 
-  int element_neighbor[3*2*25];
+  int element_neighbor[3*2*NB_TOTAL_POINTS];
   int element_num;
   int element_order = 3;
   int ni = 1;
-  int node_num = 25;
+  int node_num = NB_TOTAL_POINTS;
   //raw J1, raw J2
-  double node_xy[2*25] = {
+  double node_xy[2*NB_TOTAL_POINTS] = {
     2738, 2301,
     2693, 2154,
     2680, 1978,
@@ -372,10 +372,10 @@ public:
     1103, 1730,
     1092, 1615
     };
-  int triangle[3*2*25];
+  int triangle[3*2*NB_TOTAL_POINTS];
   //Sample coordinates
   double xyi[2*1];
-  double zd_thj1[25] = {
+  double zd_thj1[NB_TOTAL_POINTS] = {
     0.0,
     0.0,
     0.0,
@@ -402,7 +402,7 @@ public:
     1.5708,
     1.5708
   };
-  double zd_thj2[25] = {
+  double zd_thj2[NB_TOTAL_POINTS] = {
     0.6981,
     0.34906,
     0.0,
