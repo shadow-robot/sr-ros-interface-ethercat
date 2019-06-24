@@ -93,6 +93,7 @@
   <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch">
     <arg name="publish_rate" value="$(arg joint_state_pub_frequency)"/>
   </include>
+
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="$(arg robot_state_pub_frequency)"/>
