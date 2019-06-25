@@ -1,23 +1,28 @@
 <launch>
+  <arg name="debug" default="false"/>
+
+  <!-- ROBOT CONFIG-->
+  <!-- Xacro file containing the robot description we want to load -->
+  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
+
+  <!-- HAND CONFIG-->
+  <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
+  <arg name="hand_id" default="rh"/>
+  <!-- The ethercat serial number for the hand -->
+  <arg name="hand_serial" default="1050"/>
+  <!-- the path to the mapping files -->
+  <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
   <!-- Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT
        More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
   <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)"/>
-  <!-- Set to true for debugging -->
-  <arg name="debug" default="false"/>
-  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
-  <arg name="calibration_controllers" default="1"/>
-  <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
   <!-- The control mode PWM (true) or torque (false) -->
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 1)"/>
+  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
+  <arg name="calibration_controllers" default="1"/>
   <!-- use ns or not -->
   <arg name="use_ns" default="true" />
-  <!-- The ethercat serial number for the hand -->
-  <arg name="hand_serial" default="1050"/>
-  <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
-  <arg name="hand_id" default="rh"/>
-  <!-- the path to the mapping files -->
-  <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
+
+  <!-- ARM CONFIG-->
   <!-- z coordinate of the robot (w.r.t. world frame) -->
   <arg name="initial_z" default="0.0"/>
   <!-- setting this parameter to false allows to load the robot_description from a higher level -->
