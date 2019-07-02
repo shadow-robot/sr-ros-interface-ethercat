@@ -74,7 +74,7 @@
   <include file="$(find sr_edc_launch)/hand_ros_control_robot_params.xml">
     <arg name="eth_port" value="$(arg eth_port)"/>
     <arg name="robot_hardware_name" value="sr_hands_bimanual_robot_hw"/>
-    <arg name="bimanual" value="true"/>
+    <arg name="bimanual_filter" value="true"/>
   </include>
 
   <node if="$(arg debug)" name="sr_hand_robot" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
