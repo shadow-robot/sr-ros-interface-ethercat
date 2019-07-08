@@ -76,26 +76,17 @@ add_library(sr_hand_lib
 target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS})
 
-
-
-add_executable(test_interpolation
-  src/test_interpolation.cpp
-  src/pwl_interp_2d_scattered.cpp
-  src/shepard_interp_2d.cpp
-  src/r8lib.cpp
-)
-
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(test_interpolation
-  ${catkin_EXPORTED_TARGETS}
-)
+# add_dependencies(
+#  ${catkin_EXPORTED_TARGETS}
+# )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(test_interpolation
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
+# target_link_libraries(
+#   ${catkin_LIBRARIES}
+#   ${Boost_LIBRARIES}
+# )
 
 ###############
 #     TESTS
