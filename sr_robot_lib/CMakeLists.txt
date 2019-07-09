@@ -8,6 +8,7 @@ add_compile_options(-std=c++11)
 
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS
+        sr_utils
         sr_utilities
         sr_hardware_interface
         sr_mechanism_model
@@ -39,6 +40,7 @@ catkin_python_setup()
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
         CATKIN_DEPENDS
+        sr_utils
         sr_utilities
         sr_hardware_interface
         sr_mechanism_model
@@ -69,8 +71,6 @@ add_library(sr_hand_lib
         src/sr_motor_robot_lib.cpp
         src/sr_muscle_hand_lib.cpp
         src/sr_muscle_robot_lib.cpp
-        src/pwl_interp_2d_scattered.cpp
-        src/r8lib.cpp
 )
 
 target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES})
