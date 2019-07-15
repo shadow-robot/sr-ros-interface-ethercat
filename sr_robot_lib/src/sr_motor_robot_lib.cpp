@@ -967,24 +967,78 @@ namespace shadow_robot
         actuator->motor_state_.raw_sensor_values_.push_back(raw_pos);
         double tmp_cal_value;
 
-        // calibrate and then combine
-        if (joint_tmp->joint_name.find("THJ1")!= std::string::npos)
+        bool joint_coupled = false;
+        std::string joint_paired_with_current_joint;
+        std::vector<std::vector<std::vector<double> > > value;
+        int current_joint_index;
+
+        for (auto const& x : this->coupled_calibration_map)
         {
-          int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name("THJ2")].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
-          this->xyi[0] = static_cast<double> (raw_pos);
-          this->xyi[1] = static_cast<double> (raw_pos_2nd_joint);
-          pwl_interp_2d_scattered_value (this->node_num, this->node_xy, this->zd_thj1, this->element_num,
-                                         this->triangle, this->element_neighbor, this->ni, this->xyi, this->zi);
-          tmp_cal_value = this->zi[0];
+            if (joint_tmp->joint_name.find(x.first[0])!= std::string::npos)
+            {
+                joint_coupled = true;
+                joint_paired_with_current_joint = x.first[1];
+                value = x.second;
+                current_joint_index = 0;
+                break;
+            }
+            else if (joint_tmp->joint_name.find(x.first[1])!= std::string::npos)
+            {
+                joint_coupled = true;
+                joint_paired_with_current_joint = x.first[0];
+                current_joint_index = 1;
+                value = x.second;
+                break;
+            }
         }
-        else if (joint_tmp->joint_name.find("THJ2")!= std::string::npos)
+
+        // calibrate and then combine
+        if (joint_coupled)
         {
-          int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name("THJ1")].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
-          this->xyi[0] = static_cast<double> (raw_pos_2nd_joint);
-          this->xyi[1] = static_cast<double> (raw_pos);
-          pwl_interp_2d_scattered_value (this->node_num, this->node_xy, this->zd_thj2, this->element_num,
-                                         this->triangle, this->element_neighbor, this->ni, this->xyi, this->zi);
-          tmp_cal_value = this->zi[0];
+          std::vector<double> node_xy_vector;
+          std::vector<double> zd_vector;
+          for(auto const& i: value)
+          {
+              node_xy_vector.insert(node_xy_vector.end(), i[0].begin(), i[0].end());
+              zd_vector.insert(zd_vector.end(), i[1][current_joint_index]);
+          }
+          double* zd = &zd_vector[0];
+          double* node_xy = &node_xy_vector[0];
+          int calibration_points = value.size(); 
+          int total_points = calibration_points + this->NB_SURROUNDING_POINTS;
+          int* element_neighbor = new int[3*2*total_points];
+          int* triangle = new int[3*2*total_points];
+          int element_num;
+          double xyi[2];
+          double zi[1];
+          int ni = 1;
+
+            // Generate additional points around the actual calibration points
+            add_surrounding_points(calibration_points, node_xy, zd, this->NB_SURROUNDING_POINTS);
+            //
+            //  Set up the Delaunay triangulation.
+            //
+            r8tris2 (total_points, node_xy, element_num, triangle, element_neighbor );
+
+            for ( int j = 0; j < element_num; j++ )
+            {
+            for ( int i = 0; i < 3; i++ )
+            {
+                if ( 0 < element_neighbor[i+j*3] )
+                {
+                element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
+                }
+            }
+            }
+            // filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
+            // triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
+
+          int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name(joint_paired_with_current_joint)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
+          xyi[0] = static_cast<double> (raw_pos);
+          xyi[1] = static_cast<double> (raw_pos_2nd_joint);
+          pwl_interp_2d_scattered_value (total_points, node_xy, zd, element_num,
+                                         triangle, element_neighbor, ni, xyi, zi);
+          tmp_cal_value = zi[0];
         }
         else
         {

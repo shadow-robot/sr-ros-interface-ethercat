@@ -95,8 +95,7 @@ typedef CRCUnion union16;
 namespace shadow_robot
 {
 #define NB_CALIBRATION_POINTS  (25)
-#define NB_SURROUNDING_POINTS  (10)
-#define NB_TOTAL_POINTS (NB_CALIBRATION_POINTS + NB_SURROUNDING_POINTS)
+#define NB_TOTAL_POINTS (NB_CALIBRATION_POINTS + 10)
 
 template<class StatusType, class CommandType>
 class SrRobotLib
@@ -247,6 +246,8 @@ protected:
    */
   shadow_joints::CalibrationMap read_joint_calibration();
 
+  std::map<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > > read_coupled_joint_calibration();
+
   /**
    * Simply reads the config from the parameter server.
    *
@@ -338,98 +339,9 @@ public:
 
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
+  std::map<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > > coupled_calibration_map;
 
-  int element_neighbor[3*2*NB_TOTAL_POINTS];
-  int element_num;
-  int element_order = 3;
-  int ni = 1;
-  int node_num = NB_TOTAL_POINTS;
-  //raw J1, raw J2
-  double node_xy[2*NB_TOTAL_POINTS] = {
-    2738, 2301,
-    2693, 2154,
-    2680, 1978,
-    2677, 1840,
-    2664, 1707,
-    2334, 2287,
-    2242, 2095,
-    2230, 1953,
-    2223, 1807,
-    2206, 1685,
-    1839, 2243,
-    1772, 2112,
-    1764, 1928,
-    1755, 1762,
-    1683, 1650,
-    1387, 2219,
-    1375, 2056,
-    1370, 1884,
-    1337, 1741,
-    1329, 1630,
-    1141, 2206,
-    1132, 2055,
-    1114, 1877,
-    1103, 1730,
-    1092, 1615
-    };
-  int triangle[3*2*NB_TOTAL_POINTS];
-  //Sample coordinates
-  double xyi[2*1];
-  double zd_thj1[NB_TOTAL_POINTS] = {
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    0.3927,
-    0.3927,
-    0.3927,
-    0.3927,
-    0.3927,
-    0.7854,
-    0.7854,
-    0.7854,
-    0.7854,
-    0.7854,
-    1.1781,
-    1.1781,
-    1.1781,
-    1.1781,
-    1.1781,
-    1.5708,
-    1.5708,
-    1.5708,
-    1.5708,
-    1.5708
-  };
-  double zd_thj2[NB_TOTAL_POINTS] = {
-    0.6981,
-    0.34906,
-    0.0,
-    -0.34906,
-    -0.6981,
-    0.6981,
-    0.34906,
-    0.0,
-    -0.34906,
-    -0.6981,
-    0.6981,
-    0.34906,
-    0.0,
-    -0.34906,
-    -0.6981,
-    0.6981,
-    0.34906,
-    0.0,
-    -0.34906,
-    -0.6981,
-    0.6981,
-    0.34906,
-    0.0,
-    -0.34906,
-    -0.6981
-  };
-  double zi[1];
+  const int NB_SURROUNDING_POINTS = 10;
 };  // end class
 }  // namespace shadow_robot
 

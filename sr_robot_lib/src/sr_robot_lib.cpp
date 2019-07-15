@@ -225,28 +225,10 @@ namespace shadow_robot
                                                                  operation_mode::device_update_state::INITIALIZATION))),
 
             // initialize the calibration map
-            calibration_map(read_joint_calibration())
+            calibration_map(read_joint_calibration()),
+            // initialize the coupled joints calibration map
+            coupled_calibration_map(read_coupled_joint_calibration())
   {
-    // Generate additional points around the actual calibration points
-    add_surrounding_points(NB_CALIBRATION_POINTS, node_xy, zd_thj1, NB_SURROUNDING_POINTS);
-    add_surrounding_points(NB_CALIBRATION_POINTS, node_xy, zd_thj2, NB_SURROUNDING_POINTS);
-    //
-    //  Set up the Delaunay triangulation.
-    //
-    r8tris2 ( node_num, node_xy, element_num, triangle, element_neighbor );
-
-    for ( int j = 0; j < element_num; j++ )
-    {
-      for ( int i = 0; i < 3; i++ )
-      {
-        if ( 0 < element_neighbor[i+j*3] )
-        {
-          element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
-        }
-      }
-    }
-    // filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
-    // triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
   }
 
   template<class StatusType, class CommandType>
@@ -363,7 +345,7 @@ namespace shadow_robot
     CalibrationMap joint_calibration;
 
     XmlRpc::XmlRpcValue calib;
-    nodehandle_.getParam("sr_calibrations", calib);
+    nodehandle_.getParam("sr_calibrations/regular", calib);
     ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
     // iterate on all the joints
     for (int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
@@ -398,6 +380,59 @@ namespace shadow_robot
 
     return joint_calibration;
   }  // end read_joint_calibration
+
+  template<class StatusType, class CommandType>
+  std::map<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > > SrRobotLib<StatusType, CommandType>::read_coupled_joint_calibration()
+  {
+    std::map<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > > coupled_joint_calibration;
+    XmlRpc::XmlRpcValue calib;
+    nodehandle_.getParam("sr_calibrations/coupled", calib);
+    ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    // iterate on all the joint pairs
+    for (int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
+    {
+      std::vector<std::string> key;
+      std::vector<std::vector<std::vector<double> > > value;
+
+      ROS_ASSERT(calib[index_cal][0].getType() == XmlRpc::XmlRpcValue::TypeArray);
+      ROS_ASSERT(2 == calib[index_cal][0].size());
+      ROS_ASSERT(calib[index_cal][1].getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+      //check if the key is two strings 
+      for (int32_t index_key = 0; index_key < calib[index_cal][0].size(); ++index_key)
+      {
+          ROS_ASSERT(calib[index_cal][0][index_key].getType() == XmlRpc::XmlRpcValue::TypeString);
+          key.push_back(static_cast<string>(calib[index_cal][0][index_key]));
+      }
+      // key format ok
+
+      // check if values format is ok
+      for (int32_t index_value = 0; index_value < calib[index_cal][1].size(); ++index_value)
+      {
+          std::vector<std::vector<double> > value_pair;
+          ROS_ASSERT(calib[index_cal][1][index_value].getType() == XmlRpc::XmlRpcValue::TypeArray);
+          ROS_ASSERT(2 == calib[index_cal][1][index_value].size());
+
+          for (int32_t index_value_pair = 0; index_value_pair < calib[index_cal][1][index_value].size(); ++index_value_pair)
+          {
+            std::vector<double> value_pair_values;
+            ROS_ASSERT(calib[index_cal][1][index_value][index_value_pair].getType() == XmlRpc::XmlRpcValue::TypeArray);
+            ROS_ASSERT(2 == calib[index_cal][1][index_value][index_value_pair].size());
+            ROS_ASSERT(calib[index_cal][1][index_value][index_value_pair][0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+            ROS_ASSERT(calib[index_cal][1][index_value][index_value_pair][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+            value_pair_values.push_back(static_cast<double>(calib[index_cal][1][index_value][index_value_pair][0]));
+            value_pair_values.push_back(static_cast<double>(calib[index_cal][1][index_value][index_value_pair][1]));
+            value_pair.push_back(value_pair_values);
+          }
+          value.push_back(value_pair);
+      }
+      
+      //value format ok
+      coupled_joint_calibration.insert(std::pair<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > >(key, value));
+    }
+
+    return coupled_joint_calibration;
+  }  // end read_coupled_joint_calibration
 
   template<class StatusType, class CommandType>
   vector<JointToSensor> SrRobotLib<StatusType, CommandType>::read_joint_to_sensor_mapping()
