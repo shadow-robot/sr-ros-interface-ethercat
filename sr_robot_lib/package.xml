@@ -23,7 +23,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <!-- Dependencies needed to compile this package. -->
-  <build_depend>sr_utils</build_depend>
+  <build_depend>sr_interpolation</build_depend>
   <build_depend>sr_utilities</build_depend>
   <build_depend>sr_hardware_interface</build_depend>
   <build_depend>sr_mechanism_model</build_depend>
@@ -37,7 +37,7 @@
   <build_depend>rostest</build_depend>
 
   <!-- Dependencies needed after this package is compiled. -->
-  <run_depend>sr_utils</run_depend>
+  <run_depend>sr_interpolation</run_depend>
   <run_depend>sr_utilities</run_depend>
   <run_depend>sr_hardware_interface</run_depend>
   <run_depend>sr_mechanism_model</run_depend>

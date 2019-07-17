@@ -57,7 +57,7 @@
 #include "sr_robot_lib/generic_tactiles.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
-#include "sr_utils/pwl_interp_2d_scattered.hpp"
+#include "sr_interpolation/pwl_interp_2d_scattered.hpp"
 
 extern "C"
 {

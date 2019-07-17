@@ -8,7 +8,7 @@ add_compile_options(-std=c++11)
 
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS
-        sr_utils
+        sr_interpolation
         sr_utilities
         sr_hardware_interface
         sr_mechanism_model
@@ -40,7 +40,7 @@ catkin_python_setup()
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
         CATKIN_DEPENDS
-        sr_utils
+        sr_interpolation
         sr_utilities
         sr_hardware_interface
         sr_mechanism_model
