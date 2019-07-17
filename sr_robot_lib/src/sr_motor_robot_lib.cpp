@@ -965,47 +965,50 @@ namespace shadow_robot
         int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
         // push the new raw values
         actuator->motor_state_.raw_sensor_values_.push_back(raw_pos);
+
         double tmp_cal_value;
-
-        bool joint_coupled = false;
-        std::string joint_paired_with_current_joint;
-        std::vector<std::vector<std::vector<double> > > value;
-        int current_joint_index;
-
-        for (auto const& x : this->coupled_calibration_map)
-        {
-            if (joint_tmp->joint_name.find(x.first[0])!= std::string::npos)
-            {
-                joint_coupled = true;
-                joint_paired_with_current_joint = x.first[1];
-                value = x.second;
-                current_joint_index = 0;
-                break;
-            }
-            else if (joint_tmp->joint_name.find(x.first[1])!= std::string::npos)
-            {
-                joint_coupled = true;
-                joint_paired_with_current_joint = x.first[0];
-                current_joint_index = 1;
-                value = x.second;
-                break;
-            }
-        }
+        bool joint_coupled = this->check_if_joint_coupled(joint_tmp->joint_name);
 
         // calibrate and then combine
         if (joint_coupled)
         {
+          std::string joint_paired_with_current_joint;
+          std::vector<std::vector<std::vector<double> > > raw_and_calibrated_values_vector;
+          int current_joint_index_in_map;
+
+          for (auto const& x : this->coupled_calibration_map)
+          {
+            for (int i=0; i<2; i++)
+              {
+                if (joint_tmp->joint_name.find(x.first[i])!= std::string::npos)
+                  {
+                    raw_and_calibrated_values_vector = x.second;
+                    current_joint_index_in_map = i;
+                    if (0 == i)
+                    {
+                      joint_paired_with_current_joint = x.first[1];
+                    }
+                    else
+                    {
+                      joint_paired_with_current_joint = x.first[0];
+                    }
+                    break;
+                  }
+              }
+           }
+
           std::vector<double> node_xy_vector;
           std::vector<double> zd_vector;
-          for(auto const& i: value)
+          for(auto const& i: raw_and_calibrated_values_vector)
           {
               node_xy_vector.insert(node_xy_vector.end(), i[0].begin(), i[0].end());
-              zd_vector.insert(zd_vector.end(), i[1][current_joint_index]);
+              zd_vector.insert(zd_vector.end(), i[1][current_joint_index_in_map]);
           }
+
           double* zd = &zd_vector[0];
           double* node_xy = &node_xy_vector[0];
-          int calibration_points = value.size(); 
-          int total_points = calibration_points + this->NB_SURROUNDING_POINTS;
+          int calibration_points = raw_and_calibrated_values_vector.size(); 
+          int total_points = calibration_points + this->nb_surrounding_points;
           int* element_neighbor = new int[3*2*total_points];
           int* triangle = new int[3*2*total_points];
           int element_num;
@@ -1013,25 +1016,25 @@ namespace shadow_robot
           double zi[1];
           int ni = 1;
 
-            // Generate additional points around the actual calibration points
-            add_surrounding_points(calibration_points, node_xy, zd, this->NB_SURROUNDING_POINTS);
-            //
-            //  Set up the Delaunay triangulation.
-            //
-            r8tris2 (total_points, node_xy, element_num, triangle, element_neighbor );
+          // Generate additional points around the actual calibration points
+          add_surrounding_points(calibration_points, node_xy, zd, this->nb_surrounding_points);
+          //
+          //  Set up the Delaunay triangulation.
+          //
+          r8tris2 (total_points, node_xy, element_num, triangle, element_neighbor );
 
-            for ( int j = 0; j < element_num; j++ )
-            {
-            for ( int i = 0; i < 3; i++ )
-            {
-                if ( 0 < element_neighbor[i+j*3] )
-                {
-                element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
-                }
-            }
-            }
-            // filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
-            // triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
+          for ( int j = 0; j < element_num; j++ )
+          {
+              for ( int i = 0; i < 3; i++ )
+              {
+                  if ( 0 < element_neighbor[i+j*3] )
+                  {
+                  element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
+                  }
+              }
+          }
+          // filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
+          // triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
 
           int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name(joint_paired_with_current_joint)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
           xyi[0] = static_cast<double> (raw_pos);
@@ -1056,6 +1059,22 @@ namespace shadow_robot
       ROS_DEBUG_STREAM("          => " << actuator->motor_state_.position_unfiltered_);
     }
   }  // end calibrate_joint()
+
+  template<class StatusType, class CommandType>
+  bool SrMotorRobotLib<StatusType, CommandType>::check_if_joint_coupled(string joint_name)
+  {
+    for (auto const& x : this->coupled_calibration_map)
+        {
+            for (int i=0; i<2; i++)
+            {
+                if (joint_name.find(x.first[i])!= std::string::npos)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+  }
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp,

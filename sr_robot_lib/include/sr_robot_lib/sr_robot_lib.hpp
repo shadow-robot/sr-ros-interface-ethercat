@@ -94,9 +94,6 @@ typedef CRCUnion union16;
 
 namespace shadow_robot
 {
-#define NB_CALIBRATION_POINTS  (25)
-#define NB_TOTAL_POINTS (NB_CALIBRATION_POINTS + 10)
-
 template<class StatusType, class CommandType>
 class SrRobotLib
 {
@@ -192,6 +189,8 @@ public:
 
   ros_ethercat_model::RobotState *hw_;
 
+  typedef std::map<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > > CoupledJointMapType;
+
 protected:
   // True if we want to set the demand to 0 (stop the controllers)
   bool nullify_demand_;
@@ -246,7 +245,7 @@ protected:
    */
   shadow_joints::CalibrationMap read_joint_calibration();
 
-  std::map<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > > read_coupled_joint_calibration();
+  CoupledJointMapType read_coupled_joint_calibration();
 
   /**
    * Simply reads the config from the parameter server.
@@ -327,6 +326,8 @@ protected:
   void checkSelfTests();
 
 public:
+  const int nb_surrounding_points = 10;
+
   /// Timeout handling variables for UBI sensors
   static const double tactile_timeout;
   ros::Duration tactile_init_max_duration;
@@ -339,9 +340,7 @@ public:
 
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
-  std::map<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > > coupled_calibration_map;
-
-  const int NB_SURROUNDING_POINTS = 10;
+  CoupledJointMapType coupled_calibration_map;
 };  // end class
 }  // namespace shadow_robot
 
