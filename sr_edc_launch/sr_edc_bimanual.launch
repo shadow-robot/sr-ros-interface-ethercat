@@ -69,11 +69,11 @@
   <!-- ros_ethercat -->
   <rosparam if="$(arg define_robot_hardware)">
     robot_hardware:
-      - sr_hands_bimanual_robot_hw
+      - unique_robot_hw
   </rosparam>
   <include file="$(find sr_edc_launch)/hand_ros_control_robot_params.xml">
     <arg name="eth_port" value="$(arg eth_port)"/>
-    <arg name="robot_hardware_name" value="sr_hands_bimanual_robot_hw"/>
+    <arg name="robot_hardware_name" value="unique_robot_hw"/>
     <arg name="bimanual_filter" value="true"/>
   </include>
 
