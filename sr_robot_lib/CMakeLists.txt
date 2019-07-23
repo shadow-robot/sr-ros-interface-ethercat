@@ -76,6 +76,7 @@ add_library(sr_hand_lib
 target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS})
 
+
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(
@@ -100,10 +101,10 @@ ENDIF (DEFINED jenkins)
 
 if (COMMAND add_rostest_gtest)
     add_rostest_gtest(test_robot_lib test/sr_hand_lib.test test/test_robot_lib.cpp)
-    target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+    target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES} sr_interpolation)
 
-    add_rostest_gtest(motor_updater_test test/motor_updater.test test/motor_updater_test.cpp)
-    target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+    # add_rostest_gtest(motor_updater_test test/motor_updater.test test/motor_updater_test.cpp)
+    # target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
 endif (COMMAND add_rostest_gtest)
 
 

@@ -345,7 +345,7 @@ namespace shadow_robot
     CalibrationMap joint_calibration;
 
     XmlRpc::XmlRpcValue calib;
-    nodehandle_.getParam("sr_calibrations/regular", calib);
+    nodehandle_.getParam("sr_calibrations", calib);
     ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
     // iterate on all the joints
     for (int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
@@ -386,7 +386,7 @@ namespace shadow_robot
   {
     CoupledJointMapType coupled_joint_calibration;
     XmlRpc::XmlRpcValue calib;
-    nodehandle_.getParam("sr_calibrations/coupled", calib);
+    nodehandle_.getParam("sr_calibrations_coupled", calib);
     ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
     // iterate on all the joint pairs
     for (int32_t cal_index = 0; cal_index < calib.size(); ++cal_index)
