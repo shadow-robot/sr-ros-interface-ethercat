@@ -229,6 +229,26 @@ namespace shadow_robot
             // initialize the coupled joints calibration map
             coupled_calibration_map(read_coupled_joint_calibration())
   {
+    // Generate additional points around the actual calibration points
+    add_surrounding_points(NB_CALIBRATION_POINTS, node_xy, zd_thj1, NB_SURROUNDING_POINTS);
+    add_surrounding_points(NB_CALIBRATION_POINTS, node_xy, zd_thj2, NB_SURROUNDING_POINTS);
+    //
+    //  Set up the Delaunay triangulation.
+    //
+    r8tris2 ( node_num, node_xy, element_num, triangle, element_neighbor );
+
+    for ( int j = 0; j < element_num; j++ )
+    {
+      for ( int i = 0; i < 3; i++ )
+      {
+        if ( 0 < element_neighbor[i+j*3] )
+        {
+          element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
+        }
+      }
+    }
+    // filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
+    // triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
   }
 
   template<class StatusType, class CommandType>

@@ -59,6 +59,7 @@
 #include <sr_external_dependencies/types_for_external.h>
 #include "sr_interpolation/pwl_interp_2d_scattered.hpp"
 
+
 extern "C"
 {
 #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
@@ -94,6 +95,10 @@ typedef CRCUnion union16;
 
 namespace shadow_robot
 {
+#define NB_CALIBRATION_POINTS  (25)
+#define NB_SURROUNDING_POINTS  (10)
+#define NB_TOTAL_POINTS (NB_CALIBRATION_POINTS + NB_SURROUNDING_POINTS)
+
 template<class StatusType, class CommandType>
 class SrRobotLib
 {
@@ -341,6 +346,7 @@ public:
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
   CoupledJointMapType coupled_calibration_map;
+
 };  // end class
 }  // namespace shadow_robot
 

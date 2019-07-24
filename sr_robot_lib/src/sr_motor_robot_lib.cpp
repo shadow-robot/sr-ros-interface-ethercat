@@ -965,6 +965,7 @@ namespace shadow_robot
         int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
         // push the new raw values
         actuator->motor_state_.raw_sensor_values_.push_back(raw_pos);
+        double tmp_cal_value;
 
         double tmp_cal_value;
         bool joint_coupled = this->check_if_joint_coupled(joint_tmp->joint_name);
