@@ -22,7 +22,10 @@
   <!-- the path to the mapping files -->
   <arg name="rh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
   <arg name="lh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/lh_E_v3.yaml"/>
-
+  <!-- The robot state publisher publishing frequency  -->
+  <arg name="robot_state_pub_frequency" default="100"/>
+  <!-- The joint state publisher publishing frequency  -->
+  <arg name="joint_state_pub_frequency" default="100"/>
 
   <param name="/hand/mapping/$(arg rh_serial)" value="$(arg rh_id)"/>
   <param name="/hand/mapping/$(arg lh_serial)" value="$(arg lh_id)"/>
@@ -99,11 +102,13 @@
     <rosparam command="load" file="$(find sr_ethercat_hand_config)/diagnostic_analyzer_bimanual.yaml"/>
   </node>
 
-  <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch"/>
+  <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch">
+      <arg name="publish_rate" value="$(arg joint_state_pub_frequency)"/>
+    </include>
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="100.0"/>
+    <param name="publish_frequency" type="double" value="$(arg robot_state_pub_frequency)"/>
   </node>
     <!-- adding tactile state publisher using the tf prefix as a namespace -->
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
