@@ -392,44 +392,45 @@ namespace shadow_robot
     for (int32_t cal_index = 0; cal_index < calib.size(); ++cal_index)
     {
       std::vector<std::string> joint_pair;
-      std::vector<std::vector<std::vector<double> > > raw_and_calibrated_values_vector;
+
+      std::vector<double> raw_values_coupled;
+      std::vector<double> calibrated_values_0;
+      std::vector<double> calibrated_values_1;
 
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][0].getType());
       ROS_ASSERT(2 == calib[cal_index][0].size());
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1].getType());
 
-      //check if the key is two strings 
-      for (int32_t joint_index = 0; joint_index < calib[cal_index][0].size(); ++joint_index)
-      {
-        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][joint_index].getType());
-        joint_pair.push_back(static_cast<string>(calib[cal_index][0][joint_index]));
-      } // key format ok
-
       // check if values format is ok
       for (int32_t raw_and_calibrated_value_index = 0; raw_and_calibrated_value_index < calib[cal_index][1].size(); ++raw_and_calibrated_value_index)
       {
-        std::vector<std::vector<double> > raw_and_calibrated_values;
-
+        // iterating over every [[1, 1], 1, 1]
         ROS_ASSERT(calib[cal_index][1][raw_and_calibrated_value_index].getType() == XmlRpc::XmlRpcValue::TypeArray);
-        ROS_ASSERT(2 == calib[cal_index][1][raw_and_calibrated_value_index].size());
+        ROS_ASSERT(3 == calib[cal_index][1][raw_and_calibrated_value_index].size());
 
-        for (int32_t value_index = 0; value_index < calib[cal_index][1][raw_and_calibrated_value_index].size(); ++value_index)
-        {
-          std::vector<double> value_pair;
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index][0].getType());
+        ROS_ASSERT(2 == calib[cal_index][1][raw_and_calibrated_value_index][0].size());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][1].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][2].getType());
 
-          ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index][value_index].getType());
-          ROS_ASSERT(2 == calib[cal_index][1][raw_and_calibrated_value_index][value_index].size());
-          ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][value_index][0].getType());
-          ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][value_index][1].getType());
-
-          value_pair.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][value_index][0]));
-          value_pair.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][value_index][1]));
-          raw_and_calibrated_values.push_back(value_pair);
-        }
-        raw_and_calibrated_values_vector.push_back(raw_and_calibrated_values);
+        raw_values_coupled.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][0]));
+        raw_values_coupled.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][1]));
+        calibrated_values_0.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][1]));
+        calibrated_values_1.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][2]));
       } //value format ok
 
-      coupled_joint_calibration.insert(std::pair<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > >(joint_pair, raw_and_calibrated_values_vector));
+
+      ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][0].getType());
+      ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][1].getType());
+
+      std::string joint_0_name = static_cast<string>(calib[cal_index][0][0]);
+      std::string joint_1_name = static_cast<string>(calib[cal_index][0][1]);
+
+      CoupledJoint coupled_joint_0(joint_0_name, joint_1_name, raw_values_coupled, calibrated_values_0);
+      CoupledJoint coupled_joint_1(joint_1_name, joint_0_name, raw_values_coupled, calibrated_values_1);
+
+      coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_0_name, coupled_joint_0));
+      coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_1_name, coupled_joint_1));
     }
     return coupled_joint_calibration;
   }  // end read_coupled_joint_calibration
@@ -555,6 +556,51 @@ namespace shadow_robot
                                                           operation_mode::device_update_state::OPERATION,
                                                           tactiles_init->tactiles_vector));
       ROS_ERROR_STREAM("Tactile Initialization Timeout: considering UBI0 tactiles");
+    }
+  }
+
+  CoupledJoint::CoupledJoint(std::string joint_name, std::string joint_sibling_name, 
+                             std::vector<double> raw_values_coupled_vector, std::vector<double> calibrated_values_vector)
+  {
+    name = joint_name;
+    sibling_name = joint_sibling_name;
+    raw_values_coupled = raw_values_coupled_vector;
+    calibrated_values = calibrated_values_vector;
+
+    initiate_helper_variables();
+    process_calibration_values();
+  }
+
+  CoupledJoint::~CoupledJoint()
+  {
+  }
+
+  void CoupledJoint::initiate_helper_variables()
+  {
+    calibration_points = raw_values_coupled.size() / 2; 
+    total_points  = calibration_points + nb_surrounding_points;
+    triangle = new int[3*2*total_points];
+    element_neighbor  = new int[3*2*total_points];
+  }
+
+  void CoupledJoint::process_calibration_values()
+  {
+    // Generate additional points around the actual calibration points
+    add_surrounding_points(calibration_points, &raw_values_coupled[0], &calibrated_values[0], nb_surrounding_points);
+    //
+    //  Set up the Delaunay triangulation.
+    //
+    r8tris2 (total_points, &raw_values_coupled[0], element_num, triangle, element_neighbor);
+
+    for ( int j = 0; j < element_num; j++ )
+    {
+        for ( int i = 0; i < 3; i++ )
+        {
+            if ( 0 < element_neighbor[i+j*3] )
+            {
+            element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
+            }
+        }
     }
   }
 

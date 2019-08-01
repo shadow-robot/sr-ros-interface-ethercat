@@ -95,9 +95,30 @@ typedef CRCUnion union16;
 
 namespace shadow_robot
 {
-#define NB_CALIBRATION_POINTS  (25)
-#define NB_SURROUNDING_POINTS  (10)
-#define NB_TOTAL_POINTS (NB_CALIBRATION_POINTS + NB_SURROUNDING_POINTS)
+
+class CoupledJoint
+{
+  public:
+    CoupledJoint(std::string joint_name, std::string joint_sibling_name, 
+                 std::vector<double> raw_values_coupled_vector, std::vector<double> calibrated_values_vector);
+    ~CoupledJoint();
+    
+    std::string name;
+    std::string sibling_name;
+    std::vector<double> raw_values_coupled;
+    std::vector<double> calibrated_values;
+
+    const int nb_surrounding_points = 10;
+    int calibration_points; 
+    int total_points;
+    int element_num;
+    int* triangle; // change to smart pointer
+    int* element_neighbor;  // change to smart pointer
+
+  private:
+    void initiate_helper_variables();
+    void process_calibration_values();
+};
 
 template<class StatusType, class CommandType>
 class SrRobotLib
@@ -194,7 +215,7 @@ public:
 
   ros_ethercat_model::RobotState *hw_;
 
-  typedef std::map<std::vector<std::string>, std::vector<std::vector<std::vector<double> > > > CoupledJointMapType;
+  typedef std::map<std::string, CoupledJoint> CoupledJointMapType;
 
 protected:
   // True if we want to set the demand to 0 (stop the controllers)
