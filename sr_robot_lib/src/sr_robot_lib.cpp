@@ -573,6 +573,8 @@ namespace shadow_robot
 
   CoupledJoint::~CoupledJoint()
   {
+    delete triangle;
+    delete element_neighbor;
   }
 
   void CoupledJoint::initiate_helper_variables()

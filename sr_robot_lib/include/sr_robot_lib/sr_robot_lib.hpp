@@ -352,7 +352,7 @@ protected:
   void checkSelfTests();
 
 public:
-  const int nb_surrounding_points = 10;
+  const int nb_surrounding_points = 10; // remove this
 
   /// Timeout handling variables for UBI sensors
   static const double tactile_timeout;
