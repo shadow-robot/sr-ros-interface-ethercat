@@ -112,8 +112,10 @@ class CoupledJoint
     int calibration_points; 
     int total_points;
     int element_num;
-    int* triangle; // change to smart pointer
-    int* element_neighbor;  // change to smart pointer
+    std::vector<int> triangle;
+    std::vector<int> element_neighbor;
+    // int *triangle; // change to smart pointer
+    // int *element_neighbor;  // change to smart pointer
 
   private:
     void initiate_helper_variables();

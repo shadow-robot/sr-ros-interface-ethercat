@@ -103,7 +103,7 @@ if (COMMAND add_rostest_gtest)
     target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES} sr_interpolation)
 
     add_rostest_gtest(motor_updater_test test/motor_updater.test test/motor_updater_test.cpp)
-    target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+    target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES} sr_interpolation)
 endif (COMMAND add_rostest_gtest)
 
 

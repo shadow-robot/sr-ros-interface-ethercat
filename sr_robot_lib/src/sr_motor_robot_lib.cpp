@@ -972,16 +972,16 @@ namespace shadow_robot
         // calibrate and then combine
         if (joint_coupled)
         {
-          CoupledJoint *current_joint = & (this->coupled_calibration_map.at(joint_tmp->joint_name));
+          CoupledJoint *current_joint = &(this->coupled_calibration_map.at(joint_tmp->joint_name));
           double xyi[2*1];
           double zi[1];
           int ni = 1;
 
           int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name(current_joint->sibling_name)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
-          xyi[0] = static_cast<double> (raw_pos);
-          xyi[1] = static_cast<double> (raw_pos_2nd_joint);
-          pwl_interp_2d_scattered_value (current_joint->total_points, &(current_joint->raw_values_coupled)[0], &(current_joint->calibrated_values)[0], current_joint->element_num,
-                                         current_joint->triangle, current_joint->element_neighbor, ni, xyi, zi);
+          xyi[0] = static_cast<double>(raw_pos);
+          xyi[1] = static_cast<double>(raw_pos_2nd_joint);
+          pwl_interp_2d_scattered_value(current_joint->total_points, &(current_joint->raw_values_coupled)[0], &(current_joint->calibrated_values)[0], current_joint->element_num,
+                                        &(current_joint->triangle)[0], &(current_joint->element_neighbor)[0], ni, xyi, zi);
           tmp_cal_value = zi[0];
         }
         else
