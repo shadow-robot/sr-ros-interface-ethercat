@@ -1,29 +1,28 @@
-/**
- * @file   sr_motor_hand_lib.hpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>
- * @date   Fri Jun  3 12:12:13 2011
- *
+/*
+* @file   sr_motor_hand_lib.hpp
+* @author Ugo Cupcic <ugo@shadowrobot.com>
+* @date   Fri Jun  3 12:12:13 2011
 *
-* Copyright 2011 Shadow Robot Company Ltd.
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
+* Software Foundation version 2 of the License.
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 * more details.
 *
 * You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 *
- * @brief This is a library for the etherCAT hand.
- * You can find it instantiated in the sr_edc_ethercat_drivers.
- *
- *
- */
+* @brief This is a library for the etherCAT hand.
+* You can find it instantiated in the sr_edc_ethercat_drivers.
+*
+*
+*/
 
 #ifndef _SR_MOTOR_HAND_LIB_HPP_
 #define _SR_MOTOR_HAND_LIB_HPP_
@@ -49,7 +48,7 @@ public:
   SrMotorHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde,
                  std::string device_id, std::string joint_prefix);
 
-  /**
+  /*
    * The service callback for setting the Force PID values. There's only one callback
    * function, but it can called for any motors. We know which motor called the service
    * thanks to the motor_index.
@@ -64,7 +63,7 @@ public:
                           sr_robot_msgs::ForceController::Response &response,
                           int motor_index);
 
-  /**
+  /*
    * Reset the motor at motor index.
    *
    * @param request empty
@@ -79,7 +78,7 @@ public:
                             std::pair<int, std::string> joint);
 
 #ifdef DEBUG_PUBLISHER
-  /**
+  /*
    * This is a service callback: we set the debug data we want to publish
    * at full speed in the debug topics.
    *
@@ -93,7 +92,7 @@ public:
 #endif
 
 protected:
-  /**
+  /*
    * Initializes the hand library with the needed values.
    *
    * @param joint_names A vector containing all the joint names.
@@ -103,7 +102,7 @@ protected:
   virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
                           std::vector<shadow_joints::JointToSensor> joint_to_sensors);
 
-  /**
+  /*
    * Updates the parameter values for the force control in the Parameter Server
    *
    * @param joint_name The name of the joint.
@@ -122,7 +121,7 @@ protected:
     std::string joint_name, int max_pwm, int sg_left, int sg_right, int f, int p, int i,
     int d, int imax, int deadband, int sign, int torque_limit, int torque_limiter_gain);
 
-  /**
+  /*
    * Finds the joint name for a certain motor index
    *
    * @param motor_index The integer motor index
@@ -130,7 +129,7 @@ protected:
   std::string find_joint_name(int motor_index);
 
 private:
-  /**
+  /*
    * Reads the mapping associating a joint to a motor.
    * If the motor index is -1, then no motor is associated
    * to this joint.
@@ -145,7 +144,7 @@ private:
   static const char *human_readable_motor_data_types[];
   static const int32u motor_data_types[];
 
-  /**
+  /*
    * Read the motor board force pids from the parameter servers,
    * called when resetting the motor.
    *
@@ -154,7 +153,7 @@ private:
    */
   void resend_pids(std::string joint_name, int motor_index);
 
-  /**
+  /*
    * A map used to keep the timers created in reset_motor_callback alive.
    * We're using a map to keep only one timer per joint.
    */

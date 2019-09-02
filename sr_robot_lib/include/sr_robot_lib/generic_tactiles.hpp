@@ -1,29 +1,28 @@
-/**
- * @file   generic_tactiles.hpp
- * @author Toni Oliver <toni@shadowrobot.com>
- * @date   Th Oct 20 10:06:14 2011
- *
-* Copyright 2011 Shadow Robot Company Ltd.
+/*
+* @file   generic_tactiles.hpp
+* @author Toni Oliver <toni@shadowrobot.com>
+* @date   Th Oct 20 10:06:14 2011
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
+* Software Foundation version 2 of the License.
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 * more details.
 *
 * You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 *
 *
- * @brief This is the main class for accessing the data from the
- *        tactiles.
- *
- *
- */
+* @brief This is the main class for accessing the data from the
+*        tactiles.
+*
+*
+*/
 
 #ifndef GENERIC_TACTILES_HPP_
 #define GENERIC_TACTILES_HPP_
@@ -65,7 +64,7 @@ public:
   {
   }
 
-  /**
+  /*
    * This function is called each time a new etherCAT message
    * is received in the sr06.cpp driver. It  updates the tactile
    * sensors values contained in tactiles_vector.
@@ -74,20 +73,20 @@ public:
    */
   virtual void update(StatusType *status_data);
 
-  /**
+  /*
    * Publish the information to a ROS topic.
    *
    */
   virtual void publish();
 
-  /**
+  /*
    * This function adds the diagnostics for the tactiles to the
    * multi diagnostic status published by the hand.
    */
   virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                diagnostic_updater::DiagnosticStatusWrapper &d);
 
-  /**
+  /*
    * Reset the tactile sensors.
    *
    * @param request empty
@@ -118,7 +117,7 @@ protected:
   // Contains the received data types.
   std::vector<int32u> initialization_received_data_vector;
 
-  /**
+  /*
    * Sanitise a string coming from the palm. Make sure we're not
    * outputting garbage in the diagnostics topic.
    * The acceptable range for the char is [0x20 .. 0x7E]

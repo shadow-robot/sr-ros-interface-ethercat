@@ -1,28 +1,27 @@
-/**
- * @file   sr_motor_robot_lib.hpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
- * @date   Tue Mar  19 17:12:13 2013
- *
- *
- * Copyright 2013 Shadow Robot Company Ltd.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @brief This is a generic robot library for Shadow Robot's motor-actuated Hardware.
- *
- *
- */
+/*
+* @file   sr_motor_robot_lib.hpp
+* @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+* @date   Tue Mar  19 17:12:13 2013
+*
+*
+/* Copyright 2013 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* @brief This is a generic robot library for Shadow Robot's motor-actuated Hardware.
+*
+*
+*/
 
 #ifndef _SR_MOTOR_ROBOT_LIB_HPP_
 #define _SR_MOTOR_ROBOT_LIB_HPP_
@@ -54,7 +53,7 @@ public:
   SrMotorRobotLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde,
                   std::string device_id, std::string joint_prefix);
 
-  /**
+  /*
    * This function is called each time a new etherCAT message
    * is received in the sr06.cpp driver. It updates the joints_vector,
    * updating the different values, computing the calibrated joint
@@ -64,7 +63,7 @@ public:
    */
   void update(StatusType *status_data);
 
-  /**
+  /*
    * Builds a motor command: either send a torque demand or a configuration
    * demand if one is waiting.
    *
@@ -72,14 +71,14 @@ public:
    */
   void build_command(CommandType *command);
 
-  /**
+  /*
    * This function adds the diagnostics for the hand to the
    * multi diagnostic status published in sr06.cpp.
    */
   void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                        diagnostic_updater::DiagnosticStatusWrapper &d);
 
-  /**
+  /*
    * Initiates the process to retrieve the initialization information from the motors
    */
   void reinitialize_motors();
@@ -90,7 +89,7 @@ public:
 
 
 protected:
-  /**
+  /*
    * Initializes the hand library with the needed values.
    *
    * @param joint_names A vector containing all the joint names.
@@ -100,7 +99,7 @@ protected:
   virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
                           std::vector<shadow_joints::JointToSensor> joint_to_sensors) = 0;
 
-  /**
+  /*
    * Compute the calibrated position for the given joint. This method is called
    * from the update method, each time a new message is received.
    *
@@ -109,7 +108,7 @@ protected:
    */
   void calibrate_joint(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType *status_data);
 
-  /**
+  /*
    * Read additional data from the latest message and stores it into the
    * joints_vector.
    *
@@ -118,7 +117,7 @@ protected:
    */
   void read_additional_data(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType *status_data);
 
-  /**
+  /*
    * Calibrates and filters the position information (and computes velocity) for a give joint.
    * This method is called from the update method, each time a new message is received.
    *
@@ -129,7 +128,7 @@ protected:
   void process_position_sensor_data(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType *status_data,
                                     double timestamp);
 
-  /**
+  /*
    * Transforms the incoming flag as a human
    * readable vector of strings.
    *
@@ -139,7 +138,7 @@ protected:
    */
   std::vector<std::pair<std::string, bool> > humanize_flags(int flag);
 
-  /**
+  /*
    * Generates a force control config and adds it to the reconfig_queue with its
    * CRC. The config will be sent as soon as possible.
    *
@@ -159,7 +158,7 @@ protected:
     int motor_index, int max_pwm, int sg_left, int sg_right, int f, int p, int i, int d,
     int imax, int deadband, int sign, int torque_limit, int torque_limiter_gain);
 
-  /**
+  /*
    * Returns a pointer to the actuator for a certain joint.
    *
    * @param joint_tmp The joint we want to get the actuator from.
@@ -171,7 +170,7 @@ protected:
     return static_cast<sr_actuator::SrMotorActuator *>(joint_tmp->actuator_wrapper->actuator);
   }
 
-  /**
+  /*
    * The motor updater is used to create a correct command to send to the motor.
    * It's build_command() is called each time the SR06::packCommand()
    * is called.
@@ -179,13 +178,13 @@ protected:
   boost::shared_ptr<generic_updater::MotorUpdater<CommandType> > motor_updater_;
 
 
-  /**
+  /*
    * The ForceConfig type consists of an int representing the motor index for this config
    * followed by a vector of config: the index in the vector of config corresponds to the
    * type of the data, and the value at this index corresponds to the value we want to set.
    */
   typedef std::pair<int, std::vector<crc_unions::union16> > ForceConfig;
-  /**
+  /*
    * This queue contains the force PID config waiting to be pushed to the motor.
    */
   std::queue<ForceConfig, std::list<ForceConfig> > reconfig_queue;
@@ -214,7 +213,7 @@ protected:
 
   // The current type of control (FORCE demand or PWM demand sent to the motors)
   sr_robot_msgs::ControlType control_type_;
-  /**
+  /*
    * Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
    * The flag is set in the callback function of the change_control_type_ service.
    * The flag is checked in build_command() and the necessary actions are taken there.
@@ -229,7 +228,7 @@ protected:
   // in the control type (PWM or torque) is ongoing
   boost::shared_ptr<boost::mutex> lock_command_sending_;
 
-  /**
+  /*
    * The callback to the change_control_type_ service. Updates
    *  the current control_type_ with the requested control_type.
    *
@@ -241,7 +240,7 @@ protected:
   bool change_control_type_callback_(sr_robot_msgs::ChangeControlType::Request &request,
                                      sr_robot_msgs::ChangeControlType::Response &response);
 
-  /**
+  /*
    * Load the necessary parameters in the Parameter Server and
    * calls a service for every controller currently loaded in the controller manager to make it
    * reload (resetGains()) its parameters from the Parameter Server
@@ -258,7 +257,7 @@ protected:
   // A service server used to call the different motor system controls "buttons"
   ros::ServiceServer motor_system_control_server_;
 
-  /**
+  /*
    * The callback to the control_motor_ service. Sets the correct flags to 1 or 0
    *  for the MOTOR_SYSTEM_CONTROLS, to control the motors (backlash compensation
    *  on/off, increase sg tracking, jiggling, write config to EEprom)
@@ -277,6 +276,6 @@ protected:
 Local Variables:
    c-basic-offset: 2
 End:
- */
+*/
 
 #endif

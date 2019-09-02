@@ -1,27 +1,26 @@
 /**
- * @file   send_targets.cpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>
- * @date   Tue Sep  6 08:00:14 2011
- *
-* Copyright 2011 Shadow Robot Company Ltd.
+* @file   send_targets.cpp
+* @author Ugo Cupcic <ugo@shadowrobot.com>
+* @date   Tue Sep  6 08:00:14 2011
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
+* Software Foundation version 2 of the License.
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 * more details.
 *
 * You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 *
- * @brief  This is an example which shows you how to send position targets to the
- * etherCAT hand.
- *
- */
+* @brief  This is an example which shows you how to send position targets to the
+* etherCAT hand.
+*
+*/
 
 
 #include <ros/ros.h>
@@ -119,17 +118,17 @@ protected:
 
 
 /**
- * The main instantiates a TargetSender and publishes
- * a target which grows continuously from 0 to 90, then
- * jumps back to 0, and starts again.
- *
- * The publishing stops when the node is killed (CTRL+C).
- *
- * @param argc
- * @param argv
- *
- * @return
- */
+* The main instantiates a TargetSender and publishes
+* a target which grows continuously from 0 to 90, then
+* jumps back to 0, and starts again.
+*
+* The publishing stops when the node is killed (CTRL+C).
+*
+* @param argc
+* @param argv
+*
+* @return
+*/
 int main(int argc, char **argv)
 {
   // Initialize the ROS node.

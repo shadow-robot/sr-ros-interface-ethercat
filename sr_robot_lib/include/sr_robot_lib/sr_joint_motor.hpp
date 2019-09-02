@@ -1,28 +1,27 @@
-/**
- * @file   sr_joint_motor.hpp
- * @author toni <toni@shadowrobot.com>
- * @date   26 Oct 2011
- *
- * Copyright 2011 Shadow Robot Company Ltd.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- * @brief Contains the definitions of Motor and Joint
- *
- *
- */
+/*
+* @file   sr_joint_motor.hpp
+* @author toni <toni@shadowrobot.com>
+* @date   26 Oct 2011
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+*
+* @brief Contains the definitions of Motor and Joint
+*
+*
+*/
 
 #ifndef SR_JOINT_MOTOR_HPP_
 #define SR_JOINT_MOTOR_HPP_
@@ -70,12 +69,12 @@ public:
   // actuator
   ros_ethercat_model::Actuator *actuator;
 
-  /**
+  /*
    * this boolean is set to true as long as we receive the
    * data from the actuator.
    */
   bool actuator_ok;
-  /**
+  /*
    * this boolean is set to true if the data coming from the actuator
    * through the CAN bus are messed up.
    */
@@ -99,13 +98,13 @@ public:
   // the position of the motor in the message array
   int msg_motor_id;
 
-  /**
+  /*
    * A service used to set the force PID settings on the
    * motor.
    */
   ros::ServiceServer force_pid_service;
 
-  /**
+  /*
    * A service used to reset the
    * motors.
    */
@@ -150,7 +149,7 @@ public:
   bool driver_ok;
   bool bad_data;
 
-  /**
+  /*
    * A service used to reset the HW
    * muscle controller
    */
@@ -199,6 +198,6 @@ typedef threadsafe::Map<boost::shared_ptr<shadow_robot::JointCalibration> > Cali
  Local Variables:
  c-basic-offset: 2
  End:
- */
+*/
 
 #endif /* SR_JOINT_MOTOR_HPP_ */

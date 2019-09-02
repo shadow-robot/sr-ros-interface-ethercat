@@ -1,29 +1,28 @@
-/**
- * @file   sr_muscle_hand_lib.hpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
- * @date   Tue Mar  19 17:12:13 2013
- *
- *
- * Copyright 2013 Shadow Robot Company Ltd.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @brief This is a library for the etherCAT muscle hand.
- * You can find it instantiated in the sr_edc_ethercat_drivers.
- *
- *
- */
+/*
+* @file   sr_muscle_hand_lib.hpp
+* @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+* @date   Tue Mar  19 17:12:13 2013
+*
+*
+/* Copyright 2013 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* @brief This is a library for the etherCAT muscle hand.
+* You can find it instantiated in the sr_edc_ethercat_drivers.
+*
+*
+*/
 
 #ifndef _SR_MUSCLE_HAND_LIB_HPP_
 #define _SR_MUSCLE_HAND_LIB_HPP_
@@ -48,7 +47,7 @@ public:
   SrMuscleHandLib(hardware_interface::HardwareInterface *hw, ros::NodeHandle nh, ros::NodeHandle nhtilde,
                   std::string device_id, std::string joint_prefix);
 
-  /**
+  /*
    * Reset the muscle driver at motor index.
    *
    * @param request empty
@@ -62,7 +61,7 @@ public:
                                     int muscle_driver_index);
 
 #ifdef DEBUG_PUBLISHER
-  /**
+  /*
    * This is a service callback: we set the debug data we want to publish
    * at full speed in the debug topics.
    *
@@ -76,7 +75,7 @@ public:
 #endif
 
 protected:
-  /**
+  /*
    * Initializes the hand library with the needed values.
    *
    * @param joint_names A vector containing all the joint names.
@@ -86,7 +85,7 @@ protected:
   virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
                           std::vector<shadow_joints::JointToSensor> joint_to_sensors);
 
-  /**
+  /*
    * Initializes the hand library with the needed values.
    *
    * @param joint_names A vector containing all the joint names.
@@ -97,7 +96,7 @@ protected:
                   std::vector<shadow_joints::JointToSensor> joint_to_sensors);
 
 private:
-  /**
+  /*
    * Reads the mapping associating a joint to a muscle.
    * If the muscle index is -1, then no muscle is associated
    * to this joint.
