@@ -1,13 +1,13 @@
 /**
- * @file   sr_tactile_sensor_controller.cpp
- * @author Guillaume Walck <gwalck@techfak.uni-bielefeld.de>
- * @date   Aug 22 2014
- *
- * Copyright 2014 University of Bielefeld
- *
- * @brief  Generic controller for tactile sensor data publishing.
- *
- */
+* @file   sr_tactile_sensor_controller.cpp
+* @author Guillaume Walck <gwalck@techfak.uni-bielefeld.de>
+* @date   Aug 22 2014
+*
+* Copyright 2014 University of Bielefeld
+*
+* @brief  Generic controller for tactile sensor data publishing.
+*
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 2012, hiDOF INC.
@@ -182,4 +182,4 @@ PLUGINLIB_EXPORT_CLASS(controller::SrTactileSensorController, controller_interfa
 Local Variables:
    c-basic-offset: 2
 End:
- */
+*/

@@ -1,28 +1,27 @@
 /**
- * @file   test_robot_lib.cpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>
- * @date   Wed Jun 22 13:04:41 2011
- *
-* Copyright 2011 Shadow Robot Company Ltd.
+* @file   test_robot_lib.cpp
+* @author Ugo Cupcic <ugo@shadowrobot.com>
+* @date   Wed Jun 22 13:04:41 2011
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
+* Software Foundation version 2 of the License.
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 * more details.
 *
 * You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 *
 *
- * @brief This is a set of unit tests testing the robot libraries.
- *
- *
- */
+* @brief This is a set of unit tests testing the robot libraries.
+*
+*
+*/
 
 #include "sr_robot_lib/sr_motor_hand_lib.hpp"
 #include <sr_mechanism_model/simple_transmission.hpp>
@@ -98,8 +97,8 @@ public:
 };
 
 /**
- * Tests the initialization of the hand library.
- */
+* Tests the initialization of the hand library.
+*/
 TEST(SrRobotLib, Initialization)
 {
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
@@ -114,8 +113,8 @@ TEST(SrRobotLib, Initialization)
 }
 
 /**
- * Tests the update of the hand library.
- */
+* Tests the update of the hand library.
+*/
 TEST(SrRobotLib, UpdateMotor)
 {
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
@@ -179,9 +178,9 @@ TEST(SrRobotLib, UpdateMotor)
 }
 
 /**
- * Tests the update of the actuators
- * which are in the hw*
- */
+* Tests the update of the actuators
+* which are in the hw*
+*/
 
 TEST(SrRobotLib, UpdateActuators)
 {
@@ -224,11 +223,11 @@ TEST(SrRobotLib, UpdateActuators)
 }
 
 /**
- * For the next tests we want to have access to the calibrate_joint
- * method which is protected in our code.
- * The method is found at:
- * http://code.google.com/p/googletest/wiki/V1_6_FAQ#How_do_I_test_private_class_members_without_writing_FRIEND_TEST(
- */
+* For the next tests we want to have access to the calibrate_joint
+* method which is protected in our code.
+* The method is found at:
+* http://code.google.com/p/googletest/wiki/V1_6_FAQ#How_do_I_test_private_class_members_without_writing_FRIEND_TEST(
+*/
 class TestHandLib
         :
                 public HandLibTestProtected
@@ -250,10 +249,10 @@ public:
 
 
 /**
- * Testing the calibration procedure for
- * a joint having one motor only (FFJ3)
- *
- */
+* Testing the calibration procedure for
+* a joint having one motor only (FFJ3)
+*
+*/
 // TEST(SrRobotLib, CalibrationOneMotor)
 // {
 
@@ -433,9 +432,9 @@ public:
 // }
 
 /**
- * Testing the humanization of the flags.
- *
- */
+* Testing the humanization of the flags.
+*
+*/
 TEST(SrRobotLib, HumanizeFlags)
 {
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
