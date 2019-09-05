@@ -412,13 +412,15 @@ namespace shadow_robot
 
         ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index][0].getType());
         ROS_ASSERT(2 == calib[cal_index][1][raw_and_calibrated_value_index][0].size());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][0][0].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][0][1].getType());
         ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][1].getType());
         ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][2].getType());
 
-        raw_values_coupled.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][0]));
-        raw_values_coupled.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][1]));
-        calibrated_values_0.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][1]));
-        calibrated_values_1.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][2]));
+        raw_values_coupled.push_back(static_cast<double>(static_cast<int> (calib[cal_index][1][raw_and_calibrated_value_index][0][0])));
+        raw_values_coupled.push_back(static_cast<double>(static_cast<int> (calib[cal_index][1][raw_and_calibrated_value_index][0][1])));
+        calibrated_values_0.push_back(static_cast<double> (calib[cal_index][1][raw_and_calibrated_value_index][1]));
+        calibrated_values_1.push_back(static_cast<double> (calib[cal_index][1][raw_and_calibrated_value_index][2]));
       } //value format ok
 
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][0].getType());
@@ -426,9 +428,6 @@ namespace shadow_robot
 
       std::string joint_0_name = static_cast<string>(calib[cal_index][0][0]);
       std::string joint_1_name = static_cast<string>(calib[cal_index][0][1]);
-
-      ROS_INFO_STREAM("raw: " << raw_values_coupled.size() << std::endl << "calibrated: " << calibrated_values_0.size() << std::endl);
-      ROS_INFO_STREAM("raw: " << raw_values_coupled.size() << std::endl << "calibrated: " << calibrated_values_1.size() << std::endl);
 
       CoupledJoint coupled_joint_0(joint_0_name, joint_1_name, raw_values_coupled, calibrated_values_0);
       CoupledJoint coupled_joint_1(joint_1_name, joint_0_name, raw_values_coupled, calibrated_values_1);
