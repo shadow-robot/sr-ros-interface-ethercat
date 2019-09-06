@@ -225,11 +225,10 @@ namespace shadow_robot
                                                                  operation_mode::device_update_state::INITIALIZATION))),
 
             // initialize the calibration map
-            calibration_map(read_joint_calibration())
+            calibration_map(read_joint_calibration()),
             // initialize the coupled joints calibration map
-            //coupled_calibration_map()
+            coupled_calibration_map(read_coupled_joint_calibration())
   {
-    read_coupled_joint_calibration();
   }
 
   template<class StatusType, class CommandType>
@@ -433,7 +432,7 @@ namespace shadow_robot
       CoupledJoint coupled_joint_1(joint_1_name, joint_0_name, raw_values_coupled, calibrated_values_1);
 
       coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_0_name, coupled_joint_0));
-      coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_1_name, coupled_joint_1));
+      // coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_1_name, coupled_joint_1));
       
     }
     return coupled_joint_calibration;
@@ -572,8 +571,15 @@ namespace shadow_robot
     calibration_points = raw_values_coupled_vector.size() / 2; 
     total_points  = calibration_points + nb_surrounding_points;
 
-    raw_values_coupled.reserve(2*total_points);
-    calibrated_values.reserve(total_points);
+    for (int i = 0; i < 2*total_points; i++)
+    {
+      raw_values_coupled.push_back(0);
+    }
+
+    for (int i = 0; i < total_points; i++)
+    {
+      calibrated_values.push_back(0);
+    }
 
     for(std::vector<double>::size_type i = 0; i != raw_values_coupled_vector.size(); i++)
     {
@@ -585,6 +591,17 @@ namespace shadow_robot
       calibrated_values[i] = calibrated_values_vector[i];
     }
 
+    for(const double &val : raw_values_coupled)
+    {
+      ROS_WARN_STREAM(val << std::endl);
+    }
+    ROS_WARN_STREAM("--------------------");
+    for(const double &val : calibrated_values)
+    {
+      ROS_WARN_STREAM(val << std::endl);
+    }
+    ROS_WARN_STREAM("--------------------");
+
     initiate_helper_variables();
     process_calibration_values();
   }
@@ -595,29 +612,35 @@ namespace shadow_robot
 
   void CoupledJoint::initiate_helper_variables()
   {
-    triangle.reserve(3*2*total_points);
-    element_neighbor.reserve(3*2*total_points);
+    for (int i = 0; i < 3*2*total_points; i++)
+    {
+      triangle.push_back(0);
+      element_neighbor.push_back(0);
+    }
   }
 
   void CoupledJoint::process_calibration_values()
   {
     // Generate additional points around the actual calibration points
+
+    ROS_WARN_STREAM(calibration_points);
+    ROS_WARN_STREAM(nb_surrounding_points);
     add_surrounding_points(calibration_points, &raw_values_coupled[0], &calibrated_values[0], nb_surrounding_points);
     //
     //  Set up the Delaunay triangulation.
     //
-    // r8tris2 (total_points, &raw_values_coupled[0], element_num, &triangle[0], &element_neighbor[0]);
+    r8tris2 (total_points, &raw_values_coupled[0], element_num, &triangle[0], &element_neighbor[0]);
 
-    // for ( int j = 0; j < element_num; j++ )
-    // {
-    //     for ( int i = 0; i < 3; i++ )
-    //     {
-    //         if ( 0 < element_neighbor[i+j*3] )
-    //         {
-    //         element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
-    //         }
-    //     }
-    // }
+    for ( int j = 0; j < element_num; j++ )
+    {
+        for ( int i = 0; i < 3; i++ )
+        {
+            if ( 0 < element_neighbor[i+j*3] )
+            {
+            element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
+            }
+        }
+    }
   }
 
 // Only to ensure that the template class is compiled for the types we are interested in

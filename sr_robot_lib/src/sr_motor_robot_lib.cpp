@@ -104,6 +104,7 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::update(StatusType *status_data)
   {
+    ROS_WARN_STREAM("CZES");
     // read the PIC idle time
     this->main_pic_idle_time = status_data->idle_time_us;
     if (status_data->idle_time_us < this->main_pic_idle_time_min)
@@ -968,7 +969,8 @@ namespace shadow_robot
 
         double tmp_cal_value;
         bool joint_coupled = this->check_if_joint_coupled(joint_tmp->joint_name);
-
+        std::cout << "CHUUUUUUUUUUUUUUUUUj";
+        ROS_WARN_STREAM("CHUUUUUUUUUUUUJ");
         // calibrate and then combine
         if (joint_coupled)
         {
