@@ -591,17 +591,6 @@ namespace shadow_robot
       calibrated_values[i] = calibrated_values_vector[i];
     }
 
-    for(const double &val : raw_values_coupled)
-    {
-      ROS_WARN_STREAM(val << std::endl);
-    }
-    ROS_WARN_STREAM("--------------------");
-    for(const double &val : calibrated_values)
-    {
-      ROS_WARN_STREAM(val << std::endl);
-    }
-    ROS_WARN_STREAM("--------------------");
-
     initiate_helper_variables();
     process_calibration_values();
   }
@@ -622,9 +611,6 @@ namespace shadow_robot
   void CoupledJoint::process_calibration_values()
   {
     // Generate additional points around the actual calibration points
-
-    ROS_WARN_STREAM(calibration_points);
-    ROS_WARN_STREAM(nb_surrounding_points);
     add_surrounding_points(calibration_points, &raw_values_coupled[0], &calibrated_values[0], nb_surrounding_points);
     //
     //  Set up the Delaunay triangulation.

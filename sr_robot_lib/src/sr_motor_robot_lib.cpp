@@ -969,8 +969,6 @@ namespace shadow_robot
 
         double tmp_cal_value;
         bool joint_coupled = this->check_if_joint_coupled(joint_tmp->joint_name);
-        std::cout << "CHUUUUUUUUUUUUUUUUUj";
-        ROS_WARN_STREAM("CHUUUUUUUUUUUUJ");
         // calibrate and then combine
         if (joint_coupled)
         {
