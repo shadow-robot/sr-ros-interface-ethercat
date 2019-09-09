@@ -432,7 +432,7 @@ namespace shadow_robot
       CoupledJoint coupled_joint_1(joint_1_name, joint_0_name, raw_values_coupled, calibrated_values_1);
 
       coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_0_name, coupled_joint_0));
-      // coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_1_name, coupled_joint_1));
+      coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_1_name, coupled_joint_1));
       
     }
     return coupled_joint_calibration;

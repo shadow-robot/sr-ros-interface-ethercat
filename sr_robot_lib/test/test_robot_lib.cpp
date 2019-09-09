@@ -114,6 +114,24 @@ TEST(SrRobotLib, Initialization)
 }
 
 /**
+ * Tests parsing of the config.
+ */
+TEST(SrRobotLib, ConfigParsing)
+{
+  boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
+  // std::vector<double> tested_raw_values_coupled = {};
+  for (auto const& x : lib_test->sr_hand_lib->coupled_calibration_map)
+{
+    for (auto const& y: x.second.raw_values_coupled)
+    {
+      std::cout << y << std::endl;
+    }
+}
+
+  EXPECT_TRUE(true);
+}
+
+/**
  * Tests the update of the hand library.
  */
 TEST(SrRobotLib, UpdateMotor)

@@ -114,8 +114,6 @@ class CoupledJoint
     int element_num;
     std::vector<int> triangle;
     std::vector<int> element_neighbor;
-    // int *triangle; // change to smart pointer
-    // int *element_neighbor;  // change to smart pointer
 
   private:
     void initiate_helper_variables();
