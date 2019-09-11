@@ -3,7 +3,7 @@
   <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/rh/calibration.yaml"/>
   <rosparam command="load" file="$(find sr_edc_launch)/mappings/default_mappings/sensor_to_joint.yaml"/>
   <rosparam command="load" file="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
-  <rosparam command="load" file="$(find sr_robot_lib)/test/config/new_calibration.yaml"/>
+  <rosparam command="load" file="$(find sr_robot_lib)/test/config/calibration.yaml"/>
   <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)' "/>
   <test test-name="test_sr_robot_lib" pkg="sr_robot_lib" type="test_robot_lib"/>
 </launch>

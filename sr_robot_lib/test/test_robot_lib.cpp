@@ -119,16 +119,56 @@ TEST(SrRobotLib, Initialization)
 TEST(SrRobotLib, ConfigParsing)
 {
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
-  // std::vector<double> tested_raw_values_coupled = {};
-  for (auto const& x : lib_test->sr_hand_lib->coupled_calibration_map)
-{
-    for (auto const& y: x.second.raw_values_coupled)
-    {
-      std::cout << y << std::endl;
-    }
-}
+  std::vector<double> expected_processed_raw_values_coupled = {2738, 2301, 2693, 2154, 2680, 1978, 2677, 1840,
+                                                               2664, 1707, 2334, 2287, 2242, 2095, 2230, 1953,
+                                                               2223, 1807, 2206, 1685, 1839, 2243, 1772, 2112,
+                                                               1764, 1928, 1755, 1762, 1683, 1650, 1387, 2219,
+                                                               1375, 2056, 1370, 1884, 1337, 1741, 1329, 1630,
+                                                               1141, 2206, 1132, 2055, 1114, 1877, 1103, 1730,
+                                                               1092, 1615, 3779.36, 1940.6, 3408.06, 3083.35, 2435.98,
+                                                               3789.6, 1234.42, 3789.6, 262.344, 3083.35, -108.956,
+                                                               1940.6, 262.344, 797.854, 1234.42, 91.5974, 2435.98,
+                                                               91.5974, 3408.06, 797.854};
 
-  EXPECT_TRUE(true);
+std::map<std::string, std::vector<double>> expected_processed_calibrated_values= {{"THJ1", {0, 0, 0, 0, 0, 0.3927,
+                                                                                            0.3927, 0.3927, 0.3927,
+                                                                                            0.3927, 0.7854, 0.7854,
+                                                                                            0.7854, 0.7854, 0.7854,
+                                                                                            1.1781, 1.1781, 1.1781,
+                                                                                            1.1781, 1.1781, 1.5708,
+                                                                                            1.5708, 1.5708, 1.5708,
+                                                                                            1.5708, -1.09804, -0.5832,
+                                                                                            0.45440, 1.61843, 2.46427,
+                                                                                            2.66884, 2.154, 1.1164,
+                                                                                            -0.0476325, -0.893474}},
+                                                                                  {"THJ2", {0.6981, 0.34906, 0,
+                                                                                            -0.34906, -0.6981,
+                                                                                            0.6981, 0.34906, 0,
+                                                                                            -0.34906, -0.6981,
+                                                                                            0.6981, 0.34906, 0,
+                                                                                            -0.34906, -0.6981,
+                                                                                            0.6981, 0.34906, 0,
+                                                                                            -0.34906, -0.6981,
+                                                                                            0.6981, 0.34906, 0,
+                                                                                            -0.34906, -0.6981,
+                                                                                            -0.289805, 2.42309,
+                                                                                            4.21045, 4.38956,
+                                                                                            2.892, 0.289805,
+                                                                                            -2.42309, -4.21045,
+                                                                                            -4.38956, -2.892}}};
+
+  for (auto const& x : lib_test->sr_hand_lib->coupled_calibration_map)
+  {
+    for (int i=0; i < x.second.raw_values_coupled.size(); ++i)
+    {
+      EXPECT_NEAR(x.second.raw_values_coupled[i], expected_processed_raw_values_coupled[i], 0.01);
+    }
+
+    for (int i=0; i < x.second.calibrated_values.size(); ++i)
+    {
+      EXPECT_NEAR(x.second.calibrated_values[i], expected_processed_calibrated_values[x.first][i], 0.01);
+    }
+  }
 }
 
 /**
