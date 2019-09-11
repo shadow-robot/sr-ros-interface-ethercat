@@ -387,26 +387,21 @@ namespace shadow_robot
     CoupledJointMapType coupled_joint_calibration;
     XmlRpc::XmlRpcValue calib;
     nodehandle_.getParam("sr_calibrations_coupled", calib);
-    ROS_ASSERT(calib.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib.getType());
     // iterate on all the joint pairs
     for (int32_t cal_index = 0; cal_index < calib.size(); ++cal_index)
     {
       std::vector<std::string> joint_pair;
+      std::vector<double> raw_values_coupled, calibrated_values_0, calibrated_values_1;
 
-      std::vector<double> raw_values_coupled;
-      std::vector<double> calibrated_values_0;
-      std::vector<double> calibrated_values_1;
-
-      ROS_ASSERT(calib[cal_index][0].getType() == XmlRpc::XmlRpcValue::TypeArray);
+      ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][0].getType());
       ROS_ASSERT(2 == calib[cal_index][0].size());
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1].getType());
 
       // check if values format is ok
-
       for (int32_t raw_and_calibrated_value_index = 0; raw_and_calibrated_value_index < calib[cal_index][1].size(); ++raw_and_calibrated_value_index)
       {
-        // iterating over every [[1, 1], 1, 1]
-        ROS_ASSERT(calib[cal_index][1][raw_and_calibrated_value_index].getType() == XmlRpc::XmlRpcValue::TypeArray);
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index].getType());
         ROS_ASSERT(3 == calib[cal_index][1][raw_and_calibrated_value_index].size());
 
         ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index][0].getType());
@@ -565,33 +560,38 @@ namespace shadow_robot
   CoupledJoint::CoupledJoint(std::string joint_name, std::string joint_sibling_name, 
                              std::vector<double> raw_values_coupled_vector, std::vector<double> calibrated_values_vector)
   {
-    name = joint_name;
-    sibling_name = joint_sibling_name;
+    name_ = joint_name;
+    sibling_name_ = joint_sibling_name;
 
-    calibration_points = raw_values_coupled_vector.size() / 2; 
-    total_points  = calibration_points + nb_surrounding_points;
+    calibration_points_ = raw_values_coupled_vector.size() / 2; 
+    total_points_  = calibration_points_ + nb_surrounding_points_;
 
-    for (int i = 0; i < 2*total_points; i++)
+    for (int i = 0; i < 2*total_points_; i++)
     {
-      raw_values_coupled.push_back(0);
+      raw_values_coupled_.push_back(0);
     }
 
-    for (int i = 0; i < total_points; i++)
+    for (int i = 0; i < total_points_; i++)
     {
-      calibrated_values.push_back(0);
+      calibrated_values_.push_back(0);
+    }
+
+    for (int i = 0; i < 3*2*total_points_; i++)
+    {
+      triangle_.push_back(0);
+      element_neighbor_.push_back(0);
     }
 
     for(std::vector<double>::size_type i = 0; i != raw_values_coupled_vector.size(); i++)
     {
-      raw_values_coupled[i] = raw_values_coupled_vector[i];
+      raw_values_coupled_[i] = raw_values_coupled_vector[i];
     }
 
     for(std::vector<double>::size_type i = 0; i != calibrated_values_vector.size(); i++)
     {
-      calibrated_values[i] = calibrated_values_vector[i];
+      calibrated_values_[i] = calibrated_values_vector[i];
     }
 
-    initiate_helper_variables();
     process_calibration_values();
   }
 
@@ -599,31 +599,22 @@ namespace shadow_robot
   {
   }
 
-  void CoupledJoint::initiate_helper_variables()
-  {
-    for (int i = 0; i < 3*2*total_points; i++)
-    {
-      triangle.push_back(0);
-      element_neighbor.push_back(0);
-    }
-  }
-
   void CoupledJoint::process_calibration_values()
   {
     // Generate additional points around the actual calibration points
-    add_surrounding_points(calibration_points, &raw_values_coupled[0], &calibrated_values[0], nb_surrounding_points);
+    add_surrounding_points(calibration_points_, &raw_values_coupled_[0], &calibrated_values_[0], nb_surrounding_points_);
     //
     //  Set up the Delaunay triangulation.
     //
-    r8tris2 (total_points, &raw_values_coupled[0], element_num, &triangle[0], &element_neighbor[0]);
+    r8tris2 (total_points_, &raw_values_coupled_[0], element_num_, &triangle_[0], &element_neighbor_[0]);
 
-    for ( int j = 0; j < element_num; j++ )
+    for (int j = 0; j < element_num_; j++)
     {
-        for ( int i = 0; i < 3; i++ )
+        for (int i = 0; i < 3; i++)
         {
-            if ( 0 < element_neighbor[i+j*3] )
+            if ( 0 < element_neighbor_[i+j*3] )
             {
-            element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
+            element_neighbor_[i+j*3] = element_neighbor_[i+j*3] - 1;
             }
         }
     }

@@ -159,14 +159,14 @@ std::map<std::string, std::vector<double>> expected_processed_calibrated_values=
 
   for (auto const& x : lib_test->sr_hand_lib->coupled_calibration_map)
   {
-    for (int i=0; i < x.second.raw_values_coupled.size(); ++i)
+    for (int i=0; i < x.second.raw_values_coupled_.size(); ++i)
     {
-      EXPECT_NEAR(x.second.raw_values_coupled[i], expected_processed_raw_values_coupled[i], 0.01);
+      EXPECT_NEAR(x.second.raw_values_coupled_[i], expected_processed_raw_values_coupled[i], 0.01);
     }
 
-    for (int i=0; i < x.second.calibrated_values.size(); ++i)
+    for (int i=0; i < x.second.calibrated_values_.size(); ++i)
     {
-      EXPECT_NEAR(x.second.calibrated_values[i], expected_processed_calibrated_values[x.first][i], 0.01);
+      EXPECT_NEAR(x.second.calibrated_values_[i], expected_processed_calibrated_values[x.first][i], 0.01);
     }
   }
 }

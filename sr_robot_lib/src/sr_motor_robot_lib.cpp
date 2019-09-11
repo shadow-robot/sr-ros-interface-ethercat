@@ -104,7 +104,6 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::update(StatusType *status_data)
   {
-    ROS_WARN_STREAM("CZES");
     // read the PIC idle time
     this->main_pic_idle_time = status_data->idle_time_us;
     if (status_data->idle_time_us < this->main_pic_idle_time_min)
@@ -977,11 +976,11 @@ namespace shadow_robot
           double zi[1];
           int ni = 1;
 
-          int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name(current_joint->sibling_name)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
+          int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name(current_joint->sibling_name_)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
           xyi[0] = static_cast<double>(raw_pos);
           xyi[1] = static_cast<double>(raw_pos_2nd_joint);
-          pwl_interp_2d_scattered_value(current_joint->total_points, &(current_joint->raw_values_coupled)[0], &(current_joint->calibrated_values)[0], current_joint->element_num,
-                                        &(current_joint->triangle)[0], &(current_joint->element_neighbor)[0], ni, xyi, zi);
+          pwl_interp_2d_scattered_value(current_joint->total_points_, &(current_joint->raw_values_coupled_)[0], &(current_joint->calibrated_values_)[0], current_joint->element_num_,
+                                        &(current_joint->triangle_)[0], &(current_joint->element_neighbor_)[0], ni, xyi, zi);
           tmp_cal_value = zi[0];
         }
         else

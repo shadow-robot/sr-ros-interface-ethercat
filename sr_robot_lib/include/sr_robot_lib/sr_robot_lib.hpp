@@ -103,20 +103,18 @@ class CoupledJoint
                  std::vector<double> raw_values_coupled_vector, std::vector<double> calibrated_values_vector);
     ~CoupledJoint();
     
-    std::string name;
-    std::string sibling_name;
-    std::vector<double> raw_values_coupled;
-    std::vector<double> calibrated_values;
-
-    const int nb_surrounding_points = 10;
-    int calibration_points; 
-    int total_points;
-    int element_num;
-    std::vector<int> triangle;
-    std::vector<int> element_neighbor;
+    std::string name_;
+    std::string sibling_name_;
+    std::vector<double> raw_values_coupled_;
+    std::vector<double> calibrated_values_;
+    const int nb_surrounding_points_ = 10;
+    int calibration_points_; 
+    int total_points_;
+    int element_num_;
+    std::vector<int> triangle_;
+    std::vector<int> element_neighbor_;
 
   private:
-    void initiate_helper_variables();
     void process_calibration_values();
 };
 
