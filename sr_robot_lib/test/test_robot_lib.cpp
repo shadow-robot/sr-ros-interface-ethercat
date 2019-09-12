@@ -48,6 +48,7 @@ public:
 public:
   using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::joints_vector;
   using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::humanize_flags;
+  using shadow_robot::SrMotorHandLib<STATUS_TYPE, COMMAND_TYPE>::calibrate_joint;
 };
 
 class HandLibTest
@@ -169,6 +170,58 @@ std::map<std::string, std::vector<double>> expected_processed_calibrated_values=
       EXPECT_NEAR(x.second.calibrated_values_[i], expected_processed_calibrated_values[x.first][i], 0.01);
     }
   }
+}
+
+TEST(SrRobotLib, CalibrateJoint)
+{
+  boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
+  std::vector<shadow_joints::Joint>::iterator joint_tmp = lib_test->sr_hand_lib->joints_vector.begin();
+
+  STATUS_TYPE *status_data = new STATUS_TYPE();
+  // add growing sensors values
+  for (unsigned int i = 1; i < SENSORS_NUM_0220 + 2; ++i)
+  {
+    // position = id in joint enum
+    status_data->sensors[i] = i;
+  }
+
+  status_data->motor_data_type = MOTOR_DATA_SGR;
+
+  // even motors
+  status_data->which_motors = 0;
+
+  // all motor data arrived with no errors
+  status_data->which_motor_data_arrived = 0x00055555;
+  status_data->which_motor_data_had_errors = 0;
+
+  // add growing motor data packet values
+  for (unsigned int i = 0; i < 10; ++i)
+  {
+    status_data->motor_data_packet[i].torque = 4;
+    status_data->motor_data_packet[i].misc = 2 * i;
+  }
+  // filling the status data with known values
+  status_data->idle_time_us = 1;
+
+  for (; joint_tmp != lib_test->sr_hand_lib->joints_vector.end(); ++joint_tmp)
+  {
+    if ("THJ1" == (*joint_tmp).joint_name)
+    {
+      break;
+    }
+  }
+
+  lib_test->sr_hand_lib->calibrate_joint(joint_tmp, status_data);
+
+  boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper =
+              boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
+
+    const sr_actuator::SrMotorActuator *sr_actuator =
+                static_cast<sr_actuator::SrMotorActuator *>(motor_wrapper->actuator);
+
+  std::cout << sr_actuator->motor_state_.position_unfiltered_;
+
+  EXPECT_TRUE(true);
 }
 
 /**

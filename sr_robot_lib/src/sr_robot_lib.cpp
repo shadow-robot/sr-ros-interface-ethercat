@@ -384,6 +384,13 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   typename SrRobotLib<StatusType, CommandType>::CoupledJointMapType SrRobotLib<StatusType, CommandType>::read_coupled_joint_calibration()
   {
+
+    // for (auto const& x : )
+    // {
+    //     std::cout << x  // string (key)
+    //               << std::endl ;
+    // }
+
     CoupledJointMapType coupled_joint_calibration;
     XmlRpc::XmlRpcValue calib;
     nodehandle_.getParam("sr_calibrations_coupled", calib);
@@ -397,6 +404,17 @@ namespace shadow_robot
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][0].getType());
       ROS_ASSERT(2 == calib[cal_index][0].size());
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1].getType());
+
+      for (int i = 0; i < calib[cal_index][0].size(); ++i)
+      {
+        if (std::find(calibration_map.keys().begin(),
+              calibration_map.keys().end(), static_cast<string>(calib[cal_index][0][i]))
+                != calibration_map.keys().end())
+        {
+          ROS_WARN_STREAM("Calibration for joint " << calib[cal_index][0][i] << " present in both regular and"
+                          "coupled form in the calibration file. Only coupled calibration will be used!");
+        }
+      }
 
       // check if values format is ok
       for (int32_t raw_and_calibrated_value_index = 0; raw_and_calibrated_value_index < calib[cal_index][1].size(); ++raw_and_calibrated_value_index)
