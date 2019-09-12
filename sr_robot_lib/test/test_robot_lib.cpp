@@ -176,6 +176,7 @@ TEST(SrRobotLib, CalibrateJoint)
 {
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
   std::vector<shadow_joints::Joint>::iterator joint_tmp = lib_test->sr_hand_lib->joints_vector.begin();
+  const double expected_motor_position = 2.21185;
 
   STATUS_TYPE *status_data = new STATUS_TYPE();
   // add growing sensors values
@@ -216,12 +217,11 @@ TEST(SrRobotLib, CalibrateJoint)
   boost::shared_ptr<shadow_joints::MotorWrapper> motor_wrapper =
               boost::static_pointer_cast<shadow_joints::MotorWrapper>(joint_tmp->actuator_wrapper);
 
-    const sr_actuator::SrMotorActuator *sr_actuator =
-                static_cast<sr_actuator::SrMotorActuator *>(motor_wrapper->actuator);
+  const sr_actuator::SrMotorActuator *sr_actuator =
+              static_cast<sr_actuator::SrMotorActuator *>(motor_wrapper->actuator);
 
-  std::cout << sr_actuator->motor_state_.position_unfiltered_;
-
-  EXPECT_TRUE(true);
+  EXPECT_NEAR(expected_motor_position, sr_actuator->motor_state_.position_unfiltered_, 0.01);
+  delete status_data;
 }
 
 /**
