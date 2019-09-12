@@ -31,6 +31,7 @@
 #include <utility>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #define error_flag_names palm_0200_edc_error_flag_names
 #define STATUS_TYPE ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS
