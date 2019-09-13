@@ -382,7 +382,8 @@ namespace shadow_robot
   }  // end read_joint_calibration
 
   template<class StatusType, class CommandType>
-  typename SrRobotLib<StatusType, CommandType>::CoupledJointMapType SrRobotLib<StatusType, CommandType>::read_coupled_joint_calibration()
+  typename SrRobotLib<StatusType, CommandType>::CoupledJointMapType
+    SrRobotLib<StatusType, CommandType>::read_coupled_joint_calibration()
   {
     CoupledJointMapType coupled_joint_calibration;
     XmlRpc::XmlRpcValue calib;
@@ -410,25 +411,35 @@ namespace shadow_robot
       }
 
       // check if values format is ok
-      for (int32_t raw_and_calibrated_value_index = 0; raw_and_calibrated_value_index < calib[cal_index][1].size(); ++raw_and_calibrated_value_index)
+      for (int32_t raw_and_calibrated_value_index = 0;
+            raw_and_calibrated_value_index < calib[cal_index][1].size();
+              ++raw_and_calibrated_value_index)
       {
         ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index].getType());
         ROS_ASSERT(3 == calib[cal_index][1][raw_and_calibrated_value_index].size());
 
         ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index][0].getType());
         ROS_ASSERT(2 == calib[cal_index][1][raw_and_calibrated_value_index][0].size());
-        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][0][0].getType());
-        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][0][1].getType());
-        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][1].getType());
-        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble == calib[cal_index][1][raw_and_calibrated_value_index][2].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
+                    calib[cal_index][1][raw_and_calibrated_value_index][0][0].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
+                    calib[cal_index][1][raw_and_calibrated_value_index][0][1].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
+                    calib[cal_index][1][raw_and_calibrated_value_index][1].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
+                    calib[cal_index][1][raw_and_calibrated_value_index][2].getType());
 
-        raw_values_coupled_0.push_back(static_cast<double>(static_cast<int> (calib[cal_index][1][raw_and_calibrated_value_index][0][0])));
-        raw_values_coupled_0.push_back(static_cast<double>(static_cast<int> (calib[cal_index][1][raw_and_calibrated_value_index][0][1])));
-        raw_values_coupled_1.push_back(static_cast<double>(static_cast<int> (calib[cal_index][1][raw_and_calibrated_value_index][0][1])));
-        raw_values_coupled_1.push_back(static_cast<double>(static_cast<int> (calib[cal_index][1][raw_and_calibrated_value_index][0][0])));
+        raw_values_coupled_0.push_back(static_cast<double>
+                                        (static_cast<int>(calib[cal_index][1][raw_and_calibrated_value_index][0][0])));
+        raw_values_coupled_0.push_back(static_cast<double>
+                                        (static_cast<int>(calib[cal_index][1][raw_and_calibrated_value_index][0][1])));
+        raw_values_coupled_1.push_back(static_cast<double>
+                                        (static_cast<int>(calib[cal_index][1][raw_and_calibrated_value_index][0][1])));
+        raw_values_coupled_1.push_back(static_cast<double>
+                                        (static_cast<int>(calib[cal_index][1][raw_and_calibrated_value_index][0][0])));
         calibrated_values_0.push_back(static_cast<double> (calib[cal_index][1][raw_and_calibrated_value_index][1]));
         calibrated_values_1.push_back(static_cast<double> (calib[cal_index][1][raw_and_calibrated_value_index][2]));
-      } //value format ok
+      } //  value format ok
 
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][0].getType());
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][1].getType());
@@ -441,7 +452,7 @@ namespace shadow_robot
 
       coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_0_name, coupled_joint_0));
       coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_1_name, coupled_joint_1));
-      
+
     }
     return coupled_joint_calibration;
   }  // end read_coupled_joint_calibration
@@ -570,13 +581,14 @@ namespace shadow_robot
     }
   }
 
-  CoupledJoint::CoupledJoint(std::string joint_name, std::string joint_sibling_name, 
-                             std::vector<double> raw_values_coupled_vector, std::vector<double> calibrated_values_vector)
+  CoupledJoint::CoupledJoint(std::string joint_name, std::string joint_sibling_name,
+                             std::vector<double> raw_values_coupled_vector,
+                             std::vector<double> calibrated_values_vector)
   {
     name_ = joint_name;
     sibling_name_ = joint_sibling_name;
 
-    calibration_points_ = raw_values_coupled_vector.size() / 2; 
+    calibration_points_ = raw_values_coupled_vector.size() / 2;
     total_points_  = calibration_points_ + nb_surrounding_points_;
 
     for (int i = 0; i < 2*total_points_; i++)
@@ -595,12 +607,12 @@ namespace shadow_robot
       element_neighbor_.push_back(0);
     }
 
-    for(std::vector<double>::size_type i = 0; i != raw_values_coupled_vector.size(); i++)
+    for (std::vector<double>::size_type i = 0; i != raw_values_coupled_vector.size(); i++)
     {
       raw_values_coupled_[i] = raw_values_coupled_vector[i];
     }
 
-    for(std::vector<double>::size_type i = 0; i != calibrated_values_vector.size(); i++)
+    for (std::vector<double>::size_type i = 0; i != calibrated_values_vector.size(); i++)
     {
       calibrated_values_[i] = calibrated_values_vector[i];
     }
@@ -615,11 +627,12 @@ namespace shadow_robot
   void CoupledJoint::process_calibration_values()
   {
     // Generate additional points around the actual calibration points
-    add_surrounding_points(calibration_points_, &raw_values_coupled_[0], &calibrated_values_[0], nb_surrounding_points_);
+    add_surrounding_points(calibration_points_, &raw_values_coupled_[0],
+                           &calibrated_values_[0], nb_surrounding_points_);
     //
     //  Set up the Delaunay triangulation.
     //
-    r8tris2 (total_points_, &raw_values_coupled_[0], element_num_, &triangle_[0], &element_neighbor_[0]);
+    r8tris2(total_points_, &raw_values_coupled_[0], element_num_, &triangle_[0], &element_neighbor_[0]);
 
     for (int j = 0; j < element_num_; j++)
     {

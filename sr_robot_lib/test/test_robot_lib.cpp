@@ -123,7 +123,8 @@ TEST(SrRobotLib, ConfigParsing)
 {
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
 
-std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled = {
+std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled = 
+                                                                                    {
                                                                                       {
                                                                                          "THJ1",
                                                                                          {
@@ -153,7 +154,10 @@ std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled
                                                                                             797.854, 1234.42,
                                                                                             91.5974, 2435.98,
                                                                                             91.5974, 3408.06,
-                                                                                            797.854}},
+                                                                                            797.854
+                                                                                          }
+                                                                                      }
+                                                                                      ,
                                                                                       {
                                                                                          "THJ2",
                                                                                          {
@@ -179,11 +183,13 @@ std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled
                                                                                             692.454, 1339.82,
                                                                                             -13.8026, 2541.38,
                                                                                             -13.8026, 3513.46,
-                                                                                            692.454}
+                                                                                            692.454
+                                                                                          }
                                                                                       }
                                                                                     };
 
-std::map<std::string, std::vector<double>> expected_processed_calibrated_values = {
+std::map<std::string, std::vector<double>> expected_processed_calibrated_values = 
+                                                                                  {
                                                                                     {
                                                                                        "THJ1",
                                                                                        {
@@ -204,7 +210,8 @@ std::map<std::string, std::vector<double>> expected_processed_calibrated_values 
                                                                                           2.154, 1.1164,
                                                                                           -0.0476325, -0.893474
                                                                                        }
-                                                                                    },
+                                                                                    }
+                                                                                    ,
                                                                                     {
                                                                                        "THJ2",
                                                                                        {
