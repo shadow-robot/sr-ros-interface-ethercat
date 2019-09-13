@@ -123,7 +123,7 @@ TEST(SrRobotLib, ConfigParsing)
 {
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
 
-std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled = 
+std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled =
                                                                                     {
                                                                                       {
                                                                                          "THJ1",
@@ -132,7 +132,7 @@ std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled
                                                                                             2154, 2680, 1978,
                                                                                             2677, 1840, 2664,
                                                                                             1707, 2334, 2287,
-                                                                                            2242, 2095, 2230, 
+                                                                                            2242, 2095, 2230,
                                                                                             1953, 2223, 1807,
                                                                                             2206, 1685, 1839,
                                                                                             2243, 1772, 2112,
@@ -188,7 +188,7 @@ std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled
                                                                                       }
                                                                                     };
 
-std::map<std::string, std::vector<double>> expected_processed_calibrated_values = 
+std::map<std::string, std::vector<double>> expected_processed_calibrated_values =
                                                                                   {
                                                                                     {
                                                                                        "THJ1",

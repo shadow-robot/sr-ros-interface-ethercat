@@ -976,11 +976,16 @@ namespace shadow_robot
           double zi[1];
           int ni = 1;
 
-          int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name(current_joint->sibling_name_)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
+          int raw_pos_2nd_joint = 
+            status_data->sensors[
+              this->joints_vector[this->find_joint_by_name(
+                current_joint->sibling_name_)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
           xyi[0] = static_cast<double>(raw_pos);
           xyi[1] = static_cast<double>(raw_pos_2nd_joint);
-          pwl_interp_2d_scattered_value(current_joint->total_points_, &(current_joint->raw_values_coupled_)[0], &(current_joint->calibrated_values_)[0], current_joint->element_num_,
-                                        &(current_joint->triangle_)[0], &(current_joint->element_neighbor_)[0], ni, xyi, zi);
+          pwl_interp_2d_scattered_value(current_joint->total_points_, &(current_joint->raw_values_coupled_)[0],
+                                        &(current_joint->calibrated_values_)[0], current_joint->element_num_,
+                                        &(current_joint->triangle_)[0], &(current_joint->element_neighbor_)[0],
+                                        ni, xyi, zi);
           tmp_cal_value = zi[0];
         }
         else
