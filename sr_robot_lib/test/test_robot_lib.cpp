@@ -300,7 +300,7 @@ TEST(SrRobotLib, TimedCalibrateJoint)
   auto diff = stop - start;
   double diff_time = static_cast<double>(std::chrono::duration <double, std::milli> (diff).count());
 
-  EXPECT_LT(diff_time, 10);
+  EXPECT_LT(diff_time, 100);
   delete status_data;
 }
 
