@@ -35,6 +35,7 @@
 #include <utility>
 #include <string>
 #include <deque>
+#include <map>
 
 // used to publish debug values
 #include <std_msgs/Int16.h>
@@ -99,16 +100,16 @@ namespace shadow_robot
 class CoupledJoint
 {
   public:
-    CoupledJoint(std::string joint_name, std::string joint_sibling_name, 
+    CoupledJoint(std::string joint_name, std::string joint_sibling_name,
                  std::vector<double> raw_values_coupled_vector, std::vector<double> calibrated_values_vector);
     ~CoupledJoint();
-    
+
     std::string name_;
     std::string sibling_name_;
     std::vector<double> raw_values_coupled_;
     std::vector<double> calibrated_values_;
     const int nb_surrounding_points_ = 10;
-    int calibration_points_; 
+    int calibration_points_;
     int total_points_;
     int element_num_;
     std::vector<int> triangle_;
@@ -363,7 +364,6 @@ public:
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
   CoupledJointMapType coupled_calibration_map;
-
 };  // end class
 }  // namespace shadow_robot
 
