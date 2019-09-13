@@ -121,16 +121,57 @@ TEST(SrRobotLib, Initialization)
 TEST(SrRobotLib, ConfigParsing)
 {
   boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
-  std::vector<double> expected_processed_raw_values_coupled = {2738, 2301, 2693, 2154, 2680, 1978, 2677, 1840,
-                                                               2664, 1707, 2334, 2287, 2242, 2095, 2230, 1953,
-                                                               2223, 1807, 2206, 1685, 1839, 2243, 1772, 2112,
-                                                               1764, 1928, 1755, 1762, 1683, 1650, 1387, 2219,
-                                                               1375, 2056, 1370, 1884, 1337, 1741, 1329, 1630,
-                                                               1141, 2206, 1132, 2055, 1114, 1877, 1103, 1730,
-                                                               1092, 1615, 3779.36, 1940.6, 3408.06, 3083.35, 2435.98,
-                                                               3789.6, 1234.42, 3789.6, 262.344, 3083.35, -108.956,
-                                                               1940.6, 262.344, 797.854, 1234.42, 91.5974, 2435.98,
-                                                               91.5974, 3408.06, 797.854};
+
+std::map<std::string, std::vector<double>> expected_processed_raw_values_coupled = {{"THJ1", {2738, 2301, 2693,
+                                                                                              2154, 2680, 1978,
+                                                                                              2677, 1840, 2664,
+                                                                                              1707, 2334, 2287,
+                                                                                              2242, 2095, 2230, 
+                                                                                              1953, 2223, 1807,
+                                                                                              2206, 1685, 1839,
+                                                                                              2243, 1772, 2112,
+                                                                                              1764, 1928, 1755,
+                                                                                              1762, 1683, 1650,
+                                                                                              1387, 2219, 1375,
+                                                                                              2056, 1370, 1884,
+                                                                                              1337, 1741, 1329,
+                                                                                              1630, 1141, 2206,
+                                                                                              1132, 2055, 1114,
+                                                                                              1877, 1103, 1730,
+                                                                                              1092, 1615, 3779.36,
+                                                                                              1940.6, 3408.06,
+                                                                                              3083.35, 2435.98,
+                                                                                              3789.6, 1234.42,
+                                                                                              3789.6, 262.344,
+                                                                                              3083.35, -108.956,
+                                                                                              1940.6, 262.344,
+                                                                                              797.854, 1234.42,
+                                                                                              91.5974, 2435.98,
+                                                                                              91.5974, 3408.06,
+                                                                                              797.854}},
+                                                                                    {"THJ2", {2301, 2738, 2154, 2693,
+                                                                                              1978, 2680, 1840, 2677,
+                                                                                              1707, 2664, 2287, 2334,
+                                                                                              2095, 2242, 1953, 2230,
+                                                                                              1807, 2223, 1685, 2206,
+                                                                                              2243, 1839, 2112, 1772,
+                                                                                              1928, 1764, 1762, 1755,
+                                                                                              1650, 1683, 2219, 1387,
+                                                                                              2056, 1375, 1884, 1370,
+                                                                                              1741, 1337, 1630, 1329,
+                                                                                              2206, 1141, 2055, 1132,
+                                                                                              1877, 1114, 1730, 1103,
+                                                                                              1615, 1092, 3884.76,
+                                                                                              1835.2, 3513.46,
+                                                                                              2977.95, 2541.38,
+                                                                                              3684.2, 1339.82,
+                                                                                              3684.2, 367.744,
+                                                                                              2977.95, -3.55637,
+                                                                                              1835.2, 367.744,
+                                                                                              692.454, 1339.82,
+                                                                                              -13.8026, 2541.38,
+                                                                                              -13.8026, 3513.46,
+                                                                                              692.454}}};
 
 std::map<std::string, std::vector<double>> expected_processed_calibrated_values= {{"THJ1", {0, 0, 0, 0, 0, 0.3927,
                                                                                             0.3927, 0.3927, 0.3927,
@@ -143,27 +184,13 @@ std::map<std::string, std::vector<double>> expected_processed_calibrated_values=
                                                                                             0.45440, 1.61843, 2.46427,
                                                                                             2.66884, 2.154, 1.1164,
                                                                                             -0.0476325, -0.893474}},
-                                                                                  {"THJ2", {0.6981, 0.34906, 0,
-                                                                                            -0.34906, -0.6981,
-                                                                                            0.6981, 0.34906, 0,
-                                                                                            -0.34906, -0.6981,
-                                                                                            0.6981, 0.34906, 0,
-                                                                                            -0.34906, -0.6981,
-                                                                                            0.6981, 0.34906, 0,
-                                                                                            -0.34906, -0.6981,
-                                                                                            0.6981, 0.34906, 0,
-                                                                                            -0.34906, -0.6981,
-                                                                                            -0.289805, 2.42309,
-                                                                                            4.21045, 4.38956,
-                                                                                            2.892, 0.289805,
-                                                                                            -2.42309, -4.21045,
-                                                                                            -4.38956, -2.892}}};
+                                                                                  {"THJ2", {0.6981, 0.34906, 0, -0.34906, -0.6981, 0.6981, 0.34906, 0, -0.34906, -0.6981, 0.6981, 0.34906, 0, -0.34906, -0.6981, 0.6981, 0.34906, 0, -0.34906, -0.6981, 0.6981, 0.34906, 0, -0.34906, -0.6981, 4.52129, 3.48746, 1.12154, -1.67278, -3.82814, -4.52129, -3.48746, -1.12154, 1.67278, 3.82814}}};
 
   for (auto const& x : lib_test->sr_hand_lib->coupled_calibration_map)
   {
     for (int i=0; i < x.second.raw_values_coupled_.size(); ++i)
     {
-      EXPECT_NEAR(x.second.raw_values_coupled_[i], expected_processed_raw_values_coupled[i], 0.01);
+      EXPECT_NEAR(x.second.raw_values_coupled_[i], expected_processed_raw_values_coupled[x.first][i], 0.01);
     }
 
     for (int i=0; i < x.second.calibrated_values_.size(); ++i)
@@ -222,6 +249,58 @@ TEST(SrRobotLib, CalibrateJoint)
               static_cast<sr_actuator::SrMotorActuator *>(motor_wrapper->actuator);
 
   EXPECT_NEAR(expected_motor_position, sr_actuator->motor_state_.position_unfiltered_, 0.01);
+  delete status_data;
+}
+
+TEST(SrRobotLib, TimedCalibrateJoint)
+{
+  boost::shared_ptr<HandLibTest> lib_test = boost::shared_ptr<HandLibTest>(new HandLibTest());
+  std::vector<shadow_joints::Joint>::iterator joint_tmp = lib_test->sr_hand_lib->joints_vector.begin();
+
+  STATUS_TYPE *status_data = new STATUS_TYPE();
+  // add growing sensors values
+  for (unsigned int i = 1; i < SENSORS_NUM_0220 + 2; ++i)
+  {
+    // position = id in joint enum
+    status_data->sensors[i] = i;
+  }
+
+  status_data->motor_data_type = MOTOR_DATA_SGR;
+
+  // even motors
+  status_data->which_motors = 0;
+
+  // all motor data arrived with no errors
+  status_data->which_motor_data_arrived = 0x00055555;
+  status_data->which_motor_data_had_errors = 0;
+
+  // add growing motor data packet values
+  for (unsigned int i = 0; i < 10; ++i)
+  {
+    status_data->motor_data_packet[i].torque = 4;
+    status_data->motor_data_packet[i].misc = 2 * i;
+  }
+  // filling the status data with known values
+  status_data->idle_time_us = 1;
+
+  for (; joint_tmp != lib_test->sr_hand_lib->joints_vector.end(); ++joint_tmp)
+  {
+    if ("THJ1" == (*joint_tmp).joint_name)
+    {
+      break;
+    }
+  }
+
+  auto start = std::chrono::steady_clock::now();
+  for (int i = 0; i < 20000; i++)
+  {
+    lib_test->sr_hand_lib->calibrate_joint(joint_tmp, status_data);
+  }
+  auto stop = std::chrono::steady_clock::now();
+  auto diff = stop - start;
+  double diff_time = static_cast<double>(std::chrono::duration <double, std::milli> (diff).count());
+
+  EXPECT_LT(diff_time, 10);
   delete status_data;
 }
 
