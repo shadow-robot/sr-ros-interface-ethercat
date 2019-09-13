@@ -976,7 +976,7 @@ namespace shadow_robot
           double zi[1];
           int ni = 1;
 
-          int raw_pos_2nd_joint = 
+          int raw_pos_2nd_joint =
             status_data->sensors[
               this->joints_vector[this->find_joint_by_name(
                 current_joint->sibling_name_)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
