@@ -31,7 +31,7 @@
 #include <utility>
 #include <string>
 #include <vector>
-#include <chrono>
+#include <chrono>  // NOLINT
 #include <map>
 
 #define error_flag_names palm_0200_edc_error_flag_names
