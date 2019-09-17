@@ -73,8 +73,8 @@ add_library(sr_hand_lib
         src/sr_muscle_robot_lib.cpp
 )
 
-target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS})
+target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES} sr_interpolation)
+add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS} sr_interpolation)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
