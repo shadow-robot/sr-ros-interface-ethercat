@@ -428,14 +428,10 @@ namespace shadow_robot
         ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
                     calib[cal_index][1][raw_and_calibrated_value_index][2].getType());
 
-        raw_values_coupled_0.push_back(static_cast<double>
-                                        (static_cast<int>(calib[cal_index][1][raw_and_calibrated_value_index][0][0])));
-        raw_values_coupled_0.push_back(static_cast<double>
-                                        (static_cast<int>(calib[cal_index][1][raw_and_calibrated_value_index][0][1])));
-        raw_values_coupled_1.push_back(static_cast<double>
-                                        (static_cast<int>(calib[cal_index][1][raw_and_calibrated_value_index][0][1])));
-        raw_values_coupled_1.push_back(static_cast<double>
-                                        (static_cast<int>(calib[cal_index][1][raw_and_calibrated_value_index][0][0])));
+        raw_values_coupled_0.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][0]));
+        raw_values_coupled_0.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][1]));
+        raw_values_coupled_1.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][1]));
+        raw_values_coupled_1.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][0]));
         calibrated_values_0.push_back(sr_math_utils::to_rad(static_cast<double>
                                                             (calib[cal_index][1][raw_and_calibrated_value_index][1])));
         calibrated_values_1.push_back(sr_math_utils::to_rad(static_cast<double>
