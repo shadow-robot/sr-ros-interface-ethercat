@@ -1,33 +1,32 @@
 /**
- * @file   sr_edc.cpp
- * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
- *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
- * @date   Fri Mar 8 13:33:30 2013
- *
- * Copyright 2013 Shadow Robot Company Ltd.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @brief This is a parent class for the ROS drivers for any
- * Shadow Robot EtherCAT Dual CAN Slave.
- * It provides the tools to reprogram the Firmware of the microcontrollers
- * on the boards attached to the CAN busses of the Shadow EDC device
- * (like e.g. the motor boards, or the valve control boards),
- * assuming that they use the simplemotor-bootloader protocol implemented here.
- *
- *
- */
+* @file   sr_edc.cpp
+* @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
+*         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+* @date   Fri Mar 8 13:33:30 2013
+*
+/* Copyright 2013 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* @brief This is a parent class for the ROS drivers for any
+* Shadow Robot EtherCAT Dual CAN Slave.
+* It provides the tools to reprogram the Firmware of the microcontrollers
+* on the boards attached to the CAN busses of the Shadow EDC device
+* (like e.g. the motor boards, or the valve control boards),
+* assuming that they use the simplemotor-bootloader protocol implemented here.
+*
+*
+*/
 
 
 #include <sr_edc_ethercat_drivers/sr_edc.h>
@@ -113,11 +112,11 @@ const unsigned int SrEdc::max_retry = 20;
   }
 
 /** \brief Constructor of the SrEdc driver
- *
- *  This is the Constructor of the driver. We
- *  initialize a few boolean values, a mutex
- *  and create the Bootloading service.
- */
+*
+*  This is the Constructor of the driver. We
+*  initialize a few boolean values, a mutex
+*  and create the Bootloading service.
+*/
 SrEdc::SrEdc()
         : flashing(false),
           can_message_sent(true),
@@ -133,38 +132,38 @@ SrEdc::SrEdc()
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs
- *
- *  The role of this function is to setup the SyncManagers and the FMMUs used by this EtherCAT slave.
- *  This slave is using two Mailboxes on two different memory areas.
- *
- *  Here we are setting up the way of communicating between ROS and the PIC32 using the EtherCAT protocol.
- *
- *  We communicate using Shared Memory areas.
- *
- *  The FMMUs are usefull to map the logical memory used by ROS to the Physical memory of the EtherCAT slave chip (ET1200 chip).
- *  So that the chip receiving the packet will know that the data at address 0x10000 is in reality to be written at physical address 0x1000 of the chip memory for example.
- *  It is the mapping between the EtherCAT bus address space and each slave's chip own memory address space.
- *
- *  The SyncManagers are usefull to give a safe way of accessing this Shared Memory, using a consumer / producer model. There are features like interrupts to tell the consumer
- *  that there is something to consume or to tell the producer that the Mailbox is empty and then ready to receive a new message.
- *
- *  - One Mailbox contains the commands, written by ROS, read by the PIC32
- *  - One Mailbox contains the status, written back by the PIC32, read by ROS
- *
- *  That's basically one Mailbox for upstream and one Mailbox for downstream.
- *
- * - The first Mailbox contains in fact two commands, one is the torque demand, the other is a CAN command used in CAN_DIRECT_MODE to communicate with the SimpleMotor for
- *   test purposes, or to reflash a new firmware in bootloading mode.
- *   This Mailbox is at logicial address 0x10000 and mapped via a FMMU to physical address 0x1000 (the first address of user memory)
- * - The second Mailbox contains in fact two status, they are the response of the two previously described commands. One is the status containing the joints data, sensor
- *   data, finger tips data and motor data. The other is the can command response in CAN_DIRECT_MODE. When doing a flashing in bootloading mode this is usually an acknowledgment
- *   from the bootloader. This Mailbox is at logical address 0x10038 and mapped via a FMMU to physical address 0x1038.
- *
- * This function sets the two private members command_size_ and status_size_ to be the size of each Mailbox.
- * It is important for these numbers to be accurate since they are used by the EthercatHardware class when manipulating the buffers.
- * If you need to have several commands like in this SrEdc driver, put the sum of the size, same thing for the status.
- *
- */
+*
+*  The role of this function is to setup the SyncManagers and the FMMUs used by this EtherCAT slave.
+*  This slave is using two Mailboxes on two different memory areas.
+*
+*  Here we are setting up the way of communicating between ROS and the PIC32 using the EtherCAT protocol.
+*
+*  We communicate using Shared Memory areas.
+*
+*  The FMMUs are usefull to map the logical memory used by ROS to the Physical memory of the EtherCAT slave chip (ET1200 chip).
+*  So that the chip receiving the packet will know that the data at address 0x10000 is in reality to be written at physical address 0x1000 of the chip memory for example.
+*  It is the mapping between the EtherCAT bus address space and each slave's chip own memory address space.
+*
+*  The SyncManagers are usefull to give a safe way of accessing this Shared Memory, using a consumer / producer model. There are features like interrupts to tell the consumer
+*  that there is something to consume or to tell the producer that the Mailbox is empty and then ready to receive a new message.
+*
+*  - One Mailbox contains the commands, written by ROS, read by the PIC32
+*  - One Mailbox contains the status, written back by the PIC32, read by ROS
+*
+*  That's basically one Mailbox for upstream and one Mailbox for downstream.
+*
+* - The first Mailbox contains in fact two commands, one is the torque demand, the other is a CAN command used in CAN_DIRECT_MODE to communicate with the SimpleMotor for
+*   test purposes, or to reflash a new firmware in bootloading mode.
+*   This Mailbox is at logicial address 0x10000 and mapped via a FMMU to physical address 0x1000 (the first address of user memory)
+* - The second Mailbox contains in fact two status, they are the response of the two previously described commands. One is the status containing the joints data, sensor
+*   data, finger tips data and motor data. The other is the can command response in CAN_DIRECT_MODE. When doing a flashing in bootloading mode this is usually an acknowledgment
+*   from the bootloader. This Mailbox is at logical address 0x10038 and mapped via a FMMU to physical address 0x1038.
+*
+* This function sets the two private members command_size_ and status_size_ to be the size of each Mailbox.
+* It is important for these numbers to be accurate since they are used by the EthercatHardware class when manipulating the buffers.
+* If you need to have several commands like in this SrEdc driver, put the sum of the size, same thing for the status.
+*
+*/
 void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned int ethercat_command_data_size,
                       unsigned int ethercat_status_data_size, unsigned int ethercat_can_bridge_data_size,
                       unsigned int ethercat_command_data_address, unsigned int ethercat_status_data_address,
@@ -302,10 +301,10 @@ void SrEdc::construct(EtherCAT_SlaveHandler *sh, int &start_address, unsigned in
 }
 
 /** \brief Erase the PIC18F Flash memory
- *
- *  This function fills the can_message_ struct with a CAN message
- *  which tells the bootloader of the PIC18F to erase its Flash memory
- */
+*
+*  This function fills the can_message_ struct with a CAN message
+*  which tells the bootloader of the PIC18F to erase its Flash memory
+*/
 void SrEdc::erase_flash(void)
 {
   unsigned char cmd_sent;
@@ -358,21 +357,21 @@ void SrEdc::erase_flash(void)
 }
 
 /** \brief Function that reads back 8 bytes from PIC18F program memory
- *
- *  Flash memory is the program memory on the PIC18F
- *  This function is here to read back what we flashed into the PIC18F
- *  To check that there was no flashing transmission or writting error
- *  during the Flashing process.
- *  8 bytes will be read, from address baddr + offset
- *  This function will fill the can_message_ structure with the correct value
- *  to allow the packCommand() function to send the correct etherCAT message
- *  to the PIC32 which will then send the correct CAN message to the PIC18F
- *
- * @param offset The position of the 8 bytes we want to read, relative to the base address
- * @param baddr the base address
- *
- * @return Returns true if the command has timed out, false if the command was properly acknowledged
- */
+*
+*  Flash memory is the program memory on the PIC18F
+*  This function is here to read back what we flashed into the PIC18F
+*  To check that there was no flashing transmission or writting error
+*  during the Flashing process.
+*  8 bytes will be read, from address baddr + offset
+*  This function will fill the can_message_ structure with the correct value
+*  to allow the packCommand() function to send the correct etherCAT message
+*  to the PIC32 which will then send the correct CAN message to the PIC18F
+*
+* @param offset The position of the 8 bytes we want to read, relative to the base address
+* @param baddr the base address
+*
+* @return Returns true if the command has timed out, false if the command was properly acknowledged
+*/
 bool SrEdc::read_flash(unsigned int offset, unsigned int baddr)
 {
   unsigned int cmd_sent;
@@ -419,43 +418,43 @@ bool SrEdc::read_flash(unsigned int offset, unsigned int baddr)
 }
 
 /** \brief ROS Service that flashes a new firmware into a SimpleMotor board
- *
- *  This function is a ROS Service, aimed at flashing a new firmware into the
- *  PIC18F of a SimpleMotor board through a CAN bootloader protocol.
- *
- *  The CAN bootloader allows for several commands to be executed : read_flash, erase_flash, write_flash, reboot, read_version
- *
- *  This service will fill a can_message_ structure and then switch a few boolean values to "false" in order to trigger
- *  the message to be sent by the SRXX::packCommand() function. And then repeat the process for another message, and so on.
- *
- *  This service will first read all the sections of the firmware using libbfd and find out the lowest and highest addresses containing code.
- *  Then it will allocate an array to contain the firmware's code. The size is (highest_addr - lowest_addr).
- *  The bfd library provides functions to manage object files more easily. To better understand some of the concepts used below,
- *  the following link can be useful:
- *  http://www.delorie.com/gnu/docs/binutils/ld_7.html
- *  The use of the following commands can also help to understand the structure of the object file containing the firmware
- *  \code objdump -x simplemotor.hex \endcode
- *  \code objdump -s simplemotor.hex \endcode
- *
- *  - Then it will send a MAGIC PACKET command to the PIC18F which will make it reboot in bootloader mode (regardless of whether it was already in
- *  bootloader mode or whether it was running the SimpleMotor code)
- *  - Then it will send an ERASE_FLASH command to the PIC18F.
- *  - Then it will send a WRITE_FLASH_ADDRESS_COMMAND to tell the PIC18F
- *  where we wanna write, and then 4 WRITE_FLASH_DATA commands (we write by blocks of 32 bytes). This process is repeated untill we've written
- *  all the firmware code, padding with 0x00 bytes in the end if the size is not a multiple of 32 bytes.
- *  The process starts at address (lowest_addr) and ends at (hiest_addr) + a few padding bytes if necessary.
- *
- *  You can call this service using this command :
- *
- *  \code rosservice call SimpleMotorFlasher "/home/hand/simplemotor.hex" 8 \endcode
- *
- *  This will flash the "simplemotor.hex" firmware to the motor 8
- *
- *  @param req The Request, contains the ID of the motor we want to flash via req.motor_id, and the path of the firmware to flash in req.firmware
- *  @param res The Response, it is always SUCCESS for now.
- *
- *  @return This returns always true, the real return value is in the res parameter
- */
+*
+*  This function is a ROS Service, aimed at flashing a new firmware into the
+*  PIC18F of a SimpleMotor board through a CAN bootloader protocol.
+*
+*  The CAN bootloader allows for several commands to be executed : read_flash, erase_flash, write_flash, reboot, read_version
+*
+*  This service will fill a can_message_ structure and then switch a few boolean values to "false" in order to trigger
+*  the message to be sent by the SRXX::packCommand() function. And then repeat the process for another message, and so on.
+*
+*  This service will first read all the sections of the firmware using libbfd and find out the lowest and highest addresses containing code.
+*  Then it will allocate an array to contain the firmware's code. The size is (highest_addr - lowest_addr).
+*  The bfd library provides functions to manage object files more easily. To better understand some of the concepts used below,
+*  the following link can be useful:
+*  http://www.delorie.com/gnu/docs/binutils/ld_7.html
+*  The use of the following commands can also help to understand the structure of the object file containing the firmware
+*  \code objdump -x simplemotor.hex \endcode
+*  \code objdump -s simplemotor.hex \endcode
+*
+*  - Then it will send a MAGIC PACKET command to the PIC18F which will make it reboot in bootloader mode (regardless of whether it was already in
+*  bootloader mode or whether it was running the SimpleMotor code)
+*  - Then it will send an ERASE_FLASH command to the PIC18F.
+*  - Then it will send a WRITE_FLASH_ADDRESS_COMMAND to tell the PIC18F
+*  where we wanna write, and then 4 WRITE_FLASH_DATA commands (we write by blocks of 32 bytes). This process is repeated untill we've written
+*  all the firmware code, padding with 0x00 bytes in the end if the size is not a multiple of 32 bytes.
+*  The process starts at address (lowest_addr) and ends at (hiest_addr) + a few padding bytes if necessary.
+*
+*  You can call this service using this command :
+*
+*  \code rosservice call SimpleMotorFlasher "/home/hand/simplemotor.hex" 8 \endcode
+*
+*  This will flash the "simplemotor.hex" firmware to the motor 8
+*
+*  @param req The Request, contains the ID of the motor we want to flash via req.motor_id, and the path of the firmware to flash in req.firmware
+*  @param res The Response, it is always SUCCESS for now.
+*
+*  @return This returns always true, the real return value is in the res parameter
+*/
 bool SrEdc::simple_motor_flasher(sr_robot_msgs::SimpleMotorFlasher::Request &req,
                                  sr_robot_msgs::SimpleMotorFlasher::Response &res)
 {
@@ -659,13 +658,13 @@ void SrEdc::build_CAN_message(ETHERCAT_CAN_BRIDGE_DATA *message)
 }
 
 /** \brief This function checks if the can packet in the unpackState() this_buffer is an ACK
- *
- *  This function checks several things on the can packet in this_buffer, it compares it with the
- *  can_message_ private member in several ways (SID, length, data) to check if it's an ACK.
- *
- *  @param packet The packet from this_buffer of unpackState() that we want to check if it's an ACK
- *  @return Returns true if packet is an ACK of can_message_ packet.
- */
+*
+*  This function checks several things on the can packet in this_buffer, it compares it with the
+*  can_message_ private member in several ways (SID, length, data) to check if it's an ACK.
+*
+*  @param packet The packet from this_buffer of unpackState() that we want to check if it's an ACK
+*  @return Returns true if packet is an ACK of can_message_ packet.
+*/
 bool SrEdc::can_data_is_ack(ETHERCAT_CAN_BRIDGE_DATA *packet)
 {
   int i;
@@ -1022,4 +1021,4 @@ bool SrEdc::write_flash_data(unsigned int base_addr, unsigned int total_size)
    Local Variables:
    c-basic-offset: 2
    End:
- */
+*/

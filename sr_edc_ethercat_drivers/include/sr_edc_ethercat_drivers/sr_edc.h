@@ -1,33 +1,32 @@
 /**
- * @file   sr_edc.h
- * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
- *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
- * @date   Fri Mar 8 13:33:30 2013
+* @file   sr_edc.h
+* @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
+*         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+* @date   Fri Mar 8 13:33:30 2013
 *
-* Copyright 2013 Shadow Robot Company Ltd.
+/* Copyright 2013 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
+* Software Foundation version 2 of the License.
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 * more details.
 *
 * You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 *
- * @brief This is a parent class for the ROS drivers for any
- * Shadow Robot EtherCAT Dual CAN Slave.
- * It provides the tools to reprogram the Firmware of the microcontrollers
- * on the boards attached to the CAN busses of the Shadow EDC device
- * (like e.g. the motor boards, or the valve control boards),
- * assuming that they use the simplemotor-bootloader protocol implemented here.
- *
- *
- */
+* @brief This is a parent class for the ROS drivers for any
+* Shadow Robot EtherCAT Dual CAN Slave.
+* It provides the tools to reprogram the Firmware of the microcontrollers
+* on the boards attached to the CAN busses of the Shadow EDC device
+* (like e.g. the motor boards, or the valve control boards),
+* assuming that they use the simplemotor-bootloader protocol implemented here.
+*
+*
+*/
 
 #ifndef SR_EDC_ETHERCAT_DRIVERS_SR_EDC_H
 #define SR_EDC_ETHERCAT_DRIVERS_SR_EDC_H

@@ -118,7 +118,7 @@ void ClrWdt_func(void);                 //!< Clear Watchdog Timer
 extern const int8u basic_lshift[];
 
 /* The @sef tells splint these parameters must be side-effect free, because they may be invoked more
- * than once */
+* than once */
 
 /*@notfunction@*/
 #define abs(x ) ((x) > 0 ? (x) : -(x))

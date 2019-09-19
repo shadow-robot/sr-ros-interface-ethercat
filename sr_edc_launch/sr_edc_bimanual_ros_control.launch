@@ -1,41 +1,49 @@
 <launch>
+  <arg name="debug" default="false"/>
+
+  <!-- ROBOT CONFIG-->
+  <!-- Xacro file containing the robot description we want to load -->
+  <arg name="robot_description" default="'$(find sr_description)/robots/bimanual_shadowhand_motor.urdf.xacro'"/>
+
+  <!-- HANDS CONFIG-->
+  <arg name="lh_id" default="lh"/>
+  <arg name="rh_id" default="rh"/>
+  <arg name="rh_serial" default="1290"/>
+  <arg name="lh_serial" default="1338"/>
+  <arg name="rh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
+  <arg name="lh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/lh_E_v3.yaml"/>
   <!-- Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT
        More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
   <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)"/>
-  <!-- Set to true for debugging -->
-  <arg name="debug" default="false"/>
-  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
-  <arg name="calibration_controllers" default="1"/>
-  <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="'$(find sr_description)/robots/bimanual_shadowhand_motor.urdf.xacro'"/>
   <!-- The control mode PWM (true) or torque (false) -->
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
+  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
+  <arg name="calibration_controllers" default="1"/>
 
-  <!-- The ethercat serial number for the right hand -->
-  <arg name="rh_serial" default="1050"/>
-  <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
-  <arg name="rh_id" default="rh"/>
-  <!-- The ethercat serial number for the left hand -->
-  <arg name="lh_serial" default="1098"/>
-  <!-- The id for the left hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
-  <arg name="lh_id" default="lh"/>
-  <!-- the path to the mapping files -->
-  <arg name="rh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
-  <arg name="lh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/lh_E_v3.yaml"/>
+  <!-- ARMS CONFIG-->
+  <arg name="arm_1_z" default="0.01"/>
+  <arg name="arm_2_z" default="0.01"/>
+  <arg name="arm_x_separation" default="1.5"/>
+  <arg name="arm_y_separation" default="0.0"/>
+  <!-- setting this parameter to false allows to load the robot_description from a higher level -->
+  <arg name="load_robot_description" default="true"/>
   <!-- The robot state publisher publishing frequency  -->
   <arg name="robot_state_pub_frequency" default="100"/>
   <!-- The joint state publisher publishing frequency  -->
   <arg name="joint_state_pub_frequency" default="100"/>
 
-  <param name="/hand/mapping/$(arg rh_serial)" value="$(arg rh_id)"/>
-  <param name="/hand/mapping/$(arg lh_serial)" value="$(arg lh_id)"/>
-  <param name="/hand/joint_prefix/$(arg rh_serial)" value="$(arg rh_id)_"/>
-  <param name="/hand/joint_prefix/$(arg lh_serial)" value="$(arg lh_id)_"/>
+  <!-- this should be false if robot_hardware param is defined elsewhere -->
+  <arg name="define_robot_hardware" default="true"/>
 
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param name="robot_description" command="$(find xacro)/xacro.py $(arg robot_description)"/>
+  <param if="$(arg load_robot_description)" name="robot_description" command="xacro --inorder $(arg robot_description) arm_1_z:=$(arg arm_1_z) arm_2_z:=$(arg arm_2_z) arm_x_separation:=$(arg arm_x_separation) arm_y_separation:=$(arg arm_y_separation)"/>
+
+  <param name="/hand/mapping/$(arg rh_serial)" value="$(arg rh_id)"/>
+  <param name="/hand/mapping/$(arg lh_serial)" value="$(arg lh_id)"/>
+  <param name="/hand/joint_prefix/$(arg rh_serial)" value="$(arg rh_id)_"/>
+  <param name="/hand/joint_prefix/$(arg lh_serial)" value="$(arg lh_id)_"/>
 
   <!-- Load parameters for the right hand -->
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml">
@@ -57,21 +65,19 @@
 
   <!-- publishes joint 0s joint states on separate topic for debug/tuning -->
   <node pkg="sr_utilities" name="joint_0_pub" type="joint_0_publisher.py"/>
-  
-  <rosparam>
+
+  <!-- ros_ethercat -->
+  <rosparam if="$(arg define_robot_hardware)">
     robot_hardware:
-      - sr_hands_bimanual_robot_hw
+      - unique_robot_hw
   </rosparam>
   <include file="$(find sr_edc_launch)/hand_ros_control_robot_params.xml">
     <arg name="eth_port" value="$(arg eth_port)"/>
-    <arg name="robot_hardware_name" value="sr_hands_bimanual_robot_hw"/>
-    <arg name="bimanual" value="true"/>
+    <arg name="robot_hardware_name" value="unique_robot_hw"/>
+    <arg name="bimanual_filter" value="true"/>
   </include>
 
-  <!-- ros_ethercat -->
-
   <node if="$(arg debug)" name="sr_bimanual_hands_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="gdb -ex run -args">
-
     <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
     <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>
 
@@ -82,7 +88,6 @@
   </node>
 
   <node unless="$(arg debug)" name="sr_bimanual_hands_robot" pkg="ros_control_robot" type="ros_control_robot" args="" output="screen" launch-prefix="ethercat_grant">
-
     <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
     <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>
 
@@ -91,7 +96,6 @@
 
     <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
   </node>
-
 
   <group if="$(arg calibration_controllers)">
     <node name="calibrate_sr_edc" pkg="sr_utilities" type="calibrate_hand_finder.py" output="screen"/>
@@ -110,7 +114,8 @@
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="$(arg robot_state_pub_frequency)"/>
   </node>
-    <!-- adding tactile state publisher using the tf prefix as a namespace -->
+
+  <!-- adding tactile state publisher using the tf prefix as a namespace -->
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
    <arg name="hand_id" value="$(arg rh_id)" />
   </include>
@@ -118,7 +123,6 @@
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
    <arg name="hand_id" value="$(arg lh_id)" />
   </include>
-
 
   <node name="teach_mode_node" pkg="sr_robot_launch" type="teach_mode_node" output="screen"/>
 

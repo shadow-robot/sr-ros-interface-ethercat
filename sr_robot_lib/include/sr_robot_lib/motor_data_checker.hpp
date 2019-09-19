@@ -1,28 +1,27 @@
-/**
- * @file   motor_data_checker.hpp
- * @author toni <toni@shadowrobot.com>
- * @date   25 Oct 2011
- *
- * Copyright 2011 Shadow Robot Company Ltd.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- * @brief This is a class to check that all expected initialization data have been received from each motor.
- *
- *
- */
+/*
+* @file   motor_data_checker.hpp
+* @author toni <toni@shadowrobot.com>
+* @date   25 Oct 2011
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+*
+* @brief This is a class to check that all expected initialization data have been received from each motor.
+*
+*
+*/
 
 #ifndef MOTOR_DATA_CHECKER_HPP_
 #define MOTOR_DATA_CHECKER_HPP_
@@ -90,10 +89,10 @@ public:
   int find(int motor_id);
 };
 
-/**
- * MotorDataChecker checks if all expected messages from the motors
- * have been received
- */
+/*
+* MotorDataChecker checks if all expected messages from the motors
+* have been received
+*/
 class MotorDataChecker
 {
 public:
@@ -102,7 +101,7 @@ public:
 
   ~MotorDataChecker();
 
-  /**
+  /*
    * Checks the message as received. Checking if we received the specified motor_data_type
    * or the motor_slow_data_type.
    * Checks a certain message coming from a certain joint (motor)
@@ -116,7 +115,7 @@ public:
   bool check_message(std::vector<shadow_joints::Joint>::iterator joint_tmp,
                      FROM_MOTOR_DATA_TYPE motor_data_type, int16u motor_slow_data_type);
 
-  /**
+  /*
    * Initializes the Motor Data Checker to the not received state for each message
    * Should be used when reinitializing
    *
@@ -147,6 +146,6 @@ protected:
  Local Variables:
  c-basic-offset: 2
  End:
- */
+*/
 
 #endif /* MOTOR_DATA_CHECKER_HPP_ */

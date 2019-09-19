@@ -1,13 +1,25 @@
 /**
- * @file   sr_ubi_tactile_sensor_publisher.cpp
- * @author Guillaume Walck <gwalck@techfak.uni-bielefeld.de>
- * @date   Aug 25 2014
- *
- * Copyright 2015 Shadow Robot Company Ltd.
- *
- * @brief  Publishes ubi tactile state.
- *
- */
+* @file   sr_ubi_tactile_sensor_publisher.cpp
+* @author Guillaume Walck <gwalck@techfak.uni-bielefeld.de>
+* @date   Aug 25 2014
+*
+* Copyright 2015 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* @brief  Publishes ubi tactile state.
+*
+*/
 
 /// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
@@ -84,4 +96,4 @@ void SrUbiTactileSensorPublisher::update(const ros::Time& time, const ros::Durat
 Local Variables:
    c-basic-offset: 2
 End:
- */
+*/
