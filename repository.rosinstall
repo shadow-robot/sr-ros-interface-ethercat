@@ -15,5 +15,5 @@
 
 - git:
     uri: https://github.com/shadow-robot/sr_utils.git
-    version: 'F_adding_libraries_from_shadow_r_ethercat'
+    version: 'kinetic-devel'
     local-name: sr_utils
