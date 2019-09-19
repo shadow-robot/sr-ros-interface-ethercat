@@ -225,28 +225,10 @@ namespace shadow_robot
                                                                  operation_mode::device_update_state::INITIALIZATION))),
 
             // initialize the calibration map
-            calibration_map(read_joint_calibration())
+            calibration_map(read_joint_calibration()),
+            // initialize the coupled joints calibration map
+            coupled_calibration_map(read_coupled_joint_calibration())
   {
-    // Generate additional points around the actual calibration points
-    add_surrounding_points(NB_CALIBRATION_POINTS, node_xy, zd_thj1, NB_SURROUNDING_POINTS);
-    add_surrounding_points(NB_CALIBRATION_POINTS, node_xy, zd_thj2, NB_SURROUNDING_POINTS);
-    //
-    //  Set up the Delaunay triangulation.
-    //
-    r8tris2 ( node_num, node_xy, element_num, triangle, element_neighbor );
-
-    for ( int j = 0; j < element_num; j++ )
-    {
-      for ( int i = 0; i < 3; i++ )
-      {
-        if ( 0 < element_neighbor[i+j*3] )
-        {
-          element_neighbor[i+j*3] = element_neighbor[i+j*3] - 1;
-        }
-      }
-    }
-    // filter_edge_triangles_by_min_angle(node_num, node_xy, element_num, triangle, element_neighbor, 0.17);
-    // triangulation_order3_print ( node_num, element_num, node_xy, triangle, element_neighbor );
   }
 
   template<class StatusType, class CommandType>
@@ -385,7 +367,6 @@ namespace shadow_robot
         ROS_ASSERT(calib[index_cal][1][index_table][0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
         ROS_ASSERT(calib[index_cal][1][index_table][1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 
-
         joint_calibration::Point point_tmp;
         point_tmp.raw_value = static_cast<double> (calib[index_cal][1][index_table][0]);
         point_tmp.calibrated_value = sr_math_utils::to_rad(static_cast<double> (calib[index_cal][1][index_table][1]));
@@ -398,6 +379,79 @@ namespace shadow_robot
 
     return joint_calibration;
   }  // end read_joint_calibration
+
+  template<class StatusType, class CommandType>
+  typename SrRobotLib<StatusType, CommandType>::CoupledJointMapType
+    SrRobotLib<StatusType, CommandType>::read_coupled_joint_calibration()
+  {
+    CoupledJointMapType coupled_joint_calibration;
+    XmlRpc::XmlRpcValue calib;
+    nodehandle_.getParam("sr_calibrations_coupled", calib);
+    ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib.getType());
+    // iterate on all the joint pairs
+    for (int32_t cal_index = 0; cal_index < calib.size(); ++cal_index)
+    {
+      std::vector<std::string> joint_pair;
+      std::vector<double> raw_values_coupled_0, raw_values_coupled_1, calibrated_values_0, calibrated_values_1;
+
+      ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][0].getType());
+      ROS_ASSERT(2 == calib[cal_index][0].size());
+      ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1].getType());
+
+      for (int i = 0; i < calib[cal_index][0].size(); ++i)
+      {
+        if (std::find(calibration_map.keys().begin(),
+              calibration_map.keys().end(), static_cast<string>(calib[cal_index][0][i]))
+                != calibration_map.keys().end())
+        {
+          ROS_WARN_STREAM("Calibration for joint " << calib[cal_index][0][i] << " present in both regular and"
+                          "coupled form in the calibration file. Only coupled calibration will be used!");
+        }
+      }
+
+      // check if values format is ok
+      for (int32_t raw_and_calibrated_value_index = 0;
+            raw_and_calibrated_value_index < calib[cal_index][1].size();
+              ++raw_and_calibrated_value_index)
+      {
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index].getType());
+        ROS_ASSERT(3 == calib[cal_index][1][raw_and_calibrated_value_index].size());
+
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeArray == calib[cal_index][1][raw_and_calibrated_value_index][0].getType());
+        ROS_ASSERT(2 == calib[cal_index][1][raw_and_calibrated_value_index][0].size());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
+                    calib[cal_index][1][raw_and_calibrated_value_index][0][0].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
+                    calib[cal_index][1][raw_and_calibrated_value_index][0][1].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
+                    calib[cal_index][1][raw_and_calibrated_value_index][1].getType());
+        ROS_ASSERT(XmlRpc::XmlRpcValue::TypeDouble ==
+                    calib[cal_index][1][raw_and_calibrated_value_index][2].getType());
+
+        raw_values_coupled_0.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][0]));
+        raw_values_coupled_0.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][1]));
+        raw_values_coupled_1.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][1]));
+        raw_values_coupled_1.push_back(static_cast<double>(calib[cal_index][1][raw_and_calibrated_value_index][0][0]));
+        calibrated_values_0.push_back(sr_math_utils::to_rad(static_cast<double>
+                                                            (calib[cal_index][1][raw_and_calibrated_value_index][1])));
+        calibrated_values_1.push_back(sr_math_utils::to_rad(static_cast<double>
+                                                            (calib[cal_index][1][raw_and_calibrated_value_index][2])));
+      }  //  value format ok
+
+      ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][0].getType());
+      ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][1].getType());
+
+      std::string joint_0_name = static_cast<string>(calib[cal_index][0][0]);
+      std::string joint_1_name = static_cast<string>(calib[cal_index][0][1]);
+
+      CoupledJoint coupled_joint_0(joint_0_name, joint_1_name, raw_values_coupled_0, calibrated_values_0);
+      CoupledJoint coupled_joint_1(joint_1_name, joint_0_name, raw_values_coupled_1, calibrated_values_1);
+
+      coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_0_name, coupled_joint_0));
+      coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_1_name, coupled_joint_1));
+    }
+    return coupled_joint_calibration;
+  }  // end read_coupled_joint_calibration
 
   template<class StatusType, class CommandType>
   vector<JointToSensor> SrRobotLib<StatusType, CommandType>::read_joint_to_sensor_mapping()
@@ -520,6 +574,71 @@ namespace shadow_robot
                                                           operation_mode::device_update_state::OPERATION,
                                                           tactiles_init->tactiles_vector));
       ROS_ERROR_STREAM("Tactile Initialization Timeout: considering UBI0 tactiles");
+    }
+  }
+
+  CoupledJoint::CoupledJoint(std::string joint_name, std::string joint_sibling_name,
+                             std::vector<double> raw_values_coupled_vector,
+                             std::vector<double> calibrated_values_vector)
+  {
+    name_ = joint_name;
+    sibling_name_ = joint_sibling_name;
+
+    calibration_points_ = raw_values_coupled_vector.size() / 2;
+    total_points_  = calibration_points_ + nb_surrounding_points_;
+
+    for (int i = 0; i < 2*total_points_; i++)
+    {
+      raw_values_coupled_.push_back(0);
+    }
+
+    for (int i = 0; i < total_points_; i++)
+    {
+      calibrated_values_.push_back(0);
+    }
+
+    for (int i = 0; i < 3*2*total_points_; i++)
+    {
+      triangle_.push_back(0);
+      element_neighbor_.push_back(0);
+    }
+
+    for (std::vector<double>::size_type i = 0; i != raw_values_coupled_vector.size(); i++)
+    {
+      raw_values_coupled_[i] = raw_values_coupled_vector[i];
+    }
+
+    for (std::vector<double>::size_type i = 0; i != calibrated_values_vector.size(); i++)
+    {
+      calibrated_values_[i] = calibrated_values_vector[i];
+    }
+
+    process_calibration_values();
+  }
+
+  CoupledJoint::~CoupledJoint()
+  {
+  }
+
+  void CoupledJoint::process_calibration_values()
+  {
+    // Generate additional points around the actual calibration points
+    add_surrounding_points(calibration_points_, &raw_values_coupled_[0],
+                           &calibrated_values_[0], nb_surrounding_points_);
+    //
+    //  Set up the Delaunay triangulation.
+    //
+    r8tris2(total_points_, &raw_values_coupled_[0], element_num_, &triangle_[0], &element_neighbor_[0]);
+
+    for (int j = 0; j < element_num_; j++)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            if ( 0 < element_neighbor_[i+j*3] )
+            {
+            element_neighbor_[i+j*3] = element_neighbor_[i+j*3] - 1;
+            }
+        }
     }
   }
 

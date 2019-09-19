@@ -965,26 +965,28 @@ namespace shadow_robot
         int raw_pos = status_data->sensors[joint_to_sensor.sensor_id];
         // push the new raw values
         actuator->motor_state_.raw_sensor_values_.push_back(raw_pos);
-        double tmp_cal_value;
 
+        double tmp_cal_value;
+        bool joint_coupled = this->check_if_joint_coupled(joint_tmp->joint_name);
         // calibrate and then combine
-        if (joint_tmp->joint_name.find("THJ1")!= std::string::npos)
+        if (joint_coupled)
         {
-          int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name("THJ2")].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
-          this->xyi[0] = static_cast<double> (raw_pos);
-          this->xyi[1] = static_cast<double> (raw_pos_2nd_joint);
-          pwl_interp_2d_scattered_value (this->node_num, this->node_xy, this->zd_thj1, this->element_num,
-                                         this->triangle, this->element_neighbor, this->ni, this->xyi, this->zi);
-          tmp_cal_value = this->zi[0];
-        }
-        else if (joint_tmp->joint_name.find("THJ2")!= std::string::npos)
-        {
-          int raw_pos_2nd_joint = status_data->sensors[this->joints_vector[this->find_joint_by_name("THJ1")].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
-          this->xyi[0] = static_cast<double> (raw_pos_2nd_joint);
-          this->xyi[1] = static_cast<double> (raw_pos);
-          pwl_interp_2d_scattered_value (this->node_num, this->node_xy, this->zd_thj2, this->element_num,
-                                         this->triangle, this->element_neighbor, this->ni, this->xyi, this->zi);
-          tmp_cal_value = this->zi[0];
+          CoupledJoint *current_joint = &(this->coupled_calibration_map.at(joint_tmp->joint_name));
+          double xyi[2*1];
+          double zi[1];
+          int ni = 1;
+
+          int raw_pos_2nd_joint =
+            status_data->sensors[
+              this->joints_vector[this->find_joint_by_name(
+                current_joint->sibling_name_)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
+          xyi[0] = static_cast<double>(raw_pos);
+          xyi[1] = static_cast<double>(raw_pos_2nd_joint);
+          pwl_interp_2d_scattered_value(current_joint->total_points_, &(current_joint->raw_values_coupled_)[0],
+                                        &(current_joint->calibrated_values_)[0], current_joint->element_num_,
+                                        &(current_joint->triangle_)[0], &(current_joint->element_neighbor_)[0],
+                                        ni, xyi, zi);
+          tmp_cal_value = zi[0];
         }
         else
         {
@@ -1002,6 +1004,16 @@ namespace shadow_robot
       ROS_DEBUG_STREAM("          => " << actuator->motor_state_.position_unfiltered_);
     }
   }  // end calibrate_joint()
+
+  template<class StatusType, class CommandType>
+  bool SrMotorRobotLib<StatusType, CommandType>::check_if_joint_coupled(string joint_name)
+  {
+    if (this->coupled_calibration_map.find(joint_name) == this->coupled_calibration_map.end())
+    {
+      return false;
+    }
+    return true;
+  }
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp,

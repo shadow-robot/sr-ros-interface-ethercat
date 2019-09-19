@@ -273,6 +273,7 @@ protected:
 
 
   int find_joint_by_name(string joint_name);
+  bool check_if_joint_coupled(string joint_name);
 };  // end class
 }  // namespace shadow_robot
 
