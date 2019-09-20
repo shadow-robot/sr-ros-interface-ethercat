@@ -267,9 +267,11 @@ protected:
    *
    * @return a calibration map
    */
+
   shadow_joints::CalibrationMap read_joint_calibration();
   CoupledJointMapType read_coupled_joint_calibration();
 
+  /*
    * Simply reads the config from the parameter server.
    *
    * @param base_param string with the base name of the set of parameters to apply (found in the yaml file)
