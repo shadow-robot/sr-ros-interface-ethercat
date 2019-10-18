@@ -73,9 +73,7 @@ roslaunch sr_edc_launch sr_edc_bimanual.launch rh_serial:=1234 lh_serial:=1235 e
 - `robot_description`: Xacro file containing the robot description we want to load
 - `pwm_control`: The control mode PWM (true) or torque (false)
 - `rh_serial`: The ethercat serial number for the right hand
-- `rh_id`: The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model.
 - `lh_serial`: The ethercat serial number for the left hand
-- `lh_id`: The id for the left hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model.
 
 #### Available arguments for sr_edc.launch
 
