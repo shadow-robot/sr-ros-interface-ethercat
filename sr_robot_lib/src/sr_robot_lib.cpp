@@ -385,6 +385,7 @@ namespace shadow_robot
   {
     CoupledJointMapType coupled_joint_calibration;
     XmlRpc::XmlRpcValue calib;
+    ROS_WARN("Reading coupled param");
     nodehandle_.getParam("sr_calibrations_coupled", calib);
     if (!calib.valid())
     {
@@ -414,6 +415,7 @@ namespace shadow_robot
         }
       }
 
+      ROS_WARN("Read coupled param. Checking format");
       // check if values format is ok
       for (int32_t raw_and_calibrated_value_index = 0;
             raw_and_calibrated_value_index < calib[cal_index][1].size();
@@ -443,17 +445,21 @@ namespace shadow_robot
                                                             (calib[cal_index][1][raw_and_calibrated_value_index][2])));
       }  //  value format ok
 
+      ROS_WARN("Checked format. Creating strings");
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][0].getType());
       ROS_ASSERT(XmlRpc::XmlRpcValue::TypeString == calib[cal_index][0][1].getType());
 
       std::string joint_0_name = static_cast<string>(calib[cal_index][0][0]);
       std::string joint_1_name = static_cast<string>(calib[cal_index][0][1]);
 
+      ROS_WARN("Creating coupled joints");
       CoupledJoint coupled_joint_0(joint_0_name, joint_1_name, raw_values_coupled_0, calibrated_values_0);
       CoupledJoint coupled_joint_1(joint_1_name, joint_0_name, raw_values_coupled_1, calibrated_values_1);
 
       coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_0_name, coupled_joint_0));
       coupled_joint_calibration.insert(std::pair<std::string, CoupledJoint>(joint_1_name, coupled_joint_1));
+
+      ROS_WARN("DONE");
     }
     return coupled_joint_calibration;
   }  // end read_coupled_joint_calibration
