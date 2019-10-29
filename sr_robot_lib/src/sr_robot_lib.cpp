@@ -228,18 +228,15 @@ namespace shadow_robot
             // initialize the coupled joints calibration map
             coupled_calibration_map(read_coupled_joint_calibration())
   {
-      for (int cal_index = 0; cal_index < coupled_calibration_map.size(); ++cal_index)
+      for (auto & coupled_calibration : coupled_calibration_map)
       {
-        for (int i = 0; i < coupled_calibration_map[cal_index][0].size(); ++i)
-          {
             if (std::find(calibration_map.keys().begin(),
-                  calibration_map.keys().end(), static_cast<string>(coupled_calibration_map[cal_index][0][i]))
+                  calibration_map.keys().end(), coupled_calibration.first)
                     != calibration_map.keys().end())
             {
-              ROS_WARN_STREAM("Calibration for joint " << calib[cal_index][0][i] << " present in both regular and "
+              ROS_WARN_STREAM("Calibration for joint " << coupled_calibration.first << " present in both regular and "
                               "coupled form in the calibration file. Only coupled calibration will be used!");
             }
-          }
       }
 
   }
