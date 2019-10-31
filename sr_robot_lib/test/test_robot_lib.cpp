@@ -257,7 +257,6 @@ TEST(SrRobotLib, CalibrateJoint)
   // add growing sensors values
   for (unsigned int i = 1; i < SENSORS_NUM_0220 + 2; ++i)
   {
-    // position = id in joint enum
     status_data->sensors[i] = i;
   }
 
