@@ -91,9 +91,9 @@ namespace tactiles
     {
       TACTILE_SENSOR_BIOTAC_DATA_CONTENTS *tactile_data =
         reinterpret_cast<TACTILE_SENSOR_BIOTAC_DATA_CONTENTS*> (&(status_data->tactile[id_sensor]));
-      // We always receive pac0 and pac1
-      tactiles_vector->at(id_sensor).pac0 = static_cast<int>(tactile_data->Pac[0]);
-      tactiles_vector->at(id_sensor).pac1 = static_cast<int>(tactile_data->Pac[1]);
+      // We always receive two latest Pac values
+      tactiles_vector->at(id_sensor).add_pac(static_cast<int>(tactile_data->Pac[0]));
+      tactiles_vector->at(id_sensor).add_pac(static_cast<int>(tactile_data->Pac[1]));
 
       // the rest of the data is sampled at different rates
       switch (static_cast<int32u>(status_data->tactile_data_type))

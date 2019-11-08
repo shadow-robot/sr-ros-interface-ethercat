@@ -40,6 +40,7 @@ void SrBiotacTactileSensorPublisher::init(const ros::Time& time)
   for (unsigned i = 0; i < sensors_->size(); i++)
   {
     biotac_realtime_pub_->msg_.tactiles[i].electrodes.resize(sensors_->at(i).biotac.electrodes.size());
+    biotac_realtime_pub_->msg_.tactiles[i].pac.reserve(270);
   }
   biotac_realtime_pub_->unlock();
 }
@@ -62,12 +63,11 @@ void SrBiotacTactileSensorPublisher::update(const ros::Time& time, const ros::Du
       // data
       for (unsigned i = 0; i < sensors_->size(); i++)
       {
-        biotac_realtime_pub_->msg_.tactiles[i].pac0 = sensors_->at(i).biotac.pac0;
-        biotac_realtime_pub_->msg_.tactiles[i].pac1 = sensors_->at(i).biotac.pac1;
         biotac_realtime_pub_->msg_.tactiles[i].pdc = sensors_->at(i).biotac.pdc;
         biotac_realtime_pub_->msg_.tactiles[i].tac = sensors_->at(i).biotac.tac;
         biotac_realtime_pub_->msg_.tactiles[i].tdc = sensors_->at(i).biotac.tdc;
         biotac_realtime_pub_->msg_.tactiles[i].electrodes = sensors_->at(i).biotac.electrodes;
+        biotac_realtime_pub_->msg_.tactiles[i].pac = sensors_->at(i).biotac.consume_pac();
       }
       biotac_realtime_pub_->unlockAndPublish();
     }
