@@ -34,6 +34,7 @@
 #include <utility>
 #include <string>
 #include <deque>
+#include <map>
 
 // used to publish debug values
 #include <std_msgs/Int16.h>
@@ -56,6 +57,8 @@
 #include "sr_robot_lib/generic_tactiles.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
+#include "sr_interpolation/pwl_interp_2d_scattered.hpp"
+
 
 extern "C"
 {
@@ -92,6 +95,29 @@ typedef CRCUnion union16;
 
 namespace shadow_robot
 {
+
+class CoupledJoint
+{
+  public:
+    CoupledJoint(std::string joint_name, std::string joint_sibling_name,
+                 std::vector<double> raw_values_coupled_vector, std::vector<double> calibrated_values_vector);
+    ~CoupledJoint();
+
+    std::string name_;
+    std::string sibling_name_;
+    std::vector<double> raw_values_coupled_;
+    std::vector<double> calibrated_values_;
+    const int nb_surrounding_points_ = 10;
+    int calibration_points_;
+    int total_points_;
+    int element_num_;
+    std::vector<int> triangle_;
+    std::vector<int> element_neighbor_;
+
+  private:
+    void process_calibration_values();
+};
+
 template<class StatusType, class CommandType>
 class SrRobotLib
 {
@@ -187,6 +213,8 @@ public:
 
   ros_ethercat_model::RobotState *hw_;
 
+  typedef std::map<std::string, CoupledJoint> CoupledJointMapType;
+
 protected:
   // True if we want to set the demand to 0 (stop the controllers)
   bool nullify_demand_;
@@ -239,7 +267,9 @@ protected:
    *
    * @return a calibration map
    */
+
   shadow_joints::CalibrationMap read_joint_calibration();
+  CoupledJointMapType read_coupled_joint_calibration();
 
   /*
    * Simply reads the config from the parameter server.
@@ -332,6 +362,7 @@ public:
 
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
+  CoupledJointMapType coupled_calibration_map;
 };  // end class
 }  // namespace shadow_robot
 

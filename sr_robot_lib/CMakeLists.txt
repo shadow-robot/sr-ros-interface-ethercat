@@ -2,8 +2,13 @@
 # Catkin CMake Standard: http://www.ros.org/doc/groovy/api/catkin/html/user_guide/standards.html
 cmake_minimum_required(VERSION 2.8.3)
 project(sr_robot_lib)
+
+## Compile as C++11, supported in ROS Kinetic and newer
+add_compile_options(-std=c++11)
+
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS
+        sr_interpolation
         sr_utilities
         sr_hardware_interface
         sr_mechanism_model
@@ -35,6 +40,7 @@ catkin_python_setup()
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
         CATKIN_DEPENDS
+        sr_interpolation
         sr_utilities
         sr_hardware_interface
         sr_mechanism_model
@@ -68,8 +74,19 @@ add_library(sr_hand_lib
 )
 
 target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS})
+add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS}) 
 
+## Add cmake target dependencies of the executable/library
+## as an example, message headers may need to be generated before nodes
+# add_dependencies(
+#  ${catkin_EXPORTED_TARGETS}
+# )
+
+## Specify libraries to link a library or executable target against
+# target_link_libraries(
+#   ${catkin_LIBRARIES}
+#   ${Boost_LIBRARIES}
+# )
 
 ###############
 #     TESTS
@@ -119,5 +136,3 @@ install(PROGRAMS
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
-
-
