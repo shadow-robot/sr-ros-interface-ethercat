@@ -63,6 +63,8 @@ void SrBiotacTactileSensorPublisher::update(const ros::Time& time, const ros::Du
       // data
       for (unsigned i = 0; i < sensors_->size(); i++)
       {
+        biotac_realtime_pub_->msg_.tactiles[i].pac0 = sensors_->at(i).biotac.pac0;
+        biotac_realtime_pub_->msg_.tactiles[i].pac1 = sensors_->at(i).biotac.pac1;
         biotac_realtime_pub_->msg_.tactiles[i].pdc = sensors_->at(i).biotac.pdc;
         biotac_realtime_pub_->msg_.tactiles[i].tac = sensors_->at(i).biotac.tac;
         biotac_realtime_pub_->msg_.tactiles[i].tdc = sensors_->at(i).biotac.tdc;
