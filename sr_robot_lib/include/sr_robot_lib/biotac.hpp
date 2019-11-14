@@ -84,9 +84,6 @@ public:
   void set_version_specific_details();
 
 protected:
-  /// the vector containing the data for the tactiles.
-  boost::shared_ptr<std::vector<BiotacData> > tactiles_vector;
-
   size_t nb_electrodes_;
 
   static const size_t nb_electrodes_v1_;
