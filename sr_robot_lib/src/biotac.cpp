@@ -206,11 +206,13 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10:
           if (tactile_data->data_valid.other_sensor_0)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[9] = static_cast<int>(tactile_data->other_sensor_0);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[9] = static_cast<int>(
+              tactile_data->other_sensor_0);
           }
           if (tactile_data->data_valid.other_sensor_1)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[10] = static_cast<int>(tactile_data->other_sensor_1);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[10] = static_cast<int>(
+              tactile_data->other_sensor_1);
           }
           break;
 
@@ -222,11 +224,13 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_12:
           if (tactile_data->data_valid.other_sensor_0)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[11] = static_cast<int>(tactile_data->other_sensor_0);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[11] = static_cast<int>(
+              tactile_data->other_sensor_0);
           }
           if (tactile_data->data_valid.other_sensor_1)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[12] = static_cast<int>(tactile_data->other_sensor_1);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[12] = static_cast<int>(
+              tactile_data->other_sensor_1);
           }
           break;
 
@@ -238,11 +242,13 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_14:
           if (tactile_data->data_valid.other_sensor_0)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[13] = static_cast<int>(tactile_data->other_sensor_0);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[13] = static_cast<int>(
+              tactile_data->other_sensor_0);
           }
           if (tactile_data->data_valid.other_sensor_1)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[14] = static_cast<int>(tactile_data->other_sensor_1);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[14] = static_cast<int>(
+              tactile_data->other_sensor_1);
           }
           break;
 
@@ -254,11 +260,13 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_16:
           if (tactile_data->data_valid.other_sensor_0)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[15] = static_cast<int>(tactile_data->other_sensor_0);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[15] = static_cast<int>(
+              tactile_data->other_sensor_0);
           }
           if (tactile_data->data_valid.other_sensor_1)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[16] = static_cast<int>(tactile_data->other_sensor_1);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[16] = static_cast<int>(
+              tactile_data->other_sensor_1);
           }
           break;
 
@@ -270,11 +278,13 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_18:
           if (tactile_data->data_valid.other_sensor_0)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[17] = static_cast<int>(tactile_data->other_sensor_0);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[17] = static_cast<int>(
+              tactile_data->other_sensor_0);
           }
           if (tactile_data->data_valid.other_sensor_1)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[18] = static_cast<int>(tactile_data->other_sensor_1);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[18] = static_cast<int>(
+              tactile_data->other_sensor_1);
           }
           break;
 
@@ -286,29 +296,34 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_20:
           if (tactile_data->data_valid.other_sensor_0)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[19] = static_cast<int>(tactile_data->other_sensor_0);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[19] = static_cast<int>(
+              tactile_data->other_sensor_0);
           }
           if (tactile_data->data_valid.other_sensor_1)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[20] = static_cast<int>(tactile_data->other_sensor_1);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[20] = static_cast<int>(
+              tactile_data->other_sensor_1);
           }
           break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_22:
           if (tactile_data->data_valid.other_sensor_0)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[21] = static_cast<int>(tactile_data->other_sensor_0);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[21] = static_cast<int>(
+              tactile_data->other_sensor_0);
           }
           if (tactile_data->data_valid.other_sensor_1)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[22] = static_cast<int>(tactile_data->other_sensor_1);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[22] = static_cast<int>(
+              tactile_data->other_sensor_1);
           }
           break;
 
         case TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_24:
           if (tactile_data->data_valid.other_sensor_0)
           {
-            this->all_tactile_data->at(id_sensor).biotac.electrodes[23] = static_cast<int>(tactile_data->other_sensor_0);
+            this->all_tactile_data->at(id_sensor).biotac.electrodes[23] = static_cast<int>(
+              tactile_data->other_sensor_0);
           }
           // if (tactile_data->data_valid.other_sensor_1)
           // {
@@ -328,16 +343,16 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_MANUFACTURER:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            this->all_tactile_data->at(id_sensor).biotac.manufacturer = this->sanitise_string(status_data->tactile[id_sensor].string,
-                                                                                TACTILE_DATA_LENGTH_BYTES);
+            this->all_tactile_data->at(id_sensor).biotac.manufacturer = this->sanitise_string(
+              status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES);
           }
           break;
 
         case TACTILE_SENSOR_TYPE_SERIAL_NUMBER:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            this->all_tactile_data->at(id_sensor).biotac.serial_number = this->sanitise_string(status_data->tactile[id_sensor].string,
-                                                                                 TACTILE_DATA_LENGTH_BYTES);
+            this->all_tactile_data->at(id_sensor).biotac.serial_number = this->sanitise_string(
+              status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES);
           }
           break;
 
@@ -351,8 +366,8 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_PCB_VERSION:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            this->all_tactile_data->at(id_sensor).biotac.pcb_version = this->sanitise_string(status_data->tactile[id_sensor].string,
-                                                                               TACTILE_DATA_LENGTH_BYTES);
+            this->all_tactile_data->at(id_sensor).biotac.pcb_version = this->sanitise_string(
+              status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES);
           }
           break;
 
