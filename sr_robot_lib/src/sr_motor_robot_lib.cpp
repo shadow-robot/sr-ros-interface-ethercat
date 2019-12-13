@@ -1,29 +1,28 @@
 /**
- * @file   sr_motor_robot_lib.cpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
- * @date   Tue Mar  19 17:12:13 2013
- *
- *
- * Copyright 2013 Shadow Robot Company Ltd.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- * @brief This is a generic robot library for Shadow Robot's  motor-actuated Hardware.
- *
- *
- */
+* @file   sr_motor_robot_lib.cpp
+* @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+* @date   Tue Mar  19 17:12:13 2013
+*
+*
+/* Copyright 2013 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+*
+* @brief This is a generic robot library for Shadow Robot's  motor-actuated Hardware.
+*
+*
+*/
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <string>
@@ -966,10 +965,33 @@ namespace shadow_robot
         // push the new raw values
         actuator->motor_state_.raw_sensor_values_.push_back(raw_pos);
 
+        double tmp_cal_value;
+        bool joint_coupled = this->check_if_joint_coupled(joint_tmp->joint_name);
         // calibrate and then combine
-        this->calibration_tmp = this->calibration_map.find(sensor_name);
-        double tmp_cal_value = this->calibration_tmp->compute(static_cast<double> (raw_pos));
+        if (joint_coupled)
+        {
+          CoupledJoint *current_joint = &(this->coupled_calibration_map.at(joint_tmp->joint_name));
+          double xyi[2*1];
+          double zi[1];
+          int ni = 1;
 
+          int raw_pos_2nd_joint =
+            status_data->sensors[
+              this->joints_vector[this->find_joint_by_name(
+                current_joint->sibling_name_)].joint_to_sensor.joint_to_sensor_vector[0].sensor_id];
+          xyi[0] = static_cast<double>(raw_pos);
+          xyi[1] = static_cast<double>(raw_pos_2nd_joint);
+          pwl_interp_2d_scattered_value(current_joint->total_points_, &(current_joint->raw_values_coupled_)[0],
+                                        &(current_joint->calibrated_values_)[0], current_joint->element_num_,
+                                        &(current_joint->triangle_)[0], &(current_joint->element_neighbor_)[0],
+                                        ni, xyi, zi);
+          tmp_cal_value = zi[0];
+        }
+        else
+        {
+          this->calibration_tmp = this->calibration_map.find(sensor_name);
+          tmp_cal_value = this->calibration_tmp->compute(static_cast<double> (raw_pos));
+        }
         // push the new calibrated values.
         actuator->motor_state_.calibrated_sensor_values_.push_back(tmp_cal_value);
 
@@ -981,6 +1003,16 @@ namespace shadow_robot
       ROS_DEBUG_STREAM("          => " << actuator->motor_state_.position_unfiltered_);
     }
   }  // end calibrate_joint()
+
+  template<class StatusType, class CommandType>
+  bool SrMotorRobotLib<StatusType, CommandType>::check_if_joint_coupled(string joint_name)
+  {
+    if (this->coupled_calibration_map.find(joint_name) == this->coupled_calibration_map.end())
+    {
+      return false;
+    }
+    return true;
+  }
 
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::process_position_sensor_data(vector<Joint>::iterator joint_tmp,
@@ -1294,6 +1326,24 @@ namespace shadow_robot
     return no_motor_id_out_of_range;
   }
 
+  template<class StatusType, class CommandType>
+  int SrMotorRobotLib<StatusType, CommandType>::find_joint_by_name(string joint_name)
+  {
+    int index = 0;
+    for (vector<Joint>::iterator joint = this->joints_vector.begin();
+         joint != this->joints_vector.end();
+         ++joint)
+    {
+      if (joint->joint_name.find(joint_name) != std::string::npos)
+      {
+        return index;
+      }
+      ++index;
+    }
+    ROS_ERROR("Could not find joint with name: %s", joint_name.c_str());
+    return -1;
+  }
+
   // Only to ensure that the template class is compiled for the types we are interested in
   template
   class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>;
@@ -1309,4 +1359,4 @@ namespace shadow_robot
  Local Variables:
  c-basic-offset: 2
  End:
- */
+*/

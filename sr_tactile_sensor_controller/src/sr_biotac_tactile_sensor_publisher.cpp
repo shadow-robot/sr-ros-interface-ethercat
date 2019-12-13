@@ -1,12 +1,24 @@
 /**
- * @file   sr_biotac_tactile_sensor_publisher.hpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>
- *
- * Copyright 2015 Shadow Robot Company Ltd.
- *
- * @brief  Publishes Biotac tactile state
- *
- */
+* @file   sr_biotac_tactile_sensor_publisher.hpp
+* @author Ugo Cupcic <ugo@shadowrobot.com>
+*
+* Copyright 2015 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* @brief  Publishes Biotac tactile state
+*
+*/
 
 /// Original author of ImuSensorController : Adolfo Rodriguez Tsouroukdissian
 
@@ -28,6 +40,7 @@ void SrBiotacTactileSensorPublisher::init(const ros::Time& time)
   for (unsigned i = 0; i < sensors_->size(); i++)
   {
     biotac_realtime_pub_->msg_.tactiles[i].electrodes.resize(sensors_->at(i).biotac.electrodes.size());
+    biotac_realtime_pub_->msg_.tactiles[i].pac.reserve(270);
   }
   biotac_realtime_pub_->unlock();
 }
@@ -56,6 +69,7 @@ void SrBiotacTactileSensorPublisher::update(const ros::Time& time, const ros::Du
         biotac_realtime_pub_->msg_.tactiles[i].tac = sensors_->at(i).biotac.tac;
         biotac_realtime_pub_->msg_.tactiles[i].tdc = sensors_->at(i).biotac.tdc;
         biotac_realtime_pub_->msg_.tactiles[i].electrodes = sensors_->at(i).biotac.electrodes;
+        biotac_realtime_pub_->msg_.tactiles[i].pac = sensors_->at(i).biotac.consume_pac();
       }
       biotac_realtime_pub_->unlockAndPublish();
     }
@@ -67,4 +81,4 @@ void SrBiotacTactileSensorPublisher::update(const ros::Time& time, const ros::Du
 Local Variables:
    c-basic-offset: 2
 End:
- */
+*/

@@ -1,30 +1,29 @@
 /**
- * @file   types_for_external.h
- * @author Ugo Cupcic <ugo@shadowrobot.com>
- * @date   Mon May 23 13:08:06 2011
- *
+* @file   types_for_external.h
+* @author Ugo Cupcic <ugo@shadowrobot.com>
+* @date   Mon May 23 13:08:06 2011
 *
-* Copyright 2011 Shadow Robot Company Ltd.
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
+* Software Foundation version 2 of the License.
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 * more details.
 *
 * You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 *
- * @brief  Contains some typedefs used in the header files
- * from the firmware, which are checked out in the include/external
- * directory.
- *
- *
- */
+* @brief  Contains some typedefs used in the header files
+* from the firmware, which are checked out in the include/external
+* directory.
+*
+*
+*/
 
 
 #ifndef _TYPES_FOR_EXTERNAL_H_

@@ -4,16 +4,15 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 2 of the License, or (at your option)
-# any later version.
+# Software Foundation version 2 of the License.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 # more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with this program.  If not, see <http://www.gnu.org/licenses/>.
+# with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
 import rospy
@@ -207,16 +206,17 @@ class EtherCAT_Hand_Lib(object):
             value = 4095
         return value
 
-    def get_average_raw_value(self, sensor_name, number_of_samples=10):
+    def get_average_raw_value(self, sensor_name, number_of_samples=10, accept_zeros=True):
         """
         Get the average raw value for the given sensor, average on
         number_of_samples
         """
         tmp_raw_values = []
-        for i in range(0, number_of_samples):
-            tmp_raw_values.append(self.get_raw_value(sensor_name))
+        while len(tmp_raw_values) < number_of_samples:
+            value = self.get_raw_value(sensor_name)
+            if accept_zeros or value > 0.0:
+                tmp_raw_values.append(value)
             time.sleep(0.002)
-
         average = float(sum(tmp_raw_values)) / len(tmp_raw_values)
         return average
 

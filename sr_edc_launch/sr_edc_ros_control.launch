@@ -1,27 +1,36 @@
 <launch>
+  <arg name="debug" default="false"/>
+
+  <!-- ROBOT CONFIG-->
+  <!-- Xacro file containing the robot description we want to load -->
+  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
+
+  <!-- HAND CONFIG-->
+  <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
+  <arg name="hand_id" default="rh"/>
+  <!-- The ethercat serial number for the hand -->
+  <arg name="hand_serial" default="1050"/>
+  <!-- the path to the mapping files -->
+  <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
   <!-- Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT
        More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
   <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)"/>
-  <!-- Set to true for debugging -->
-  <arg name="debug" default="false"/>
-  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
-  <arg name="calibration_controllers" default="1"/>
-  <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
   <!-- The control mode PWM (true) or torque (false) -->
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 1)"/>
+  <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
+  <arg name="calibration_controllers" default="1"/>
   <!-- use ns or not -->
   <arg name="use_ns" default="true" />
-  <!-- The ethercat serial number for the hand -->
-  <arg name="hand_serial" default="1050"/>
-  <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
-  <arg name="hand_id" default="rh"/>
-  <!-- the path to the mapping files -->
-  <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
+
+  <!-- ARM CONFIG-->
   <!-- z coordinate of the robot (w.r.t. world frame) -->
   <arg name="initial_z" default="0.0"/>
   <!-- setting this parameter to false allows to load the robot_description from a higher level -->
   <arg name="load_robot_description" default="true"/>
+  <!-- The robot state publisher publishing frequency  -->
+  <arg name="robot_state_pub_frequency" default="100"/>
+  <!-- The joint state publisher publishing frequency  -->
+  <arg name="joint_state_pub_frequency" default="100"/>
 
   <!-- this should be false if robot_hardware param is defined elsewhere -->
   <arg name="define_robot_hardware" default="true"/>
@@ -30,7 +39,7 @@
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg load_robot_description)" name="robot_description" command="$(find xacro)/xacro.py $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
+  <param if="$(arg load_robot_description)" name="robot_description" command="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
@@ -81,23 +90,24 @@
     <node name="calibrate_sr_edc" pkg="sr_utilities" type="calibrate_hand_finder.py" output="screen"/>
   </group>
 
-
   <!-- diagnostic aggregator for being able to see the results in the robot_monitor -->
   <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
     <rosparam command="load" file="$(find sr_ethercat_hand_config)/diagnostic_analyzer.yaml"/>
   </node>
 
-  <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch"/>
+  <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch">
+    <arg name="publish_rate" value="$(arg joint_state_pub_frequency)"/>
+  </include>
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="100.0"/>
+    <param name="publish_frequency" type="double" value="$(arg robot_state_pub_frequency)"/>
     <param name="tf_prefix" type="string" value="$(arg tf_prefix)"/>
   </node>
 
   <!-- adding tactile state publisher using the tf prefix as a namespace -->
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
-   <arg name="hand_id" value="$(arg hand_id)" />
+    <arg name="hand_id" value="$(arg hand_id)" />
   </include>
 
   <node name="teach_mode_node" pkg="sr_robot_launch" type="teach_mode_node" output="screen"/>

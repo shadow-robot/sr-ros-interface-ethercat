@@ -1,28 +1,27 @@
-/**
- * @file   sr_robot_lib.hpp
- * @author Ugo Cupcic <ugo@shadowrobot.com>
- * @date   Fri Jun  3 12:12:13 2011
- *
- *
- * Copyright 2011 Shadow Robot Company Ltd.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @brief This is a generic robot library for Shadow Robot's Hardware.
- *
- *
- */
+/*
+* @file   sr_robot_lib.hpp
+* @author Ugo Cupcic <ugo@shadowrobot.com>
+* @date   Fri Jun  3 12:12:13 2011
+*
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* @brief This is a generic robot library for Shadow Robot's Hardware.
+*
+*
+*/
 
 #ifndef _SR_ROBOT_LIB_HPP_
 #define _SR_ROBOT_LIB_HPP_
@@ -35,6 +34,7 @@
 #include <utility>
 #include <string>
 #include <deque>
+#include <map>
 
 // used to publish debug values
 #include <std_msgs/Int16.h>
@@ -57,6 +57,8 @@
 #include "sr_robot_lib/generic_tactiles.hpp"
 
 #include <sr_external_dependencies/types_for_external.h>
+#include "sr_interpolation/pwl_interp_2d_scattered.hpp"
+
 
 extern "C"
 {
@@ -93,6 +95,29 @@ typedef CRCUnion union16;
 
 namespace shadow_robot
 {
+
+class CoupledJoint
+{
+  public:
+    CoupledJoint(std::string joint_name, std::string joint_sibling_name,
+                 std::vector<double> raw_values_coupled_vector, std::vector<double> calibrated_values_vector);
+    ~CoupledJoint();
+
+    std::string name_;
+    std::string sibling_name_;
+    std::vector<double> raw_values_coupled_;
+    std::vector<double> calibrated_values_;
+    const int nb_surrounding_points_ = 10;
+    int calibration_points_;
+    int total_points_;
+    int element_num_;
+    std::vector<int> triangle_;
+    std::vector<int> element_neighbor_;
+
+  private:
+    void process_calibration_values();
+};
+
 template<class StatusType, class CommandType>
 class SrRobotLib
 {
@@ -104,7 +129,7 @@ public:
   {
   }
 
-  /**
+  /*
    * This function is called each time a new etherCAT message
    * is received in the sr06.cpp driver. It updates the joints_vector,
    * updating the different values, computing the calibrated joint
@@ -114,40 +139,40 @@ public:
    */
   virtual void update(StatusType *status_data) = 0;
 
-  /**
+  /*
    * Builds a command for the robot.
    *
    * @param command The command we're building.
    */
   virtual void build_command(CommandType *command) = 0;
 
-  /**
+  /*
    * Builds a command to demand information form the tactile sensors.
    *
    * @param command The command we're building.
    */
   void build_tactile_command(CommandType *command);
 
-  /**
+  /*
    * Reads the tactile information.
    *
    * @param status The status information that comes from the robot
    */
   void update_tactile_info(StatusType *status);
 
-  /**
+  /*
    * This function adds the diagnostics for the hand to the
    * multi diagnostic status published in sr06.cpp.
    */
   virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                diagnostic_updater::DiagnosticStatusWrapper &d) = 0;
 
-  /**
+  /*
    * Initiates the process to retrieve the initialization information from the sensors
    */
   void reinitialize_sensors();
 
-  /**
+  /*
    * This service is used to nullify the demand of the etherCAT
    *  hand. If the nullify_demand parameter is set to True,
    *  the demand sent to the robot will be 0, regardless of the
@@ -163,20 +188,20 @@ public:
                                sr_robot_msgs::NullifyDemand::Response &response);
 
 
-  /**
+  /*
    * This is a pointer to the tactile object. This pointer
    * will be instantiated during the initialization cycle,
    * depending on the type of sensors attached to the hand.
    */
   boost::shared_ptr<tactiles::GenericTactiles<StatusType, CommandType> > tactiles;
 
-  /**
+  /*
    * Contains the idle time of the PIC communicating
    * via etherCAT with the host.
    */
   int main_pic_idle_time;
 
-  /**
+  /*
    * Contains the minimum idle time of the PIC communicating
    * via etherCAT with the host, this minimum is reset each
    * time a diagnostic is being published.
@@ -188,6 +213,8 @@ public:
 
   ros_ethercat_model::RobotState *hw_;
 
+  typedef std::map<std::string, CoupledJoint> CoupledJointMapType;
+
 protected:
   // True if we want to set the demand to 0 (stop the controllers)
   bool nullify_demand_;
@@ -195,7 +222,7 @@ protected:
   /// The vector containing all the robot joints.
   std::vector<shadow_joints::Joint> joints_vector;
 
-  /**
+  /*
    * Initializes the hand library with the needed values.
    *
    * @param joint_names A vector containing all the joint names.
@@ -205,7 +232,7 @@ protected:
   virtual void initialize(std::vector<std::string> joint_names, std::vector<int> actuator_ids,
                           std::vector<shadow_joints::JointToSensor> joint_to_sensors) = 0;
 
-  /**
+  /*
    * Compute the calibrated position for the given joint. This method is called
    * from the update method, each time a new message is received.
    *
@@ -214,7 +241,7 @@ protected:
    */
   virtual void calibrate_joint(std::vector<shadow_joints::Joint>::iterator joint_tmp, StatusType *status_data) = 0;
 
-  /**
+  /*
    * Returns a pointer to the actuator state for a certain joint.
    * It checks the actuator type before accessing the state_ field, to avoid accessing the
    * base class state_ field which is not what we want
@@ -225,7 +252,7 @@ protected:
    */
   virtual ros_ethercat_model::Actuator *get_joint_actuator(std::vector<shadow_joints::Joint>::iterator joint_tmp) = 0;
 
-  /**
+  /*
    * Reads the mapping between the sensors and the joints from the parameter server.
    *
    *
@@ -234,15 +261,17 @@ protected:
    */
   std::vector<shadow_joints::JointToSensor> read_joint_to_sensor_mapping();
 
-  /**
+  /*
    * Reads the calibration from the parameter server.
    *
    *
    * @return a calibration map
    */
-  shadow_joints::CalibrationMap read_joint_calibration();
 
-  /**
+  shadow_joints::CalibrationMap read_joint_calibration();
+  CoupledJointMapType read_coupled_joint_calibration();
+
+  /*
    * Simply reads the config from the parameter server.
    *
    * @param base_param string with the base name of the set of parameters to apply (found in the yaml file)
@@ -256,7 +285,7 @@ protected:
                                                                       const char *human_readable_data_types[],
                                                                       const int32u data_types[]);
 
-  /**
+  /*
    * Calback for the timer that controls the timeout for the tactile initialization period
    */
   void tactile_init_timer_callback(const ros::TimerEvent &event);
@@ -289,7 +318,7 @@ protected:
   // These publishers are useful for debugging
   static const int nb_debug_publishers_const;
   std::vector<ros::Publisher> debug_publishers;
-  /**
+  /*
    * A vector containing pairs:
    *  - associate a motor index
    *  - to a MOTOR_DATA
@@ -333,6 +362,7 @@ public:
 
   /// The map used to calibrate each joint.
   shadow_joints::CalibrationMap calibration_map;
+  CoupledJointMapType coupled_calibration_map;
 };  // end class
 }  // namespace shadow_robot
 
@@ -340,6 +370,6 @@ public:
 Local Variables:
    c-basic-offset: 2
 End:
- */
+*/
 
 #endif

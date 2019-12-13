@@ -1,29 +1,28 @@
-/**
- * @file   UBI0.hpp
- * @author Toni Oliver <toni@shadowrobot.com>
- * @date   Th Oct 20 10:06:14 2011
- *
-* Copyright 2011 Shadow Robot Company Ltd.
+/*
+* @file   UBI0.hpp
+* @author Toni Oliver <toni@shadowrobot.com>
+* @date   Th Oct 20 10:06:14 2011
+*
+/* Copyright 2011 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
-* Software Foundation, either version 2 of the License, or (at your option)
-* any later version.
+* Software Foundation version 2 of the License.
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 * more details.
 *
 * You should have received a copy of the GNU General Public License along
-* with this program.  If not, see <http://www.gnu.org/licenses/>.
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 *
 *
- * @brief This is a class for accessing the data from the
- *        Biotac tactiles.
- *
- *
- */
+* @brief This is a class for accessing the data from the
+*        Biotac tactiles.
+*
+*
+*/
 
 #ifndef _UBI0_HPP_
 #define _UBI0_HPP_
@@ -54,13 +53,13 @@ public:
        operation_mode::device_update_state::DeviceUpdateState update_state,
        boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
 
-  /**
+  /*
    * This function is called in the constructors, to initialize the necessary objects
    */
   void init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
             operation_mode::device_update_state::DeviceUpdateState update_state);
 
-  /**
+  /*
    * This function is called each time a new etherCAT message
    * is received in the sr06.cpp driver. It  updates the tactile
    * sensors values contained in tactiles_vector.
@@ -69,13 +68,13 @@ public:
    */
   virtual void update(StatusType *status_data);
 
-  /**
+  /*
    * Publish the information to a ROS topic.
    *
    */
   virtual void publish();
 
-  /**
+  /*
    * This function adds the diagnostics for the tactiles to the
    * multi diagnostic status published by the hand.
    */
@@ -99,11 +98,11 @@ protected:
 
 // class template specialization.
 
-/**
- * This is a specialization of the template class to avoid that the compiler try to access non existent fields,
- * as it will compile the class for all the desired combinations of StatusType and CommandType,
- * but in runtime this class will only be instantiated for those StatusType that actually contain UBI0 sensor data
- */
+/*
+* This is a specialization of the template class to avoid that the compiler try to access non existent fields,
+* as it will compile the class for all the desired combinations of StatusType and CommandType,
+* but in runtime this class will only be instantiated for those StatusType that actually contain UBI0 sensor data
+*/
 template<>
 class UBI0<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> :
         public GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,

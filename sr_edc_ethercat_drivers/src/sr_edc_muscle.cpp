@@ -1,27 +1,26 @@
 /**
- * @file   sr_edc_muscle.cpp
- * @author Hugo Elias <hugo@shadowrobot.com>, Ugo Cupcic <ugo@shadowrobot.com>,
- *         Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
- *
- * Copyright 2013 Shadow Robot Company Ltd.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @brief This is a ROS driver for Shadow Robot EtherCAT dual CAN muscle hand
- *
- *
- */
+* @file   sr_edc_muscle.cpp
+* @author Hugo Elias <hugo@shadowrobot.com>, Ugo Cupcic <ugo@shadowrobot.com>,
+*         Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+*
+/* Copyright 2013 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* @brief This is a ROS driver for Shadow Robot EtherCAT dual CAN muscle hand
+*
+*
+*/
 
 
 #include <sr_edc_ethercat_drivers/sr_edc_muscle.h>
@@ -70,11 +69,11 @@ namespace is_edc_command_32_bits
 PLUGINLIB_EXPORT_CLASS(SrEdcMuscle, EthercatDevice);
 
 /** \brief Constructor of the SrEdcMuscle driver
- *
- *  This is the Constructor of the driver. We
- *  initialize a few boolean values, a mutex
- *  and create the Bootloading service.
- */
+*
+*  This is the Constructor of the driver. We
+*  initialize a few boolean values, a mutex
+*  and create the Bootloading service.
+*/
 SrEdcMuscle::SrEdcMuscle()
         : zero_buffer_read(0),
           cycle_count(0)
@@ -90,38 +89,38 @@ SrEdcMuscle::SrEdcMuscle()
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs
- *
- *  The role of this function is to setup the SyncManagers and the FMMUs used by this EtherCAT slave.
- *  This slave is using two Mailboxes on two different memory areas.
- *
- *  Here we are setting up the way of communicating between ROS and the PIC32 using the EtherCAT protocol.
- *
- *  We communicate using Shared Memory areas.
- *
- *  The FMMUs are usefull to map the logical memory used by ROS to the Physical memory of the EtherCAT slave chip (ET1200 chip).
- *  So that the chip receiving the packet will know that the data at address 0x10000 is in reality to be written at physical address 0x1000 of the chip memory for example.
- *  It is the mapping between the EtherCAT bus address space and each slave's chip own memory address space.
- *
- *  The SyncManagers are usefull to give a safe way of accessing this Shared Memory, using a consumer / producer model. There are features like interrupts to tell the consumer
- *  that there is something to consume or to tell the producer that the Mailbox is empty and then ready to receive a new message.
- *
- *  - One Mailbox contains the commands, written by ROS, read by the PIC32
- *  - One Mailbox contains the status, written back by the PIC32, read by ROS
- *
- *  That's basically one Mailbox for upstream and one Mailbox for downstream.
- *
- * - The first Mailbox contains in fact two commands, one is the torque demand, the other is a CAN command used in CAN_DIRECT_MODE to communicate with the SimpleMotor for
- *   test purposes, or to reflash a new firmware in bootloading mode.
- *   This Mailbox is at logicial address 0x10000 and mapped via a FMMU to physical address 0x1000 (the first address of user memory)
- * - The second Mailbox contains in fact two status, they are the response of the two previously described commands. One is the status containing the joints data, sensor
- *   data, finger tips data and motor data. The other is the can command response in CAN_DIRECT_MODE. When doing a flashing in bootloading mode this is usually an acknowledgment
- *   from the bootloader. This Mailbox is at logical address 0x10038 and mapped via a FMMU to physical address 0x1038.
- *
- * This function sets the two private members command_size_ and status_size_ to be the size of each Mailbox.
- * It is important for these numbers to be accurate since they are used by the EthercatHardware class when manipulating the buffers.
- * If you need to have several commands like in this SrEdcMuscle driver, put the sum of the size, same thing for the status.
- *
- */
+*
+*  The role of this function is to setup the SyncManagers and the FMMUs used by this EtherCAT slave.
+*  This slave is using two Mailboxes on two different memory areas.
+*
+*  Here we are setting up the way of communicating between ROS and the PIC32 using the EtherCAT protocol.
+*
+*  We communicate using Shared Memory areas.
+*
+*  The FMMUs are usefull to map the logical memory used by ROS to the Physical memory of the EtherCAT slave chip (ET1200 chip).
+*  So that the chip receiving the packet will know that the data at address 0x10000 is in reality to be written at physical address 0x1000 of the chip memory for example.
+*  It is the mapping between the EtherCAT bus address space and each slave's chip own memory address space.
+*
+*  The SyncManagers are usefull to give a safe way of accessing this Shared Memory, using a consumer / producer model. There are features like interrupts to tell the consumer
+*  that there is something to consume or to tell the producer that the Mailbox is empty and then ready to receive a new message.
+*
+*  - One Mailbox contains the commands, written by ROS, read by the PIC32
+*  - One Mailbox contains the status, written back by the PIC32, read by ROS
+*
+*  That's basically one Mailbox for upstream and one Mailbox for downstream.
+*
+* - The first Mailbox contains in fact two commands, one is the torque demand, the other is a CAN command used in CAN_DIRECT_MODE to communicate with the SimpleMotor for
+*   test purposes, or to reflash a new firmware in bootloading mode.
+*   This Mailbox is at logicial address 0x10000 and mapped via a FMMU to physical address 0x1000 (the first address of user memory)
+* - The second Mailbox contains in fact two status, they are the response of the two previously described commands. One is the status containing the joints data, sensor
+*   data, finger tips data and motor data. The other is the can command response in CAN_DIRECT_MODE. When doing a flashing in bootloading mode this is usually an acknowledgment
+*   from the bootloader. This Mailbox is at logical address 0x10038 and mapped via a FMMU to physical address 0x1038.
+*
+* This function sets the two private members command_size_ and status_size_ to be the size of each Mailbox.
+* It is important for these numbers to be accurate since they are used by the EthercatHardware class when manipulating the buffers.
+* If you need to have several commands like in this SrEdcMuscle driver, put the sum of the size, same thing for the status.
+*
+*/
 void SrEdcMuscle::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 {
   ROS_ASSERT(ETHERCAT_STATUS_0300_AGREED_SIZE == ETHERCAT_STATUS_DATA_SIZE);
@@ -136,8 +135,8 @@ void SrEdcMuscle::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 }
 
 /**
- *
- */
+*
+*/
 int SrEdcMuscle::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
   int retval = SR0X::initialize(hw, allow_unprogrammed);
@@ -169,11 +168,11 @@ int SrEdcMuscle::initialize(hardware_interface::HardwareInterface *hw, bool allo
 }
 
 /** \brief This function gives some diagnostics data
- *
- *  This function provides diagnostics data that can be displayed by
- *  the runtime_monitor node. We use the mutliDiagnostics as it publishes
- *  the diagnostics for each motors.
- */
+*
+*  This function provides diagnostics data that can be displayed by
+*  the runtime_monitor node. We use the mutliDiagnostics as it publishes
+*  the diagnostics for each motors.
+*/
 void SrEdcMuscle::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer)
 {
   diagnostic_updater::DiagnosticStatusWrapper &d(diagnostic_status_);
@@ -212,20 +211,20 @@ void SrEdcMuscle::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &ve
 }
 
 /** \brief packs the commands before sending them to the EtherCAT bus
- *
- *  This is one of the most important functions of this driver.
- *  This function is called each millisecond (1 kHz freq) by the EthercatHardware::update() function
- *  in the controlLoop() of the ros_etherCAT node.
- *
- *  This function is called with a buffer as a parameter, the buffer provided is where we write the commands to send via EtherCAT.
- *
- *  We just cast the buffer to our structure type, fill the structure with our data, then add the structure size to the buffer address to shift into memory and access the second command.
- *  The buffer has been allocated with command_size_ bytes, which is the sum of the two command size, so we have to put the two commands one next to the other.
- *  In fact we access the buffer using this kind of code : \code
- *  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND  *command = (ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND *)buffer;
- *  ETHERCAT_CAN_BRIDGE_DATA                       *message = (ETHERCAT_CAN_BRIDGE_DATA *)(buffer + ETHERCAT_COMMAND_DATA_SIZE);
- *  \endcode
- */
+*
+*  This is one of the most important functions of this driver.
+*  This function is called each millisecond (1 kHz freq) by the EthercatHardware::update() function
+*  in the controlLoop() of the ros_etherCAT node.
+*
+*  This function is called with a buffer as a parameter, the buffer provided is where we write the commands to send via EtherCAT.
+*
+*  We just cast the buffer to our structure type, fill the structure with our data, then add the structure size to the buffer address to shift into memory and access the second command.
+*  The buffer has been allocated with command_size_ bytes, which is the sum of the two command size, so we have to put the two commands one next to the other.
+*  In fact we access the buffer using this kind of code : \code
+*  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND  *command = (ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND *)buffer;
+*  ETHERCAT_CAN_BRIDGE_DATA                       *message = (ETHERCAT_CAN_BRIDGE_DATA *)(buffer + ETHERCAT_COMMAND_DATA_SIZE);
+*  \endcode
+*/
 void SrEdcMuscle::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
@@ -276,23 +275,23 @@ void SrEdcMuscle::packCommand(unsigned char *buffer, bool halt, bool reset)
 }
 
 /** \brief This functions receives data from the EtherCAT bus
- *
- *  This function allows the driver to get the data present on the EtherCAT bus and intended for us.
- *
- *  It gives us access to the logical memory registered during the construct().
- *
- *  In order to be able to do differentials two buffers are kept, this_buffer is the actual data that has just been received
- *  and prev_buffer is the previous buffer received from the EtherCAT bus.
- *
- *  We access the data sent by PIC32 here using the same tricks we used in packCommand().
- *  \code
- *  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *tbuffer = (ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *)(this_buffer + command_size_);
- *  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *)(this_buffer + command_size_ + ETHERCAT_STATUS_DATA_SIZE);
- *  \endcode
- *
- * @param this_buffer The data just being received by EtherCAT
- * @param prev_buffer The previous data received by EtherCAT
- */
+*
+*  This function allows the driver to get the data present on the EtherCAT bus and intended for us.
+*
+*  It gives us access to the logical memory registered during the construct().
+*
+*  In order to be able to do differentials two buffers are kept, this_buffer is the actual data that has just been received
+*  and prev_buffer is the previous buffer received from the EtherCAT bus.
+*
+*  We access the data sent by PIC32 here using the same tricks we used in packCommand().
+*  \code
+*  ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *tbuffer = (ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *)(this_buffer + command_size_);
+*  ETHERCAT_CAN_BRIDGE_DATA *can_data = (ETHERCAT_CAN_BRIDGE_DATA *)(this_buffer + command_size_ + ETHERCAT_STATUS_DATA_SIZE);
+*  \endcode
+*
+* @param this_buffer The data just being received by EtherCAT
+* @param prev_buffer The previous data received by EtherCAT
+*/
 bool SrEdcMuscle::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 {
   ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS *status_data =
@@ -472,4 +471,4 @@ void SrEdcMuscle::get_board_id_and_can_bus(int board_id, int *can_bus, unsigned 
    Local Variables:
    c-basic-offset: 2
    End:
- */
+*/
