@@ -206,16 +206,17 @@ class EtherCAT_Hand_Lib(object):
             value = 4095
         return value
 
-    def get_average_raw_value(self, sensor_name, number_of_samples=10):
+    def get_average_raw_value(self, sensor_name, number_of_samples=10, accept_zeros=True):
         """
         Get the average raw value for the given sensor, average on
         number_of_samples
         """
         tmp_raw_values = []
-        for i in range(0, number_of_samples):
-            tmp_raw_values.append(self.get_raw_value(sensor_name))
+        while len(tmp_raw_values) < number_of_samples:
+            value = self.get_raw_value(sensor_name)
+            if accept_zeros or value > 0.0:
+                tmp_raw_values.append(value)
             time.sleep(0.002)
-
         average = float(sum(tmp_raw_values)) / len(tmp_raw_values)
         return average
 
