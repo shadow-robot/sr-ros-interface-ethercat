@@ -6,6 +6,8 @@
   <arg name="robot_description" default="'$(find sr_description)/robots/bimanual_shadowhand_motor.urdf.xacro'"/>
 
   <!-- HANDS CONFIG-->
+  <arg name="lh_id" default="lh"/>
+  <arg name="rh_id" default="rh"/>
   <arg name="rh_serial" default="1050"/>
   <arg name="lh_serial" default="1098"/>
   <arg name="rh_mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
@@ -38,14 +40,14 @@
   <!-- Loads the robot description from the file passed as an argument -->
   <param if="$(arg load_robot_description)" name="robot_description" command="xacro --inorder $(arg robot_description) arm_1_z:=$(arg arm_1_z) arm_2_z:=$(arg arm_2_z) arm_x_separation:=$(arg arm_x_separation) arm_y_separation:=$(arg arm_y_separation)"/>
 
-  <param name="/hand/mapping/$(arg rh_serial)" value="rh"/>
-  <param name="/hand/mapping/$(arg lh_serial)" value="lh"/>
-  <param name="/hand/joint_prefix/$(arg rh_serial)" value="rh_"/>
-  <param name="/hand/joint_prefix/$(arg lh_serial)" value="lh_"/>
+  <param name="/hand/mapping/$(arg rh_serial)" value="$(arg rh_id)"/>
+  <param name="/hand/mapping/$(arg lh_serial)" value="$(arg lh_id)"/>
+  <param name="/hand/joint_prefix/$(arg rh_serial)" value="$(arg rh_id)_"/>
+  <param name="/hand/joint_prefix/$(arg lh_serial)" value="$(arg lh_id)_"/>
 
   <!-- Load parameters for the right hand -->
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml">
-    <arg name="hand_id" value="rh"/>
+    <arg name="hand_id" value="$(arg rh_id)"/>
     <arg name="use_ns" value="true"/>
     <arg name="pwm_control" value="$(arg pwm_control)"/>
     <arg name="mapping_path" value="$(arg rh_mapping_path)"/>
@@ -53,7 +55,7 @@
 
   <!-- Load parameters for the left hand -->
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml">
-    <arg name="hand_id" value="lh"/>
+    <arg name="hand_id" value="$(arg lh_id)"/>
     <arg name="use_ns" value="true"/>
     <arg name="pwm_control" value="$(arg pwm_control)" />
     <arg name="mapping_path" value="$(arg lh_mapping_path)"/>
@@ -78,22 +80,22 @@
   <node if="$(arg debug)" name="sr_hand_robot" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
         args="-i $(arg eth_port) -r robot_description" output="screen"
         launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
-    <param if="$(arg pwm_control)" name="rh/default_control_mode" value="PWM"/>
-    <param unless="$(arg pwm_control)" name="rh/default_control_mode" value="FORCE"/>
+    <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
+    <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>
 
-    <param if="$(arg pwm_control)" name="lh/default_control_mode" value="PWM"/>
-    <param unless="$(arg pwm_control)" name="lh/default_control_mode" value="FORCE"/>
+    <param if="$(arg pwm_control)" name="$(arg lh_id)/default_control_mode" value="PWM"/>
+    <param unless="$(arg pwm_control)" name="$(arg lh_id)/default_control_mode" value="FORCE"/>
 
     <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
   </node>
 
   <node unless="$(arg debug)" name="sr_hand_robot" machine="local" pkg="ros_ethercat_loop" type="ros_ethercat_loop"
         args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ethercat_grant">
-    <param if="$(arg pwm_control)" name="rh/default_control_mode" value="PWM"/>
-    <param unless="$(arg pwm_control)" name="rh/default_control_mode" value="FORCE"/>
+    <param if="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="PWM"/>
+    <param unless="$(arg pwm_control)" name="$(arg rh_id)/default_control_mode" value="FORCE"/>
 
-    <param if="$(arg pwm_control)" name="lh/default_control_mode" value="PWM"/>
-    <param unless="$(arg pwm_control)" name="lh/default_control_mode" value="FORCE"/>
+    <param if="$(arg pwm_control)" name="$(arg lh_id)/default_control_mode" value="PWM"/>
+    <param unless="$(arg pwm_control)" name="$(arg lh_id)/default_control_mode" value="FORCE"/>
 
     <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
   </node>
@@ -118,11 +120,11 @@
 
   <!-- adding tactile state publisher using the tf prefix as a namespace -->
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
-   <arg name="hand_id" value="rh" />
+   <arg name="hand_id" value="$(arg rh_id)" />
   </include>
 
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
-   <arg name="hand_id" value="lh" />
+   <arg name="hand_id" value="$(arg lh_id)" />
   </include>
 
   <node name="teach_mode_node" pkg="sr_robot_launch" type="teach_mode_node" output="screen"/>
