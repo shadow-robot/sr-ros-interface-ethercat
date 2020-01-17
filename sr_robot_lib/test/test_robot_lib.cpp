@@ -25,6 +25,7 @@
 
 #include "sr_robot_lib/sr_motor_hand_lib.hpp"
 #include <sr_mechanism_model/simple_transmission.hpp>
+#include <tinyxml2.h>
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 #include <utility>
