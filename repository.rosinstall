@@ -1,6 +1,6 @@
 - git:
     uri: https://github.com/shadow-robot/sr_common.git
-    version: 'kinetic-devel'
+    version: 'melodic-devel'
     local-name: sr_common
 
 - git:
@@ -15,5 +15,5 @@
 
 - git:
     uri: https://github.com/shadow-robot/sr_utils.git
-    version: 'kinetic-devel'
+    version: 'melodic-devel'
     local-name: sr_utils
