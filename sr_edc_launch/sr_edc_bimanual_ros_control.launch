@@ -111,7 +111,7 @@
     </include>
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
-  <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="$(arg robot_state_pub_frequency)"/>
   </node>
 

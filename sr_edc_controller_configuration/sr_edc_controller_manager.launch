@@ -17,7 +17,7 @@
   <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch"/>
 
   <!-- Robot state publisher -->
-  <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="100.0"/>
     <param name="tf_prefix" type="string" value=""/>
   </node>
