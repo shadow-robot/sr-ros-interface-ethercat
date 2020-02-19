@@ -31,6 +31,7 @@
   <arg name="robot_state_pub_frequency" default="100"/>
   <!-- The joint state publisher publishing frequency  -->
   <arg name="joint_state_pub_frequency" default="100"/>
+  <arg name="kinematics_config" default="$(find ur_description)/config/ur10_default.yaml" />
 
   <!-- this should be false if robot_hardware param is defined elsewhere -->
   <arg name="define_robot_hardware" default="true"/>
@@ -39,7 +40,7 @@
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg load_robot_description)" name="robot_description" command="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
+  <param if="$(arg load_robot_description)" name="robot_description" command="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z) kinematics_config:=$(arg kinematics_config)"/>
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
