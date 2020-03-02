@@ -80,6 +80,7 @@ public:
 
     ros::Time start = ros::Time::now();
     ros::Duration time_spent(0.0);
+    ros::Rate r(1000);
 
     while (time_spent.toSec() < 7.2)
     {
@@ -115,7 +116,7 @@ public:
           can_num_transmitted_counter++;
         }
       }
-      usleep(1000);
+      r.sleep();
     }
 
     UpdaterResult updater_result;
