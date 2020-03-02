@@ -9,18 +9,20 @@
   <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
   <arg name="hand_id" default="rh"/>
   <!-- The ethercat serial number for the hand -->
-  <arg name="hand_serial" default="1050"/>
+  <arg name="hand_serial" default="634"/>
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
   <!-- Allows to specify the ethernet interface/s to be used. It defaults to the value of the env var ETHERCAT_PORT
        More than one interface can be specified by concatenating them using underscore as a separator (e.g eth1_eth2_eth3) -->
-  <arg name="eth_port" default="$(optenv ETHERCAT_PORT eth0)"/>
+  <arg name="eth_port" default="enx000ec6bfef7b"/>
   <!-- The control mode PWM (true) or torque (false) -->
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 1)"/>
   <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
   <arg name="calibration_controllers" default="1"/>
   <!-- use ns or not -->
   <arg name="use_ns" default="true" />
+  
+  <arg name="kinematics_config" default="$(find ur_description)/config/ur10_default.yaml" />
 
   <!-- ARM CONFIG-->
   <!-- z coordinate of the robot (w.r.t. world frame) -->
@@ -39,7 +41,7 @@
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg load_robot_description)" name="robot_description" command="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
+  <param if="$(arg load_robot_description)" name="robot_description" command="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z) kinematics_config:=$(arg kinematics_config)"/>
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
