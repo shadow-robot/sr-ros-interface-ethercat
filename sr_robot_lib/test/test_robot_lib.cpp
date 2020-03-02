@@ -25,6 +25,7 @@
 
 #include "sr_robot_lib/sr_motor_hand_lib.hpp"
 #include <sr_mechanism_model/simple_transmission.hpp>
+#include <tinyxml2.h>
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 #include <utility>
@@ -63,9 +64,9 @@ public:
 
   HandLibTest()
   {
-    TiXmlElement *root;
-    TiXmlElement *root_element;
-    TiXmlDocument xml;
+    tinyxml2::XMLElement *root;
+    tinyxml2::XMLElement *root_element;
+    tinyxml2::XMLDocument xml;
     std::string robot_description;
     if (ros::param::get("/robot_description", robot_description))
     {
