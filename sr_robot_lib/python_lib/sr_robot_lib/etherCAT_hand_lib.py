@@ -207,22 +207,30 @@ class EtherCAT_Hand_Lib(object):
         return value
 
     def get_raw_value_index(self, sensor_name):
-        rospy.loginfo(self.compounds)
         try:
             if sensor_name in self.compounds.keys():
-                rospy.logwarn("sensor_name: {}".format(sensor_name))
                 indices = []
-                rospy.logwarn("self.compounds[{}]: {}".format(sensor_name, self.compounds[sensor_name]))
                 for sub_compound in self.compounds[sensor_name]:
-                    rospy.logwarn("sub_compound: {}".format(sub_compound))
-                    for sensor in sub_compound[0]:
-                        rospy.logwarn("sensor: {}".format(sensor))
-                        indices.append(self.sensors.index(sensor))
+                    indices.append(self.sensors.index(sub_compound[0]))
                 return indices
             else:
                 return self.sensors.index(sensor_name)
         except Exception as e:
-            rospy.logerr(e)
+            rospy.logerr("Error while getting the raw value index of sensor '{}': \n{}".format(sensor_name, e))
+            return None
+
+    def get_compound_names(self, sensor_name):
+        try:
+            if sensor_name in self.compounds.keys():
+                names = []
+                for sub_compound in self.compounds[sensor_name]:
+                    names.append(sub_compound[0])
+                return names
+            else:
+                rospy.logwarn("{} is not a multi-sensor joint, returning joint name.".format(sensor_name))
+                return sensor_name
+        except Exception as e:
+            rospy.logerr("Error while getting the sensor names of compound sensor '{}': \n{}".format(sensor_name, e))
             return None
 
     def get_average_raw_value(self, sensor_name, number_of_samples=10, accept_zeros=True):
