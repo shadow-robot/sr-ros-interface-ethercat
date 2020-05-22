@@ -56,7 +56,7 @@ catkin_package(
         rospy
         INCLUDE_DIRS include
         LIBRARIES sr_hand_lib
-	DEPENDS tinyxml2
+	DEPENDS TinyXML2
 )
 
 add_library(sr_hand_lib
@@ -101,15 +101,16 @@ IF (DEFINED jenkins)
     set_property(TARGET gcov PROPERTY IMPORTED_LOCATION /usr/lib/gcc/i486-linux-gnu/4.4/libgcov.a)
 ENDIF (DEFINED jenkins)
 
-if (COMMAND add_rostest_gtest)
-    include_directories(${TinyXML2_INCLUDE_DIRS})
-    add_rostest_gtest(test_robot_lib test/sr_hand_lib.test test/test_robot_lib.cpp)
-    target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${TinyXML2_LIBRARIES} ${GTEST_LIBRARIES})
+if(CATKIN_ENABLE_TESTING)
+    if (COMMAND add_rostest_gtest)
+        include_directories(${TinyXML2_INCLUDE_DIRS})
+        add_rostest_gtest(test_robot_lib test/sr_hand_lib.test test/test_robot_lib.cpp)
+        target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${TinyXML2_LIBRARIES} ${GTEST_LIBRARIES})
 
-    add_rostest_gtest(motor_updater_test test/motor_updater.test test/motor_updater_test.cpp)
-    target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
-endif (COMMAND add_rostest_gtest)
-
+        add_rostest_gtest(motor_updater_test test/motor_updater.test test/motor_updater_test.cpp)
+        target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+    endif (COMMAND add_rostest_gtest)
+endif()
 
 #############
 ## Install ##
