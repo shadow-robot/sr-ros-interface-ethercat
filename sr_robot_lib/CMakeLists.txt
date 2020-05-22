@@ -23,7 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
         rostest
 )
 find_package(Boost REQUIRED COMPONENTS thread)
-find_package(TinyXML2 REQUIRED)
+find_package(tinyxml2 REQUIRED)
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
