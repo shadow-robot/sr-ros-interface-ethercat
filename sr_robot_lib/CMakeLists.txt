@@ -25,6 +25,9 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS thread)
 find_package(TinyXML2 REQUIRED)
 
+set( tinyxml2_INCLUDE_DIRS ${tinyxml2_INCLUDE_DIR} )
+set( tinyxml2_LIBRARIES ${tinyxml2_LIBRARY} )
+
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 #if you compile with "DEBUG=1 make", some debug data are going to be published
@@ -101,15 +104,16 @@ IF (DEFINED jenkins)
     set_property(TARGET gcov PROPERTY IMPORTED_LOCATION /usr/lib/gcc/i486-linux-gnu/4.4/libgcov.a)
 ENDIF (DEFINED jenkins)
 
-if (COMMAND add_rostest_gtest)
-    include_directories(${TinyXML2_INCLUDE_DIRS})
-    add_rostest_gtest(test_robot_lib test/sr_hand_lib.test test/test_robot_lib.cpp)
-    target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${TinyXML2_LIBRARIES} ${GTEST_LIBRARIES})
+if(CATKIN_ENABLE_TESTING)
+    if (COMMAND add_rostest_gtest)
+        include_directories(${TinyXML2_INCLUDE_DIRS})
+        add_rostest_gtest(test_robot_lib test/sr_hand_lib.test test/test_robot_lib.cpp)
+        target_link_libraries(test_robot_lib sr_hand_lib gcov ${catkin_LIBRARIES} ${TinyXML2_LIBRARIES} ${GTEST_LIBRARIES})
 
-    add_rostest_gtest(motor_updater_test test/motor_updater.test test/motor_updater_test.cpp)
-    target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
-endif (COMMAND add_rostest_gtest)
-
+        add_rostest_gtest(motor_updater_test test/motor_updater.test test/motor_updater_test.cpp)
+        target_link_libraries(motor_updater_test sr_hand_lib gcov ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+    endif (COMMAND add_rostest_gtest)
+endif()
 
 #############
 ## Install ##
