@@ -37,6 +37,12 @@ install(TARGETS sr_tactile_sensor_controller
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+## Mark cpp header files for installation
+install(DIRECTORY include/${PROJECT_NAME}/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        FILES_MATCHING PATTERN "*.hpp")
+
+
 install(FILES sr_tactile_sensor.launch  sr_tactile_sensor_plugin.xml
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
