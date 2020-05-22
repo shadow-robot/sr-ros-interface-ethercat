@@ -25,9 +25,6 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS thread)
 find_package(TinyXML2 REQUIRED)
 
-set( tinyxml2_INCLUDE_DIRS ${tinyxml2_INCLUDE_DIR} )
-set( tinyxml2_LIBRARIES ${tinyxml2_LIBRARY} )
-
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 #if you compile with "DEBUG=1 make", some debug data are going to be published
