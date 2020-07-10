@@ -114,7 +114,8 @@ public:
           : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
   {
-    ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
+    ROS_WARN("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE. "
+             "Ignore this message if you are using a mockup tactile device.");
   }
 
   UBI0(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
@@ -123,7 +124,8 @@ public:
           : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
   {
-    ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
+    ROS_WARN("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE. "
+             "Ignore this message if you are using a mockup tactile device.");
   }
 
   ~UBI0()
@@ -142,7 +144,8 @@ public:
           : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
   {
-    ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
+    ROS_WARN("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE. "
+             "Ignore this message if you are using a mockup tactile device.");
   }
 
   UBI0(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
@@ -151,7 +154,8 @@ public:
           : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
   {
-    ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
+    ROS_WARN("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE. "
+             "Ignore this message if you are using a mockup tactile device.");
   }
 
   ~UBI0()
@@ -170,7 +174,8 @@ public:
           : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
   {
-    ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
+    ROS_WARN("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE. "
+             "Ignore this message if you are using a mockup tactile device.");
   }
 
   UBI0(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
@@ -179,7 +184,8 @@ public:
           : GenericTactiles<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>(nh, device_id, update_configs_vector, update_state)
   {
-    ROS_ERROR("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE");
+    ROS_WARN("This UBI0 tactile object should not have been instantiated for this type of ETHERCAT_DATA_STRUCTURE. "
+             "Ignore this message if you are using a mockup tactile device.");
   }
 
   ~UBI0()
