@@ -133,7 +133,7 @@ public:
 TEST(Utils, motor_updater_freq_low_tolerancy)
 {
   MotorUpdaterTest mut = MotorUpdaterTest();
-  UpdaterResult updater_result = mut.check_updates(0.01);
+  UpdaterResult updater_result = mut.check_updates(0.015);
 
   EXPECT_TRUE(updater_result.git_transmitted);
   EXPECT_TRUE(updater_result.git_transmitted_once);

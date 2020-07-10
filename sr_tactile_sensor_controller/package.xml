@@ -4,7 +4,7 @@
   <version>0.0.1</version>
   <description>The sr_tactile_sensor_controller package</description>
 
-  <maintainer email="gwalck@techfak.uni-bielefeld.de">Guillaume Walck</maintainer>
+  <maintainer email="software@shadowrobot.com">Shadow Robot's software team</maintainer>
   <license>BSD</license>
 
   <url type="website">http://wiki.ros.org/sr_ros_controllers</url>

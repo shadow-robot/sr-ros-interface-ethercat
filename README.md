@@ -1,9 +1,11 @@
-|     Service       |  Status  |
-| ----------------- | -------- |
-| Documentation     | [![Documentation Status](https://readthedocs.org/projects/shadow-robot-ethercat-driver/badge/?version=latest)](http://shadow-robot-ethercat-driver.readthedocs.org) |
-| Code style checks | [![Circle CI](https://circleci.com/gh/shadow-robot/sr-ros-interface-ethercat.svg?style=shield)](https://circleci.com/gh/shadow-robot/sr-ros-interface-ethercat) |
-| Unit tests        | [![Build Status](https://travis-ci.org/shadow-robot/sr-ros-interface-ethercat.svg)](https://travis-ci.org/shadow-robot/sr-ros-interface-ethercat) |
-| Install tests     | [![Build Status](https://semaphoreci.com/api/v1/projects/8797e7d4-058b-4f0f-bc34-9a1f8c23e31d/539067/shields_badge.svg)](https://semaphoreci.com/shadow-robot/sr-ros-interface-ethercat)
+# CI Statuses
+
+Check | Status
+---|---
+Documentation|[![Documentation Status](https://readthedocs.org/projects/shadow-robot-ethercat-driver/badge/?version=latest)](http://shadow-robot-ethercat-driver.readthedocs.org)
+Build|[<img src="https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiQlF4cnNJUkdRNFZIbWphY1pOQ2swVjUwelRYN3hETEc2dzA3OExCVVN5c0RpMWNMVGRxZ054ZGNiSzh0R1Qxd2NldEllbFFMeFVoekd4bkZxNEZ3NWdBPSIsIml2UGFyYW1ldGVyU3BlYyI6IkRFQnFmSWQ0L0ZpTXp4OE4iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=melodic-devel"/>](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/projects/auto_sr-ros-interface-ethercat_melodic-devel_install_check/)
+Style|[<img src="https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidXZ5SjBFYVlvNEVmMGVZQkQ2YTJjSFR0TWZydkMvU2IzTTdBdTRnNzFXNm12Tm5EaHZvUytacXZYV2tRTkhGSVREMzZ3U3RUNnAvTzlkdFBLZ3YzYVN3PSIsIml2UGFyYW1ldGVyU3BlYyI6Im4yL3BhejRiUWVvVVJraDEiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=melodic-devel"/>](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/projects/auto_sr-ros-interface-ethercat_melodic-devel_style_check/)
+Code Coverage|[<img src="https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiQWxKVTBZOWs2NU51ZHQ4allweWE3YXZBdHhmNWVqMjJXaEpSTVdPUjZuVjlmNnQvWGp2cjlBUnlRM2E5ZkFGQitLRTlMNVNnc2Y0cVBVRHRTRVZWSmVnPSIsIml2UGFyYW1ldGVyU3BlYyI6IjNJM3BCVkFacE5uMkNNMEYiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=melodic-devel"/>](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/projects/auto_sr-ros-interface-ethercat_melodic-devel_code_coverage/)
 
 # Shadow Robot - EtherCAT driver
 
