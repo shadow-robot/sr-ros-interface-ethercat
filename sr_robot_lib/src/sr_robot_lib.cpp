@@ -578,7 +578,7 @@ namespace shadow_robot
                                                           ubi0_sensor_update_rate_configs_vector,
                                                           operation_mode::device_update_state::OPERATION,
                                                           tactiles_init->tactiles_vector));
-      ROS_ERROR_STREAM("Tactile Initialization Timeout: considering UBI0 tactiles");
+      ROS_WARN_STREAM("Tactile Initialization Timeout: considering UBI0 tactiles");
     }
   }
 
