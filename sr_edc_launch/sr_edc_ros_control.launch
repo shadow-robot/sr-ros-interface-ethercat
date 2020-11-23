@@ -1,6 +1,7 @@
 <launch>
   <arg name="debug" default="false"/>
 
+  <!-- setting this parameter to false allows to load the robot_description from a higher level -->
   <!-- ROBOT CONFIG-->
   <!-- Xacro file containing the robot description we want to load -->
   <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
@@ -30,7 +31,7 @@
   <arg name="arm_x_separation" default="0.0"/>
   <arg name="arm_y_separation" default="0.0"/>
   <!-- setting this parameter to false allows to load the robot_description from a higher level -->
-  <arg name="load_robot_description" default="true"/>
+  <arg name="load_robot_description_at_lower_level" default="true"/>
   <!-- The robot state publisher publishing frequency  -->
   <arg name="robot_state_pub_frequency" default="100"/>
   <!-- The joint state publisher publishing frequency  -->
@@ -43,7 +44,7 @@
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg load_robot_description)" name="robot_description" command="$(arg load_robot_description_command)"/>
+  <param if="$(arg load_robot_description_at_lower_level)" name="robot_description" command="$(arg load_robot_description_command)"/>
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
