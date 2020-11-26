@@ -107,7 +107,7 @@
   <node name="conditional_delayed_rostool_robot_state_publisher" pkg="sr_utilities_common" type="conditional_delayed_rostool.py" output="screen">
     <param name="package_name" value="robot_state_publisher" />
     <param name="executable_name" value="robot_state_publisher" />
-    <rosparam param="params_list">[/hand]</rosparam>
+    <rosparam param="params_list">[/robot_description]</rosparam>
     <param name="launch_args_list" value="
     publish_frequency:=$(arg robot_state_pub_frequency)
     tf_prefix:=$(arg tf_prefix)"/>
