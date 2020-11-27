@@ -117,7 +117,7 @@
     <param name="package_name" value="robot_state_publisher" />
     <param name="executable_name" value="robot_state_publisher" />
     <rosparam param="params_list">[/robot_description]</rosparam>
-    <param name="launch_args_list" value="publish_frequency:=$(arg robot_state_pub_frequency)"/>
+    <param name="launch_args_list" value="publish_frequency=$(arg robot_state_pub_frequency)"/>
   </node>
 
   <!-- adding tactile state publisher using the tf prefix as a namespace -->
