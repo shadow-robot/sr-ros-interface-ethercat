@@ -36,7 +36,6 @@
 
   <param name="/use_sim_time" value="false"/>
 
-  <!-- setting this parameter to false allows to load the robot_description from a higher level -->
   <!-- ROBOT CONFIG-->
   <!-- Xacro file containing the robot description we want to load -->
   <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>

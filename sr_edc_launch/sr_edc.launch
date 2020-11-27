@@ -27,11 +27,8 @@
 
   <param name="/use_sim_time" value="false"/>
 
-  <!-- setting this parameter to false allows to load the robot_description from a higher level -->
-  <arg name="load_robot_description" default="true"/>
-
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg load_robot_description)" name="robot_description" command="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
+  <param name="robot_description" command="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
