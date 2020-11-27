@@ -172,6 +172,7 @@ TEST(Utils, motor_updater_freq_high_tolerancy)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "sr_edc_ethercat_drivers_test");
+  ros::start();
 
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
