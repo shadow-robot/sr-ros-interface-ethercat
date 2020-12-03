@@ -24,7 +24,7 @@
   <arg name="arm_x_separation" default="0.0"/>
   <arg name="arm_y_separation" default="0.0"/>
   <!-- setting this parameter to false allows to load the robot_description from a higher level -->
-  <arg name="load_robot_description_at_lower_level" default="true"/>
+  <arg name="load_robot_description" default="true"/>
   <!-- The robot state publisher publishing frequency  -->
   <arg name="robot_state_pub_frequency" default="100"/>
   <!-- The joint state publisher publishing frequency  -->
@@ -42,7 +42,7 @@
   <arg name="load_robot_description_command" default="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z) arm_x_separation:=$(arg arm_x_separation) arm_y_separation:=$(arg arm_y_separation)"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg load_robot_description_at_lower_level)" name="robot_description" command="$(arg load_robot_description_command)"/>
+  <param if="$(arg load_robot_description)" name="robot_description" command="$(arg load_robot_description_command)"/>
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>

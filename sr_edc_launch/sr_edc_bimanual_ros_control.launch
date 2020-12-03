@@ -3,7 +3,7 @@
 
   <!-- ROBOT CONFIG-->
   <!-- setting this parameter to false allows to load the robot_description from a higher level -->
-  <arg name="load_robot_description_at_lower_level" default="true"/>
+  <arg name="load_robot_description" default="true"/>
 
   <!-- Xacro file containing the robot description we want to load -->
   <arg name="robot_description" default="'$(find sr_description)/robots/bimanual_shadowhand_motor.urdf.xacro'"/>
@@ -40,7 +40,7 @@
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg load_robot_description_at_lower_level)" name="robot_description" command="$(arg load_robot_description_command)"/>
+  <param if="$(arg load_robot_description)" name="robot_description" command="$(arg load_robot_description_command)"/>
 
   <param name="/hand/mapping/$(arg rh_serial)" value="$(arg rh_id)"/>
   <param name="/hand/mapping/$(arg lh_serial)" value="$(arg lh_id)"/>
