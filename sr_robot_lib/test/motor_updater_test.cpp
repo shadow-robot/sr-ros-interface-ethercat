@@ -77,6 +77,7 @@ public:
     bool git_transmitted_once = false;
 
     int can_num_transmitted_counter = 0;
+    int can_num_transmitted_counter_on_time = 0;
 
     ros::Time start = ros::Time::now();
     ros::Duration time_spent(0.0);
@@ -89,7 +90,7 @@ public:
 
       time_spent = ros::Time::now() - start;
 
-      if (fabs(time_spent.toSec() - 5.0) < tolerancy)
+      if (fabs(time_spent.toSec() - test2.when_to_update) < tolerancy)
       {
         if (command->from_motor_data_type == MOTOR_DATA_VOLTAGE)
         {
@@ -107,13 +108,17 @@ public:
         }
       }
 
-
-      if (fabs(time_spent.toSec() - (static_cast<double>(static_cast<int>(time_spent.toSec())))) < tolerancy)
+      if (command->from_motor_data_type == MOTOR_DATA_CAN_NUM_RECEIVED)
       {
-        if (command->from_motor_data_type == MOTOR_DATA_CAN_NUM_RECEIVED)
+        can_num_transmitted_counter++;
+        if (fabs(time_spent.toSec() - (can_num_transmitted_counter * test3.when_to_update)) < tolerancy)
         {
-          ROS_INFO_STREAM("Correct CAN data received at time : " << time_spent);
-          can_num_transmitted_counter++;
+          ROS_INFO_STREAM("CAN data received at correct time: " << time_spent);
+          can_num_transmitted_counter_on_time++;
+        }
+        else
+        {
+          ROS_INFO_STREAM("CAN data received too early or too late at time: " << time_spent);
         }
       }
       r.sleep();
@@ -122,7 +127,7 @@ public:
     UpdaterResult updater_result;
     updater_result.git_transmitted = git_transmitted;
     updater_result.git_transmitted_once = git_transmitted_once;
-    updater_result.can_num_transmitted_counter = can_num_transmitted_counter;
+    updater_result.can_num_transmitted_counter = can_num_transmitted_counter_on_time;
 
     delete command;
 
@@ -133,7 +138,7 @@ public:
 TEST(Utils, motor_updater_freq_low_tolerancy)
 {
   MotorUpdaterTest mut = MotorUpdaterTest();
-  UpdaterResult updater_result = mut.check_updates(0.015);
+  UpdaterResult updater_result = mut.check_updates(0.010);
 
   EXPECT_TRUE(updater_result.git_transmitted);
   EXPECT_TRUE(updater_result.git_transmitted_once);
@@ -167,6 +172,7 @@ TEST(Utils, motor_updater_freq_high_tolerancy)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "sr_edc_ethercat_drivers_test");
+  ros::start();
 
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
