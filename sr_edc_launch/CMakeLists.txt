@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(sr_edc_launch)
 # Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS sr_utilities_common sr_utilities)
+find_package(catkin REQUIRED)
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(CATKIN_DEPENDS sr_utilities_common)
