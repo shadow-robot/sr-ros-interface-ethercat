@@ -2,6 +2,9 @@
   <arg name="debug" default="false"/>
 
   <!-- ROBOT CONFIG-->
+  <!-- setting this parameter to false allows to load the robot_description from a higher level -->
+  <arg name="load_robot_description" default="true"/>
+
   <!-- Xacro file containing the robot description we want to load -->
   <arg name="robot_description" default="'$(find sr_description)/robots/bimanual_shadowhand_motor.urdf.xacro'"/>
   <arg name="load_robot_description_command" default="xacro --inorder $(arg robot_description) arm_1_z:=$(arg arm_1_z) arm_2_z:=$(arg arm_2_z) arm_x_separation:=$(arg arm_x_separation) arm_y_separation:=$(arg arm_y_separation)"/>
@@ -26,8 +29,6 @@
   <arg name="arm_2_z" default="0.01"/>
   <arg name="arm_x_separation" default="1.5"/>
   <arg name="arm_y_separation" default="0.0"/>
-  <!-- setting this parameter to false allows to load the robot_description from a higher level -->
-  <arg name="load_robot_description" default="true"/>
   <!-- The robot state publisher publishing frequency  -->
   <arg name="robot_state_pub_frequency" default="100"/>
   <!-- The joint state publisher publishing frequency  -->
@@ -112,8 +113,11 @@
     </include>
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="$(arg robot_state_pub_frequency)"/>
+  <node name="conditional_delayed_rostool_robot_state_publisher" pkg="sr_utilities_common" type="conditional_delayed_rostool.py" output="screen">
+    <param name="package_name" value="robot_state_publisher" />
+    <param name="executable_name" value="robot_state_publisher" />
+    <rosparam param="params_list">[/robot_description]</rosparam>
+    <param name="launch_args_list" value="publish_frequency=$(arg robot_state_pub_frequency)"/>
   </node>
 
   <!-- adding tactile state publisher using the tf prefix as a namespace -->

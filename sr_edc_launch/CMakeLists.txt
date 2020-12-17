@@ -6,7 +6,7 @@ project(sr_edc_launch)
 find_package(catkin REQUIRED)
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
-catkin_package()
+catkin_package(CATKIN_DEPENDS sr_utilities_common)
 
 
 #############

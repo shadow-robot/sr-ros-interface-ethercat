@@ -1,12 +1,6 @@
 <launch>
   <arg name="debug" default="false"/>
 
-  <!-- ROBOT CONFIG-->
-  <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
-  <arg name="load_robot_description_command" default="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z) arm_x_separation:=$(arg arm_x_separation) arm_y_separation:=$(arg arm_y_separation)"/>
-
-
   <!-- HAND CONFIG-->
   <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
   <arg name="hand_id" default="rh"/>
@@ -41,6 +35,11 @@
   <arg name="hand_robot_hardware_name" default="unique_robot_hw"/>
 
   <param name="/use_sim_time" value="false"/>
+
+  <!-- ROBOT CONFIG-->
+  <!-- Xacro file containing the robot description we want to load -->
+  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
+  <arg name="load_robot_description_command" default="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z) arm_x_separation:=$(arg arm_x_separation) arm_y_separation:=$(arg arm_y_separation)"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
   <param if="$(arg load_robot_description)" name="robot_description" command="$(arg load_robot_description_command)"/>
@@ -104,9 +103,13 @@
   </include>
 
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="$(arg robot_state_pub_frequency)"/>
-    <param name="tf_prefix" type="string" value="$(arg tf_prefix)"/>
+  <node name="conditional_delayed_rostool_robot_state_publisher" pkg="sr_utilities_common" type="conditional_delayed_rostool.py" output="screen">
+    <param name="package_name" value="robot_state_publisher" />
+    <param name="executable_name" value="robot_state_publisher" />
+    <rosparam param="params_list">[/robot_description]</rosparam>
+    <param name="launch_args_list" value="
+    publish_frequency=$(arg robot_state_pub_frequency)
+    tf_prefix=$(arg tf_prefix)"/>
   </node>
 
   <!-- adding tactile state publisher using the tf prefix as a namespace -->
