@@ -61,6 +61,7 @@ catkin_package(
 
 add_library(sr_hand_lib
         src/UBI0.cpp
+        src/MST.cpp
         src/biotac.cpp
         src/generic_tactiles.cpp
         src/generic_updater.cpp

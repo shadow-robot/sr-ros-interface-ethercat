@@ -77,6 +77,7 @@ typedef enum                                                            //! This
     TACTILE_SENSOR_PROTOCOL_TYPE_PST3           = 0x0001,               //!< Shadow's Pressure Tactile sensor, Hugo's firmware
     TACTILE_SENSOR_PROTOCOL_TYPE_BIOTAC_2_3     = 0x0002,               //!< Syntouch's BioTac sensor, version 2.3
     TACTILE_SENSOR_PROTOCOL_TYPE_UBI0           = 0x0003,               //!< Bielefeld's tactile sensor
+    TACTILE_SENSOR_PROTOCOL_TYPE_MST            = 0x0004,               //!< MST sensor
     TACTILE_SENSOR_PROTOCOL_TYPE_CONFLICTING    = 0xFFFF                //!< More than 1 type of sensor is connected to the hand! (Very unlikely to happen)
 }TACTILE_SENSOR_PROTOCOL_TYPE;
 
@@ -102,6 +103,13 @@ typedef enum                                                            // Data 
     TACTILE_SENSOR_TYPE_UBI0_INVALID                    = 0x0000,       //!<
     TACTILE_SENSOR_TYPE_UBI0_TACTILE                    = 0x0001       //!< Only one type of sensor
 }FROM_TACTILE_SENSOR_TYPE_UBI0;
+
+typedef enum                                                            // Data you can request from MST tactiles
+{
+    TACTILE_SENSOR_TYPE_MST_INVALID                    = 0x0000,
+    TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION         = 0x0001,
+    TACTILE_SENSOR_TYPE_MST_TEMPERATURE                = 0x0002
+}FROM_TACTILE_SENSOR_TYPE_MST;
 
 typedef enum                                                            // Data you can request from BioTacs
 {

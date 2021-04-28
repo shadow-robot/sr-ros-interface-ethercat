@@ -340,6 +340,8 @@ protected:
   std::vector<generic_updater::UpdateConfig> biotac_sensor_update_rate_configs_vector;
   // The update rate for each sensor information type
   std::vector<generic_updater::UpdateConfig> ubi0_sensor_update_rate_configs_vector;
+  // The update rate for each sensor information type
+  std::vector<generic_updater::UpdateConfig> mst_sensor_update_rate_configs_vector;
 
   static const int nb_sensor_data;
   static const char *human_readable_sensor_data_types[];
