@@ -29,6 +29,7 @@
 #include <utility>
 #include <map>
 #include <vector>
+#include <memory>
 #include <boost/foreach.hpp>
 
 #include <sys/time.h>

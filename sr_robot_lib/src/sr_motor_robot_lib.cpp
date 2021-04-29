@@ -27,6 +27,7 @@
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <string>
 #include <vector>
+#include <memory>
 #include <utility>
 #include <boost/foreach.hpp>
 
