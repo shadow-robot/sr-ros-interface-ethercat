@@ -51,7 +51,7 @@ using shadow_joints::MotorWrapper;
 using shadow_joints::PartialJointToSensor;
 using generic_updater::MotorUpdater;
 using generic_updater::MotorDataChecker;
-using boost::shared_ptr;
+// using boost::shared_ptr;
 using boost::static_pointer_cast;
 
 namespace shadow_robot
@@ -132,7 +132,7 @@ namespace shadow_robot
 
       SrMotorActuator *motor_actuator = this->get_joint_actuator(joint_tmp);
 
-      shared_ptr<MotorWrapper> motor_wrapper = static_pointer_cast<MotorWrapper>(joint_tmp->actuator_wrapper);
+      boost::shared_ptr<MotorWrapper> motor_wrapper = static_pointer_cast<MotorWrapper>(joint_tmp->actuator_wrapper);
 
       motor_index_full = motor_wrapper->motor_id;
       motor_actuator->state_.device_id_ = motor_index_full;
@@ -258,7 +258,7 @@ namespace shadow_robot
           continue;
         }
 
-        shared_ptr<MotorWrapper> motor_wrapper = static_pointer_cast<MotorWrapper>(joint_tmp->actuator_wrapper);
+        boost::shared_ptr<MotorWrapper> motor_wrapper = static_pointer_cast<MotorWrapper>(joint_tmp->actuator_wrapper);
 
         if (!this->nullify_demand_)
         {
@@ -279,7 +279,7 @@ namespace shadow_robot
          // NB: debug_motor_indexes_and_data is smaller
          //     than debug_publishers.
          int publisher_index = 0;
-         shared_ptr<pair<int, int> > debug_pair;
+         boost::shared_ptr<pair<int, int> > debug_pair;
          if (this->debug_mutex.try_lock())
          {
            BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
@@ -379,7 +379,7 @@ namespace shadow_robot
               continue;
             }
 
-            shared_ptr<MotorWrapper> motor_wrapper = static_pointer_cast<MotorWrapper>(joint_tmp->actuator_wrapper);
+            boost::shared_ptr<MotorWrapper> motor_wrapper = static_pointer_cast<MotorWrapper>(joint_tmp->actuator_wrapper);
             SrMotorActuator *actuator = this->get_joint_actuator(joint_tmp);
 
             if (motor_wrapper->motor_id == motor_id)
@@ -482,7 +482,7 @@ namespace shadow_robot
 
       if (joint->has_actuator)
       {
-        shared_ptr<MotorWrapper> actuator_wrapper = static_pointer_cast<MotorWrapper>(joint->actuator_wrapper);
+        boost::shared_ptr<MotorWrapper> actuator_wrapper = static_pointer_cast<MotorWrapper>(joint->actuator_wrapper);
         SrMotorActuator *actuator = this->get_joint_actuator(joint);
 
         if (actuator_wrapper->actuator_ok)
@@ -641,7 +641,7 @@ namespace shadow_robot
       // publish the debug values for the given motors.
       // NB: debug_motor_indexes_and_data is smaller
       //     than debug_publishers.
-      shared_ptr<pair<int, int> > debug_pair;
+      boost::shared_ptr<pair<int, int> > debug_pair;
 
       if (this->debug_mutex.try_lock())
       {
@@ -1152,12 +1152,12 @@ namespace shadow_robot
   void SrMotorRobotLib<StatusType, CommandType>::reinitialize_motors()
   {
     // Create a new MotorUpdater object
-    motor_updater_ = shared_ptr<MotorUpdater<CommandType> >(
+    motor_updater_ = boost::shared_ptr<MotorUpdater<CommandType> >(
             new MotorUpdater<CommandType>(motor_update_rate_configs_vector,
                                           operation_mode::device_update_state::INITIALIZATION));
     motor_current_state = operation_mode::device_update_state::INITIALIZATION;
     // Initialize the motor data checker
-    motor_data_checker = shared_ptr<MotorDataChecker>(
+    motor_data_checker = boost::shared_ptr<MotorDataChecker>(
             new MotorDataChecker(this->joints_vector, motor_updater_->initialization_configs_vector));
   }
 
