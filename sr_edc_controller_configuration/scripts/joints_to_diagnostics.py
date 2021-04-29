@@ -130,6 +130,7 @@ def publish_diags():
             d.status = [joint_to_diag(js) for js in last_msg.joint_statistics]
         pub_diag.publish(d)
 
+
 pub_diag = rospy.Publisher('/diagnostics', DiagnosticArray)
 rospy.Subscriber('mechanism_statistics', MechanismStatistics, state_cb)
 

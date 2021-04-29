@@ -90,5 +90,6 @@ def state_cb(msg):
                 pub_diag.publish(d)
         last_publish_time = now
 
+
 rospy.Subscriber('mechanism_statistics', MechanismStatistics, state_cb)
 rospy.spin()

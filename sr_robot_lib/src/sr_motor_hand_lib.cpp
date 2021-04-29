@@ -26,6 +26,7 @@
 */
 
 #include "sr_robot_lib/sr_motor_hand_lib.hpp"
+#include <memory>
 #include <algorithm>
 #include <utility>
 #include <string>
@@ -47,7 +48,7 @@ using shadow_joints::JointToSensor;
 using shadow_joints::MotorWrapper;
 using generic_updater::MotorUpdater;
 using generic_updater::MotorDataChecker;
-using boost::shared_ptr;
+using std::shared_ptr;
 using boost::static_pointer_cast;
 
 namespace shadow_robot

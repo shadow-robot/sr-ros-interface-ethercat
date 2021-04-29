@@ -75,11 +75,11 @@ class EtherCAT_Hand_Lib(object):
             try:
                 joint_to_sensor_mapping \
                     = rospy.get_param(self.hand_id + "/joint_to_sensor_mapping")
-            except:
+            except Exception:
                 rospy.logwarn("The parameter joint_to_sensor_mapping "
                               "was not found, you won't be able to get the "
                               "raw values from the EtherCAT compound sensors.")
-        except:
+        except Exception:
             pass
 
         for mapping in joint_to_sensor_mapping:
@@ -104,11 +104,11 @@ class EtherCAT_Hand_Lib(object):
         value = None
         try:
             value = self.positions[joint_name]
-        except:
+        except Exception:
             # We check if the reason to except is that we are trying to
             # access the joint 0
             # Position of the J0 is the addition of the positions of J1 and J2
-            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            m = re.match(r"(?P<finger>\w{2})J0", joint_name)
             if m is not None:
                 value = self.positions[m.group("finger") + "J1"] +\
                     self.positions[m.group("finger") + "J2"]
@@ -120,10 +120,10 @@ class EtherCAT_Hand_Lib(object):
         value = None
         try:
             value = self.velocities[joint_name]
-        except:
+        except Exception:
             # We check if the reason to except is that we are
             #  trying to access the joint 0
-            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            m = re.match(r"(?P<finger>\w{2})J0", joint_name)
             if m is not None:
                 value = self.velocities[m.group("finger") + "J1"] + \
                     self.velocities[m.group("finger") + "J2"]
@@ -135,12 +135,12 @@ class EtherCAT_Hand_Lib(object):
         value = None
         try:
             value = self.efforts[joint_name]
-        except:
+        except Exception:
             # We check if the reason to except is that we are
             #  trying to access the joint 0
             # Effort of the J0 is the same as the effort of
             # J1 and J2, so we pick J1
-            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            m = re.match(r"(?P<finger>\w{2})J0", joint_name)
             if m is not None:
                 value = self.efforts[m.group("finger") + "J1"]
             else:
@@ -201,7 +201,7 @@ class EtherCAT_Hand_Lib(object):
             else:
                 index = self.sensors.index(sensor_name)
                 value = self.raw_values[index]
-        except:
+        except Exception:
             # if the value is not found we're returning 4095
             value = 4095
         return value
@@ -254,7 +254,7 @@ class EtherCAT_Hand_Lib(object):
             rospy.wait_for_message(self.hand_id + "/debug_etherCAT_data",
                                    EthercatDebug, timeout=0.2)
             rospy.wait_for_message("joint_states", JointState, timeout=0.2)
-        except:
+        except Exception:
             return False
 
         self.debug_subscriber =\
@@ -273,7 +273,7 @@ class EtherCAT_Hand_Lib(object):
             self.joint_state_subscriber = \
                 rospy.Subscriber("joint_states", JointState,
                                  self.joint_state_callback)
-        except:
+        except Exception:
             return False
 
         return True

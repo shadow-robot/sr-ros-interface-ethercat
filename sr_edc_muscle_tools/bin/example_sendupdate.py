@@ -50,6 +50,7 @@ def sendupdate(joints):
         print "\t" + jname + ": " + str(joints[jname])
         joint_pubs[jname].publish(msg)
 
+
 rospy.init_node('example_sendupdate')
 
 start_pose = {'ffj0': 27.0, 'ffj3': 0, 'ffj4': 0,
