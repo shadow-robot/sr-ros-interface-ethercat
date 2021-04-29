@@ -30,6 +30,7 @@
 #include <utility>
 #include <string>
 #include <vector>
+#include <memory>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 
