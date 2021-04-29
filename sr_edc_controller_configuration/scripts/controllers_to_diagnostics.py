@@ -63,6 +63,7 @@ def controller_to_diag(c):
         KeyValue('Timestamp of Last Control Loop Overrun (sec)', str(int(c.time_last_control_loop_overrun.to_sec()))))
     return d
 
+
 rospy.init_node('controller_to_diagnostics')
 use_sim_time = rospy.get_param('use_sim_time', False)
 pub_diag = rospy.Publisher('/diagnostics', DiagnosticArray)

@@ -28,6 +28,7 @@ def state_cb(data):
     global status
     status = data
 
+
 rospy.init_node('example_reading_sensors')
 
 # Set up the subscriber so we can read the data, each joint publishes its

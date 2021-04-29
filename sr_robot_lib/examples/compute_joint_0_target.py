@@ -35,6 +35,7 @@ class Merger(object):
 
         self.publisher.publish(msg_to_send)
 
+
 if __name__ == '__main__':
     rospy.init_node("merger", anonymous=True)
     merger = Merger()
