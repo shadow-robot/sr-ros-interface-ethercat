@@ -22,3 +22,8 @@
     uri: https://github.com/shadow-robot/common_resources.git
     version: 'noetic-devel'
     local-name: common_resources
+#temporary until we have debians    
+- git:
+    local-name: ethercat_grant
+    uri: https://github.com/shadow-robot/ethercat_grant.git
+    version: noetic-devel
