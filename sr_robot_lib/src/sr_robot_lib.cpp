@@ -28,6 +28,7 @@
 #include <utility>
 #include <map>
 #include <vector>
+#include <memory>
 #include <boost/foreach.hpp>
 
 #include <sys/time.h>
@@ -62,8 +63,8 @@ using shadow_joints::MotorWrapper;
 using shadow_joints::PartialJointToSensor;
 using generic_updater::MotorUpdater;
 using generic_updater::UpdateConfig;
-using boost::shared_ptr;
-using boost::ptr_vector;
+using std::shared_ptr;
+using std::ptr_vector;
 
 
 namespace shadow_robot
