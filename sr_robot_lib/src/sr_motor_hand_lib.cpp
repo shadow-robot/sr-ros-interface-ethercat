@@ -49,7 +49,7 @@ using shadow_joints::MotorWrapper;
 using generic_updater::MotorUpdater;
 using generic_updater::MotorDataChecker;
 using std::shared_ptr;
-using boost::static_pointer_cast;
+using std::static_pointer_cast;
 
 namespace shadow_robot
 {
