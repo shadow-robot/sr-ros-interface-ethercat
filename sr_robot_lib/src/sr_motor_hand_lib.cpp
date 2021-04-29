@@ -47,7 +47,7 @@ using shadow_joints::JointToSensor;
 using shadow_joints::MotorWrapper;
 using generic_updater::MotorUpdater;
 using generic_updater::MotorDataChecker;
-using boost::shared_ptr;
+//using boost::shared_ptr;
 using boost::static_pointer_cast;
 
 namespace shadow_robot
@@ -102,7 +102,7 @@ namespace shadow_robot
     this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data,
                                                                             human_readable_motor_data_types,
                                                                             motor_data_types);
-    this->motor_updater_ = shared_ptr<MotorUpdater<CommandType> >(
+    this->motor_updater_ = boost::shared_ptr<MotorUpdater<CommandType> >(
             new MotorUpdater<CommandType>(this->motor_update_rate_configs_vector,
                                           operation_mode::device_update_state::INITIALIZATION));
 
@@ -122,7 +122,7 @@ namespace shadow_robot
     }
     initialize(joint_names_tmp, motor_ids, joint_to_sensor_vect);
     // Initialize the motor data checker
-    this->motor_data_checker = shared_ptr<MotorDataChecker>(
+    this->motor_data_checker = boost::shared_ptr<MotorDataChecker>(
             new MotorDataChecker(this->joints_vector, this->motor_updater_->initialization_configs_vector));
   }
 
@@ -152,7 +152,7 @@ namespace shadow_robot
       if (actuator_ids[index] != -1)
       {
         joint.has_actuator = true;
-        shared_ptr<MotorWrapper> motor_wrapper(new MotorWrapper());
+        boost::shared_ptr<MotorWrapper> motor_wrapper(new MotorWrapper());
         joint.actuator_wrapper = motor_wrapper;
         motor_wrapper->motor_id = actuator_ids[index];
         motor_wrapper->actuator = static_cast<SrMotorActuator *> (this->hw_->getActuator(
@@ -542,7 +542,7 @@ namespace shadow_robot
         return false;
       }
 
-      this->debug_motor_indexes_and_data[request.publisher_index] = shared_ptr<pair<int, int> >(new pair<int, int>());
+      this->debug_motor_indexes_and_data[request.publisher_index] = boost::shared_ptr<pair<int, int> >(new pair<int, int>());
 
       this->debug_motor_indexes_and_data[request.publisher_index]->first = request.motor_index;
       this->debug_motor_indexes_and_data[request.publisher_index]->second = request.motor_data_type;
