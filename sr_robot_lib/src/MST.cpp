@@ -61,29 +61,23 @@ namespace tactiles
   }
 
   template<class StatusType, class CommandType>
-  int MST<StatusType, CommandType>::read12bits(char** buffer, int* half)
+  int MST<StatusType, CommandType>::read12bits(char* buffer, int index)
   {
-    int result;
-    if (*half)
+    int start = index * 3 / 2;
+    if (index % 2 == 0)
     {
-      result = (((int)*buffer[0]) >> 4) | (*buffer[1] & 0xFF);
-      *buffer += 2;
-      *half = 0;
+      int byte1 = buffer[start];
+      int byte2 = buffer[start + 1];
+      return byte1 << 4 | byte2 >> 4 & 0x0F;
     }
-    else
-    {
-      result = (((int)*buffer[0]) << 8) | (*buffer[1] >> 4 & 0x0F);
-      *buffer += 1;
-      *half = 1;
-    }
-    return result;
+    int byte1 = buffer[start] << 4;
+    int byte2 = buffer[start + 1];
+    return byte1 << 4 | byte2 && 0xFF;
   }
 
   template<class StatusType, class CommandType>
   void MST<StatusType, CommandType>::update(StatusType *status_data)
   {
-    char* buffer;
-    int half;
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
     // @todo use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
@@ -93,22 +87,29 @@ namespace tactiles
       {
         // TACTILE DATA
         case TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION:
-          buffer = status_data->tactile[id_sensor].string;
-          half = 0;
-          for (int i = 0; i < 7; i++)
+          if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x = read12bits(&buffer, &half);
-            sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y = read12bits(&buffer, &half);
-            sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z = read12bits(&buffer, &half);
+            for (int i = 0; i < 7; i++)
+            {
+              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x = read12bits(
+                status_data->tactile[id_sensor].string, i * 3);
+              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y = read12bits(
+                status_data->tactile[id_sensor].string, i * 3 + 1);
+              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z = read12bits(
+                status_data->tactile[id_sensor].string, i * 3 + 2);
+            }
           }
           break;
         
         case TACTILE_SENSOR_TYPE_MST_TEMPERATURE:
-          for (int i = 0; i < 7; i++)
+          if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            sensor_data.fingers[id_sensor].sensors[i].temperature =
-              (((int)status_data->tactile[id_sensor].string[i * 2]) << 8) |
-              ((unsigned int)status_data->tactile[id_sensor].string[i * 2 + 1]);
+            for (int i = 0; i < 7; i++)
+            {
+              sensor_data.fingers[id_sensor].sensors[i].temperature =
+                status_data->tactile[id_sensor].string[i * 2] << 8 |
+                (uint8_t)status_data->tactile[id_sensor].string[i * 2 + 1];
+            }
           }
           break;
 
@@ -138,10 +139,10 @@ namespace tactiles
             //tactiles_vector->at(id_sensor).serial_number = this->sanitise_string(status_data->tactile[id_sensor].string,
             //                                                                     TACTILE_DATA_LENGTH_BYTES);
             ROS_INFO_STREAM("MST sensor " << id_sensor << " serial: "
-              << (unsigned int)status_data->tactile[id_sensor].string[0]
-              << (unsigned int)status_data->tactile[id_sensor].string[1]
-              << (unsigned int)status_data->tactile[id_sensor].string[2]
-              << (unsigned int)status_data->tactile[id_sensor].string[3]);
+              << (uint8_t)status_data->tactile[id_sensor].string[0]
+              << (uint8_t)status_data->tactile[id_sensor].string[1]
+              << (uint8_t)status_data->tactile[id_sensor].string[2]
+              << (uint8_t)status_data->tactile[id_sensor].string[3]);
           }
         }
           break;

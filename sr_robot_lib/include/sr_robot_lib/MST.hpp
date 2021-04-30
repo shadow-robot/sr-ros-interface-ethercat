@@ -83,7 +83,7 @@ protected:
   std::shared_ptr<ros::Publisher> publisher;
 
 private:
-  int read12bits(char** buffer, int* half);
+  int read12bits(char* buffer, int index);
 };  // end class
 
 
