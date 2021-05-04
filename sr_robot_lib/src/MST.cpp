@@ -70,9 +70,9 @@ namespace tactiles
       int byte2 = buffer[start + 1];
       return byte1 << 4 | byte2 >> 4 & 0x0F;
     }
-    int byte1 = buffer[start] << 4;
+    int byte1 = (int8_t)(buffer[start] << 4);
     int byte2 = buffer[start + 1];
-    return byte1 << 4 | byte2 && 0xFF;
+    return byte1 << 4 | byte2 & 0xFF;
   }
 
   template<class StatusType, class CommandType>
