@@ -32,32 +32,7 @@ namespace tactiles
                                       boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
           : GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
   {
-    init(update_configs_vector, update_state);
-    tactiles_vector->clear();
-    for (unsigned int i = 0; i < this->nb_tactiles; i++)
-    {
-      UBI0Data tmp_pst(init_tactiles_vector->at(i));
-      tactiles_vector->push_back(tmp_pst);
-    }
     publisher = std::make_shared<ros::Publisher>(nh.advertise<sr_robot_msgs::MSTPalm>("mst", 1));
-  }
-
-  template<class StatusType, class CommandType>
-  void MST<StatusType, CommandType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
-                                           operation_mode::device_update_state::DeviceUpdateState update_state)
-  {
-    // initialize the vector of tactiles
-    tactiles_vector = boost::shared_ptr<std::vector<UBI0Data> >(new std::vector<UBI0Data>(this->nb_tactiles));
-    this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(
-            new std::vector<AllTactileData>(this->nb_tactiles));
-
-    for (size_t i = 0; i < this->all_tactile_data->size(); ++i)
-    {
-      this->all_tactile_data->at(i).type = "ubi";
-    }
-
-    // initialize the palm sensors
-    palm_tactiles = boost::shared_ptr<UBI0PalmData>(new UBI0PalmData());
   }
 
   template<class StatusType, class CommandType>
@@ -117,8 +92,8 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(id_sensor).sample_frequency =
-                    static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+            //tactiles_vector->at(id_sensor).sample_frequency =
+            //        static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
           }
           break;
 
@@ -126,8 +101,8 @@ namespace tactiles
         {
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(id_sensor).manufacturer = this->sanitise_string(status_data->tactile[id_sensor].string,
-                                                                                TACTILE_DATA_LENGTH_BYTES);
+            //tactiles_vector->at(id_sensor).manufacturer = this->sanitise_string(status_data->tactile[id_sensor].string,
+            //                                                                    TACTILE_DATA_LENGTH_BYTES);
           }
         }
           break;
@@ -150,16 +125,16 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(id_sensor).set_software_version(status_data->tactile[id_sensor].string);
+            //tactiles_vector->at(id_sensor).set_software_version(status_data->tactile[id_sensor].string);
           }
           break;
 
         case TACTILE_SENSOR_TYPE_PCB_VERSION:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            tactiles_vector->at(id_sensor).pcb_version = this->sanitise_string(status_data->tactile[id_sensor].string,
-                                                                               TACTILE_DATA_LENGTH_BYTES);
-            ROS_INFO_STREAM("MST sensor " << id_sensor << " PCB version: " << tactiles_vector->at(id_sensor).pcb_version);
+            //tactiles_vector->at(id_sensor).pcb_version = this->sanitise_string(status_data->tactile[id_sensor].string,
+            //                                                                   TACTILE_DATA_LENGTH_BYTES);
+            //ROS_INFO_STREAM("MST sensor " << id_sensor << " PCB version: " << tactiles_vector->at(id_sensor).pcb_version);
           }
           break;
 
@@ -167,11 +142,6 @@ namespace tactiles
           break;
       }  // end switch
     }  // end for tactile
-
-    for (unsigned int i = 0; i < palm_tactiles->palm.size(); ++i)
-    {
-      palm_tactiles->palm[i] = static_cast<int>(static_cast<int16u>(status_data->aux_spi_sensor.sensor[i]));
-    }
 
     if (this->sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
     {
@@ -188,13 +158,13 @@ namespace tactiles
   {
     sensor_data.header.stamp = ros::Time::now();
     publisher->publish(sensor_data);
-  }  // end publish
+  }
 
   template<class StatusType, class CommandType>
   void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                                       diagnostic_updater::DiagnosticStatusWrapper &d)
   {
-    for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
+    /*for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
     {
       std::stringstream ss;
       std::string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + " ");
@@ -213,18 +183,7 @@ namespace tactiles
       d.addf("PCB Version", "%s", tactiles_vector->at(id_tact).pcb_version.c_str());
 
       vec.push_back(d);
-    }
-  }
-
-  template<class StatusType, class CommandType>
-  std::vector<AllTactileData> *MST<StatusType, CommandType>::get_tactile_data()
-  {
-    for (unsigned int i = 0; i < tactiles_vector->size(); ++i)
-    {
-      this->all_tactile_data->at(i).ubi0 = tactiles_vector->at(i);
-    }
-
-    return this->all_tactile_data.get();
+    }*/
   }
 
   // Only to ensure that the template class is compiled for the types we are interested in

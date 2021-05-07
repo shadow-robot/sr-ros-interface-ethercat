@@ -21,11 +21,7 @@
 
 #include <vector>
 #include <string>
-#include <sr_robot_msgs/UBI0All.h>
-#include <sr_robot_msgs/UBI0.h>
 #include <sr_robot_msgs/MSTPalm.h>
-#include <sr_robot_msgs/MidProxDataAll.h>
-#include <sr_robot_msgs/MidProxData.h>
 
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include "sr_robot_lib/generic_updater.hpp"
@@ -42,15 +38,9 @@ public:
        boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
 
   /*
-   * This function is called in the constructors, to initialize the necessary objects
-   */
-  void init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
-            operation_mode::device_update_state::DeviceUpdateState update_state);
-
-  /*
    * This function is called each time a new etherCAT message
-   * is received in the sr06.cpp driver. It  updates the tactile
-   * sensors values contained in tactiles_vector.
+   * is received in the sr08.cpp driver. It  updates the tactile
+   * sensors values contained in sensor_data.
    *
    * @param status_data the received etherCAT message
    */
@@ -69,16 +59,8 @@ public:
   virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                diagnostic_updater::DiagnosticStatusWrapper &d);
 
-
-  virtual std::vector<AllTactileData> *get_tactile_data();
-
 protected:
-  /// the vector containing the data for the tactiles.
-  boost::shared_ptr<std::vector<UBI0Data> > tactiles_vector;
   sr_robot_msgs::MSTPalm sensor_data;
-
-  /// the object containing the data from the palm sensors
-  boost::shared_ptr<UBI0PalmData> palm_tactiles;
 
   std::shared_ptr<ros::Publisher> publisher;
 
