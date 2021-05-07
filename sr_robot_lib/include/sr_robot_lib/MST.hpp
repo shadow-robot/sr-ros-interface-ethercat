@@ -19,7 +19,6 @@
 #ifndef _MST_HPP_
 #define _MST_HPP_
 
-#include <map>
 #include <vector>
 #include <string>
 #include <sr_robot_msgs/MSTPalm.h>
@@ -29,6 +28,7 @@
 
 namespace tactiles
 {
+
 template<class StatusType, class CommandType>
 class MST :
         public GenericTactiles<StatusType, CommandType>
@@ -60,14 +60,20 @@ public:
   virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                diagnostic_updater::DiagnosticStatusWrapper &d);
 
-protected:
-  sr_robot_msgs::MSTPalm sensor_data;
-
-  std::shared_ptr<ros::Publisher> publisher;
-
 private:
-  std::map<int, int16u> sample_frequency;
-  std::map<int, std::string> manufacturer;
+
+  class MSTDiagnosticData
+  {
+  public:
+    std::string manufacturer;
+    std::string serial_number;
+    std::string git_revision;
+    int pcb_version;
+    int sample_frequency;
+  };
+  sr_robot_msgs::MSTPalm sensor_data;
+  std::shared_ptr<ros::Publisher> publisher;
+  std::vector<MSTDiagnosticData> diagnostic_data;
 
   int read12bits(char* buffer, int index);
 };  // end class

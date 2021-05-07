@@ -33,6 +33,10 @@ namespace tactiles
           : GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
   {
     publisher = std::make_shared<ros::Publisher>(nh.advertise<sr_robot_msgs::MSTPalm>("mst", 1));
+    for (int i; i < this->nb_tactiles; i++)
+    {
+      diagnostic_data.push_back({"", "", "", -1, -1});
+    }
   }
 
   template<class StatusType, class CommandType>
@@ -54,7 +58,6 @@ namespace tactiles
   void MST<StatusType, CommandType>::update(StatusType *status_data)
   {
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
-    // @todo use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
     {
       // the rest of the data is sampled at different rates
@@ -92,7 +95,8 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            sample_frequency[id_sensor] = static_cast<int16u>(status_data->tactile[id_sensor].word[0]);
+            diagnostic_data[id_sensor].sample_frequency =
+              static_cast<int16u>(status_data->tactile[id_sensor].word[0]);
           }
           break;
 
@@ -100,7 +104,7 @@ namespace tactiles
         {
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            manufacturer[id_sensor] = this->sanitise_string(
+            diagnostic_data[id_sensor].manufacturer = this->sanitise_string(
               status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES);
           }
         }
@@ -110,13 +114,14 @@ namespace tactiles
         {
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            //tactiles_vector->at(id_sensor).serial_number = this->sanitise_string(status_data->tactile[id_sensor].string,
-            //                                                                     TACTILE_DATA_LENGTH_BYTES);
-            ROS_INFO_STREAM("MST sensor " << id_sensor << " serial: "
-              << (uint8_t)status_data->tactile[id_sensor].string[0]
-              << (uint8_t)status_data->tactile[id_sensor].string[1]
-              << (uint8_t)status_data->tactile[id_sensor].string[2]
-              << (uint8_t)status_data->tactile[id_sensor].string[3]);
+            std::stringstream serial_number;
+            for (int i = 0; i < 4; i++)
+            {
+              serial_number << std::hex << static_cast<int>(
+                static_cast<uint8_t>(status_data->tactile[id_sensor].string[i]));
+            }
+            diagnostic_data[id_sensor].serial_number = serial_number.str();
+            ROS_INFO_STREAM("MST serial number " << id_sensor << ": " << diagnostic_data[id_sensor].serial_number);
           }
         }
           break;
@@ -124,23 +129,25 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_SOFTWARE_VERSION:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            //tactiles_vector->at(id_sensor).set_software_version(status_data->tactile[id_sensor].string);
+            std::stringstream git_revision;
+            for (int i = 0; i < 20; i++)
+            {
+              git_revision << std::hex << static_cast<int>(
+                static_cast<uint8_t>(status_data->tactile[id_sensor].string[i]));
+            }
+            diagnostic_data[id_sensor].git_revision = git_revision.str();
+            ROS_INFO_STREAM("MST git revision " << id_sensor << ": " << diagnostic_data[id_sensor].git_revision);
           }
           break;
 
         case TACTILE_SENSOR_TYPE_PCB_VERSION:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            //tactiles_vector->at(id_sensor).pcb_version = this->sanitise_string(status_data->tactile[id_sensor].string,
-            //                                                                   TACTILE_DATA_LENGTH_BYTES);
-            //ROS_INFO_STREAM("MST sensor " << id_sensor << " PCB version: " << tactiles_vector->at(id_sensor).pcb_version);
+            diagnostic_data[id_sensor].pcb_version = status_data->tactile[id_sensor].string[0];
           }
           break;
-
-        default:
-          break;
-      }  // end switch
-    }  // end for tactile
+      }
+    }
 
     if (this->sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
     {
@@ -163,23 +170,22 @@ namespace tactiles
   void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                                       diagnostic_updater::DiagnosticStatusWrapper &d)
   {
-    for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
+    for (int i = 0; i < this->nb_tactiles; i++)
     {
       std::stringstream ss;
       std::string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + " ");
 
-      ss << prefix << "Tactile " << id_tact + 1;
+      ss << prefix << "Tactile " << i + 1;
 
       d.name = ss.str().c_str();
       d.summary(d.OK, "OK");
       d.clear();
 
-      d.addf("Sample Frequency", "%d", sample_frequency[id_tact]);
-      d.addf("Manufacturer", "%s", manufacturer[id_tact].c_str());
-      //d.addf("Serial Number", "%s", tactiles_vector->at(id_tact).serial_number.c_str());
-
-      //d.addf("Software Version", "%s", tactiles_vector->at(id_tact).get_software_version().c_str());
-      //d.addf("PCB Version", "%s", tactiles_vector->at(id_tact).pcb_version.c_str());
+      d.addf("Sample Frequency", "%d", diagnostic_data[i].sample_frequency);
+      d.addf("Manufacturer", "%s", diagnostic_data[i].manufacturer.c_str());
+      d.addf("Serial Number", "%s", diagnostic_data[i].serial_number.c_str());
+      d.addf("Software Version", "%s", diagnostic_data[i].git_revision.c_str());
+      d.addf("PCB Version", "%d", diagnostic_data[i].pcb_version);
 
       vec.push_back(d);
     }
