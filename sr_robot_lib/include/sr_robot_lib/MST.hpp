@@ -67,6 +67,7 @@ protected:
 
 private:
   std::map<int, int16u> sample_frequency;
+  std::map<int, std::string> manufacturer;
 
   int read12bits(char* buffer, int index);
 };  // end class

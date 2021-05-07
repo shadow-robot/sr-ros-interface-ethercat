@@ -100,8 +100,8 @@ namespace tactiles
         {
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            //tactiles_vector->at(id_sensor).manufacturer = this->sanitise_string(status_data->tactile[id_sensor].string,
-            //                                                                    TACTILE_DATA_LENGTH_BYTES);
+            manufacturer[id_sensor] = this->sanitise_string(
+              status_data->tactile[id_sensor].string, TACTILE_DATA_LENGTH_BYTES);
           }
         }
           break;
@@ -175,11 +175,11 @@ namespace tactiles
       d.clear();
 
       d.addf("Sample Frequency", "%d", sample_frequency[id_tact]);
-      /*d.addf("Manufacturer", "%s", tactiles_vector->at(id_tact).manufacturer.c_str());
-      d.addf("Serial Number", "%s", tactiles_vector->at(id_tact).serial_number.c_str());
+      d.addf("Manufacturer", "%s", manufacturer[id_tact].c_str());
+      //d.addf("Serial Number", "%s", tactiles_vector->at(id_tact).serial_number.c_str());
 
-      d.addf("Software Version", "%s", tactiles_vector->at(id_tact).get_software_version().c_str());
-      d.addf("PCB Version", "%s", tactiles_vector->at(id_tact).pcb_version.c_str());*/
+      //d.addf("Software Version", "%s", tactiles_vector->at(id_tact).get_software_version().c_str());
+      //d.addf("PCB Version", "%s", tactiles_vector->at(id_tact).pcb_version.c_str());
 
       vec.push_back(d);
     }
