@@ -19,6 +19,7 @@
 #ifndef _MST_HPP_
 #define _MST_HPP_
 
+#include <map>
 #include <vector>
 #include <string>
 #include <sr_robot_msgs/MSTPalm.h>
@@ -65,6 +66,8 @@ protected:
   std::shared_ptr<ros::Publisher> publisher;
 
 private:
+  std::map<int, int16u> sample_frequency;
+
   int read12bits(char* buffer, int index);
 };  // end class
 

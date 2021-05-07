@@ -75,7 +75,7 @@ namespace tactiles
             }
           }
           break;
-        
+
         case TACTILE_SENSOR_TYPE_MST_TEMPERATURE:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
@@ -92,8 +92,7 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            //tactiles_vector->at(id_sensor).sample_frequency =
-            //        static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
+            sample_frequency[id_sensor] = static_cast<int16u>(status_data->tactile[id_sensor].word[0]);
           }
           break;
 
@@ -164,7 +163,7 @@ namespace tactiles
   void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                                       diagnostic_updater::DiagnosticStatusWrapper &d)
   {
-    /*for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
+    for (unsigned int id_tact = 0; id_tact < this->nb_tactiles; ++id_tact)
     {
       std::stringstream ss;
       std::string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + " ");
@@ -175,15 +174,15 @@ namespace tactiles
       d.summary(d.OK, "OK");
       d.clear();
 
-      d.addf("Sample Frequency", "%d", tactiles_vector->at(id_tact).sample_frequency);
-      d.addf("Manufacturer", "%s", tactiles_vector->at(id_tact).manufacturer.c_str());
+      d.addf("Sample Frequency", "%d", sample_frequency[id_tact]);
+      /*d.addf("Manufacturer", "%s", tactiles_vector->at(id_tact).manufacturer.c_str());
       d.addf("Serial Number", "%s", tactiles_vector->at(id_tact).serial_number.c_str());
 
       d.addf("Software Version", "%s", tactiles_vector->at(id_tact).get_software_version().c_str());
-      d.addf("PCB Version", "%s", tactiles_vector->at(id_tact).pcb_version.c_str());
+      d.addf("PCB Version", "%s", tactiles_vector->at(id_tact).pcb_version.c_str());*/
 
       vec.push_back(d);
-    }*/
+    }
   }
 
   // Only to ensure that the template class is compiled for the types we are interested in
