@@ -41,7 +41,7 @@ for jname in joint_names:
 
 
 def sendupdate(joints):
-    print "Sending:"
+    print("Sending:")
     for jname in joints:
         if jname not in joint_pubs:
             print("\tJoint %s not found" % jname)
