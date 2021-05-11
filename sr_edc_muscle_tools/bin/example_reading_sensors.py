@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 import roslib
 import rospy
 from std_msgs.msg import Float64
@@ -36,7 +37,7 @@ rospy.init_node('example_reading_sensors')
 rospy.Subscriber('/sh_ffj3_muscle_position_controller/state',
                  JointMusclePositionControllerState, state_cb)
 
-print "Try moving ffj3"
+print("Try moving ffj3")
 r = rospy.Rate(1)  # hz
 while not rospy.is_shutdown():
     if status:
