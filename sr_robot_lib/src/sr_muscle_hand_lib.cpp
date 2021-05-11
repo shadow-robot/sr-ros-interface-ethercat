@@ -35,6 +35,7 @@
 #include <sr_utilities/sr_math_utils.hpp>
 
 #include "sr_robot_lib/shadow_PSTs.hpp"
+#include <memory> 
 
 
 using std::vector;
