@@ -15,6 +15,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
 import rospy
 
 import time
@@ -51,7 +52,7 @@ class EtherCAT_Hand_Lib(object):
         self.hand_params = self.hand_finder.get_hand_parameters()
         self.hand_id = ''
         if len(self.hand_params.mapping) is not 0:
-            self.hand_id = self.hand_params.mapping.itervalues().next()
+            self.hand_id = next(iter(self.hand_params.mapping.values()))
         self.debug_subscriber = None
         self.joint_state_subscriber = None
         self.record_js_callback = None
@@ -194,7 +195,7 @@ class EtherCAT_Hand_Lib(object):
             return -1.0
 
         try:
-            if sensor_name in self.compounds.keys():
+            if sensor_name in list(self.compounds.keys()):
                 for sub_compound in self.compounds[sensor_name]:
                     index = self.sensors.index(sub_compound[0])
                     value = value + (self.raw_values[index] * sub_compound[1])
@@ -208,7 +209,7 @@ class EtherCAT_Hand_Lib(object):
 
     def get_raw_value_index(self, sensor_name):
         try:
-            if sensor_name in self.compounds.keys():
+            if sensor_name in list(self.compounds.keys()):
                 indices = []
                 for sub_compound in self.compounds[sensor_name]:
                     indices.append(self.sensors.index(sub_compound[0]))
@@ -221,7 +222,7 @@ class EtherCAT_Hand_Lib(object):
 
     def get_compound_names(self, sensor_name):
         try:
-            if sensor_name in self.compounds.keys():
+            if sensor_name in list(self.compounds.keys()):
                 names = []
                 for sub_compound in self.compounds[sensor_name]:
                     names.append(sub_compound[0])
