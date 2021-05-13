@@ -26,8 +26,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import with_statement
-
+from __future__ import absolute_import
 import sys
 import rospy
 
@@ -129,6 +128,7 @@ def publish_diags():
         else:
             d.status = [joint_to_diag(js) for js in last_msg.joint_statistics]
         pub_diag.publish(d)
+
 
 pub_diag = rospy.Publisher('/diagnostics', DiagnosticArray)
 rospy.Subscriber('mechanism_statistics', MechanismStatistics, state_cb)

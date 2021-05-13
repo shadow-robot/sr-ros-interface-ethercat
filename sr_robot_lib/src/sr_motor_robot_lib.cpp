@@ -36,6 +36,7 @@
 #include <ros/ros.h>
 
 #include <controller_manager_msgs/ListControllers.h>
+#include <memory>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0200_edc_error_flag_names

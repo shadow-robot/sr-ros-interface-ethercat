@@ -1,24 +1,29 @@
 - git:
     uri: https://github.com/shadow-robot/sr_common.git
-    version: 'melodic-devel'
+    version: 'noetic-devel'
     local-name: sr_common
 
 - git:
     uri: https://github.com/shadow-robot/sr_core.git
-    version: 'melodic-devel'
+    version: 'noetic-devel'
     local-name: sr_core
 
 - git:
     uri: https://github.com/shadow-robot/ros_ethercat.git
-    version: 'melodic-devel'
+    version: 'noetic-devel'
     local-name: ros_ethercat
 
 - git:
     uri: https://github.com/shadow-robot/sr_utils.git
-    version: 'melodic-devel'
+    version: 'noetic-devel'
     local-name: sr_utils
 
 - git:
     uri: https://github.com/shadow-robot/common_resources.git
-    version: 'melodic-devel'
+    version: 'noetic-devel'
     local-name: common_resources
+#temporary until we have debians    
+- git:
+    local-name: ethercat_grant
+    uri: https://github.com/shadow-robot/ethercat_grant.git
+    version: noetic-devel

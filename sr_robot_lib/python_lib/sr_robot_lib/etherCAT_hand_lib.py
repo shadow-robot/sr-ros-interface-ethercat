@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2011 Shadow Robot Company Ltd.
 #
@@ -15,6 +15,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
 import rospy
 
 import time
@@ -51,7 +52,7 @@ class EtherCAT_Hand_Lib(object):
         self.hand_params = self.hand_finder.get_hand_parameters()
         self.hand_id = ''
         if len(self.hand_params.mapping) is not 0:
-            self.hand_id = self.hand_params.mapping.itervalues().next()
+            self.hand_id = next(iter(self.hand_params.mapping.values()))
         self.debug_subscriber = None
         self.joint_state_subscriber = None
         self.record_js_callback = None
@@ -75,11 +76,11 @@ class EtherCAT_Hand_Lib(object):
             try:
                 joint_to_sensor_mapping \
                     = rospy.get_param(self.hand_id + "/joint_to_sensor_mapping")
-            except:
+            except Exception:
                 rospy.logwarn("The parameter joint_to_sensor_mapping "
                               "was not found, you won't be able to get the "
                               "raw values from the EtherCAT compound sensors.")
-        except:
+        except Exception:
             pass
 
         for mapping in joint_to_sensor_mapping:
@@ -104,11 +105,11 @@ class EtherCAT_Hand_Lib(object):
         value = None
         try:
             value = self.positions[joint_name]
-        except:
+        except Exception:
             # We check if the reason to except is that we are trying to
             # access the joint 0
             # Position of the J0 is the addition of the positions of J1 and J2
-            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            m = re.match(r"(?P<finger>\w{2})J0", joint_name)
             if m is not None:
                 value = self.positions[m.group("finger") + "J1"] +\
                     self.positions[m.group("finger") + "J2"]
@@ -120,10 +121,10 @@ class EtherCAT_Hand_Lib(object):
         value = None
         try:
             value = self.velocities[joint_name]
-        except:
+        except Exception:
             # We check if the reason to except is that we are
             #  trying to access the joint 0
-            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            m = re.match(r"(?P<finger>\w{2})J0", joint_name)
             if m is not None:
                 value = self.velocities[m.group("finger") + "J1"] + \
                     self.velocities[m.group("finger") + "J2"]
@@ -135,12 +136,12 @@ class EtherCAT_Hand_Lib(object):
         value = None
         try:
             value = self.efforts[joint_name]
-        except:
+        except Exception:
             # We check if the reason to except is that we are
             #  trying to access the joint 0
             # Effort of the J0 is the same as the effort of
             # J1 and J2, so we pick J1
-            m = re.match("(?P<finger>\w{2})J0", joint_name)
+            m = re.match(r"(?P<finger>\w{2})J0", joint_name)
             if m is not None:
                 value = self.efforts[m.group("finger") + "J1"]
             else:
@@ -194,21 +195,21 @@ class EtherCAT_Hand_Lib(object):
             return -1.0
 
         try:
-            if sensor_name in self.compounds.keys():
+            if sensor_name in list(self.compounds.keys()):
                 for sub_compound in self.compounds[sensor_name]:
                     index = self.sensors.index(sub_compound[0])
                     value = value + (self.raw_values[index] * sub_compound[1])
             else:
                 index = self.sensors.index(sensor_name)
                 value = self.raw_values[index]
-        except:
+        except Exception:
             # if the value is not found we're returning 4095
             value = 4095
         return value
 
     def get_raw_value_index(self, sensor_name):
         try:
-            if sensor_name in self.compounds.keys():
+            if sensor_name in list(self.compounds.keys()):
                 indices = []
                 for sub_compound in self.compounds[sensor_name]:
                     indices.append(self.sensors.index(sub_compound[0]))
@@ -221,7 +222,7 @@ class EtherCAT_Hand_Lib(object):
 
     def get_compound_names(self, sensor_name):
         try:
-            if sensor_name in self.compounds.keys():
+            if sensor_name in list(self.compounds.keys()):
                 names = []
                 for sub_compound in self.compounds[sensor_name]:
                     names.append(sub_compound[0])
@@ -254,7 +255,7 @@ class EtherCAT_Hand_Lib(object):
             rospy.wait_for_message(self.hand_id + "/debug_etherCAT_data",
                                    EthercatDebug, timeout=0.2)
             rospy.wait_for_message("joint_states", JointState, timeout=0.2)
-        except:
+        except Exception:
             return False
 
         self.debug_subscriber =\
@@ -273,7 +274,7 @@ class EtherCAT_Hand_Lib(object):
             self.joint_state_subscriber = \
                 rospy.Subscriber("joint_states", JointState,
                                  self.joint_state_callback)
-        except:
+        except Exception:
             return False
 
         return True

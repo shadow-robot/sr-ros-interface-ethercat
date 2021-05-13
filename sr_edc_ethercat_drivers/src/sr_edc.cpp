@@ -845,18 +845,18 @@ void SrEdc::find_address_range(bfd *fd, unsigned int *smallest_start_address, un
   for (s = fd->sections; s; s = s->next)
   {
     // Only the sections with the LOAD flag on will be considered
-    if (bfd_get_section_flags(fd, s) & (SEC_LOAD))
+    if (bfd_section_flags(s) & (SEC_LOAD))
     {
       // Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
       // http://www.delorie.com/gnu/docs/binutils/ld_7.html
-      if (bfd_section_lma(fd, s) == bfd_section_vma(fd, s))
+      if (bfd_section_lma(s) == bfd_section_vma(s))
       {
-        section_addr = (unsigned int) bfd_section_lma(fd, s);
+        section_addr = (unsigned int) bfd_section_lma(s);
         if (section_addr >= 0x7fff)
         {
           continue;
         }
-        section_size = (unsigned int) bfd_section_size(fd, s);
+        section_size = (unsigned int) bfd_section_size(s);
         *smallest_start_address = std::min(section_addr, *smallest_start_address);
         *biggest_end_address = std::max(*biggest_end_address, section_addr + section_size);
       }
@@ -873,13 +873,13 @@ bool SrEdc::read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned i
   for (s = fd->sections; s; s = s->next)
   {
     // Only the sections with the LOAD flag on will be considered
-    if (bfd_get_section_flags(fd, s) & (SEC_LOAD))
+    if (bfd_section_flags(s) & (SEC_LOAD))
     {
       // Only the sections with the same VMA (virtual memory address) and LMA (load MA) will be considered
       // http://www.delorie.com/gnu/docs/binutils/ld_7.html
-      if (bfd_section_lma(fd, s) == bfd_section_vma(fd, s))
+      if (bfd_section_lma(s) == bfd_section_vma(s))
       {
-        section_addr = (unsigned int) bfd_section_lma(fd, s);
+        section_addr = (unsigned int) bfd_section_lma(s);
         // The sections starting at an address higher than 0x7fff will be ignored as they are
         // not proper "code memory" firmware
         // (they can contain the CONFIG bits of the microcontroller, which we don't want to write here)
@@ -887,7 +887,7 @@ bool SrEdc::read_content_from_object_file(bfd *fd, bfd_byte *content, unsigned i
         {
           continue;
         }
-        section_size = (unsigned int) bfd_section_size(fd, s);
+        section_size = (unsigned int) bfd_section_size(s);
         bfd_get_section_contents(fd, s, content + (section_addr - base_addr), 0, section_size);
       }
       else

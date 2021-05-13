@@ -26,8 +26,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
 import rospy
-
 from sr_robot_msgs.msg import MechanismStatistics
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
@@ -63,6 +63,7 @@ def controller_to_diag(c):
         KeyValue('Timestamp of Last Control Loop Overrun (sec)', str(int(c.time_last_control_loop_overrun.to_sec()))))
     return d
 
+
 rospy.init_node('controller_to_diagnostics')
 use_sim_time = rospy.get_param('use_sim_time', False)
 pub_diag = rospy.Publisher('/diagnostics', DiagnosticArray)
@@ -88,6 +89,7 @@ def state_cb(msg):
                 d.status = [controller_to_diag(c)]
                 pub_diag.publish(d)
         last_publish_time = now
+
 
 rospy.Subscriber('mechanism_statistics', MechanismStatistics, state_cb)
 rospy.spin()
