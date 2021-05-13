@@ -18,6 +18,8 @@
 
 #include "sr_robot_lib/MST.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
+
+#include <memory>
 #include <string>
 #include <vector>
 
