@@ -86,9 +86,10 @@ namespace tactiles
           {
             for (int i = 0; i < 7; i++)
             {
+              // Temperature is send as little-endian value
               sensor_data.fingers[id_sensor].sensors[i].temperature =
-                status_data->tactile[id_sensor].string[i * 2] << 8 |
-                (uint8_t)status_data->tactile[id_sensor].string[i * 2 + 1];
+                status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
+                (uint8_t)status_data->tactile[id_sensor].string[i * 2];
             }
           }
           break;
