@@ -141,11 +141,9 @@ namespace tactiles
 
     if (this->sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
     {
-      ROS_INFO_STREAM("MST: initialisation");
       this->process_received_data_type(static_cast<int32u>(status_data->tactile_data_type));
       if (this->sensor_updater->initialization_configs_vector.size() == 0)
       {
-        ROS_INFO_STREAM("MST: switching to operation");
         this->sensor_updater->update_state = operation_mode::device_update_state::OPERATION;
       }
     }
