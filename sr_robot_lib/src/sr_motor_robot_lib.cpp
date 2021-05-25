@@ -29,6 +29,7 @@
 #include <vector>
 #include <utility>
 #include <boost/foreach.hpp>
+#include <chrono>
 
 #include <sys/time.h>
 #include <cstdlib>
@@ -612,6 +613,7 @@ namespace shadow_robot
   void SrMotorRobotLib<StatusType, CommandType>::read_additional_data(vector<Joint>::iterator joint_tmp,
                                                                       StatusType *status_data)
   {
+    auto t1 = std::chrono::high_resolution_clock::now();
     if (!joint_tmp->has_actuator)
     {
       return;
@@ -907,7 +909,9 @@ namespace shadow_robot
         {
           motor_updater_->update_state = operation_mode::device_update_state::OPERATION;
           motor_current_state = operation_mode::device_update_state::OPERATION;
-
+          auto t2 = std::chrono::high_resolution_clock::now();
+          std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+          std::cout << "all motor timer: " << ms_double.count() << "ms\n";
           ROS_INFO("All motors were initialized.");
         }
       }

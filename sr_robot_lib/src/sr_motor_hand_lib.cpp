@@ -30,6 +30,7 @@
 #include <utility>
 #include <string>
 #include <vector>
+#include <chrono>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -131,8 +132,10 @@ namespace shadow_robot
                                                            vector<int> actuator_ids,
                                                            vector<JointToSensor> joint_to_sensors)
   {
+    auto t01 = std::chrono::high_resolution_clock::now();
     for (unsigned int index = 0; index < joint_names.size(); ++index)
     {
+      auto t1 = std::chrono::high_resolution_clock::now();
       // add the joint and the vector of joints.
       Joint joint;
       float tau;
@@ -195,7 +198,13 @@ namespace shadow_robot
       }
 
       this->joints_vector.push_back(joint);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << "inner " << joint.joint_name << " time: " << ms_double.count() << "ms\n";
     }  // end for joints.
+    auto t02 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms_double = t02 - t01;
+    std::cout << "whole initialize: " << ms_double.count() << "ms\n";
   }
 
   template<class StatusType, class CommandType>
@@ -203,6 +212,7 @@ namespace shadow_robot
                                                                      std_srvs::Empty::Response &response,
                                                                      pair<int, string> joint)
   {
+    auto t1 = std::chrono::high_resolution_clock::now();
     ROS_INFO_STREAM(" resetting " << joint.second << " (" << joint.first << ")");
 
     this->reset_motors_queue.push(joint.first);
@@ -214,7 +224,9 @@ namespace shadow_robot
                                                         boost::bind(&SrMotorHandLib::resend_pids, this, joint_name,
                                                                     joint.first),
                                                         true);
-
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << joint.second << " (" << joint.first << "): " << ms_double.count() << "ms\n";
     return true;
   }
 
@@ -280,7 +292,15 @@ namespace shadow_robot
     pid_request.torque_limit = torque_limit;
     pid_request.torque_limiter_gain = torque_limiter_gain;
     sr_robot_msgs::ForceController::Response pid_response;
-    bool pid_success = force_pid_callback(pid_request, pid_response, motor_index);
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+
+    bool pid_success = true; //force_pid_callback(pid_request, pid_response, motor_index);
+
+    auto t4 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms_double_4 = t4 - t1;
+    std::cout << "############################################################################### " << motor_index << ": " << ms_double_4.count() << "ms\n";
+
 
     // setting the backlash compensation (on or off)
     bool backlash_compensation;
@@ -310,6 +330,7 @@ namespace shadow_robot
                                                                    sr_robot_msgs::ForceController::Response &response,
                                                                    int motor_index)
   {
+    auto t1 = std::chrono::high_resolution_clock::now();
     ROS_INFO_STREAM("Received new force PID parameters for motor " << motor_index);
 
     // Check the parameters are in the correct ranges
@@ -410,7 +431,6 @@ namespace shadow_robot
       return false;
     }
 
-
     // ok, the parameters sent are coherent, send the demand to the motor.
     this->generate_force_control_config(motor_index, request.maxpwm, request.sgleftref,
                                         request.sgrightref, request.f, request.p, request.i,
@@ -423,8 +443,13 @@ namespace shadow_robot
                                          request.torque_limit, request.torque_limiter_gain);
     response.configured = true;
 
+
     // Reinitialize motors information
     this->reinitialize_motors();
+
+    auto t4 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms_double_4 = t4 - t1;
+    std::cout << motor_index << ": " << ms_double_4.count() << "ms\n";
 
     return true;
   }
