@@ -81,19 +81,6 @@ namespace tactiles
           }
           break;
 
-        case TACTILE_SENSOR_TYPE_MST_TEMPERATURE:
-          if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
-          {
-            for (int i = 0; i < 7; i++)
-            {
-              // Temperature is send as little-endian value
-              sensor_data.fingers[id_sensor].sensors[i].temperature =
-                status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
-                (uint8_t)status_data->tactile[id_sensor].string[i * 2];
-            }
-          }
-          break;
-
         // COMMON DATA
         case TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
@@ -154,9 +141,11 @@ namespace tactiles
 
     if (this->sensor_updater->update_state == operation_mode::device_update_state::INITIALIZATION)
     {
+      ROS_INFO_STREAM("MST: initialisation");
       this->process_received_data_type(static_cast<int32u>(status_data->tactile_data_type));
       if (this->sensor_updater->initialization_configs_vector.size() == 0)
       {
+        ROS_INFO_STREAM("MST: switching to operation");
         this->sensor_updater->update_state = operation_mode::device_update_state::OPERATION;
       }
     }
