@@ -62,18 +62,9 @@ public:
 
 private:
 
-  class MSTDiagnosticData
-  {
-  public:
-    std::string manufacturer;
-    std::string serial_number;
-    std::string git_revision;
-    int pcb_version;
-    int sample_frequency;
-  };
   sr_robot_msgs::MSTPalm sensor_data;
   std::shared_ptr<ros::Publisher> publisher;
-  std::vector<MSTDiagnosticData> diagnostic_data;
+  std::vector<GenericTactileData> diagnostic_data;
 
   int read12bits(char* buffer, int index);
 };  // end class
