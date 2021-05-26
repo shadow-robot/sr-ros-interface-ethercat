@@ -107,7 +107,8 @@ typedef enum                                                            // Data 
 typedef enum                                                            // Data you can request from MST tactiles
 {
     TACTILE_SENSOR_TYPE_MST_INVALID                    = 0x0000,
-    TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION         = 0x0001
+    TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION         = 0x0001,
+    TACTILE_SENSOR_TYPE_MST_TEMPERATURE                = 0x0002
 }FROM_TACTILE_SENSOR_TYPE_MST;
 
 typedef enum                                                            // Data you can request from BioTacs

@@ -80,7 +80,7 @@ namespace shadow_robot
 #endif
 
   template <class StatusType, class CommandType>
-  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 38;
+  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 39;
 
   template <class StatusType, class CommandType>
   const char *SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] =
@@ -122,7 +122,8 @@ namespace shadow_robot
           "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
           "TACTILE_SENSOR_TYPE_BIOTAC_TDC",
           "TACTILE_SENSOR_TYPE_UBI0_TACTILE",
-          "TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION"
+          "TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION",
+          "TACTILE_SENSOR_TYPE_MST_TEMPERATURE"
         };
 
   template <class StatusType, class CommandType>
@@ -165,7 +166,8 @@ namespace shadow_robot
           TACTILE_SENSOR_TYPE_BIOTAC_TAC,
           TACTILE_SENSOR_TYPE_BIOTAC_TDC,
           TACTILE_SENSOR_TYPE_UBI0_TACTILE,
-          TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION
+          TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION,
+          TACTILE_SENSOR_TYPE_MST_TEMPERATURE
     };
 
   template<class StatusType, class CommandType>
