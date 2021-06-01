@@ -38,6 +38,7 @@
 #include "sr_robot_lib/shadow_PSTs.hpp"
 #include "sr_robot_lib/biotac.hpp"
 #include "sr_robot_lib/UBI0.hpp"
+#include "sr_robot_lib/MST.hpp"
 #include <controller_manager_msgs/ListControllers.h>
 #include <sr_robot_lib/motor_updater.hpp>
 
@@ -54,6 +55,7 @@ using tactiles::GenericTactiles;
 using tactiles::ShadowPSTs;
 using tactiles::Biotac;
 using tactiles::UBI0;
+using tactiles::MST;
 using ros_ethercat_model::RobotState;
 using generic_updater::MotorUpdater;
 using shadow_joints::CalibrationMap;
@@ -78,7 +80,7 @@ namespace shadow_robot
 #endif
 
   template <class StatusType, class CommandType>
-  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 37;
+  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 39;
 
   template <class StatusType, class CommandType>
   const char *SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] =
@@ -119,7 +121,9 @@ namespace shadow_robot
           "TACTILE_SENSOR_TYPE_BIOTAC_PDC",
           "TACTILE_SENSOR_TYPE_BIOTAC_TAC",
           "TACTILE_SENSOR_TYPE_BIOTAC_TDC",
-          "TACTILE_SENSOR_TYPE_UBI0_TACTILE"
+          "TACTILE_SENSOR_TYPE_UBI0_TACTILE",
+          "TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION",
+          "TACTILE_SENSOR_TYPE_MST_TEMPERATURE"
         };
 
   template <class StatusType, class CommandType>
@@ -161,7 +165,9 @@ namespace shadow_robot
           TACTILE_SENSOR_TYPE_BIOTAC_PDC,
           TACTILE_SENSOR_TYPE_BIOTAC_TAC,
           TACTILE_SENSOR_TYPE_BIOTAC_TDC,
-          TACTILE_SENSOR_TYPE_UBI0_TACTILE
+          TACTILE_SENSOR_TYPE_UBI0_TACTILE,
+          TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION,
+          TACTILE_SENSOR_TYPE_MST_TEMPERATURE
     };
 
   template<class StatusType, class CommandType>
@@ -207,6 +213,11 @@ namespace shadow_robot
             // read the UBI0 sensor polling frequency from the parameter server
             ubi0_sensor_update_rate_configs_vector(
                     read_update_rate_configs("ubi0_sensor_data_update_rate/", nb_sensor_data,
+                                             human_readable_sensor_data_types, sensor_data_types)),
+
+            // read the MST sensor polling frequency from the parameter server
+            mst_sensor_update_rate_configs_vector(
+                    read_update_rate_configs("mst_sensor_data_update_rate/", nb_sensor_data,
                                              human_readable_sensor_data_types, sensor_data_types)),
 
             tactile_init_max_duration(tactile_timeout),
@@ -312,6 +323,15 @@ namespace shadow_robot
                                                       tactiles_init->tactiles_vector));
 
             ROS_INFO("UBI0 tactiles initialized");
+            break;
+
+          case TACTILE_SENSOR_PROTOCOL_TYPE_MST:
+            tactiles = shared_ptr<MST<StatusType, CommandType> >(
+                    new MST<StatusType, CommandType>(nodehandle_, device_id_, mst_sensor_update_rate_configs_vector,
+                                                      operation_mode::device_update_state::OPERATION,
+                                                      tactiles_init->tactiles_vector));
+
+            ROS_INFO("MST tactiles initialized");
             break;
 
           case TACTILE_SENSOR_PROTOCOL_TYPE_INVALID:
