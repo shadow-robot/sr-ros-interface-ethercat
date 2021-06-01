@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#define TACTILE_DATA_LENGTH_BYTES TACTILE_DATA_LENGTH_BYTES_v2
+#define NUMBER_OF_SENSORS 7
 
 namespace tactiles
 {
@@ -64,7 +64,7 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < NUMBER_OF_SENSORS; i++)
             {
               sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x = read12bits(
                 status_data->tactile[id_sensor].string, i * 3);
@@ -79,7 +79,7 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_MST_TEMPERATURE:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < NUMBER_OF_SENSORS; i++)
             {
               // Temperature is send as little-endian value
               sensor_data.fingers[id_sensor].sensors[i].temperature =
