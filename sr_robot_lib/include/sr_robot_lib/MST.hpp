@@ -75,7 +75,7 @@ private:
 /*
 * This is a specialization of the template class to avoid that the compiler try to access non existent fields,
 * as it will compile the class for all the desired combinations of StatusType and CommandType,
-* but in runtime this class will only be instantiated for those StatusType that actually contain UBI0 sensor data
+* but in runtime this class will only be instantiated for those StatusType that actually contain MST sensor data
 */
 template<>
 class MST<ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0200_PALM_EDC_COMMAND> :
