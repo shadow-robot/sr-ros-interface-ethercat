@@ -26,6 +26,7 @@
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <string>
+#include <thread>
 #include <vector>
 #include <utility>
 #include <boost/foreach.hpp>
@@ -36,6 +37,7 @@
 #include <ros/ros.h>
 
 #include <controller_manager_msgs/ListControllers.h>
+#include <controller_manager_msgs/SwitchController.h>
 #include <memory>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
@@ -65,7 +67,6 @@ namespace shadow_robot
           : SrRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix),
             motor_current_state(operation_mode::device_update_state::INITIALIZATION),
             config_index(MOTOR_CONFIG_FIRST_VALUE),
-            control_type_changed_flag_(false),
             change_control_type_(this->nh_tilde.advertiseService("change_control_type",
                                                                  &SrMotorRobotLib::change_control_type_callback_,
                                                                  this)),
@@ -73,7 +74,15 @@ namespace shadow_robot
                     this->nh_tilde.advertiseService("change_motor_system_controls",
                                                     &SrMotorRobotLib::motor_system_controls_callback_,
                                                     this)),
-            lock_command_sending_(new boost::mutex())
+            joint_names_(
+            {
+              "ffj0", "ffj3", "ffj4",
+              "mfj0", "mfj3", "mfj4",
+              "rfj0", "rfj3", "rfj4",
+              "lfj0", "lfj3", "lfj4", "lfj5",
+              "thj1", "thj2", "thj3", "thj4", "thj5",
+              "wrj1", "wrj2"
+            })
   {
     // reading the parameters to check for a specified default control type
     // using FORCE control if no parameters are set
@@ -196,21 +205,6 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::build_command(CommandType *command)
   {
-    // Mutual exclusion with the change_control_type service.
-    // We have to wait until the control_type_ variable has been set.
-    boost::mutex::scoped_lock l(*lock_command_sending_);
-
-    if (control_type_changed_flag_)
-    {
-      if (!change_control_parameters(control_type_.control_type))
-      {
-        ROS_FATAL("Changing control parameters failed. Stopping real time loop to protect the robot.");
-        exit(EXIT_FAILURE);
-      }
-
-      control_type_changed_flag_ = false;
-    }
-
     if (motor_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
       motor_current_state = motor_updater_->build_init_command(command);
@@ -1197,100 +1191,71 @@ namespace shadow_robot
 
     if (control_type_.control_type != request.control_type.control_type)
     {
-      // Mutual exclusion with the build_command() function.
-      // We have to wait until the current motor command has been built.
-      boost::mutex::scoped_lock l(*lock_command_sending_);
-
-      ROS_WARN("Changing control type");
-
       control_type_ = request.control_type;
-      // Flag to signal that there has been a change in the value of control_type_ and certain actions are required.
-      // The flag is set in the callback function of the change_control_type_ service.
-      // The flag is checked in build_command() and the necessary actions are taken there.
-      // These actions involve calling services in the controller manager and all the active controllers. This is the
-      // reason why we don't do it directly in the callback function. As we use a single thread to serve the callbacks,
-      // doing so would cause a deadlock, thus we do it in the realtime loop thread instead.
-      control_type_changed_flag_ = true;
+      switch_controllers();
     }
-
     response.result = control_type_;
     return true;
   }
 
   template<class StatusType, class CommandType>
-  bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t control_type)
+  void SrMotorRobotLib<StatusType, CommandType>::switch_controllers()
   {
-    bool success = true;
-    string env_variable;
-    string param_value;
-
-    if (control_type == sr_robot_msgs::ControlType::PWM)
+    std::string controller_from_suffix, controller_to_suffix;
+    if (control_type_.control_type == sr_robot_msgs::ControlType::PWM)
     {
-      env_variable = "PWM_CONTROL=1";
-      param_value = "PWM";
+      ROS_INFO("Changing control type to PWM");
+      controller_from_suffix = "_effort_controller";
+      controller_to_suffix = "_position_controller";
     }
     else
     {
-      env_variable = "PWM_CONTROL=0";
-      param_value = "FORCE";
+      ROS_INFO("Changing control type to TORQUE");
+      controller_from_suffix = "_position_controller";
+      controller_to_suffix = "_effort_controller";
     }
-
-    string arguments = "";
-
-    // Read the hand_id prefix from the parameter server
-    // The hand_id will be passed as an argument to the sr_edc_default_controllers.launch
-    // so that the parameters in it will be read from the correct files
-    string hand_id = "";
-    this->nodehandle_.template param<string>("hand_id", hand_id, "");
-    ROS_DEBUG("hand_id: %s", hand_id.c_str());
-    arguments += " hand_id:=" + hand_id;
-    ROS_INFO("arguments: %s", arguments.c_str());
-
-    int result = system((env_variable + " roslaunch sr_ethercat_hand_config sr_edc_default_controllers.launch" +
-                         arguments).c_str());
-
-    if (result == 0)
+    std::thread client_thread([=]()
     {
-      ROS_WARN("New parameters loaded successfully on Parameter Server");
+      // Save the current state of nullify_demand
+      bool nullify_demand = this->nullify_demand_;
 
-      this->nh_tilde.setParam("default_control_mode", param_value);
+      // Send zeros to motors while controllers are being switched
+      this->nullify_demand_ = true;
 
-      // We need another node handle here, that is at the node's base namespace,
-      // as the controllers and the controller manager are unique per ethercat loop.
       ros::NodeHandle nh;
-      ros::ServiceClient list_ctrl_client = nh.template serviceClient<controller_manager_msgs::ListControllers>(
-              "controller_manager/list_controllers");
-      controller_manager_msgs::ListControllers controllers_list;
-
-      if (list_ctrl_client.call(controllers_list))
+      ros::ServiceClient switch_controller_client = nh.template serviceClient<controller_manager_msgs::SwitchController>(
+        "controller_manager/switch_controller");
+      for (std::string joint_name : joint_names_)
       {
-        for (unsigned int i = 0; i < controllers_list.response.controller.size(); ++i)
+        controller_manager_msgs::SwitchController switch_controller;
+        switch_controller.request.strictness = switch_controller.request.BEST_EFFORT;
+        switch_controller.request.start_asap = false;
+        switch_controller.request.timeout = 5;
+        std::string controller_prefix = "sh_" + this->joint_prefix_ + joint_name;
+        std::string controller_to_start = controller_prefix + controller_to_suffix;
+        std::string controller_to_stop = controller_prefix + controller_from_suffix;
+        // Switch controllers in pairs rather than all together
+        // otherwise real-time loop will not be able to keep up
+        switch_controller.request.start_controllers.push_back(controller_to_start);
+        switch_controller.request.stop_controllers.push_back(controller_to_stop);
+        if (switch_controller_client.call(switch_controller))
         {
-          if (ros::service::exists(controllers_list.response.controller[i].name + "/reset_gains", false))
-          {
-            ros::ServiceClient reset_gains_client = nh.template serviceClient<std_srvs::Empty>(
-              controllers_list.response.controller[i].name + "/reset_gains");
-            std_srvs::Empty empty_message;
-            if (!reset_gains_client.call(empty_message))
-            {
-              ROS_ERROR_STREAM(
-                "Failed to reset gains for controller: " << controllers_list.response.controller[i].name);
-              return false;
-            }
-          }
+          ROS_INFO_STREAM("Switched from controller " <<
+            controller_to_stop << " to " << controller_to_start);
+        }
+        else
+        {
+          ROS_ERROR_STREAM("Couldn't switch from controller " <<
+            controller_to_stop << " to " << controller_to_start <<
+            ". Hand will stay in nullify_demand mode.");
+          return;
         }
       }
-      else
-      {
-        return false;
-      }
-    }
-    else
-    {
-      return false;
-    }
 
-    return success;
+      // Restore nullify_demand to the original state
+      this->nullify_demand_ = nullify_demand;
+    });
+    client_thread.detach();
   }
 
   template<class StatusType, class CommandType>
