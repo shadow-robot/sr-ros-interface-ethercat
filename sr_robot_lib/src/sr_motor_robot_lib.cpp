@@ -26,7 +26,7 @@
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <string>
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
 #include <vector>
 #include <utility>
 #include <boost/foreach.hpp>
@@ -1255,8 +1255,7 @@ namespace shadow_robot
 
       // Restore nullify_demand to the original state
       this->nullify_demand_ = nullify_demand;
-    }
-    );
+    });  // NOLINT(whitespace/braces)
     client_thread.detach();
   }
 
