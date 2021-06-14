@@ -82,7 +82,8 @@ namespace shadow_robot
               "lfj0", "lfj3", "lfj4", "lfj5",
               "thj1", "thj2", "thj3", "thj4", "thj5",
               "wrj1", "wrj2"
-            })
+            }
+            )
   {
     // reading the parameters to check for a specified default control type
     // using FORCE control if no parameters are set
@@ -1223,8 +1224,8 @@ namespace shadow_robot
       this->nullify_demand_ = true;
 
       ros::NodeHandle nh;
-      ros::ServiceClient switch_controller_client = nh.template serviceClient<controller_manager_msgs::SwitchController>(
-        "controller_manager/switch_controller");
+      ros::ServiceClient switch_controller_client = nh.template serviceClient
+        <controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
       for (std::string joint_name : joint_names_)
       {
         controller_manager_msgs::SwitchController switch_controller;
@@ -1254,7 +1255,8 @@ namespace shadow_robot
 
       // Restore nullify_demand to the original state
       this->nullify_demand_ = nullify_demand;
-    });
+    }
+    );
     client_thread.detach();
   }
 
