@@ -1194,16 +1194,23 @@ namespace shadow_robot
 
     if (control_type_.control_type != request.control_type.control_type)
     {
-      control_type_ = request.control_type;
-      switch_controllers();
+      switch_controllers(request.control_type);
     }
     response.result = control_type_;
     return true;
   }
 
   template<class StatusType, class CommandType>
-  void SrMotorRobotLib<StatusType, CommandType>::switch_controllers()
+  void SrMotorRobotLib<StatusType, CommandType>::switch_controllers(sr_robot_msgs::ControlType control_type)
   {
+    // Save the current state of nullify_demand
+    bool nullify_demand = this->nullify_demand_;
+
+    // Send zeros to motors while controllers are being switched
+    this->nullify_demand_ = true;
+
+    control_type_ = control_type;
+
     std::string controller_from_suffix, controller_to_suffix;
     if (control_type_.control_type == sr_robot_msgs::ControlType::PWM)
     {
@@ -1219,12 +1226,6 @@ namespace shadow_robot
     }
     std::thread client_thread([=]()
     {
-      // Save the current state of nullify_demand
-      bool nullify_demand = this->nullify_demand_;
-
-      // Send zeros to motors while controllers are being switched
-      this->nullify_demand_ = true;
-
       ros::NodeHandle nh;
 
       std::set<std::string> loaded_controllers;

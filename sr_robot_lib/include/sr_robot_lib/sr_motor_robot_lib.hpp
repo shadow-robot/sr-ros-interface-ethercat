@@ -239,7 +239,7 @@ protected:
    * this->nullify_demand_ will be set to true and it will be restored to
    * original value after switch.
    */
-  void switch_controllers();
+  void switch_controllers(sr_robot_msgs::ControlType control_type);
 
   // The Flag which will be sent to change the motor controls
   std::queue<std::vector<sr_robot_msgs::MotorSystemControls>,
