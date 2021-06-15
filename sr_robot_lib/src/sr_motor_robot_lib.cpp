@@ -25,6 +25,7 @@
 */
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
+#include <set>
 #include <string>
 #include <thread>  // NOLINT(build/c++11)
 #include <vector>
@@ -37,6 +38,7 @@
 #include <ros/ros.h>
 
 #include <controller_manager_msgs/ListControllers.h>
+#include <controller_manager_msgs/LoadController.h>
 #include <controller_manager_msgs/SwitchController.h>
 #include <memory>
 
@@ -1224,22 +1226,60 @@ namespace shadow_robot
       this->nullify_demand_ = true;
 
       ros::NodeHandle nh;
-      ros::ServiceClient switch_controller_client = nh.template serviceClient
+
+      std::set<std::string> loaded_controllers;
+      ros::ServiceClient list_ctrl_client = nh.template serviceClient
+        <controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
+      controller_manager_msgs::ListControllers controllers_list;
+      if (list_ctrl_client.call(controllers_list))
+      {
+        for (auto controller : controllers_list.response.controller)
+        {
+          loaded_controllers.insert(controller.name);
+        }
+      }
+      else
+      {
+        ROS_ERROR_STREAM("Couldn't list loaded controllers. Hand will stay in nullify_demand mode.");
+        return;
+      }
+
+      ros::ServiceClient load_ctrl_client = nh.template serviceClient
+        <controller_manager_msgs::LoadController>("controller_manager/load_controller");
+
+      // Switch controllers in pairs rather than all together
+      // otherwise real-time loop will not be able to keep up
+      ros::ServiceClient switch_ctrl_client = nh.template serviceClient
         <controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
       for (std::string joint_name : joint_names_)
       {
         controller_manager_msgs::SwitchController switch_controller;
-        switch_controller.request.strictness = switch_controller.request.BEST_EFFORT;
-        switch_controller.request.start_asap = false;
+        switch_controller.request.strictness = switch_controller.request.STRICT;
+        switch_controller.request.start_asap = true;
         switch_controller.request.timeout = 5;
         std::string controller_prefix = "sh_" + this->joint_prefix_ + joint_name;
         std::string controller_to_start = controller_prefix + controller_to_suffix;
         std::string controller_to_stop = controller_prefix + controller_from_suffix;
-        // Switch controllers in pairs rather than all together
-        // otherwise real-time loop will not be able to keep up
+
+        if (loaded_controllers.find(controller_to_start) == loaded_controllers.end())
+        {
+          controller_manager_msgs::LoadController load_controller;
+          load_controller.request.name = controller_to_start;
+          if (load_ctrl_client.call(load_controller))
+          {
+            ROS_INFO_STREAM("Loaded controller: " << controller_to_start);
+          }
+          else
+          {
+            ROS_ERROR_STREAM("Couldn't load controller '" << controller_to_start
+              << "'. Hand will stay in nullify_demand mode.");
+            return;
+          }
+        }
+
         switch_controller.request.start_controllers.push_back(controller_to_start);
         switch_controller.request.stop_controllers.push_back(controller_to_stop);
-        if (switch_controller_client.call(switch_controller))
+        if (switch_ctrl_client.call(switch_controller))
         {
           ROS_INFO_STREAM("Switched from controller " <<
             controller_to_stop << " to " << controller_to_start);
