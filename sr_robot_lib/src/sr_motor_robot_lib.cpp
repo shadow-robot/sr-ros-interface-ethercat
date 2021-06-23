@@ -1224,7 +1224,7 @@ namespace shadow_robot
       controller_from_suffix = "_position_controller";
       controller_to_suffix = "_effort_controller";
     }
-    std::thread client_thread([=]()
+    std::thread switch_controllers_thread([=]()
     {
       ros::NodeHandle nh;
 
@@ -1297,7 +1297,7 @@ namespace shadow_robot
       // Restore nullify_demand to the original state
       this->nullify_demand_ = nullify_demand;
     });  // NOLINT(whitespace/braces)
-    client_thread.detach();
+    switch_controllers_thread.detach();
   }
 
   template<class StatusType, class CommandType>
