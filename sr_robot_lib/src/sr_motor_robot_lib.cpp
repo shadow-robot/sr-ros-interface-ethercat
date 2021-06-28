@@ -25,11 +25,12 @@
 */
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
-#include <set>
 #include <string>
 #include <thread>  // NOLINT(build/c++11)
 #include <vector>
 #include <utility>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/foreach.hpp>
 
 #include <sys/time.h>
@@ -75,17 +76,7 @@ namespace shadow_robot
             motor_system_control_server_(
                     this->nh_tilde.advertiseService("change_motor_system_controls",
                                                     &SrMotorRobotLib::motor_system_controls_callback_,
-                                                    this)),
-            joint_names_(
-            {
-              "ffj0", "ffj3", "ffj4",
-              "mfj0", "mfj3", "mfj4",
-              "rfj0", "rfj3", "rfj4",
-              "lfj0", "lfj3", "lfj4", "lfj5",
-              "thj1", "thj2", "thj3", "thj4", "thj5",
-              "wrj1", "wrj2"
-            }
-            )
+                                                    this))
   {
     // reading the parameters to check for a specified default control type
     // using FORCE control if no parameters are set
@@ -1201,6 +1192,24 @@ namespace shadow_robot
   }
 
   template<class StatusType, class CommandType>
+  std::set<std::string> SrMotorRobotLib<StatusType, CommandType>::get_running_controllers()
+  {
+    ros::NodeHandle nh;
+    std::set<std::string> running_controllers;
+    ros::ServiceClient list_ctrl_client = nh.template serviceClient
+      <controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
+    controller_manager_msgs::ListControllers controllers_list;
+    if (list_ctrl_client.call(controllers_list))
+    {
+      for (auto controller : controllers_list.response.controller)
+      {
+        running_controllers.insert(controller.name);
+      }
+    }
+    return running_controllers;
+  }
+
+  template<class StatusType, class CommandType>
   void SrMotorRobotLib<StatusType, CommandType>::switch_controllers(sr_robot_msgs::ControlType control_type)
   {
     // Save the current state of nullify_demand
@@ -1228,22 +1237,7 @@ namespace shadow_robot
     {
       ros::NodeHandle nh;
 
-      std::set<std::string> loaded_controllers;
-      ros::ServiceClient list_ctrl_client = nh.template serviceClient
-        <controller_manager_msgs::ListControllers>("controller_manager/list_controllers");
-      controller_manager_msgs::ListControllers controllers_list;
-      if (list_ctrl_client.call(controllers_list))
-      {
-        for (auto controller : controllers_list.response.controller)
-        {
-          loaded_controllers.insert(controller.name);
-        }
-      }
-      else
-      {
-        ROS_ERROR_STREAM("Couldn't list loaded controllers. Hand will stay in nullify_demand mode.");
-        return;
-      }
+      std::set<std::string> running_controllers = get_running_controllers();
 
       ros::ServiceClient load_ctrl_client = nh.template serviceClient
         <controller_manager_msgs::LoadController>("controller_manager/load_controller");
@@ -1252,8 +1246,15 @@ namespace shadow_robot
       // otherwise real-time loop will not be able to keep up
       ros::ServiceClient switch_ctrl_client = nh.template serviceClient
         <controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
-      for (std::string joint_name : joint_names_)
+      for (Joint joint : this->joints_vector)
       {
+        std::string joint_name = joint.joint_name;
+        boost::algorithm::to_lower(joint_name);
+        if (boost::algorithm::ends_with(joint_name, "j1") | boost::algorithm::ends_with(joint_name, "j2")) {
+          // Ignore underactuated joints as they don't have associated controller
+          continue;
+        }
+
         controller_manager_msgs::SwitchController switch_controller;
         switch_controller.request.strictness = switch_controller.request.STRICT;
         switch_controller.request.start_asap = true;
@@ -1262,7 +1263,7 @@ namespace shadow_robot
         std::string controller_to_start = controller_prefix + controller_to_suffix;
         std::string controller_to_stop = controller_prefix + controller_from_suffix;
 
-        if (loaded_controllers.find(controller_to_start) == loaded_controllers.end())
+        if (running_controllers.find(controller_to_start) == running_controllers.end())
         {
           controller_manager_msgs::LoadController load_controller;
           load_controller.request.name = controller_to_start;

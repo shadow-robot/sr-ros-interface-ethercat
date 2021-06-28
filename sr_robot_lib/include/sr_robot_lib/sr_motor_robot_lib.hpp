@@ -41,6 +41,7 @@
 #include <queue>
 #include <utility>
 #include <list>
+#include <set>
 #include <vector>
 
 namespace shadow_robot
@@ -214,9 +215,6 @@ protected:
   // The current type of control (FORCE demand or PWM demand sent to the motors)
   sr_robot_msgs::ControlType control_type_;
 
-  // Names of joints to use for switching controllers when control type changes
-  std::vector<std::string> joint_names_;
-
   // A service server used to change the control type on the fly.
   ros::ServiceServer change_control_type_;
 
@@ -231,6 +229,8 @@ protected:
    */
   bool change_control_type_callback_(sr_robot_msgs::ChangeControlType::Request &request,
                                      sr_robot_msgs::ChangeControlType::Response &response);
+
+  std::set<std::string> get_running_controllers();
 
   /*
    * Switch controllers for joint specified by joint_names_ between PWM and
