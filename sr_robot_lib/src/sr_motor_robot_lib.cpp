@@ -26,6 +26,7 @@
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <string>
+#include <set>
 #include <thread>  // NOLINT(build/c++11)
 #include <vector>
 #include <utility>
@@ -1250,7 +1251,8 @@ namespace shadow_robot
       {
         std::string joint_name = joint.joint_name;
         boost::algorithm::to_lower(joint_name);
-        if (boost::algorithm::ends_with(joint_name, "j1") | boost::algorithm::ends_with(joint_name, "j2")) {
+        if (boost::algorithm::ends_with(joint_name, "j1") | boost::algorithm::ends_with(joint_name, "j2"))
+        {
           // Ignore underactuated joints as they don't have associated controller
           continue;
         }
