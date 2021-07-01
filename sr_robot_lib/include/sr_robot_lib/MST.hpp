@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <sr_robot_msgs/MSTPalm.h>
 
 #include "sr_robot_lib/generic_tactiles.hpp"
@@ -61,7 +62,6 @@ public:
                                diagnostic_updater::DiagnosticStatusWrapper &d);
 
 private:
-
   sr_robot_msgs::MSTPalm sensor_data;
   std::shared_ptr<ros::Publisher> publisher;
   std::vector<GenericTactileData> diagnostic_data;
