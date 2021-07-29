@@ -22,7 +22,9 @@
 *
 *
 */
-
+#ifndef DEBUG_PUBLISHER
+#define DEBUG_PUBLISHER
+#endif
 #ifndef _SR_MOTOR_ROBOT_LIB_HPP_
 #define _SR_MOTOR_ROBOT_LIB_HPP_
 

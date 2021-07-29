@@ -22,7 +22,9 @@
 *
 *
 */
-
+#ifndef DEBUG_PUBLISHER
+#define DEBUG_PUBLISHER
+#endif
 #include "sr_robot_lib/sr_robot_lib.hpp"
 #include <string>
 #include <utility>

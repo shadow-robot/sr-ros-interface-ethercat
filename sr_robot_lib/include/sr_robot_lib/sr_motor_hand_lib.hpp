@@ -23,7 +23,10 @@
 *
 *
 */
-
+#ifndef DEBUG_PUBLISHER
+#define DEBUG_PUBLISHER
+#endif
+#define DEBUG_PUBLISHER
 #ifndef _SR_MOTOR_HAND_LIB_HPP_
 #define _SR_MOTOR_HAND_LIB_HPP_
 
@@ -138,7 +141,7 @@ private:
    * @return a vector of motor indexes, ordered by joint.
    */
   std::vector<int> read_joint_to_motor_mapping();
-
+  ros::ServiceServer debug_service;
 
   static const int nb_motor_data;
   static const char *human_readable_motor_data_types[];

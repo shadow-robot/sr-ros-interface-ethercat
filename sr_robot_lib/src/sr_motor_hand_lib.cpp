@@ -24,7 +24,9 @@
 *
 *
 */
-
+#ifndef DEBUG_PUBLISHER
+#define DEBUG_PUBLISHER
+#endif
 #include "sr_robot_lib/sr_motor_hand_lib.hpp"
 #include <algorithm>
 #include <utility>
@@ -98,8 +100,8 @@ namespace shadow_robot
                                                           string joint_prefix) :
           SrMotorRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
           , debug_service(
-          nh_tilde.advertiseService("set_debug_publishers", &SrMotorHandLib::set_debug_data_to_publish, this))
-#endif
+          nhtilde.advertiseService("set_debug_publishers", &SrMotorHandLib::set_debug_data_to_publish, this))
+
   {
     // read the motor polling frequency from the parameter server
     this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data,
@@ -544,11 +546,6 @@ namespace shadow_robot
         response.success = false;
         return false;
       }
-
-      this->debug_motor_indexes_and_data_tom[request.publisher_index] = shared_ptr<pair<int, int> >(new pair<int, int>());
-
-      this->debug_motor_indexes_and_data_tom[request.publisher_index]->first = request.motor_index;
-      this->debug_motor_indexes_and_data_tom[request.publisher_index]->second = request.motor_data_type;
 
       this->debug_motor_indexes_and_data[request.publisher_index] = shared_ptr<pair<int, int> >(new pair<int, int>());
 
