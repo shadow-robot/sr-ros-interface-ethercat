@@ -542,6 +542,11 @@ namespace shadow_robot
         return false;
       }
 
+      this->debug_motor_indexes_and_data_tom[request.publisher_index] = shared_ptr<pair<int, int> >(new pair<int, int>());
+
+      this->debug_motor_indexes_and_data_tom[request.publisher_index]->first = request.motor_index;
+      this->debug_motor_indexes_and_data_tom[request.publisher_index]->second = request.motor_data_type;
+
       this->debug_motor_indexes_and_data[request.publisher_index] = shared_ptr<pair<int, int> >(new pair<int, int>());
 
       this->debug_motor_indexes_and_data[request.publisher_index]->first = request.motor_index;

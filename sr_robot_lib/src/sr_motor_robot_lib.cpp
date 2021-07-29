@@ -290,6 +290,8 @@ namespace shadow_robot
          if (this->debug_mutex.try_lock())
          {
            BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
+           if (publisher_index < 4)
+             BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data_tom)
            {
              if (debug_pair != NULL)
              {
@@ -653,6 +655,8 @@ namespace shadow_robot
       if (this->debug_mutex.try_lock())
       {
         BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data)
+        if (publisher_index < 4)
+          BOOST_FOREACH(debug_pair, this->debug_motor_indexes_and_data_tom)
         {
           if (debug_pair != NULL)
           {
