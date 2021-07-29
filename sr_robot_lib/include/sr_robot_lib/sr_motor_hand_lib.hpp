@@ -138,7 +138,6 @@ private:
    * @return a vector of motor indexes, ordered by joint.
    */
   std::vector<int> read_joint_to_motor_mapping();
-  ros::ServiceServer debug_service;
 
   static const int nb_motor_data;
   static const char *human_readable_motor_data_types[];
