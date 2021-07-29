@@ -313,7 +313,15 @@ protected:
   /// Id of the ethercat device (alias)
   std::string device_id_;
 
-  ros::Publisher fast_sg_l_pub;
+  ros::Publisher fast_sg_l_pub_1;
+  ros::Publisher fast_sg_l_pub_2;
+  ros::Publisher fast_sg_l_pub_3;
+
+  ros::Publisher fast_sg_r_pub_1;
+  ros::Publisher fast_sg_r_pub_2;
+  ros::Publisher fast_sg_r_pub_3;
+  std::vector<ros::Publisher> fast_sg_l;
+  std::vector<ros::Publisher> fast_sg_r;
 #ifdef DEBUG_PUBLISHER
   // These publishers are useful for debugging
   static const int nb_debug_publishers_const;
@@ -333,8 +341,8 @@ protected:
   // boost::shared_mutex debug_mutex;
   ros::NodeHandle node_handle;
   std_msgs::Int16 msg_debug;
-  std_msgs::Int16 msg_debug_tom;
 #endif
+  std_msgs::Int16 msg_debug_tom;
 
   // The update rate for each sensor information type
   std::vector<generic_updater::UpdateConfig> generic_sensor_update_rate_configs_vector;

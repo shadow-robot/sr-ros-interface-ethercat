@@ -89,9 +89,22 @@ namespace shadow_robot
       ROS_INFO("Using TORQUE control.");
     }
 
-  ostringstream sss;
-  sss << "srh/debug_sg_";
-  this->fast_sg_l_pub = this->nh_tilde.template advertise<std_msgs::Int16>(sss.str().c_str(), 100);
+
+  this->fast_sg_l.resize(3);
+  for (int i=0; i<3; i++)
+  {
+    ostringstream sss;
+    sss << "srh/debug_sg_l_" << i;
+    this->fast_sg_l.push_back(this->nh_tilde.template advertise<std_msgs::Int16>(sss.str().c_str(), 100));
+  }
+
+  this->fast_sg_r.resize(3);
+  for (int i=0; i<3; i++)
+  {
+    ostringstream sss;
+    sss << "srh/debug_sg_r_" << i;
+    this->fast_sg_r.push_back(this->nh_tilde.template advertise<std_msgs::Int16>(sss.str().c_str(), 100));
+  }
 
 #ifdef DEBUG_PUBLISHER
     this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
@@ -696,6 +709,16 @@ namespace shadow_robot
           actuator->motor_state_.strain_gauge_left_ =
                   static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc);
 
+
+    if (actuator_wrapper->motor_id < 4){
+      // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
+      this->msg_debug_tom.data = actuator->motor_state_.strain_gauge_left_;
+      this->fast_sg_l[actuator_wrapper->motor_id].publish(this->msg_debug_tom);
+    }
+
+
+
+
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
         {
@@ -708,6 +731,12 @@ namespace shadow_robot
         case MOTOR_DATA_SGR:
           actuator->motor_state_.strain_gauge_right_ =
                   static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc);
+
+    if (actuator_wrapper->motor_id < 4){
+      // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
+      this->msg_debug_tom.data = actuator->motor_state_.strain_gauge_right_;
+      this->fast_sg_r[actuator_wrapper->motor_id].publish(this->msg_debug_tom);
+    }
 
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
