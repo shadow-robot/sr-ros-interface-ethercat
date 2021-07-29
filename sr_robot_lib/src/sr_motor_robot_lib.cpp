@@ -23,9 +23,7 @@
 *
 *
 */
-#ifndef DEBUG_PUBLISHER
-#define DEBUG_PUBLISHER
-#endif
+
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <string>
 #include <vector>
@@ -90,6 +88,10 @@ namespace shadow_robot
       control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
       ROS_INFO("Using TORQUE control.");
     }
+
+  ostringstream sss;
+  sss << "srh/debug_sg_";
+  this->fast_sg_l_pub = this->nh_tilde.template advertise<std_msgs::Int16>(sss.str().c_str(), 100);
 
 #ifdef DEBUG_PUBLISHER
     this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);

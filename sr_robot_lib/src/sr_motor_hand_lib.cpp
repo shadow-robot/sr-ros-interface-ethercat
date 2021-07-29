@@ -24,9 +24,7 @@
 *
 *
 */
-#ifndef DEBUG_PUBLISHER
-#define DEBUG_PUBLISHER
-#endif
+
 #include "sr_robot_lib/sr_motor_hand_lib.hpp"
 #include <algorithm>
 #include <utility>
@@ -99,8 +97,6 @@ namespace shadow_robot
                                                           ros::NodeHandle nhtilde, string device_id,
                                                           string joint_prefix) :
           SrMotorRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
-          , debug_service(
-          nhtilde.advertiseService("set_debug_publishers", &SrMotorHandLib::set_debug_data_to_publish, this))
 
   {
     // read the motor polling frequency from the parameter server

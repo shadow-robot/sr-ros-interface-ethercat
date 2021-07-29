@@ -23,10 +23,7 @@
 *
 *
 */
-#ifndef DEBUG_PUBLISHER
-#define DEBUG_PUBLISHER
-#endif
-#define DEBUG_PUBLISHER
+
 #ifndef _SR_MOTOR_HAND_LIB_HPP_
 #define _SR_MOTOR_HAND_LIB_HPP_
 

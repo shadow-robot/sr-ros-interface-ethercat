@@ -22,9 +22,7 @@
 *
 *
 */
-#ifndef DEBUG_PUBLISHER
-#define DEBUG_PUBLISHER
-#endif
+
 #ifndef _SR_ROBOT_LIB_HPP_
 #define _SR_ROBOT_LIB_HPP_
 
@@ -315,7 +313,7 @@ protected:
   /// Id of the ethercat device (alias)
   std::string device_id_;
 
-
+  ros::Publisher fast_sg_l_pub;
 #ifdef DEBUG_PUBLISHER
   // These publishers are useful for debugging
   static const int nb_debug_publishers_const;
