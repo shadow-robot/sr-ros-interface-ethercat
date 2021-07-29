@@ -98,6 +98,13 @@ namespace shadow_robot
       this->debug_publishers.push_back(this->node_handle.template advertise<std_msgs::Int16>(ss.str().c_str(), 100));
     }
 #endif
+    this->debug_motor_indexes_and_data_tom.resize(this->nb_debug_publishers_const_tom);
+    for (int i = 0; i < this->nb_debug_publishers_const_tom; ++i)
+    {
+      ostringstream ss;
+      ss << "srh/tom_debug_" << i;
+      this->debug_publishers_tom.push_back(this->node_handle.template advertise<std_msgs::Int16>(ss.str().c_str(), 100));
+    }
   }
 
   template<class StatusType, class CommandType>
@@ -684,7 +691,7 @@ namespace shadow_robot
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
         {
-         // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
+          // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
           this->msg_debug.data = actuator->motor_state_.strain_gauge_left_;
           this->debug_publishers[0].publish(this->msg_debug);
         }
@@ -883,6 +890,15 @@ namespace shadow_robot
         default:
           break;
       }
+
+          //for (i=0; i<4; i++)
+          //{
+            if (actuator_wrapper->motor_id == 1)
+            {
+              this->msg_debug_tom.data = actuator->motor_state_.strain_gauge_left_;
+              this->debug_publishers_tom[1].publish(this->msg_debug_tom);
+            }
+          //}
 
       if (read_torque)
       {

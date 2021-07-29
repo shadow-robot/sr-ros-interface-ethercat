@@ -72,6 +72,7 @@ namespace shadow_robot
   // max of 20 publishers for debug
   template<class StatusType, class CommandType>
   const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const = 20;
+  const int SrRobotLib<StatusType, CommandType>::nb_debug_publishers_const_tom = 4;
   // template <class StatusType, class CommandType>
   // const int SrRobotLib<StatusType, CommandType>::debug_mutex_lock_wait_time = 100;
 #endif

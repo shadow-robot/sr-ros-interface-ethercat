@@ -318,6 +318,8 @@ protected:
   // These publishers are useful for debugging
   static const int nb_debug_publishers_const;
   std::vector<ros::Publisher> debug_publishers;
+  static const int nb_debug_publishers_const_tom;
+  std::vector<ros::Publisher> debug_publishers_tom;
   /*
    * A vector containing pairs:
    *  - associate a motor index
@@ -326,10 +328,12 @@ protected:
    * This vector has the same size as the debug_publishers vector.
    */
   std::vector<boost::shared_ptr<std::pair<int, int> > > debug_motor_indexes_and_data;
+  std::vector<boost::shared_ptr<std::pair<int, int> > > debug_motor_indexes_and_data_tom;
   // static const int debug_mutex_lock_wait_time;
   // boost::shared_mutex debug_mutex;
   ros::NodeHandle node_handle;
   std_msgs::Int16 msg_debug;
+  std_msgs::Int16 msg_debug_tom;
 #endif
 
   // The update rate for each sensor information type
