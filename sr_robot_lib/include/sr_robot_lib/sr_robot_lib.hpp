@@ -26,6 +26,8 @@
 #ifndef _SR_ROBOT_LIB_HPP_
 #define _SR_ROBOT_LIB_HPP_
 
+#include <realtime_tools/realtime_publisher.h>
+
 #include <boost/smart_ptr.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/thread.hpp>
@@ -363,7 +365,8 @@ public:
   static const double tactile_timeout;
   ros::Duration tactile_init_max_duration;
   ros::Timer tactile_check_init_timeout_timer;
-
+  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> > rt_pub_l;
+  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> > rt_pub_r;
   /// A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
   boost::shared_ptr<boost::mutex> lock_tactile_init_timeout_;
 

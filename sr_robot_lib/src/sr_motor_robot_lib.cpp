@@ -88,27 +88,31 @@ namespace shadow_robot
       control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
       ROS_INFO("Using TORQUE control.");
     }
-    this->fast_sg_l.resize(3);
-    this->fast_sg_r.resize(3);
-    for (int i=0; i<3; i++)
-    {
-      ostringstream ssr, ssl;
-      ssl << "srh/debug_sg_l_" << i;
-      ssr << "srh/debug_sg_r_" << i;
-      this->fast_sg_l.push_back((new realtime_tools::RealtimePublisher<std_msgs::Int16>(nhtilde, ssl.str().c_str(), 4)));
-      this->fast_sg_r.push_back((new realtime_tools::RealtimePublisher<std_msgs::Int16>(nhtilde, ssr.str().c_str(), 4)));
-    }
+
+    this->rt_pub_l = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> >(
+            new realtime_tools::RealtimePublisher<std_msgs::Int16>(this->nh_tilde, "rt_sg_l", 4));
+
+    this->rt_pub_r = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> >(
+            new realtime_tools::RealtimePublisher<std_msgs::Int16>(this->nh_tilde, "rt_sg_r", 4));
 /*
 
+  this->fast_sg_l.resize(3);
+  for (int i=0; i<3; i++)
+  {
+    ostringstream sss;
+    sss << "srh/debug_sg_l_" << i;
+    this->fast_sg_l.push_back(this->nh_tilde.template advertise<std_msgs::Int16>(sss.str().c_str(), 100));
+  }
 
-    for (int i=0; i<3; i++)
-    {
-      ostringstream ssr, ssl;
-      ssl << "srh/debug_sg_l_" << i;
-      ssr << "srh/debug_sg_r_" << i;
-      this->fast_sg_l.push_back(this->nh_tilde.template advertise<std_msgs::Int16>(ssl.str().c_str(), 100));
-      this->fast_sg_r.push_back(this->nh_tilde.template advertise<std_msgs::Int16>(ssr.str().c_str(), 100));
-    }*/
+  this->fast_sg_r.resize(3);
+  for (int i=0; i<3; i++)
+  {
+    ostringstream sss;
+    sss << "srh/debug_sg_r_" << i;
+    this->fast_sg_r.push_back(this->nh_tilde.template advertise<std_msgs::Int16>(sss.str().c_str(), 100));
+  }
+*/
+
 
 #ifdef DEBUG_PUBLISHER
     this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
@@ -703,13 +707,25 @@ namespace shadow_robot
                   static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc);
 
 
+    if (actuator_wrapper->motor_id == 1){
+      if (this->rt_pub_l->trylock())
+      {
+        std_msgs::Int16 int_message;
+        //int_message.header.stamp = ros::Time::now();
+        int_message.data = actuator->motor_state_.strain_gauge_left_;
+        this->rt_pub_l->msg_ = int_message;
+        this->rt_pub_l->unlockAndPublish();
+      }
+    }
+/*
+
     if (actuator_wrapper->motor_id < 4){
       // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
       this->msg_debug_tom.data = actuator->motor_state_.strain_gauge_left_;
       this->fast_sg_l[actuator_wrapper->motor_id]->publish(this->msg_debug_tom);
     }
 
-
+*/
 
 
 #ifdef DEBUG_PUBLISHER
@@ -724,12 +740,24 @@ namespace shadow_robot
         case MOTOR_DATA_SGR:
           actuator->motor_state_.strain_gauge_right_ =
                   static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc);
-
+/*
     if (actuator_wrapper->motor_id < 4){
       // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
       this->msg_debug_tom.data = actuator->motor_state_.strain_gauge_right_;
-      this->fast_sg_r[actuator_wrapper->motor_id]->publish(this->msg_debug_tom);
+      this->fast_sg_r[actuator_wrapper->motor_id].publish(this->msg_debug_tom);
+    }*/
+
+    if (actuator_wrapper->motor_id == 1){
+      if (this->rt_pub_r->trylock())
+      {
+        std_msgs::Int16 int_message;
+       // int_message.header.stamp = ros::Time::now();
+        int_message.data = actuator->motor_state_.strain_gauge_right_;
+        this->rt_pub_r->msg_ = int_message;
+        this->rt_pub_r->unlockAndPublish();
+      }
     }
+
 
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)
