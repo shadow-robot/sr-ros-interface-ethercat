@@ -35,7 +35,7 @@
 #include <string>
 #include <deque>
 #include <map>
-
+#include <realtime_tools/realtime_publisher.h>
 // used to publish debug values
 #include <std_msgs/Int16.h>
 
@@ -313,8 +313,15 @@ protected:
   /// Id of the ethercat device (alias)
   std::string device_id_;
 
-  std::vector<ros::Publisher> fast_sg_l;
-  std::vector<ros::Publisher> fast_sg_r;
+  typedef realtime_tools::RealtimePublisher<std_msgs::Int16> RtSgPub;
+  typedef boost::shared_ptr<RtSgPub > RtSgPubPtr;
+  RtSgPubPtr rt_sg_pub_;
+
+  std::vector<boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16>>> fast_sg_l;
+  std::vector<boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16>>> fast_sg_r;
+//  std::vector<rt_sg_pub_> fast_sg_r;
+
+
 #ifdef DEBUG_PUBLISHER
   // These publishers are useful for debugging
   static const int nb_debug_publishers_const;

@@ -88,7 +88,6 @@ namespace shadow_robot
       control_type_.control_type = sr_robot_msgs::ControlType::FORCE;
       ROS_INFO("Using TORQUE control.");
     }
-
     this->fast_sg_l.resize(3);
     this->fast_sg_r.resize(3);
     for (int i=0; i<3; i++)
@@ -96,9 +95,20 @@ namespace shadow_robot
       ostringstream ssr, ssl;
       ssl << "srh/debug_sg_l_" << i;
       ssr << "srh/debug_sg_r_" << i;
+      this->fast_sg_l.push_back((new realtime_tools::RealtimePublisher<std_msgs::Int16>(nhtilde, ssl.str().c_str(), 4)));
+      this->fast_sg_r.push_back((new realtime_tools::RealtimePublisher<std_msgs::Int16>(nhtilde, ssr.str().c_str(), 4)));
+    }
+/*
+
+
+    for (int i=0; i<3; i++)
+    {
+      ostringstream ssr, ssl;
+      ssl << "srh/debug_sg_l_" << i;
+      ssr << "srh/debug_sg_r_" << i;
       this->fast_sg_l.push_back(this->nh_tilde.template advertise<std_msgs::Int16>(ssl.str().c_str(), 100));
       this->fast_sg_r.push_back(this->nh_tilde.template advertise<std_msgs::Int16>(ssr.str().c_str(), 100));
-    }
+    }*/
 
 #ifdef DEBUG_PUBLISHER
     this->debug_motor_indexes_and_data.resize(this->nb_debug_publishers_const);
@@ -696,7 +706,7 @@ namespace shadow_robot
     if (actuator_wrapper->motor_id < 4){
       // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
       this->msg_debug_tom.data = actuator->motor_state_.strain_gauge_left_;
-      this->fast_sg_l[actuator_wrapper->motor_id].publish(this->msg_debug_tom);
+      this->fast_sg_l[actuator_wrapper->motor_id]->publish(this->msg_debug_tom);
     }
 
 
@@ -718,7 +728,7 @@ namespace shadow_robot
     if (actuator_wrapper->motor_id < 4){
       // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
       this->msg_debug_tom.data = actuator->motor_state_.strain_gauge_right_;
-      this->fast_sg_r[actuator_wrapper->motor_id].publish(this->msg_debug_tom);
+      this->fast_sg_r[actuator_wrapper->motor_id]->publish(this->msg_debug_tom);
     }
 
 #ifdef DEBUG_PUBLISHER
