@@ -97,7 +97,6 @@ namespace shadow_robot
                                                           ros::NodeHandle nhtilde, string device_id,
                                                           string joint_prefix) :
           SrMotorRobotLib<StatusType, CommandType>(hw, nh, nhtilde, device_id, joint_prefix)
-
   {
     // read the motor polling frequency from the parameter server
     this->motor_update_rate_configs_vector = this->read_update_rate_configs("motor_data_update_rate/", nb_motor_data,
