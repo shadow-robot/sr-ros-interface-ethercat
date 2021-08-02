@@ -94,6 +94,13 @@ namespace shadow_robot
 
     this->rt_pub_r = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> >(
             new realtime_tools::RealtimePublisher<std_msgs::Int16>(this->nh_tilde, "rt_sg_r", 4));
+
+    this->rt_pub_all_l = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
+            new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_l", 4));
+
+    this->rt_pub_all_r = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
+            new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_r", 4));
+
 /*
 
   this->fast_sg_l.resize(3);
@@ -726,6 +733,20 @@ namespace shadow_robot
     }
 
 */
+  
+  if (this->rt_pub_all_l->trylock())
+    {
+      this->msg_array_tom_l.data[actuator_wrapper->motor_id] = actuator->motor_state_.strain_gauge_left_;
+      this->rt_pub_all_l->msg_ = this->msg_array_tom_l;
+      this->rt_pub_all_l->unlockAndPublish();
+    }
+
+  if (this->rt_pub_all_r->trylock())
+    {
+      this->msg_array_tom_r.data[actuator_wrapper->motor_id] = actuator->motor_state_.strain_gauge_right_;
+      this->rt_pub_all_r->msg_ = this->msg_array_tom_r;
+      this->rt_pub_all_r->unlockAndPublish();
+    }
 
 
 #ifdef DEBUG_PUBLISHER
