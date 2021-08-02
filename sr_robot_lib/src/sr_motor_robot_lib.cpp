@@ -114,10 +114,10 @@ this->msg_array_tom_r.data.resize(data_sz);
 
   //std::cout << "1\n";
     this->rt_pub_all_l = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
-            new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_l", 4));
+            new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_l", 100));
   //std::cout << "2\n";
     this->rt_pub_all_r = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
-            new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_r", 4));
+            new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_r", 100));
   //std::cout << "3\n";
 /*
 
@@ -730,7 +730,7 @@ this->msg_array_tom_r.data.resize(data_sz);
         case MOTOR_DATA_SGL:
           actuator->motor_state_.strain_gauge_left_ =
                   static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc);
-
+/*
 
     if (actuator_wrapper->motor_id == 1){
       if (this->rt_pub_l->trylock())
@@ -742,7 +742,8 @@ this->msg_array_tom_r.data.resize(data_sz);
         this->rt_pub_l->unlockAndPublish();
       }
     }
-/*
+
+
 
     if (actuator_wrapper->motor_id < 4){
       // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
@@ -751,27 +752,17 @@ this->msg_array_tom_r.data.resize(data_sz);
     }
 
 */
-    //std::cout << "01\n";
   if (this->rt_pub_all_l->trylock())
     {
-    //std::cout << "02\n";
-//      this->msg_array_tom_l.data.push_back(actuator->motor_state_.strain_gauge_left_);
       this->msg_array_tom_l.data[actuator_wrapper->motor_id] = actuator->motor_state_.strain_gauge_left_;
-    //std::cout << "03\n";
       this->rt_pub_all_l->msg_ = this->msg_array_tom_l;
-    //std::cout << "04\n";
       this->rt_pub_all_l->unlockAndPublish();
     }
 
-    //std::cout << "05\n";
   if (this->rt_pub_all_r->trylock())
     {
-    //std::cout << "06\n";
-//      this->msg_array_tom_r.data.push_back(actuator->motor_state_.strain_gauge_right_);
       this->msg_array_tom_r.data[actuator_wrapper->motor_id] = actuator->motor_state_.strain_gauge_right_;
-    //std::cout << "07\n";
       this->rt_pub_all_r->msg_ = this->msg_array_tom_r;
-    //std::cout << "08\n";
       this->rt_pub_all_r->unlockAndPublish();
     }
 
@@ -793,7 +784,7 @@ this->msg_array_tom_r.data.resize(data_sz);
       // ROS_ERROR_STREAM("SGL " <<actuator->motor_state_.strain_gauge_left_);
       this->msg_debug_tom.data = actuator->motor_state_.strain_gauge_right_;
       this->fast_sg_r[actuator_wrapper->motor_id].publish(this->msg_debug_tom);
-    }*/
+    }
 
     if (actuator_wrapper->motor_id == 1){
       if (this->rt_pub_r->trylock())
@@ -804,7 +795,7 @@ this->msg_array_tom_r.data.resize(data_sz);
         this->rt_pub_r->msg_ = int_message;
         this->rt_pub_r->unlockAndPublish();
       }
-    }
+    }*/
 
 
 #ifdef DEBUG_PUBLISHER
