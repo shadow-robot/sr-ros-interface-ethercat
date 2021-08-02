@@ -54,6 +54,7 @@ using generic_updater::MotorDataChecker;
 using boost::shared_ptr;
 using boost::static_pointer_cast;
 
+
 namespace shadow_robot
 {
 
@@ -89,18 +90,35 @@ namespace shadow_robot
       ROS_INFO("Using TORQUE control.");
     }
 
+const unsigned int data_sz = 20;
+this->msg_array_tom_r.layout.dim.push_back(std_msgs::MultiArrayDimension());
+this->msg_array_tom_l.layout.dim.push_back(std_msgs::MultiArrayDimension());
+this->msg_array_tom_r.layout.dim[0].size = data_sz;
+this->msg_array_tom_r.layout.dim[0].stride = 1;
+this->msg_array_tom_r.layout.dim[0].label = "bla";
+
+this->msg_array_tom_l.layout.dim[0].size = data_sz;
+this->msg_array_tom_l.layout.dim[0].stride = 1;
+this->msg_array_tom_l.layout.dim[0].label = "bla";
+
+this->msg_array_tom_l.data.resize(data_sz);
+this->msg_array_tom_r.data.resize(data_sz);
+
+
+
     this->rt_pub_l = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> >(
             new realtime_tools::RealtimePublisher<std_msgs::Int16>(this->nh_tilde, "rt_sg_l", 4));
 
     this->rt_pub_r = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> >(
             new realtime_tools::RealtimePublisher<std_msgs::Int16>(this->nh_tilde, "rt_sg_r", 4));
 
+  //std::cout << "1\n";
     this->rt_pub_all_l = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
             new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_l", 4));
-
+  //std::cout << "2\n";
     this->rt_pub_all_r = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
             new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_r", 4));
-
+  //std::cout << "3\n";
 /*
 
   this->fast_sg_l.resize(3);
@@ -733,18 +751,27 @@ namespace shadow_robot
     }
 
 */
-  
+    //std::cout << "01\n";
   if (this->rt_pub_all_l->trylock())
     {
+    //std::cout << "02\n";
+//      this->msg_array_tom_l.data.push_back(actuator->motor_state_.strain_gauge_left_);
       this->msg_array_tom_l.data[actuator_wrapper->motor_id] = actuator->motor_state_.strain_gauge_left_;
+    //std::cout << "03\n";
       this->rt_pub_all_l->msg_ = this->msg_array_tom_l;
+    //std::cout << "04\n";
       this->rt_pub_all_l->unlockAndPublish();
     }
 
+    //std::cout << "05\n";
   if (this->rt_pub_all_r->trylock())
     {
+    //std::cout << "06\n";
+//      this->msg_array_tom_r.data.push_back(actuator->motor_state_.strain_gauge_right_);
       this->msg_array_tom_r.data[actuator_wrapper->motor_id] = actuator->motor_state_.strain_gauge_right_;
+    //std::cout << "07\n";
       this->rt_pub_all_r->msg_ = this->msg_array_tom_r;
+    //std::cout << "08\n";
       this->rt_pub_all_r->unlockAndPublish();
     }
 
