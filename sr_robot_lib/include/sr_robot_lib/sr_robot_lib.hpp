@@ -316,15 +316,6 @@ protected:
   /// Id of the ethercat device (alias)
   std::string device_id_;
 
-  typedef realtime_tools::RealtimePublisher<std_msgs::Int16> RtSgPub;
-  typedef boost::shared_ptr<RtSgPub > RtSgPubPtr;
-  RtSgPubPtr rt_sg_pub_;
-
-  std::vector<boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16>>> fast_sg_l;
-  std::vector<boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16>>> fast_sg_r;
-//  std::vector<rt_sg_pub_> fast_sg_r;
-
-
 #ifdef DEBUG_PUBLISHER
   // These publishers are useful for debugging
   static const int nb_debug_publishers_const;
@@ -368,8 +359,6 @@ public:
   static const double tactile_timeout;
   ros::Duration tactile_init_max_duration;
   ros::Timer tactile_check_init_timeout_timer;
-  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> > rt_pub_l;
-  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16> > rt_pub_r;
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> > rt_pub_all_r;
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> > rt_pub_all_l;
   /// A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
