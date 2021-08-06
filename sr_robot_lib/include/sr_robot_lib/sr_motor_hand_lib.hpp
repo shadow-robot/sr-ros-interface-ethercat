@@ -139,7 +139,6 @@ private:
    */
   std::vector<int> read_joint_to_motor_mapping();
 
-
   static const int nb_motor_data;
   static const char *human_readable_motor_data_types[];
   static const int32u motor_data_types[];

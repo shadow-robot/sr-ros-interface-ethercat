@@ -26,6 +26,8 @@
 #ifndef _SR_ROBOT_LIB_HPP_
 #define _SR_ROBOT_LIB_HPP_
 
+#include <realtime_tools/realtime_publisher.h>
+
 #include <boost/smart_ptr.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/thread.hpp>
@@ -35,9 +37,10 @@
 #include <string>
 #include <deque>
 #include <map>
-
+#include <realtime_tools/realtime_publisher.h>
 // used to publish debug values
 #include <std_msgs/Int16.h>
+#include <std_msgs/Int16MultiArray.h>
 
 #include <sr_hardware_interface/sr_actuator.hpp>
 
@@ -313,7 +316,6 @@ protected:
   /// Id of the ethercat device (alias)
   std::string device_id_;
 
-
 #ifdef DEBUG_PUBLISHER
   // These publishers are useful for debugging
   static const int nb_debug_publishers_const;
@@ -331,6 +333,10 @@ protected:
   ros::NodeHandle node_handle;
   std_msgs::Int16 msg_debug;
 #endif
+  std_msgs::Int16 msg_debug_tom;
+  std_msgs::Int16MultiArray msg_array_tom_r;
+  std_msgs::Int16MultiArray msg_array_tom_l;
+  std_msgs::Int16MultiArray msg_array_tom_pwm;
 
   // The update rate for each sensor information type
   std::vector<generic_updater::UpdateConfig> generic_sensor_update_rate_configs_vector;
@@ -354,7 +360,9 @@ public:
   static const double tactile_timeout;
   ros::Duration tactile_init_max_duration;
   ros::Timer tactile_check_init_timeout_timer;
-
+  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> > rt_pub_all_r;
+  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> > rt_pub_all_l;
+  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> > rt_pub_all_pwm;
   /// A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
   boost::shared_ptr<boost::mutex> lock_tactile_init_timeout_;
 
