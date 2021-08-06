@@ -93,6 +93,12 @@ namespace shadow_robot
 const unsigned int data_sz = 20;
 this->msg_array_tom_r.layout.dim.push_back(std_msgs::MultiArrayDimension());
 this->msg_array_tom_l.layout.dim.push_back(std_msgs::MultiArrayDimension());
+this->msg_array_tom_pwm.layout.dim.push_back(std_msgs::MultiArrayDimension());
+
+this->msg_array_tom_pwm.layout.dim[0].size = data_sz;
+this->msg_array_tom_pwm.layout.dim[0].stride = 1;
+this->msg_array_tom_pwm.layout.dim[0].label = "bla";
+
 this->msg_array_tom_r.layout.dim[0].size = data_sz;
 this->msg_array_tom_r.layout.dim[0].stride = 1;
 this->msg_array_tom_r.layout.dim[0].label = "bla";
@@ -103,6 +109,7 @@ this->msg_array_tom_l.layout.dim[0].label = "bla";
 
 this->msg_array_tom_l.data.resize(data_sz);
 this->msg_array_tom_r.data.resize(data_sz);
+this->msg_array_tom_pwm.data.resize(data_sz);
 
 
     this->rt_pub_all_l = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
@@ -111,6 +118,11 @@ this->msg_array_tom_r.data.resize(data_sz);
     this->rt_pub_all_r = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
             new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_r", 100));
 
+
+    this->rt_pub_all_pwm = boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> >(
+            new realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray>(this->nh_tilde, "rt_sg_all_pwm", 100));
+
+    this->rt_pub_all_pwm->msg_ = this->msg_array_tom_pwm;
     this->rt_pub_all_l->msg_ = this->msg_array_tom_l;
     this->rt_pub_all_r->msg_ = this->msg_array_tom_r;
 
@@ -221,6 +233,10 @@ this->msg_array_tom_r.data.resize(data_sz);
 
   if (this->rt_pub_all_r->trylock())
       this->rt_pub_all_r->unlockAndPublish();
+
+
+  if (this->rt_pub_all_pwm->trylock())
+      this->rt_pub_all_pwm->unlockAndPublish();
 
     // then we read the tactile sensors information
     this->update_tactile_info(status_data);
@@ -749,6 +765,7 @@ this->msg_array_tom_r.data.resize(data_sz);
         case MOTOR_DATA_PWM:
           actuator->motor_state_.pwm_ =
                   static_cast<int> (static_cast<int16s> (status_data->motor_data_packet[index_motor_in_msg].misc));
+      this->rt_pub_all_pwm->msg_.data[actuator_wrapper->motor_id] = actuator->motor_state_.pwm_;
 
 #ifdef DEBUG_PUBLISHER
         if (actuator_wrapper->motor_id == 19)

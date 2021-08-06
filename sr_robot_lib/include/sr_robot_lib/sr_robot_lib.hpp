@@ -336,6 +336,7 @@ protected:
   std_msgs::Int16 msg_debug_tom;
   std_msgs::Int16MultiArray msg_array_tom_r;
   std_msgs::Int16MultiArray msg_array_tom_l;
+  std_msgs::Int16MultiArray msg_array_tom_pwm;
 
   // The update rate for each sensor information type
   std::vector<generic_updater::UpdateConfig> generic_sensor_update_rate_configs_vector;
@@ -361,6 +362,7 @@ public:
   ros::Timer tactile_check_init_timeout_timer;
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> > rt_pub_all_r;
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> > rt_pub_all_l;
+  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Int16MultiArray> > rt_pub_all_pwm;
   /// A mutual exclusion object to ensure that the intitialization timeout event does work without threading issues
   boost::shared_ptr<boost::mutex> lock_tactile_init_timeout_;
 
