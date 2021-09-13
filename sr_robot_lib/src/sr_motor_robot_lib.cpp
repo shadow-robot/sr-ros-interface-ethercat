@@ -1023,13 +1023,38 @@ namespace shadow_robot
     // calibrate the joint and update the position.
     calibrate_joint(joint_tmp, status_data);
 
-    // filter the position and velocity
-    pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(actuator->motor_state_.position_unfiltered_,
-                                                                          timestamp);
-    // reset the position to the filtered value
-    actuator->state_.position_ = pos_and_velocity.first;
-    // set the velocity to the filtered velocity
-    actuator->state_.velocity_ = pos_and_velocity.second;
+    if ((!joint_tmp->joint_to_sensor.calibrate_after_combining_sensors)
+        && (joint_tmp->joint_to_sensor.joint_to_sensor_vector.size() == 2))
+    {
+      actuator->motor_state_.filtered_calibrated_position_values_.clear();
+      actuator->motor_state_.filtered_calibrated_velocity_values_.clear();
+
+      // filter the position and velocity
+      pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(actuator->motor_state_.calibrated_sensor_values_[0],
+                                                                            timestamp);
+      // set the position to the filtered value
+      actuator->motor_state_.filtered_calibrated_position_values_.push_back(pos_and_velocity.first);
+      // set the velocity to the filtered velocity
+      actuator->motor_state_.filtered_calibrated_velocity_values_.push_back(pos_and_velocity.second);
+
+      // filter the position and velocity for the second joint
+      pos_and_velocity = joint_tmp->pos_filter_2.compute(actuator->motor_state_.calibrated_sensor_values_[1],
+                                                                            timestamp);
+      // set the position to the filtered value for the second joint
+      actuator->motor_state_.filtered_calibrated_position_values_.push_back(pos_and_velocity.first);
+      // set the velocity to the filtered velocity for the second joint
+      actuator->motor_state_.filtered_calibrated_velocity_values_.push_back(pos_and_velocity.second);
+    }
+    else
+    {
+      // filter the position and velocity
+      pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(actuator->motor_state_.position_unfiltered_,
+                                                                            timestamp);
+      // reset the position to the filtered value
+      actuator->state_.position_ = pos_and_velocity.first;
+      // set the velocity to the filtered velocity
+      actuator->state_.velocity_ = pos_and_velocity.second;
+    }
   }
 
   template<class StatusType, class CommandType>
