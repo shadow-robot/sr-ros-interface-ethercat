@@ -51,6 +51,7 @@
     <arg name="use_ns" value="true"/>
     <arg name="pwm_control" value="$(arg pwm_control)"/>
     <arg name="mapping_path" value="$(arg rh_mapping_path)"/>
+    <arg name="hand_serial" value="$(arg rh_serial)"/>
   </include>
 
   <!-- Load parameters for the left hand -->
@@ -59,6 +60,7 @@
     <arg name="use_ns" value="true"/>
     <arg name="pwm_control" value="$(arg pwm_control)" />
     <arg name="mapping_path" value="$(arg lh_mapping_path)"/>
+    <arg name="hand_serial" value="$(arg lh_serial)"/>
   </include>
 
   <include file="$(find sr_edc_launch)/sr_edc.machine"/>

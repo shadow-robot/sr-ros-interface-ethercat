@@ -4,6 +4,7 @@
   <!-- The id of the hand will be used to namespace the hand parameters
        the id should   -->
   <arg name="hand_id" default="rh"/>
+  <!-- The ethercat serial number for the hand -->
   <arg name="hand_serial" default="111"/>
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
@@ -12,11 +13,6 @@
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
 
   <!-- Default controllers -->
-  <!-- <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch">
-    <arg name="hand_id" value="$(arg hand_id)"/>
-    <arg name="pwm_control" value="$(arg pwm_control)"/>
-  </include> -->
-
   <include file="$(find sr_hand_config)/common/launch/load_hand_controls.launch">
     <arg name="hand_serials_list" value="[$(arg hand_serial)]"/>
   </include>
