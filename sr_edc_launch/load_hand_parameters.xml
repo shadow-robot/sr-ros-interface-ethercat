@@ -26,8 +26,7 @@
          - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
     <param name="hand_id" value="$(arg hand_id)"/>
     <!-- These params are loaded here as they are not controllers in the sense of the controller_manager, and will be accessed by every hand driver inside its namespace -->
-    <rosparam command="load"
-              file="$(find sr_ethercat_hand_config)/controls/motors/$(arg hand_id)/motor_board_effort_controllers.yaml"/>
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/controls/motors/motor_board_effort_controllers.yaml"/>
 
     <!-- polling rates -->
     <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml"/>
@@ -47,7 +46,7 @@
          - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
     <param name="hand_id" value="$(arg hand_id)"/>
     <!-- These params are loaded here as they are not controllers in the sense of the controller_manager, and will be accessed by every hand driver inside its namespace -->
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/controls/motors/$(arg hand_id)/motor_board_effort_controllers.yaml" />
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/controls/motors/motor_board_effort_controllers.yaml"/>
 
     <!-- polling rates -->
     <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml"/>
