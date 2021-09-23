@@ -13,8 +13,11 @@
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
 
   <!-- Default controllers -->
+  <arg name="control_mode" value="pwm" if="$(arg pwm_control)"/>
+  <arg name="control_mode" value="torque" unless="$(arg pwm_control)"/>
   <include file="$(find sr_hand_config)/common/launch/load_hand_controls.launch">
     <arg name="hand_serials_list" value="[$(arg hand_serial)]"/>
+    <arg name="control_mode" value="$(arg control_mode)"/>
   </include>
 
   <group if="$(arg use_ns)" ns="$(arg hand_id)">
