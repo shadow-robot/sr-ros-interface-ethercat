@@ -26,4 +26,4 @@
 - git:
     uri: https://github.com/shadow-robot/sr_hand_config.git
     version: 'master'
-    local-name: sr_hand-config
+    local-name: sr_hand_config
