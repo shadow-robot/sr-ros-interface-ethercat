@@ -22,6 +22,7 @@
 
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>sr_ethercat_hand_config</run_depend>
+  <run_depend>sr_hand_config</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>diagnostic_aggregator</run_depend>
   <run_depend>diagnostic_updater</run_depend>

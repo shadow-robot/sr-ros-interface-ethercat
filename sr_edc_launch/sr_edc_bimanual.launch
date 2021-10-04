@@ -107,10 +107,17 @@
   </group>
 
   <!-- diagnostic aggregator for being able to see the results in the robot_monitor -->
-  <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/diagnostic_analyzer_bimanual.yaml"/>
+  <include file="$(find sr_hand_config)/common/launch/load_diagnostic_analyzer.launch"  ns="diagnostic_aggregator">
+    <arg name="hand_serials_list" value="[$(arg rh_serial), $(arg lh_serial)]"/>
+  </include>
+
+  <node name="conditional_delayed_rostool_diagnostic_aggregator" pkg="sr_utilities_common" type="conditional_delayed_rostool.py" output="screen">
+    <param name="package_name" value="diagnostic_aggregator" />
+    <param name="executable_name" value="aggregator_node" />
+    <rosparam param="params_list">[/diagnostic_aggregator/analyzers]</rosparam>
   </node>
 
+  <!-- Joint state publisher -->
   <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch">
       <arg name="publish_rate" value="$(arg joint_state_pub_frequency)"/>
     </include>
