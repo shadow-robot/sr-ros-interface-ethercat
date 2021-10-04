@@ -22,3 +22,8 @@
     uri: https://github.com/shadow-robot/common_resources.git
     version: 'noetic-devel'
     local-name: common_resources
+
+- git:
+    uri: https://github.com/shadow-robot/sr_hand_config.git
+    version: 'master'
+    local-name: sr_hand_config
