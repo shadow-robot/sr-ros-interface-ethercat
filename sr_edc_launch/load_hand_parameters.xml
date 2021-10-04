@@ -18,6 +18,7 @@
   <include file="$(find sr_hand_config)/common/launch/load_hand_controls.launch">
     <arg name="hand_serials_list" value="[$(arg hand_serial)]"/>
     <arg name="control_mode" value="$(arg control_mode)"/>
+    <arg name="name_prefix" value="$(arg hand_id)_"/>
   </include>
 
   <group if="$(arg use_ns)" ns="$(arg hand_id)">
