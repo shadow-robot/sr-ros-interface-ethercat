@@ -13,9 +13,12 @@
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
 
   <!-- Default controllers -->
-  <include file="$(find sr_ethercat_hand_config)/controls/sr_edc_default_controllers.launch">
-    <arg name="hand_id" value="$(arg hand_id)"/>
-    <arg name="pwm_control" value="$(arg pwm_control)"/>
+  <arg name="control_mode" value="pwm" if="$(arg pwm_control)"/>
+  <arg name="control_mode" value="torque" unless="$(arg pwm_control)"/>
+  <include file="$(find sr_hand_config)/common/launch/load_hand_controls.launch">
+    <arg name="hand_serials_list" value="[$(arg hand_serial)]"/>
+    <arg name="control_mode" value="$(arg control_mode)"/>
+    <arg name="name_prefix" value="$(arg hand_id)_"/>
   </include>
 
   <group if="$(arg use_ns)" ns="$(arg hand_id)">
@@ -24,8 +27,7 @@
          - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
     <param name="hand_id" value="$(arg hand_id)"/>
     <!-- These params are loaded here as they are not controllers in the sense of the controller_manager, and will be accessed by every hand driver inside its namespace -->
-    <rosparam command="load"
-              file="$(find sr_ethercat_hand_config)/controls/motors/$(arg hand_id)/motor_board_effort_controllers.yaml"/>
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/controls/motors/motor_board_effort_controllers.yaml"/>
 
     <!-- polling rates -->
     <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml"/>
@@ -46,7 +48,7 @@
          - the calibration and controller tuner plugins in the GUI will need to use it to deal with a namespaced realtime loop-->
     <param name="hand_id" value="$(arg hand_id)"/>
     <!-- These params are loaded here as they are not controllers in the sense of the controller_manager, and will be accessed by every hand driver inside its namespace -->
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/controls/motors/$(arg hand_id)/motor_board_effort_controllers.yaml" />
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/controls/motors/motor_board_effort_controllers.yaml"/>
 
     <!-- polling rates -->
     <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml"/>
