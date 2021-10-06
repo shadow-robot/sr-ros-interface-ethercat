@@ -46,7 +46,7 @@ namespace generic_updater
 /*
 * The Motor Updater builds the next command we want to send to the hand.
 * We can ask for different types of data at different rates. The data and
-* their rates are defined in the sr_ethercat_hand_config/rates/motor_data_polling.yaml
+* their rates are defined in the sr_hand_config/<hand_serial>/rates/motor_data_polling.yaml
 * The important data are refreshed as often as possible (they have a -1. refresh
 * rate in the config file).
 *
