@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 # Declare catkin package
 catkin_package(
-CATKIN_DEPENDS controller_interface sr_hardware_interface pluginlib sr_robot_msgs realtime_tools ros_ethercat_model sr_robot_lib
+CATKIN_DEPENDS controller_interface sr_hardware_interface pluginlib sr_robot_msgs realtime_tools roscpp ros_ethercat_model sr_robot_lib
 INCLUDE_DIRS include
 LIBRARIES ${PROJECT_NAME}
 )
