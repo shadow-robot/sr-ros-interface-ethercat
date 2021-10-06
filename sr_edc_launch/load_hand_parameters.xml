@@ -30,9 +30,9 @@
     <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/controls/motors/motor_board_effort_controllers.yaml"/>
 
     <!-- polling rates -->
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml"/>
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml"/>
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/muscle_data_polling.yaml"/>
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/rates/sensor_data_polling.yaml"/>
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/rates/motor_data_polling.yaml"/>
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/rates/muscle_data_polling.yaml"/>
 
     <!-- load parameters for the robot library -->
     <include file="$(find sr_robot_lib)/launch/sr_hand_lib.launch" >
@@ -51,9 +51,9 @@
     <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/controls/motors/motor_board_effort_controllers.yaml"/>
 
     <!-- polling rates -->
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/sensor_data_polling.yaml"/>
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/motor_data_polling.yaml"/>
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/rates/muscle_data_polling.yaml"/>
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/rates/sensor_data_polling.yaml"/>
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/rates/motor_data_polling.yaml"/>
+    <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/rates/muscle_data_polling.yaml"/>
 
     <!-- load parameters for the robot library -->
     <include file="$(find sr_robot_lib)/launch/sr_hand_lib.launch" >
