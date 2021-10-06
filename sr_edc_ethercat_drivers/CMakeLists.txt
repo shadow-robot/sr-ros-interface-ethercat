@@ -15,8 +15,8 @@ find_library(BFD_LIBRARY bfd)
 
 message(STATUS "Found libbfd: ${BFD_LIBRARY}")
 
-set( bfd_INCLUDE_DIRS ${bfd_INCLUDE_DIR} )
-set( bfd_LIBRARIES ${bfd_LIBRARY} )
+set( bfd_INCLUDE_DIRS ${BFD_INCLUDE_DIR} )
+set( bfd_LIBRARIES ${BFD_LIBRARY} )
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
