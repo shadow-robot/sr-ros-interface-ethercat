@@ -11,7 +11,7 @@ add_compile_options(-std=c++17)
 find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_robot_msgs sr_external_dependencies message_generation)
 find_package(Boost REQUIRED COMPONENTS)
 
-find_library(BFD_LIBRARY bfd)
+find_library(BFD_LIBRARY bfd REQUIRED)
 
 message(STATUS "Found libbfd: ${BFD_LIBRARY}")
 
