@@ -75,14 +75,15 @@ namespace shadow_robot
                                                     this)),
             lock_command_sending_(new boost::mutex())
   {
-    string hand_serial;
-    this->nh_tilde.template param<string>("hand_serial", hand_serial, "0");
+    int hand_serial;
+    this->nh_tilde.template param<int>("hand_serial", hand_serial, 0);
     ROS_WARN_STREAM("**********************" << hand_serial);
 
     // reading the parameters to check for a specified default control type
     // using FORCE control if no parameters are set
     string default_control_mode;
     this->nh_tilde.template param<string>("default_control_mode", default_control_mode, "FORCE");
+    ROS_WARN_STREAM("**********************" << default_control_mode);
     if (default_control_mode.compare("PWM") == 0)
     {
       control_type_.control_type = sr_robot_msgs::ControlType::PWM;
