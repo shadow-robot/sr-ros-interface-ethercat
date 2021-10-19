@@ -25,7 +25,6 @@
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>sr_external_dependencies</run_depend>
   <run_depend>sr_edc_ethercat_drivers</run_depend>
-  <run_depend>sr_edc_controller_configuration</run_depend>
   <run_depend>sr_edc_launch</run_depend>
   <run_depend>sr_edc_muscle_tools</run_depend>
   <run_depend>sr_robot_lib</run_depend>
