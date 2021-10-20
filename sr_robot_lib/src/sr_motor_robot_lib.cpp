@@ -1221,32 +1221,36 @@ namespace shadow_robot
   bool SrMotorRobotLib<StatusType, CommandType>::change_control_parameters(int16_t control_type)
   {
     bool success = true;
-    string env_variable;
+    string control_mode;
     string param_value;
 
     if (control_type == sr_robot_msgs::ControlType::PWM)
     {
-      env_variable = "PWM_CONTROL=1";
+      control_mode = "pwm";
       param_value = "PWM";
     }
     else
     {
-      env_variable = "PWM_CONTROL=0";
+      control_mode = "torque";
       param_value = "FORCE";
     }
 
     string arguments = "";
+    arguments += " control_mode:=" + control_mode;
 
-    // Read the hand_id prefix from the parameter server
-    // The hand_id will be passed as an argument to the sr_edc_default_controllers.launch
-    // so that the parameters in it will be read from the correct files
     string hand_id = "";
     this->nodehandle_.template param<string>("hand_id", hand_id, "");
     ROS_DEBUG("hand_id: %s", hand_id.c_str());
-    arguments += " hand_id:=" + hand_id;
+    arguments += " name_prefix:=" + hand_id + "_";
+
+    int hand_serial;
+    this->nh_tilde.template param<int>("hand_serial", hand_serial, 0);
+    ROS_DEBUG("hand_serial: %s", std::to_string(hand_serial).c_str());
+    arguments += " hand_serials_list:=[" + std::to_string(hand_serial) + "]";
+
     ROS_INFO("arguments: %s", arguments.c_str());
 
-    int result = system((env_variable + " roslaunch sr_ethercat_hand_config sr_edc_default_controllers.launch" +
+    int result = system(("roslaunch sr_hand_config load_hand_controls.launch" +
                          arguments).c_str());
 
     if (result == 0)

@@ -80,6 +80,7 @@
     <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
     <param unless="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="FORCE"/>
     <param name="use_ns" value="$(arg use_ns)"/>
+    <param name="$(arg hand_id)/hand_serial" value="$(arg hand_serial)"/>
     <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
   </node>
 
@@ -87,6 +88,7 @@
     <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
     <param unless="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="FORCE"/>
     <param name="use_ns" value="$(arg use_ns)"/>
+    <param name="$(arg hand_id)/hand_serial" value="$(arg hand_serial)"/>
     <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
   </node>
 

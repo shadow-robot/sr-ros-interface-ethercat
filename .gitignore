@@ -1,8 +1,3 @@
-sr_edc_controller_configuration/.cproject
-sr_edc_controller_configuration/.project
-sr_edc_controller_configuration/.pydevproject
-sr_edc_controller_configuration/build/
-sr_edc_controller_configuration/cmake_install.cmake
 sr_edc_ethercat_drivers/.cproject
 sr_edc_ethercat_drivers/.project
 sr_edc_ethercat_drivers/.pydevproject

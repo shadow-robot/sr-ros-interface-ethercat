@@ -1,7 +1,6 @@
 <launch>
   <!-- Defines the sub-directory used in
-       $(find sr_ethercat_hand_config)/mappings/
-       and $(find sr_ethercat_hand_config)/calibrations/
+       and $(find srhand_config)/<hand_serial>/calibrations/
        to know where to find the parameters for a certain hand.
        In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
        If it's not "" then it's usually "rh"  -->
