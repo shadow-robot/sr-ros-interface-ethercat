@@ -27,15 +27,17 @@ find_package(TinyXML2 REQUIRED)
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
+#catkin_lint: ignore env_var
+
 #if you compile with "DEBUG=1 make", some debug data are going to be published
 SET(debug $ENV{DEBUG})
 MESSAGE(STATUS "Shadow Robot EtherCAT driver configuration:")
 IF (DEFINED debug)
-    SET(CMAKE_CXX_FLAGS "-D DEBUG_PUBLISHER")
+    add_compile_definitions("-D DEBUG_PUBLISHER")
     MESSAGE(STATUS " [x] Debug publisher")
 ELSE(DEFINED debug)
     MESSAGE(STATUS " [ ] Debug publisher")
-ENDIF (DEFINED debug)
+ENDIF(DEFINED debug)
 
 catkin_python_setup()
 
@@ -78,7 +80,7 @@ add_library(sr_hand_lib
 )
 
 target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS}) 
+add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

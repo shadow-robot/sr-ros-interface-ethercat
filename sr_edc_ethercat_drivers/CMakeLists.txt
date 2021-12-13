@@ -11,12 +11,12 @@ add_compile_options(-std=c++17)
 find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_robot_msgs sr_external_dependencies message_generation)
 find_package(Boost REQUIRED COMPONENTS)
 
-find_library(BFD_LIBRARY bfd)
+find_library(BFD_LIBRARY bfd REQUIRED)
 
 message(STATUS "Found libbfd: ${BFD_LIBRARY}")
 
-set( bfd_INCLUDE_DIRS ${bfd_INCLUDE_DIR} )
-set( bfd_LIBRARIES ${bfd_LIBRARY} )
+set( bfd_INCLUDE_DIRS ${BFD_INCLUDE_DIR} )
+set( bfd_LIBRARIES ${BFD_LIBRARY} )
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
@@ -36,7 +36,7 @@ generate_messages(
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
         DEPENDS bfd
-        CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_external_dependencies message_runtime
+        CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_msgs sr_robot_lib ros_ethercat_hardware sr_external_dependencies message_runtime
         INCLUDE_DIRS include
         LIBRARIES sr_edc_ethercat_drivers
 )
