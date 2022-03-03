@@ -1,5 +1,5 @@
 <launch>
-  <arg name="robot_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro"/>
+  <arg name="robot_description" default="'$(find sr_description)/robots/sr_hand.urdf.xacro'"/>
   <rosparam command="load" file="$(find sr_edc_launch)/mappings/default_mappings/sensor_to_joint.yaml"/>
   <rosparam command="load" file="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
   <rosparam command="load" file="$(find sr_robot_lib)/test/config/calibration.yaml"/>

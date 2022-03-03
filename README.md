@@ -46,7 +46,7 @@ E.g. for a bimanual system:
     <arg name="rh_serial" value="1234" />
     <arg name="lh_serial" value="1235" />
     <arg name="eth_port" value="eth0_eth1" />
-    <arg name="robot_description" value="$(find sr_description)/robots/bimanual_shadowhand_motor.urdf.xacro" />
+    <arg name="robot_description" value="'$(find sr_description)/robots/sr_hand_bimanual.urdf.xacro'" />
   </include>
 </launch>
 ```
@@ -57,7 +57,7 @@ E.g. for a single hand system:
 <launch>
   <include file="$(find sr_edc_launch)/sr_edc.launch" >
     <arg name="eth_port" value="eth1" />
-    <arg name="robot_description" value="$(find sr_description)/robots/shadowhand_motor_biotac.urdf.xacro" />
+    <arg name="robot_description" value="'$(find sr_description)/robots/sr_hand.urdf.xacro'" />
   </include>
 </launch>
 ```

@@ -38,7 +38,7 @@
 
   <!-- ROBOT CONFIG-->
   <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
+  <arg name="robot_description" default="'$(find sr_description)/robots/sr_hand.urdf.xacro'"/>
   <arg name="load_robot_description_command" default="xacro $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z) arm_x_separation:=$(arg arm_x_separation) arm_y_separation:=$(arg arm_y_separation)" />
 
   <!-- Loads the robot description from the file passed as an argument -->
