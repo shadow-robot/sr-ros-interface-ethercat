@@ -6,7 +6,7 @@
   <arg name="load_robot_description" default="true"/>
 
   <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="'$(find sr_description)/robots/bimanual_shadowhand_motor.urdf.xacro'"/>
+  <arg name="robot_description" default="'$(find sr_description)/robots/sr_hand_bimanual.urdf.xacro'"/>
   <arg name="load_robot_description_command" default="xacro $(arg robot_description) arm_1_z:=$(arg arm_1_z) arm_2_z:=$(arg arm_2_z) arm_x_separation:=$(arg arm_x_separation) arm_y_separation:=$(arg arm_y_separation)" />
 
   <!-- HANDS CONFIG-->
