@@ -21,6 +21,5 @@
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>sr_hand</run_depend>
 
 </package>
