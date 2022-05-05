@@ -6,7 +6,7 @@
        If it's not "" then it's usually "rh"  -->
   <arg name="hand_id" default="rh"/>
   <!-- The ethercat serial number for the hand -->
-  <arg name="hand_serial" default="111"/>
+  <arg name="hand_serial" />
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
 
