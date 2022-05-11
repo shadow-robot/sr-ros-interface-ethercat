@@ -155,6 +155,11 @@ namespace shadow_robot
         joint.pos_filter_2 = sr_math_utils::filters::LowPassFilter(tau);
       }
 
+      full_param << act_name << "/effort_filter/tau";
+      this->nodehandle_.template param<float>(full_param.str(), tau, 0.05);
+      full_param.str("");
+      joint.effort_filter = sr_math_utils::filters::LowPassFilter(tau);
+
       if (actuator_ids[index] != -1)
       {
         joint.has_actuator = true;
