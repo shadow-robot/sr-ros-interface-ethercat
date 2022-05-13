@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2019 Shadow Robot Company Ltd.
 #
@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 import roslib
 import rospy
 
@@ -34,6 +35,7 @@ class Merger(object):
         msg_to_send.data = data.position[17] + data.position[18]
 
         self.publisher.publish(msg_to_send)
+
 
 if __name__ == '__main__':
     rospy.init_node("merger", anonymous=True)

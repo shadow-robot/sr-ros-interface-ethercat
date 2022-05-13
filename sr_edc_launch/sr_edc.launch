@@ -7,7 +7,7 @@
   <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
   <arg name="calibration_controllers" default="1"/>
   <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
+  <arg name="robot_description" default="'$(find sr_description)/robots/sr_hand.urdf.xacro'"/>
   <!-- The control mode PWM (true) or torque (false) -->
   <arg name="pwm_control" default="$(optenv PWM_CONTROL 1)"/>
   <!-- use ns or not -->
@@ -28,11 +28,11 @@
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param name="robot_description" command="xacro --inorder $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
+  <param name="robot_description" command="xacro $(arg robot_description) prefix:=$(arg hand_id)_ initial_z:=$(arg initial_z)"/>
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
-   
+
   <!-- The prefix used by the robot_state_publisher -->
   <arg name="tf_prefix" default="" />
 
@@ -42,6 +42,7 @@
     <arg name="pwm_control" value="$(arg pwm_control)"/>
     <arg name="use_ns" value="$(arg use_ns)" />
     <arg name="mapping_path" value="$(arg mapping_path)"/>
+    <arg name="hand_serial" value="$(arg hand_serial)"/>
   </include>
 
   <include file="$(find sr_edc_launch)/sr_edc.machine"/>
@@ -75,10 +76,17 @@
   </group>
 
   <!-- diagnostic aggregator for being able to see the results in the robot_monitor -->
-  <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
-    <rosparam command="load" file="$(find sr_ethercat_hand_config)/diagnostic_analyzer.yaml"/>
+  <include file="$(find sr_hand_config)/common/launch/load_diagnostic_analyzer.launch"  ns="diagnostic_aggregator">
+    <arg name="hand_serials_list" value="[$(arg hand_serial)]"/>
+  </include>
+
+  <node name="conditional_delayed_rostool_diagnostic_aggregator" pkg="sr_utilities_common" type="conditional_delayed_rostool.py" output="screen">
+    <param name="package_name" value="diagnostic_aggregator" />
+    <param name="executable_name" value="aggregator_node" />
+    <rosparam param="params_list">[/diagnostic_aggregator/analyzers]</rosparam>
   </node>
 
+  <!-- Joint state publisher -->
   <include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch">
     <arg name="publish_rate" value="$(arg joint_state_pub_frequency)"/>
   </include>
@@ -89,9 +97,10 @@
     <param name="tf_prefix" type="string" value="$(arg tf_prefix)"/>
   </node>
 
-  <!-- adding tactile state publisher using the tf prefix as a namespace -->
+  <!-- Adding tactile state publisher using the tf prefix as a namespace -->
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
-    <arg name="hand_id" value="$(arg hand_id)" />
+    <arg name="hand_id" value="$(arg hand_id)"/>
+    <arg name="hand_serial" value="$(arg hand_serial)"/>
   </include>
 
   <node name="teach_mode_node" pkg="sr_robot_launch" type="teach_mode_node" output="screen"/>

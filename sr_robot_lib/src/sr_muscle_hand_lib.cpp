@@ -36,6 +36,8 @@
 
 #include "sr_robot_lib/shadow_PSTs.hpp"
 
+#include <memory>
+
 
 using std::vector;
 using std::string;

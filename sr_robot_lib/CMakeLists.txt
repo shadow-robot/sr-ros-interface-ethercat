@@ -1,10 +1,10 @@
 # Catkin User Guide: http://www.ros.org/doc/groovy/api/catkin/html/user_guide/user_guide.html
 # Catkin CMake Standard: http://www.ros.org/doc/groovy/api/catkin/html/user_guide/standards.html
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(sr_robot_lib)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++17)
 
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS
@@ -27,15 +27,17 @@ find_package(TinyXML2 REQUIRED)
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
+#catkin_lint: ignore env_var
+
 #if you compile with "DEBUG=1 make", some debug data are going to be published
 SET(debug $ENV{DEBUG})
 MESSAGE(STATUS "Shadow Robot EtherCAT driver configuration:")
 IF (DEFINED debug)
-    SET(CMAKE_CXX_FLAGS "-D DEBUG_PUBLISHER")
+    add_compile_definitions("-D DEBUG_PUBLISHER")
     MESSAGE(STATUS " [x] Debug publisher")
 ELSE(DEFINED debug)
     MESSAGE(STATUS " [ ] Debug publisher")
-ENDIF (DEFINED debug)
+ENDIF(DEFINED debug)
 
 catkin_python_setup()
 
@@ -61,6 +63,7 @@ catkin_package(
 
 add_library(sr_hand_lib
         src/UBI0.cpp
+        src/MST.cpp
         src/biotac.cpp
         src/generic_tactiles.cpp
         src/generic_updater.cpp
@@ -77,7 +80,7 @@ add_library(sr_hand_lib
 )
 
 target_link_libraries(sr_hand_lib ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS}) 
+add_dependencies(sr_hand_lib ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

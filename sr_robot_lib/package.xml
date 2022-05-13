@@ -45,7 +45,7 @@
   <run_depend>sr_mechanism_model</run_depend>
   <run_depend>sr_external_dependencies</run_depend>
   <run_depend>sr_robot_msgs</run_depend>
-  <run_depend>sr_ethercat_hand_config</run_depend>
+  <run_depend>sr_edc_launch</run_depend>
   <run_depend>std_srvs</run_depend>
   <run_depend>diagnostic_updater</run_depend>
   <run_depend>realtime_tools</run_depend>

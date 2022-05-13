@@ -21,7 +21,7 @@
   <!-- Dependencies needed to compile this package. -->
 
   <!-- Dependencies needed after this package is compiled. -->
-  <run_depend>sr_ethercat_hand_config</run_depend>
+  <run_depend>sr_hand_config</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>diagnostic_aggregator</run_depend>
   <run_depend>diagnostic_updater</run_depend>
@@ -36,5 +36,10 @@
   <run_depend>sr_description</run_depend>
   <run_depend>sr_utilities_common</run_depend>
   <run_depend>sr_utilities</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
+  <!-- Adding sr_tactile_sensor_controller as suggested by catkin_lint
+       would generate a circular dependency
+  <run_depend>sr_tactile_sensor_controller</run_depend>
+  -->
 
 </package>

@@ -1,22 +1,22 @@
 # Catkin User Guide: http://www.ros.org/doc/groovy/api/catkin/html/user_guide/user_guide.html
 # Catkin CMake Standard: http://www.ros.org/doc/groovy/api/catkin/html/user_guide/standards.html
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(sr_edc_ethercat_drivers)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++17)
 
 # Load catkin and all dependencies required for this package
 # TODO: remove all from COMPONENTS that are not catkin packages.
 find_package(catkin REQUIRED COMPONENTS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_robot_msgs sr_external_dependencies message_generation)
 find_package(Boost REQUIRED COMPONENTS)
 
-find_library(BFD_LIBRARY bfd)
+find_library(BFD_LIBRARY bfd REQUIRED)
 
 message(STATUS "Found libbfd: ${BFD_LIBRARY}")
 
-set( bfd_INCLUDE_DIRS ${bfd_INCLUDE_DIR} )
-set( bfd_LIBRARIES ${bfd_LIBRARY} )
+set( bfd_INCLUDE_DIRS ${BFD_INCLUDE_DIR} )
+set( bfd_LIBRARIES ${BFD_LIBRARY} )
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
@@ -36,7 +36,7 @@ generate_messages(
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 catkin_package(
         DEPENDS bfd
-        CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_lib ros_ethercat_hardware sr_external_dependencies message_runtime
+        CATKIN_DEPENDS roscpp roslib std_msgs sr_robot_msgs sr_robot_lib ros_ethercat_hardware sr_external_dependencies message_runtime
         INCLUDE_DIRS include
         LIBRARIES sr_edc_ethercat_drivers
 )

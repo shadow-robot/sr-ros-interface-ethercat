@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2019 Shadow Robot Company Ltd.
 #
@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 import roslib
 import rospy
 from sr_robot_msgs.msg import sendupdate, joint
@@ -35,20 +36,21 @@ joint_names = ["thj1", "thj2", "thj3", "thj4", "thj5", "ffj0",
 joint_pubs = {}
 for jname in joint_names:
     topic = "/sh_" + jname + "_muscle_position_controller/command"
-    print topic
+    print(topic)
     joint_pubs[jname] = rospy.Publisher(topic, Float64, latch=True)
 
 
 def sendupdate(joints):
-    print "Sending:"
+    print("Sending:")
     for jname in joints:
         if jname not in joint_pubs:
-            print "\tJoint %s not found" % jname
+            print("\tJoint %s not found" % jname)
             return
         msg = Float64()
         msg.data = math.radians(float(joints[jname]))
-        print "\t" + jname + ": " + str(joints[jname])
+        print("\t" + jname + ": " + str(joints[jname]))
         joint_pubs[jname].publish(msg)
+
 
 rospy.init_node('example_sendupdate')
 
@@ -58,7 +60,7 @@ start_pose = {'ffj0': 27.0, 'ffj3': 0, 'ffj4': 0,
               'wrj1': 0, 'wrj2': 0
               }
 
-print "Start"
+print("Start")
 sendupdate(start_pose)
 rospy.sleep(2)
 

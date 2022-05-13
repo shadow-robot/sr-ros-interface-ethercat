@@ -1,11 +1,12 @@
 <launch>
   <!-- Defines the sub-directory used in
-       $(find sr_ethercat_hand_config)/mappings/
-       and $(find sr_ethercat_hand_config)/calibrations/
+       and $(find srhand_config)/<hand_serial>/calibrations/
        to know where to find the parameters for a certain hand.
        In case we only have one hand this parameter will normally be "", meaning that the desired params are in the root of those directories
        If it's not "" then it's usually "rh"  -->
   <arg name="hand_id" default="rh"/>
+  <!-- The ethercat serial number for the hand -->
+  <arg name="hand_serial" default="111"/>
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_E_v3.yaml"/>
 
@@ -14,8 +15,7 @@
   <!-- The joint_to_motor_mapping is different depending on the type of hand hand -->
   <rosparam command="load" file="$(arg mapping_path)" />
   <!-- The calibration of the position sensors is different for every hand -->
-  <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/calibration.yaml"/>
+  <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/calibrations/calibration.yaml"/>
   <!-- The calibration of the pressure sensors is different for every hand -->
-  <rosparam command="load"
-            file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/pressure_calibration.yaml"/>
+  <rosparam command="load" file="$(find sr_hand_config)/$(arg hand_serial)/calibrations/pressure_calibration.yaml"/>
 </launch>
