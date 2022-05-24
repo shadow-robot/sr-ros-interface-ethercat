@@ -39,6 +39,6 @@ while not rospy.is_shutdown():
     if status:
         status_string = (f"ffj3 position:{status.process_value} radians"
                          f" pressure0:{status.muscle_pressure_0}"
-                         f" pressure1:{status.muscle_pressure_1}" )
+                         f" pressure1:{status.muscle_pressure_1}")
         print(status_string)
     rate_speed.sleep()
