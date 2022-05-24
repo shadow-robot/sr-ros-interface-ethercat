@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
+# pylint: disable=C0103 # Needed for name of class and file.
 #
-# Copyright 2011 Shadow Robot Company Ltd.
+# Copyright 2011, 2022 Shadow Robot Company Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,12 +16,10 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import absolute_import
-import rospy
-
 import time
 import math
 import re
+import rospy
 
 from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState
@@ -29,7 +28,7 @@ from sr_robot_msgs.msg import EthercatDebug
 from sr_utilities.hand_finder import HandFinder
 
 
-class EtherCAT_Hand_Lib(object):
+class EtherCAT_Hand_Lib:
 
     """
     Useful python library to communicate with the etherCAT hand.
@@ -51,7 +50,7 @@ class EtherCAT_Hand_Lib(object):
         self.hand_finder = HandFinder()
         self.hand_params = self.hand_finder.get_hand_parameters()
         self.hand_id = ''
-        if len(self.hand_params.mapping) is not 0:
+        if len(self.hand_params.mapping) != 0:
             self.hand_id = next(iter(self.hand_params.mapping.values()))
         self.debug_subscriber = None
         self.joint_state_subscriber = None
@@ -84,7 +83,7 @@ class EtherCAT_Hand_Lib(object):
             pass
 
         for mapping in joint_to_sensor_mapping:
-            if mapping[0] is 1:
+            if mapping[0] == 1:
                 if "THJ5" in mapping[1][0]:
                     self.compounds["THJ5"] = [["THJ5A", mapping[1][1]],
                                               ["THJ5B", mapping[2][1]]]
@@ -148,11 +147,11 @@ class EtherCAT_Hand_Lib(object):
                 raise
         return value
 
-    def start_record(self, joint_name, callback):
+    def start_record(self, callback):
         self.record_js_callback = callback
 
-    def stop_record(self, joint_name):
-        self.callback = None
+    def stop_record(self):
+        self.record_js_callback = None
 
     def set_pid(self, joint_name, pid_parameters):
         """
@@ -174,7 +173,7 @@ class EtherCAT_Hand_Lib(object):
                                       pid_parameters["sign"])
 
     def debug_callback(self, msg):
-        if not(all(v == 0 for v in msg.sensors)):
+        if not all(v == 0 for v in msg.sensors):
             self.raw_values = msg.sensors
 
     def joint_state_callback(self, msg):
@@ -209,29 +208,33 @@ class EtherCAT_Hand_Lib(object):
 
     def get_raw_value_index(self, sensor_name):
         try:
+            return_value = None
             if sensor_name in list(self.compounds.keys()):
                 indices = []
                 for sub_compound in self.compounds[sensor_name]:
                     indices.append(self.sensors.index(sub_compound[0]))
-                return indices
+                return_value = indices
             else:
-                return self.sensors.index(sensor_name)
-        except Exception as e:
-            rospy.logerr("Error while getting the raw value index of sensor '{}': \n{}".format(sensor_name, e))
+                return_value = self.sensors.index(sensor_name)
+            return return_value
+        except Exception as exception:
+            rospy.logerr(f"Error while getting the raw value index of sensor '{sensor_name}': \n{exception}")
             return None
 
     def get_compound_names(self, sensor_name):
         try:
+            return_value = None
             if sensor_name in list(self.compounds.keys()):
                 names = []
                 for sub_compound in self.compounds[sensor_name]:
                     names.append(sub_compound[0])
-                return names
+                return_value = names
             else:
-                rospy.logwarn("{} is not a multi-sensor joint, returning joint name.".format(sensor_name))
-                return sensor_name
-        except Exception as e:
-            rospy.logerr("Error while getting the sensor names of compound sensor '{}': \n{}".format(sensor_name, e))
+                rospy.logwarn(f"{sensor_name} is not a multi-sensor joint, returning joint name.")
+                return_value = sensor_name
+            return return_value
+        except Exception as exception:
+            rospy.logerr(f"Error while getting the sensor names of compound sensor '{sensor_name}': \n{exception}")
             return None
 
     def get_average_raw_value(self, sensor_name, number_of_samples=10, accept_zeros=True):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2019 Shadow Robot Company Ltd.
+# Copyright 2019, 2022 Shadow Robot Company Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -14,17 +14,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-import roslib
-import rospy
-from sr_robot_msgs.msg import sendupdate, joint
-from std_msgs.msg import Float64
 import math
+import rospy
+from sr_robot_msgs.msg import sendupdate
+from std_msgs.msg import Float64
 
-#
 # Small demo of moving a number of joints together.
 # Flexes the 2 fingers and then waves the wrist.
-#
 
 
 # We set up all the publishers needed for all joints in a dict and create a simple
@@ -40,16 +36,16 @@ for jname in joint_names:
     joint_pubs[jname] = rospy.Publisher(topic, Float64, latch=True)
 
 
-def sendupdate(joints):
+def sendupdate(joints):  # pylint: disable=E0102
     print("Sending:")
-    for jname in joints:
-        if jname not in joint_pubs:
-            print("\tJoint %s not found" % jname)
+    for jointname in joints:
+        if jointname not in joint_pubs:
+            print(f"\tJoint {jointname} not found")
             return
         msg = Float64()
-        msg.data = math.radians(float(joints[jname]))
-        print("\t" + jname + ": " + str(joints[jname]))
-        joint_pubs[jname].publish(msg)
+        msg.data = math.radians(float(joints[jointname]))
+        print(f"\t{jointname}: {str(joints[jointname])}")
+        joint_pubs[jointname].publish(msg)
 
 
 rospy.init_node('example_sendupdate')
