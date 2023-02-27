@@ -41,6 +41,7 @@ extern "C"
 {
 #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
 #include <sr_external_dependencies/external/0240_palm_edc_IMU/0240_palm_edc_IMU_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0250_palm_edc_IMU_MST/0250_palm_edc_IMU_ethercat_protocol.h>
 }
 
 namespace generic_updater

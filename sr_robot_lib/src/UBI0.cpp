@@ -240,6 +240,9 @@ namespace tactiles
   template
   class UBI0<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
 
+  template
+  class UBI0<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
+
 }  // namespace tactiles
 
 /* For the emacs weenies in the crowd.

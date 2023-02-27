@@ -46,14 +46,14 @@
 
 #include "../0220_palm_edc/0220_palm_edc_ethercat_protocol.h"
 
-#define  IMU_COMMAND_NONE        0
-#define  IMU_COMMAND_SET_SCALE   1
+// #define  IMU_COMMAND_NONE        0
+// #define  IMU_COMMAND_SET_SCALE   1
 
-typedef struct
-{
-  int16u command;
-  int8u  argument[2];
-} IMU_COMMAND_TYPE;
+// typedef struct
+// {
+//   int16u command;
+//   int8u  argument[2];
+// } IMU_COMMAND_TYPE;
 
 //! These are the data sent from the Palm to the host.
 typedef struct

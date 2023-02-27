@@ -30,6 +30,7 @@
 #include <boost/smart_ptr.hpp>
 #include <iostream>
 #include <vector>
+#include <ros/console.h>
 
 namespace generic_updater
 {
@@ -44,6 +45,9 @@ namespace generic_updater
   operation_mode::device_update_state::DeviceUpdateState SensorUpdater<CommandType>::build_init_command(
           CommandType *command)
   {
+    if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+      ros::console::notifyLoggerLevelsChanged();
+    }
     if (!this->mutex->try_lock())
     {
       return this->update_state;
@@ -65,8 +69,8 @@ namespace generic_updater
 
         // initialization data
         command->tactile_data_type = this->initialization_configs_vector[this->which_data_to_request].what_to_update;
-        ROS_DEBUG_STREAM("Updating sensor initialization data type: " << command->tactile_data_type << " | [" <<
-                         this->which_data_to_request << "/" << this->initialization_configs_vector.size() << "] ");
+        // ROS_DEBUG_STREAM("Updating sensor initialization data type: " << command->tactile_data_type << " | [" <<
+                        //  this->which_data_to_request << "/" << this->initialization_configs_vector.size() << "] ");
       }
     }
     else
@@ -75,12 +79,12 @@ namespace generic_updater
       // (after that we use build_command instead of build_init_command)
       // we use the TACTILE_SENSOR_TYPE_WHICH_SENSORS message, which is supposed to be always implemented
       // This is to avoid sending a random command (initialization_configs_vector is empty at this time)
-      ROS_DEBUG_STREAM("Important data size: " << this->important_update_configs_vector.size());
+      // ROS_DEBUG_STREAM("Important data size: " << this->important_update_configs_vector.size());
 
 
       command->tactile_data_type = TACTILE_SENSOR_TYPE_WHICH_SENSORS;
-      ROS_DEBUG_STREAM("Updating sensor initialization data type: " << command->tactile_data_type << " | [" <<
-                       this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
+      // ROS_DEBUG_STREAM("Updating sensor initialization data type: " << command->tactile_data_type << " | [" <<
+                      //  this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
     }
     this->mutex->unlock();
 
@@ -111,15 +115,15 @@ namespace generic_updater
       command->tactile_data_type = this->unimportant_data_queue.front();
       this->unimportant_data_queue.pop();
 
-      ROS_DEBUG_STREAM("Updating sensor unimportant data type: " << command->tactile_data_type << " | queue size: " <<
-                       this->unimportant_data_queue.size());
+      // ROS_DEBUG_STREAM("Updating sensor unimportant data type: " << command->tactile_data_type << " | queue size: " <<
+                      //  this->unimportant_data_queue.size());
     }
     else
     {
       // important data to update as often as possible
       command->tactile_data_type = this->important_update_configs_vector[this->which_data_to_request].what_to_update;
-      ROS_DEBUG_STREAM("Updating sensor important data type: " << command->tactile_data_type << " | [" <<
-                       this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
+      // ROS_DEBUG_STREAM("Updating sensor important data type: " << command->tactile_data_type << " | [" <<
+                      //  this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
     }
 
     this->mutex->unlock();
@@ -149,6 +153,9 @@ namespace generic_updater
 
   template
   class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 
   template
   class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;

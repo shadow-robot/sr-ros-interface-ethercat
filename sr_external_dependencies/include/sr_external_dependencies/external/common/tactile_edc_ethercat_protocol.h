@@ -108,7 +108,8 @@ typedef enum                                                            // Data 
 {
     TACTILE_SENSOR_TYPE_MST_INVALID                    = 0x0000,
     TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION         = 0x0001,
-    TACTILE_SENSOR_TYPE_MST_TEMPERATURE                = 0x0002
+    TACTILE_SENSOR_TYPE_MST_TEMPERATURE                = 0x0002,
+    TACTILE_SENSOR_TYPE_MST_MAGNETIC_AND_TEMPERATURE   = 0x0003
 }FROM_TACTILE_SENSOR_TYPE_MST;
 
 typedef enum                                                            // Data you can request from BioTacs
@@ -185,6 +186,16 @@ typedef union
     int16u  word[TACTILE_DATA_LENGTH_WORDS_v2];                            //!< As yet unspecified
     char    string[TACTILE_DATA_LENGTH_BYTES_v2];
 }TACTILE_SENSOR_STATUS_v2;
+
+// Length for 17 taxel-MST tactile sensors
+#define TACTILE_DATA_LENGTH_BYTES_v3   32
+#define TACTILE_DATA_LENGTH_WORDS_v3   (TACTILE_DATA_LENGTH_BYTES_v3/2)
+
+typedef union
+{
+    int16u  word[TACTILE_DATA_LENGTH_WORDS_v3];
+    char    string[TACTILE_DATA_LENGTH_BYTES_v3];
+}TACTILE_SENSOR_STATUS_v3;
 
 typedef struct
 {

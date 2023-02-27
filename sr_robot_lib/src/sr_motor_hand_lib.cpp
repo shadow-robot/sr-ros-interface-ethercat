@@ -570,6 +570,9 @@ namespace shadow_robot
   template
   class SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
 
+  template
+  class SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
+
 
 }  // namespace shadow_robot
 

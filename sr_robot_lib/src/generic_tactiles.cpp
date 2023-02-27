@@ -29,6 +29,8 @@
 #include <cctype>
 #include <string>
 #include <vector>
+#include <ros/console.h>
+
 
 // NOTE: The length used in this generic tactile class (that is used to obtain common information to determine
 // the actual type of tactile sensors)
@@ -71,6 +73,11 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void GenericTactiles<StatusType, CommandType>::update(StatusType *status_data)
   {
+    if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+      ros::console::notifyLoggerLevelsChanged();
+    }
+    // ROS_DEBUG_STREAM(">> GenericTactiles::UPDATE()");
+
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
     // @todo use memcopy instead?
     for (unsigned int id_sensor = 0; id_sensor < nb_tactiles; ++id_sensor)
@@ -155,13 +162,19 @@ namespace tactiles
       if (sensor_updater->initialization_configs_vector.size() == 0)
       {
         sensor_updater->update_state = operation_mode::device_update_state::OPERATION;
+        // ROS_DEBUG_STREAM("<< GenericTactiles::UPDATE() with update_status = " << "OPERATION");
+
       }
+      // ROS_DEBUG_STREAM("<< GenericTactiles::UPDATE() with update_status = " << "INITIALIZATION");
+
     }
   }
 
   template<class StatusType, class CommandType>
   void GenericTactiles<StatusType, CommandType>::process_received_data_type(int32u data)
   {
+    ROS_DEBUG_STREAM(">> GenericTactiles::process_received_data_type()");
+
     unsigned int i;
     for (i = 0; i < sensor_updater->initialization_configs_vector.size(); i++)
     {
@@ -173,7 +186,12 @@ namespace tactiles
     if (i < sensor_updater->initialization_configs_vector.size())
     {
       sensor_updater->initialization_configs_vector.erase(sensor_updater->initialization_configs_vector.begin() + i);
+      ROS_DEBUG_STREAM("     Erasing value from initialization_configs_vector");
+
     }
+
+    ROS_DEBUG_STREAM("<< GenericTactiles::process_received_data_type()");
+
   }
 
   template<class StatusType, class CommandType>
@@ -248,6 +266,9 @@ namespace tactiles
 
   template
   class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 
   template
   class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;

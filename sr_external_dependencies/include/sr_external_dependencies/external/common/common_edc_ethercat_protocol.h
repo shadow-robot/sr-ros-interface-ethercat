@@ -56,7 +56,14 @@ typedef enum
     //EDC_COMMAND_TEST_RESULTS,                                   //!< Might be used in the future for running automated tests inside the firmware.
 }EDC_COMMAND;
 
+typedef struct
+{
+  int16u command;
+  int8u  argument[2];
+} IMU_COMMAND_TYPE;
 
+#define  IMU_COMMAND_NONE        0
+#define  IMU_COMMAND_SET_SCALE   1
 
 #ifndef NO_STRINGS													                        // The PIC compiler doesn't deal well with strings.
 

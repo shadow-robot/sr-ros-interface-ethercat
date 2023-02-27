@@ -29,6 +29,11 @@
       SR09 etherCAT driver (IMU)
     </description>
   </class>
+  <class name="10" type="SR10" base_class_type="EthercatDevice">
+    <description>
+      SR10 etherCAT driver (IMU + MST)
+    </description>
+  </class>
   <class name="16777218" type="SrEdcMuscle" base_class_type="EthercatDevice">
     <description>
       SrEdcMuscle etherCAT driver (right hand)

@@ -29,6 +29,7 @@
 #include <boost/foreach.hpp>
 #include <iostream>
 #include <vector>
+#include <ros/console.h>
 
 namespace generic_updater
 {
@@ -39,12 +40,20 @@ namespace generic_updater
           update_configs_vector)
   {
     mutex = boost::shared_ptr<boost::mutex>(new boost::mutex());
+    if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+      ros::console::notifyLoggerLevelsChanged();
+    }
+
+    ROS_DEBUG_STREAM(">> GenericUpdater()");
+
 
     BOOST_FOREACH(UpdateConfig config, update_configs_vector)
           {
             if (config.when_to_update == -2.0)
             {
               initialization_configs_vector.push_back(config);
+              ROS_DEBUG_STREAM("   Adding value to initialization_configs_vector: " << config.what_to_update);
+
             }
             else if (config.when_to_update != -1.0)
             {
@@ -70,6 +79,8 @@ namespace generic_updater
       ROS_INFO_STREAM("No init command. Switching to operation");
       update_state = operation_mode::device_update_state::OPERATION;
     }
+    ROS_DEBUG_STREAM("<< GenericUpdater()");
+
   }
 
   template<class CommandType>
@@ -93,6 +104,9 @@ namespace generic_updater
 
   template
   class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 
   template
   class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;
