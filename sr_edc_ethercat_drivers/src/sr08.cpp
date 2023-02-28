@@ -38,8 +38,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <pthread.h>
-#include <ros/console.h>
-
 
 #include <sr_utilities/sr_math_utils.hpp>
 
@@ -149,10 +147,6 @@ int SR08::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
     return retval;
   }
 
-  if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-      ros::console::notifyLoggerLevelsChanged();
-  }
-
   sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND> >(
           new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_STATUS,
@@ -235,10 +229,6 @@ void SR08::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsi
 void SR08::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
-
-  if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-   ros::console::notifyLoggerLevelsChanged();
-  }
 
   ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *command =
           reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0230_PALM_EDC_COMMAND *>(buffer);

@@ -64,7 +64,7 @@ typedef struct
 
   int32u                      tactile_data_type;                  //!<           4 bytes
   int16u                      tactile_data_valid;                 //!<           2 bytes          (Bit 0: FF. Bit 4: TH.)
-  TACTILE_SENSOR_STATUS_v3    tactile[5];                         // 104*5 = 520 bytes
+  TACTILE_SENSOR_STATUS_v2    tactile[5];                         // 32 * 5 = 160 ; 104*5 = 520 bytes
                                                                   //!< TOTAL = 396 bytes
 
   int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT

@@ -41,7 +41,6 @@
 #include "sr_robot_lib/MST.hpp"
 #include <controller_manager_msgs/ListControllers.h>
 #include <sr_robot_lib/motor_updater.hpp>
-#include <ros/console.h>
 
 #define SERIOUS_ERROR_FLAGS PALM_0200_EDC_SERIOUS_ERROR_FLAGS
 #define error_flag_names palm_0200_edc_error_flag_names
@@ -81,7 +80,7 @@ namespace shadow_robot
 #endif
 
   template <class StatusType, class CommandType>
-  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 40;
+  const int SrRobotLib<StatusType, CommandType>::nb_sensor_data = 39;
 
   template <class StatusType, class CommandType>
   const char *SrRobotLib<StatusType, CommandType>::human_readable_sensor_data_types[nb_sensor_data] =
@@ -124,8 +123,7 @@ namespace shadow_robot
           "TACTILE_SENSOR_TYPE_BIOTAC_TDC",
           "TACTILE_SENSOR_TYPE_UBI0_TACTILE",
           "TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION",
-          "TACTILE_SENSOR_TYPE_MST_TEMPERATURE",
-          "TACTILE_SENSOR_TYPE_MST_MAGNETIC_AND_TEMPERATURE"
+          "TACTILE_SENSOR_TYPE_MST_TEMPERATURE"
         };
 
   template <class StatusType, class CommandType>
@@ -169,8 +167,7 @@ namespace shadow_robot
           TACTILE_SENSOR_TYPE_BIOTAC_TDC,
           TACTILE_SENSOR_TYPE_UBI0_TACTILE,
           TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION,
-          TACTILE_SENSOR_TYPE_MST_TEMPERATURE,
-          TACTILE_SENSOR_TYPE_MST_MAGNETIC_AND_TEMPERATURE
+          TACTILE_SENSOR_TYPE_MST_TEMPERATURE
     };
 
   template<class StatusType, class CommandType>
@@ -244,9 +241,9 @@ namespace shadow_robot
             coupled_calibration_map(read_coupled_joint_calibration())
   {
       std::vector<std::string> calibration_map_keys = calibration_map.keys();
-      if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-      ros::console::notifyLoggerLevelsChanged();
-        }
+      // if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+      // ros::console::notifyLoggerLevelsChanged();
+      //   }
       for (auto & coupled_calibration : coupled_calibration_map)
       {
         if (std::find(calibration_map_keys.begin(),
@@ -291,7 +288,7 @@ namespace shadow_robot
     // Mutual exclusion with the the initialization timeout
     boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
 
-    // ROS_WARN_STREAM(">> Build_tactile_command(): tactile_current_state is: " << tactile_current_state);
+    ROS_WARN_STREAM(">> Build_tactile_command(): tactile_current_state is: " << tactile_current_state);
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
       if (tactiles_init->sensor_updater->build_init_command(command)

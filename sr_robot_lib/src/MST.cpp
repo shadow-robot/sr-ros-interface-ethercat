@@ -36,9 +36,6 @@ namespace tactiles
                                       boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
           : GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
   {
-    if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-      ros::console::notifyLoggerLevelsChanged();
-    }
     diagnostic_data = *init_tactiles_vector;
     publisher = std::make_shared<ros::Publisher>(nh.advertise<sr_robot_msgs::MSTPalm>("mst", 1));
   }
@@ -94,29 +91,28 @@ namespace tactiles
               sensor_data.fingers[id_sensor].sensors[i].temperature =
                 status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
                 (uint8_t)status_data->tactile[id_sensor].string[i * 2];
-              ROS_DEBUG_STREAM("Sensor Temperature " << status_data->tactile[id_sensor].string);
             }
           }
           break;
 
-        case TACTILE_SENSOR_TYPE_MST_MAGNETIC_AND_TEMPERATURE:
-          if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
-          {
-            for (int i = 0; i < NUMBER_OF_SENSORS; i++)
-            {
-              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x = read12bits(
-                status_data->tactile[id_sensor].string, i * 3);
-              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y = read12bits(
-                status_data->tactile[id_sensor].string, i * 3 + 1);
-              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z = read12bits(
-                status_data->tactile[id_sensor].string, i * 3 + 2);
-              // Temperature is send as little-endian value
-              sensor_data.fingers[id_sensor].sensors[i].temperature =
-                status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
-                (uint8_t)status_data->tactile[id_sensor].string[i * 2];
-            }
-          }
-          break;
+        // case TACTILE_SENSOR_TYPE_MST_MAGNETIC_AND_TEMPERATURE:
+        //   if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
+        //   {
+        //     for (int i = 0; i < NUMBER_OF_SENSORS; i++)
+        //     {
+        //       sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x = read12bits(
+        //         status_data->tactile[id_sensor].string, i * 3);
+        //       sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y = read12bits(
+        //         status_data->tactile[id_sensor].string, i * 3 + 1);
+        //       sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z = read12bits(
+        //         status_data->tactile[id_sensor].string, i * 3 + 2);
+        //       // Temperature is send as little-endian value
+        //       sensor_data.fingers[id_sensor].sensors[i].temperature =
+        //         status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
+        //         (uint8_t)status_data->tactile[id_sensor].string[i * 2];
+        //     }
+        //   }
+        //   break;
       }
     }
   }
@@ -126,17 +122,17 @@ namespace tactiles
   {
 
     sensor_data.header.stamp = ros::Time::now();
-    ROS_DEBUG("Publishing sensor data: ");
-    for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
-    {
-      for (int i = 0; i < NUMBER_OF_SENSORS; i++)
-      {
-        ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": X_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x);
-        ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": Y_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y);
-        ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": Z_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z);
-      }
-    }
     publisher->publish(sensor_data);
+    // ROS_DEBUG("Publishing sensor data: ");
+    // for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
+    // {
+      // for (int i = 0; i < NUMBER_OF_SENSORS; i++)
+      // {
+      //   ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": X_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x);
+      //   ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": Y_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y);
+      //   ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": Z_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z);
+      // }
+    // }
   }
 
   template<class StatusType, class CommandType>

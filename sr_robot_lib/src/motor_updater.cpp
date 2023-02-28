@@ -73,8 +73,8 @@ namespace generic_updater
       command->from_motor_data_type =
               static_cast<FROM_MOTOR_DATA_TYPE>(
                       this->initialization_configs_vector[this->which_data_to_request].what_to_update);
-      // ROS_DEBUG_STREAM("Updating initialization data type: " << command->from_motor_data_type << " | [" <<
-                      //  this->which_data_to_request << "/" << this->initialization_configs_vector.size() << "] ");
+      ROS_DEBUG_STREAM("Updating initialization data type: " << command->from_motor_data_type << " | [" <<
+                       this->which_data_to_request << "/" << this->initialization_configs_vector.size() << "] ");
     }
     else
     {
@@ -85,8 +85,8 @@ namespace generic_updater
       command->which_motors = 0;
       command->from_motor_data_type =
               static_cast<FROM_MOTOR_DATA_TYPE>(this->important_update_configs_vector[0].what_to_update);
-      // ROS_DEBUG_STREAM("Updating important data type: " << command->from_motor_data_type << " | [" <<
-      //                  this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
+      ROS_DEBUG_STREAM("Updating important data type: " << command->from_motor_data_type << " | [" <<
+                       this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
     }
 
     this->mutex->unlock();
@@ -127,8 +127,8 @@ namespace generic_updater
       command->from_motor_data_type = static_cast<FROM_MOTOR_DATA_TYPE>(this->unimportant_data_queue.front());
       this->unimportant_data_queue.pop();
 
-      // ROS_DEBUG_STREAM("Updating unimportant data type: " << command->from_motor_data_type << " | queue size: " <<
-      //                  this->unimportant_data_queue.size());
+      ROS_DEBUG_STREAM("Updating unimportant data type: " << command->from_motor_data_type << " | queue size: " <<
+                       this->unimportant_data_queue.size());
     }
     else
     {
@@ -136,8 +136,8 @@ namespace generic_updater
       command->from_motor_data_type =
               static_cast<FROM_MOTOR_DATA_TYPE>(
                       this->important_update_configs_vector[this->which_data_to_request].what_to_update);
-      // ROS_DEBUG_STREAM("Updating important data type: " << command->from_motor_data_type << " | [" <<
-      //                  this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
+      ROS_DEBUG_STREAM("Updating important data type: " << command->from_motor_data_type << " | [" <<
+                       this->which_data_to_request << "/" << this->important_update_configs_vector.size() << "] ");
     }
 
     this->mutex->unlock();

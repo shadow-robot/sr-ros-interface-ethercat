@@ -73,9 +73,9 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void GenericTactiles<StatusType, CommandType>::update(StatusType *status_data)
   {
-    if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-      ros::console::notifyLoggerLevelsChanged();
-    }
+    // if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+    //   ros::console::notifyLoggerLevelsChanged();
+    // }
     // ROS_DEBUG_STREAM(">> GenericTactiles::UPDATE()");
 
     int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);

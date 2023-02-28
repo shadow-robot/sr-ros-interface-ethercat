@@ -188,7 +188,7 @@ typedef union
 }TACTILE_SENSOR_STATUS_v2;
 
 // Length for 17 taxel-MST tactile sensors
-#define TACTILE_DATA_LENGTH_BYTES_v3   32
+#define TACTILE_DATA_LENGTH_BYTES_v3   104
 #define TACTILE_DATA_LENGTH_WORDS_v3   (TACTILE_DATA_LENGTH_BYTES_v3/2)
 
 typedef union

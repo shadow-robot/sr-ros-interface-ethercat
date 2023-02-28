@@ -40,9 +40,9 @@ namespace generic_updater
           update_configs_vector)
   {
     mutex = boost::shared_ptr<boost::mutex>(new boost::mutex());
-    if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-      ros::console::notifyLoggerLevelsChanged();
-    }
+    // if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+    //   ros::console::notifyLoggerLevelsChanged();
+    // }
 
     ROS_DEBUG_STREAM(">> GenericUpdater()");
 

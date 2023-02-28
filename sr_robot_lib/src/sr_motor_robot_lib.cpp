@@ -952,7 +952,7 @@ namespace shadow_robot
       PartialJointToSensor joint_to_sensor;
       string sensor_name;
 
-      // ROS_DEBUG_STREAM("Combining actuator " << joint_tmp->joint_name);
+      ROS_DEBUG_STREAM("Combining actuator " << joint_tmp->joint_name);
 
       for (unsigned int index_joint_to_sensor = 0;
            index_joint_to_sensor < joint_tmp->joint_to_sensor.joint_to_sensor_vector.size();
@@ -998,10 +998,10 @@ namespace shadow_robot
 
         calibrated_position += tmp_cal_value * joint_to_sensor.coeff;
 
-        // ROS_DEBUG_STREAM("      -> " << sensor_name << " raw = " << raw_pos << " calibrated = " << calibrated_position);
+        ROS_DEBUG_STREAM("      -> " << sensor_name << " raw = " << raw_pos << " calibrated = " << calibrated_position);
       }
       actuator->motor_state_.position_unfiltered_ = calibrated_position;
-      // ROS_DEBUG_STREAM("          => " << actuator->motor_state_.position_unfiltered_);
+      ROS_DEBUG_STREAM("          => " << actuator->motor_state_.position_unfiltered_);
     }
   }  // end calibrate_joint()
 
