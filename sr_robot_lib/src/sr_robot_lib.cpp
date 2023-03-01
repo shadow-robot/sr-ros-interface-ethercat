@@ -288,7 +288,7 @@ namespace shadow_robot
     // Mutual exclusion with the the initialization timeout
     boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
 
-    ROS_WARN_STREAM(">> Build_tactile_command(): tactile_current_state is: " << tactile_current_state);
+    ROS_DEBUG_STREAM(">> Build_tactile_command(): tactile_current_state is: " << tactile_current_state);
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
       if (tactiles_init->sensor_updater->build_init_command(command)
