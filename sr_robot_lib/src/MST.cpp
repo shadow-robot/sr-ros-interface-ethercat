@@ -25,7 +25,7 @@
 #include <ros/console.h>
 
 
-#define NUMBER_OF_SENSORS 7
+#define NUMBER_OF_SENSORS 12
 
 namespace tactiles
 {
@@ -84,13 +84,13 @@ namespace tactiles
 
             for (int i = 0; i < NUMBER_OF_SENSORS; i++)
             {
-              // sensor_data.fingers[id_sensor].sensors[i].temperature =
-              //   read12bits(status_data->tactile[id_sensor].string, 1+i) // To skip PSoC temperature
+              sensor_data.fingers[id_sensor].sensors[i].temperature =
+                read12bits(status_data->tactile[id_sensor].string, 1+i); // +1 To skip PSoC temperature
               
               // Temperature is send as little-endian value
-              sensor_data.fingers[id_sensor].sensors[i].temperature =
-                status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
-                (uint8_t)status_data->tactile[id_sensor].string[i * 2];
+              // sensor_data.fingers[id_sensor].sensors[i].temperature =
+              //   status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
+              //   (uint8_t)status_data->tactile[id_sensor].string[i * 2];
             }
           }
           break;
@@ -123,16 +123,15 @@ namespace tactiles
 
     sensor_data.header.stamp = ros::Time::now();
     publisher->publish(sensor_data);
-    // ROS_DEBUG("Publishing sensor data: ");
-    // for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
-    // {
-      // for (int i = 0; i < NUMBER_OF_SENSORS; i++)
-      // {
-      //   ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": X_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x);
-      //   ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": Y_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y);
-      //   ROS_DEBUG_STREAM("Sensor " << id_sensor <<": Taxel : " << i << ": Z_data: "<< sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z);
-      // }
-    // }
+    ROS_WARN("Publishing sensor data: ");
+    for (int i = 0; i < NUMBER_OF_SENSORS; i++)
+    {
+      ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": X_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_x);
+      ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": Y_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_y);
+      ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": Z_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_z);
+      ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": temp: "<< sensor_data.fingers[3].sensors[i].temperature);
+    }
+
   }
 
   template<class StatusType, class CommandType>

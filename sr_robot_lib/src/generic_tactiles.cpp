@@ -95,7 +95,7 @@ namespace tactiles
               tactiles_vector->at(id_sensor).which_sensor =
                       static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
             }
-            ROS_DEBUG_STREAM(" tact[" << id_sensor << "] = " << tactiles_vector->at(id_sensor).which_sensor);
+            ROS_WARN_STREAM(" tact[" << id_sensor << "] = " << tactiles_vector->at(id_sensor).which_sensor);
           }
           break;
 
@@ -107,6 +107,7 @@ namespace tactiles
               tactiles_vector->at(id_sensor).sample_frequency =
                       static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
             }
+            ROS_WARN_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ = " << tactiles_vector->at(id_sensor).sample_frequency);
           }
           break;
 
@@ -117,6 +118,8 @@ namespace tactiles
             tactiles_vector->at(id_sensor).manufacturer = sanitise_string(status_data->tactile[id_sensor].string,
                                                                           TACTILE_DATA_LENGTH_BYTES);
           }
+          ROS_WARN_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_MANUFACTURER = " << tactiles_vector->at(id_sensor).manufacturer);
+
         }
           break;
 
@@ -127,6 +130,8 @@ namespace tactiles
             tactiles_vector->at(id_sensor).serial_number = sanitise_string(status_data->tactile[id_sensor].string,
                                                                            TACTILE_DATA_LENGTH_BYTES);
           }
+          ROS_WARN_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_SERIAL_NUMBER = " << tactiles_vector->at(id_sensor).serial_number);
+
         }
           break;
 
@@ -137,6 +142,7 @@ namespace tactiles
             {
               tactiles_vector->at(id_sensor).set_software_version(status_data->tactile[id_sensor].string);
             }
+          ROS_WARN_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_SOFTWARE_VERSION = " << status_data->tactile[id_sensor].string);
           }
           break;
 
@@ -148,6 +154,7 @@ namespace tactiles
               tactiles_vector->at(id_sensor).pcb_version = sanitise_string(status_data->tactile[id_sensor].string,
                                                                            TACTILE_DATA_LENGTH_BYTES);
             }
+          ROS_WARN_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_PCB_VERSION = " << tactiles_vector->at(id_sensor).pcb_version);
           }
           break;
 

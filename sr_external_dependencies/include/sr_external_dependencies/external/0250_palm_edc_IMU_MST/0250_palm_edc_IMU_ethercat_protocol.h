@@ -64,7 +64,7 @@ typedef struct
 
   int32u                      tactile_data_type;                  //!<           4 bytes
   int16u                      tactile_data_valid;                 //!<           2 bytes          (Bit 0: FF. Bit 4: TH.)
-  TACTILE_SENSOR_STATUS_v2    tactile[5];                         // 32 * 5 = 160 ; 104*5 = 520 bytes
+  TACTILE_SENSOR_STATUS_v3    tactile[5];                         // 32 * 5 = 160 ; 104*5 = 520 bytes
                                                                   //!< TOTAL = 396 bytes
 
   int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
@@ -106,7 +106,7 @@ typedef struct
                                                 //  64-bit machine or something. So we have these calculated sizes.
                                                 //  The host and slave can ASSERT that the sizeof() the packets
                                                 //  matches the agreed sizes.
-#define ETHERCAT_STATUS_0250_AGREED_SIZE     312//Before was  232! This is the size of the Status  EtherCAT packet (Status + CAN packet) 
+#define ETHERCAT_STATUS_0250_AGREED_SIZE     422//Before was  232! This is the size of the Status  EtherCAT packet (Status + CAN packet) 
 #define ETHERCAT_COMMAND_0250_AGREED_SIZE    74      //! This is the size of the Command EtherCAT packet (Status + CAN packet)
 
 
