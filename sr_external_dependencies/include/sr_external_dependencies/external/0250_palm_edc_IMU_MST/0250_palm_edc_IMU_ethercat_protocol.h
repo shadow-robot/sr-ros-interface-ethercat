@@ -106,7 +106,7 @@ typedef struct
                                                 //  64-bit machine or something. So we have these calculated sizes.
                                                 //  The host and slave can ASSERT that the sizeof() the packets
                                                 //  matches the agreed sizes.
-#define ETHERCAT_STATUS_0250_AGREED_SIZE     422//Before was  232! This is the size of the Status  EtherCAT packet (Status + CAN packet) 
+#define ETHERCAT_STATUS_0250_AGREED_SIZE     542 // 422 Before was  232! This is the size of the Status  EtherCAT packet (Status + CAN packet) 
 #define ETHERCAT_COMMAND_0250_AGREED_SIZE    74      //! This is the size of the Command EtherCAT packet (Status + CAN packet)
 
 
