@@ -158,9 +158,9 @@ typedef enum
     WRJ1A,  WRJ1B, WRJ2,                            // [23..25]
 
 	ACCX, ACCY, ACCZ,                               // [26..28]
-	GYRX, GYRY, GYRZ,                               // [29..32]
+	GYRX, GYRY, GYRZ,                               // [29..31]
 
-	ANA0, ANA1, ANA2, ANA3,                     // [31..35]
+	ANA0, ANA1, ANA2, ANA3,                     // [32..35]
     IGNORE                                          // [36]
 }SENSOR_NAME_ENUM;
 

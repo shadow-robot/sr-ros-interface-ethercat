@@ -49,6 +49,11 @@ typedef struct
 
 	int16u					            sensors[SENSORS_NUM_0220+1];          //!<          74 bytes
 
+  int32u                      tactile_data_type;                  //!<           4 bytes
+  int16u                      tactile_data_valid;                 //!<           2 bytes          (Bit 0: FF. Bit 4: TH.)
+  TACTILE_SENSOR_STATUS_v3    tactile[5];                         // 32 * 5 = 160 ; 104*5 = 520 bytes
+                                                                  //!< TOTAL = 396 bytes
+
   FROM_MOTOR_DATA_TYPE        motor_data_type;                    //!< Which data does motor[] contain?
                                                                   //!< This value should agree with the previous value
                                                                   //!< in ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND
@@ -61,11 +66,6 @@ typedef struct
 
   MOTOR_DATA_PACKET           motor_data_packet[10];              //!< Data for 10 motors only. (Even ones or Odd ones)
                                                                   //  TOTAL MOTOR DATA = 40 bytes
-
-  int32u                      tactile_data_type;                  //!<           4 bytes
-  int16u                      tactile_data_valid;                 //!<           2 bytes          (Bit 0: FF. Bit 4: TH.)
-  TACTILE_SENSOR_STATUS_v3    tactile[5];                         // 32 * 5 = 160 ; 104*5 = 520 bytes
-                                                                  //!< TOTAL = 396 bytes
 
   int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
                                                                     //!< packet, and the next packet arriving. Ideally, this number should be more than 50.
