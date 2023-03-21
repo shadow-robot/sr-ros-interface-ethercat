@@ -2,9 +2,10 @@
 * @file   sr10.cpp
 * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
 *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>,
-*         Dan Greenwald <dg@shadowrobot.com>, contact <software@shadowrobot.com>
+*         Dan Greenwald <dg@shadowrobot.com>, Rodrigo Zenha <rodrigo@shadowrobot.com>
+*         contact <software@shadowrobot.com>
 *
-/* Copyright 2017 Shadow Robot Company Ltd.
+/* Copyright 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -19,7 +20,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 *
 * @brief This is a ROS driver for Shadow Robot #10 EtherCAT product ID
-*
 *
 */
 
@@ -80,14 +80,6 @@ SR10::SR10()
           cycle_count(0),
           imu_scale_change_(false)
 {
-  /*
-    ROS_INFO("There are %d sensors", nb_sensors_const);
-    ROS_INFO(     "device_pub_freq_const = %d", device_pub_freq_const      );
-    ROS_INFO(        "ros_pub_freq_const = %d", ros_pub_freq_const         );
-    ROS_INFO(            "max_iter_const = %d", max_iter_const             );
-    ROS_INFO(          "nb_sensors_const = %d", nb_sensors_const           );
-    ROS_INFO("nb_publish_by_unpack_const = %d", nb_publish_by_unpack_const );
-   */
 }
 
 /** \brief Construct function, run at startup to set SyncManagers and FMMUs
@@ -160,7 +152,6 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   extra_analog_inputs_publisher.reset(
           new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_, "palm_extras", 10));
 
-
   // Debug real time publisher: publishes the raw ethercat data
   debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(
           new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
@@ -216,40 +207,40 @@ bool SR10::imu_scale_callback_(sr_robot_msgs::SetImuScale::Request & request,
 *  the runtime_monitor node. We use the mutliDiagnostics as it publishes
 *  the diagnostics for each motors.
 */
-void SR10::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer)
+void SR10::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnostic_vector, unsigned char *buffer)
 {
-  diagnostic_updater::DiagnosticStatusWrapper &d(diagnostic_status_);
+  diagnostic_updater::DiagnosticStatusWrapper &diagnostic_status(diagnostic_status_);
 
   stringstream name;
   string prefix = device_id_.empty() ? device_id_ : (device_id_ + " ");
-  d.name = prefix + "EtherCAT Dual CAN Palm";
-  d.summary(d.OK, "OK");
-  stringstream hwid;
-  hwid << sh_->get_product_code() << "-" << sh_->get_serial();
-  d.hardware_id = hwid.str();
+  diagnostic_status.name = prefix + "EtherCAT Dual CAN Palm";
+  diagnostic_status.summary(diagnostic_status.OK, "OK");
+  stringstream hardware_id;
+  hardware_id << sh_->get_product_code() << "-" << sh_->get_serial();
+  diagnostic_status.hardware_id = hardware_id.str();
 
-  d.clear();
-  d.addf("Position", "%02d", sh_->get_ring_position());
-  d.addf("Product Code", "%d", sh_->get_product_code());
-  d.addf("Serial Number", "%d", sh_->get_serial());
-  d.addf("Revision", "%d", sh_->get_revision());
-  d.addf("Counter", "%d", ++counter_);
+  diagnostic_status.clear();
+  diagnostic_status.addf("Position", "%02d", sh_->get_ring_position());
+  diagnostic_status.addf("Product Code", "%d", sh_->get_product_code());
+  diagnostic_status.addf("Serial Number", "%d", sh_->get_serial());
+  diagnostic_status.addf("Revision", "%d", sh_->get_revision());
+  diagnostic_status.addf("Counter", "%d", ++counter_);
 
-  d.addf("PIC idle time (in microsecs)", "%d", sr_hand_lib->main_pic_idle_time);
-  d.addf("Min PIC idle time (since last diagnostics)", "%d", sr_hand_lib->main_pic_idle_time_min);
+  diagnostic_status.addf("PIC idle time (in microsecs)", "%d", sr_hand_lib->main_pic_idle_time);
+  diagnostic_status.addf("Min PIC idle time (since last diagnostics)", "%d", sr_hand_lib->main_pic_idle_time_min);
   // reset the idle time min to a big number, to get a fresh number on next diagnostic
   sr_hand_lib->main_pic_idle_time_min = 1000;
 
-  this->ethercatDiagnostics(d, 2);
-  vec.push_back(d);
+  this->ethercatDiagnostics(diagnostic_status, 2);
+  diagnostic_vector.push_back(diagnostic_status);
 
   // Add the diagnostics from the hand
-  sr_hand_lib->add_diagnostics(vec, d);
+  sr_hand_lib->add_diagnostics(diagnostic_vector, diagnostic_status);
 
   // Add the diagnostics from the tactiles
   if (sr_hand_lib->tactiles != NULL)
   {
-    sr_hand_lib->tactiles->add_diagnostics(vec, d);
+    sr_hand_lib->tactiles->add_diagnostics(diagnostic_vector, diagnostic_status);
   }
 }
 
@@ -297,8 +288,9 @@ void SR10::packCommand(unsigned char *buffer, bool halt, bool reset)
     command->imu_command.command = IMU_COMMAND_NONE;
   }
 
-  // alternate between even and uneven motors
-  // and ask for the different informations.
+  // Request for the different sensors' (including tactile) and motors' status information.
+  // It alternates between even and uneven motors everytime.
+  // It also builds the next control command to send to the motors (e.g. torque control)
   sr_hand_lib->build_command(command);
 
 
@@ -330,7 +322,6 @@ void SR10::packCommand(unsigned char *buffer, bool halt, bool reset)
 }
 
 /** \brief This funcion reads the ethercat status and fills the imu_state with the relevant values. */
-
 void SR10::readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status_data)
 {
   imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
@@ -396,7 +387,6 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
           reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS *>(this_buffer + command_size_);
   ETHERCAT_CAN_BRIDGE_DATA *can_data = reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(this_buffer + command_size_ +
                                                                                     ETHERCAT_STATUS_DATA_SIZE);
-  //  int16u                                        *status_buffer = (int16u*)status_data;
   static unsigned int num_rxed_packets = 0;
 
   ++num_rxed_packets;
@@ -455,12 +445,11 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     return true;
   }
 
-  // We received a coherent message.
-  // Update the library (positions, diagnostics values, actuators, etc...)
-  // with the received information
+  // We've received a coherent/valid message. Update the library (positions, diagnostics values, actuators, etc...)
+  // with the received information received from the master
   sr_hand_lib->update(status_data);
 
-  // Now publish the additional data at 100Hz (every 10 cycles)
+  // Now publish the data at 100Hz (every 10 cycles)
   if (cycle_count >= 10)
   {
     // publish tactiles if we have them
@@ -523,6 +512,14 @@ void SR10::reinitialize_boards()
   sr_hand_lib->reinitialize_motors();
 }
 
+/**
+  * Given the identifier for a certain board (motor board/ muscle driver) determines the right value
+  * for the CAN bus and the ID of the board in that CAN bus.
+  *
+  * @param board_id the unique identifier for the board
+  * @param can_bus pointer to the can bus number we want to determine
+  * @param board_can_id pointer to the board id we want to determine
+*/
 void SR10::get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id)
 {
   // We're using 2 can busses,

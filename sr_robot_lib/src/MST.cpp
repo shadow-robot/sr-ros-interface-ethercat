@@ -50,8 +50,8 @@ namespace tactiles
       int byte2 = buffer[start + 1];
       int b1 = (uint8_t)buffer[start];
       int b2 = (uint8_t)buffer[start+1];
-      ROS_WARN_STREAM("Sensor 3: " << start << ": data: "<< b1);
-      ROS_WARN_STREAM("Sensor 3: " << start + 1 << ": data: "<< b2);
+      // ROS_WARN_STREAM("Sensor 3: " << start << ": data: "<< b1);
+      // ROS_WARN_STREAM("Sensor 3: " << start + 1 << ": data: "<< b2);
 
       return byte1 << 4 | byte2 >> 4 & 0x0F;
     }
@@ -59,7 +59,7 @@ namespace tactiles
     int byte2 = buffer[start + 1];
     int b2 = (uint8_t)buffer[start+1];
 
-    ROS_WARN_STREAM("Sensor 3: " << start + 1 << ": data: "<< b2);
+    // ROS_WARN_STREAM("Sensor 3: " << start + 1 << ": data: "<< b2);
 
     return byte1 << 4 | byte2 & 0xFF;
   }
@@ -75,14 +75,10 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            ROS_WARN("Received sensor magnetic data: ");
-            ROS_WARN("===============================");
+            // ROS_WARN("Received sensor magnetic data: ");
+            // ROS_WARN("===============================");
             for (int i = 0; i < NUMBER_OF_SENSORS; i++)
             {
-              // ROS_WARN_STREAM("Sensor 3: " << i * 3 << ": data: "<< (uint8_t)status_data->tactile[id_sensor].string[i * 3]);
-              // ROS_WARN_STREAM("Sensor 3: " << i * 3 + 1 << ": data: "<< (uint8_t)status_data->tactile[id_sensor].string[i * 3 + 1]);
-              // ROS_WARN_STREAM("Sensor 3: " << i * 3 + 2 << ": data: "<< (uint8_t)status_data->tactile[id_sensor].string[i * 3 + 2]);
-
               sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x = read12bits(
                 status_data->tactile[id_sensor].string, i * 3);
               sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y = read12bits(
@@ -90,7 +86,7 @@ namespace tactiles
               sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z = read12bits(
                 status_data->tactile[id_sensor].string, i * 3 + 2);
             }
-            ROS_WARN("===============================");
+            // ROS_WARN("===============================");
 
           }
           break;
@@ -98,11 +94,10 @@ namespace tactiles
         case TACTILE_SENSOR_TYPE_MST_TEMPERATURE:
           if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
           {
-            ROS_WARN("Received sensor temperature data: ");
-            ROS_WARN("===============================");
+            // ROS_WARN("Received sensor temperature data: ");
+            // ROS_WARN("===============================");
             for (int i = 0; i < NUMBER_OF_SENSORS; i++)
             {
-              // ROS_WARN_STREAM("Sensor 3: " << i << ": data: "<< (uint8_t)status_data->tactile[id_sensor].string[i]);
               char* tactile_data_pointer = status_data->tactile[id_sensor].string;
 
               sensor_data.fingers[id_sensor].sensors[i].temperature =
@@ -113,7 +108,7 @@ namespace tactiles
               //   status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
               //   (uint8_t)status_data->tactile[id_sensor].string[i * 2];
             }
-            ROS_WARN("===============================");
+            // ROS_WARN("===============================");
 
           }
           break;
@@ -146,14 +141,16 @@ namespace tactiles
 
     sensor_data.header.stamp = ros::Time::now();
     publisher->publish(sensor_data);
-    // ROS_WARN("Publishing sensor data: ");
+    // ROS_WARN("Sensor data: ");
+    // ROS_WARN("===============================");
     // for (int i = 0; i < NUMBER_OF_SENSORS; i++)
     // {
     //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": X_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_x);
     //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": Y_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_y);
     //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": Z_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_z);
-    //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": temp: "<< sensor_data.fingers[3].sensors[i].temperature);
+    //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": temp: "  << sensor_data.fingers[3].sensors[i].temperature);
     // }
+    // ROS_WARN("===============================");
 
   }
 

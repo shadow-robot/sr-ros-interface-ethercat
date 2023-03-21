@@ -2,9 +2,10 @@
 * @file   sr10.h
 * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
 *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>,
-*         Dan Greenwald <dg@shadowrobot.com>, contact <software@shadowrobot.com>
+*         Dan Greenwald <dg@shadowrobot.com>, Rodrigo Zenha <rodrigo@shadowrobot.com>
+*         contact <software@shadowrobot.com>
 *
-/* Copyright 2017 Shadow Robot Company Ltd.
+/* Copyright 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -74,10 +75,10 @@ protected:
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
   std::vector<boost::shared_ptr<rt_pub_int16_t> > realtime_pub_;
 
-  /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
+  // Extra analog inputs real time publisher (+ accelerometer and gyroscope)
   boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
 
-  /// This function will call the reinitialization function for the boards attached to the CAN bus
+  // This function will call the reinitialization function for the boards attached to the CAN bus
   virtual void reinitialize_boards();
 
   /**
@@ -87,16 +88,23 @@ protected:
    * @param board_id the unique identifier for the board
    * @param can_bus pointer to the can bus number we want to determine
    * @param board_can_id pointer to the board id we want to determine
-   */
+  */
   virtual void get_board_id_and_can_bus(int board_id, int *can_bus, unsigned int *board_can_id);
 
+  /**
+   * Given the identifier for a certain board (motor board/ muscle driver) determines the right value
+   * for the CAN bus and the ID of the board in that CAN bus.
+   *
+   * @param request the unique identifier for the board
+   * @param response pointer to the can bus number we want to determine
+   * @param which pointer to the board id we want to determine
+   */
   bool imu_scale_callback_(sr_robot_msgs::SetImuScale::Request &request,
-                           sr_robot_msgs::SetImuScale::Response &response, const char *which);
+                           sr_robot_msgs::SetImuScale::Response &response,
+                           const char *which);
 
 
 private:
-  // std::string                      firmware_file_name;
-
   ros::ServiceServer imu_gyr_scale_server_;
   ros::ServiceServer imu_acc_scale_server_;
 
@@ -113,15 +121,13 @@ private:
   int imu_scale_gyr_;
   int imu_scale_acc_;
   bool imu_scale_change_;
-  /**
-   *a counter used to publish the tactiles at 100Hz:
-   * count 10 cycles, then reset the cycle_count to 0.
-   */
+  
+  // A counter used to publish the tactiles at 100Hz. Counts 10 cycles, then reset the cycle_count to 0.
   int16_t cycle_count;
   // Function to read imu data from edc status into interface
   void readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status);
 
-  /// Debug real time publisher: publishes the raw ethercat data
+  // Debug real time publisher: publishes the raw ethercat data
   boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;
 };
 
@@ -131,6 +137,5 @@ Local Variables:
    c-basic-offset: 2
 End:
 */
-
 
 #endif  // SR_EDC_ETHERCAT_DRIVERS_SR10_H
