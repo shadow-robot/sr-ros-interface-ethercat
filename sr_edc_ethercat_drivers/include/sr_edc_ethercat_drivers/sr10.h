@@ -111,8 +111,8 @@ public:
     *  by the size of the first command.
     * 
     * @param buffer is a pointer to an array containing 2 commands to be sent to the hand (and CAN busses).
-            The buffer has been allocated with command_size_ bytes, which is the sum of the two command size,
-            so we have to put the two commands one next to the other.
+    *        The buffer has been allocated with command_size_ bytes, which is the sum of the two command size,
+    *        so we have to put the two commands one next to the other.
     *        These are then sent via EtherCAT.
     */
   virtual void packCommand(unsigned char *buffer, bool halt, bool reset);
@@ -172,7 +172,7 @@ private:
   ros::ServiceServer imu_gyr_scale_server_;
   ros::ServiceServer imu_acc_scale_server_;
 
-  /// Counter for the number of invalid Status replys we recieve.
+  /// Counter for the number of invalid Status replies we recieve.
   unsigned int zero_buffer_read;
 
   /// Robot state interface
