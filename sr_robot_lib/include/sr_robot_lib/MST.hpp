@@ -40,6 +40,12 @@ public:
        boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
 
   /*
+   * This function is called in the constructors, to initialize the necessary objects
+   */
+  void init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
+            operation_mode::device_update_state::DeviceUpdateState update_state);
+
+  /*
    * This function is called each time a new etherCAT message
    * is received in the sr08.cpp driver. It  updates the tactile
    * sensors values contained in sensor_data.
@@ -61,6 +67,8 @@ public:
   virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                diagnostic_updater::DiagnosticStatusWrapper &d);
 
+  virtual std::vector<AllTactileData> *get_tactile_data();
+  
 private:
   sr_robot_msgs::MSTPalm sensor_data;
   std::shared_ptr<ros::Publisher> publisher;

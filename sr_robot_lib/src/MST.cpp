@@ -37,7 +37,22 @@ namespace tactiles
           : GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
   {
     diagnostic_data = *init_tactiles_vector;
-    publisher = std::make_shared<ros::Publisher>(nh.advertise<sr_robot_msgs::MSTPalm>("mst", 1));
+    init(update_configs_vector, update_state);
+    // publisher = std::make_shared<ros::Publisher>(nh.advertise<sr_robot_msgs::MSTPalm>("mst", 1));
+  }
+
+  template<class StatusType, class CommandType>
+  void MST<StatusType, CommandType>::init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
+                                                 operation_mode::device_update_state::DeviceUpdateState update_state)
+  {
+    // initialize the vector of tactiles
+    this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(
+            new std::vector<AllTactileData>(1));
+
+    for (size_t i = 0; i < this->all_tactile_data->size(); ++i)
+    {
+      this->all_tactile_data->at(i).type = "mst";
+    }
   }
 
   template<class StatusType, class CommandType>
@@ -139,8 +154,8 @@ namespace tactiles
   void MST<StatusType, CommandType>::publish()
   {
 
-    sensor_data.header.stamp = ros::Time::now();
-    publisher->publish(sensor_data);
+    // sensor_data.header.stamp = ros::Time::now();
+    // publisher->publish(sensor_data);
     // ROS_WARN("Sensor data: ");
     // ROS_WARN("===============================");
     // for (int i = 0; i < NUMBER_OF_SENSORS; i++)
@@ -156,7 +171,7 @@ namespace tactiles
 
   template<class StatusType, class CommandType>
   void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
-                                                      diagnostic_updater::DiagnosticStatusWrapper &d)
+                                                      diagnostic_updater::DiagnosticStatusWrapper &diagnostic_status_wrapper)
   {
     for (int i = 0; i < this->nb_tactiles; i++)
     {
@@ -165,18 +180,29 @@ namespace tactiles
 
       ss << prefix << "Tactile " << i + 1;
 
-      d.name = ss.str().c_str();
-      d.summary(d.OK, "OK");
-      d.clear();
+      diagnostic_status_wrapper.name = ss.str().c_str();
+      diagnostic_status_wrapper.summary(diagnostic_status_wrapper.OK, "OK");
+      diagnostic_status_wrapper.clear();
 
-      d.addf("Sample Frequency", "%d", diagnostic_data[i].sample_frequency);
-      d.addf("Manufacturer", "%s", diagnostic_data[i].manufacturer.c_str());
-      d.addf("Serial Number", "%s", diagnostic_data[i].serial_number.c_str());
-      d.addf("Software Version", "%s", diagnostic_data[i].git_revision.c_str());
-      d.addf("PCB Version", "%s", diagnostic_data[i].pcb_version.c_str());
+      diagnostic_status_wrapper.addf("Sample Frequency", "%d", diagnostic_data[i].sample_frequency);
+      diagnostic_status_wrapper.addf("Manufacturer", "%s", diagnostic_data[i].manufacturer.c_str());
+      diagnostic_status_wrapper.addf("Serial Number", "%s", diagnostic_data[i].serial_number.c_str());
+      diagnostic_status_wrapper.addf("Software Version", "%s", diagnostic_data[i].git_revision.c_str());
+      diagnostic_status_wrapper.addf("PCB Version", "%s", diagnostic_data[i].pcb_version.c_str());
 
-      vec.push_back(d);
+      vec.push_back(diagnostic_status_wrapper);
     }
+  }
+
+  template<class StatusType, class CommandType>
+  std::vector<AllTactileData> *MST<StatusType, CommandType>::get_tactile_data()
+  {
+    // Should be size 1
+    for (unsigned int i = 0; i < this->all_tactile_data->size(); ++i)
+    {
+      this->all_tactile_data->at(i).mst.sensor_data = sensor_data;
+    }
+    return this->all_tactile_data.get();
   }
 
   // Only to ensure that the template class is compiled for the types we are interested in
