@@ -97,7 +97,7 @@ public:
     *        Can we remove this? It would involve also removing
     *        it from ethercat_hardware (EthercatHardwareDiagnosticsPublisher::publishDiagnostics)
     */
-  virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnostic_vector, unsigned char *buffer)
+  virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnostic_vector, unsigned char *buffer);
 
   /** 
     *  Packs the commands before sending them to the EtherCAT bus
