@@ -25,7 +25,7 @@
 #include <ros/console.h>
 
 
-#define NUMBER_OF_SENSORS 17
+#define NUMBER_OF_TAXELS 17
 
 namespace tactiles
 {
@@ -38,7 +38,7 @@ namespace tactiles
   {
     diagnostic_data = *init_tactiles_vector;
     init(update_configs_vector, update_state);
-    // publisher = std::make_shared<ros::Publisher>(nh.advertise<sr_robot_msgs::MSTPalm>("mst", 1));
+    // publisher = std::make_shared<ros::Publisher>(nh.advertise<sr_robot_msgs::MSTAll>("mst", 1));
   }
 
   template<class StatusType, class CommandType>
@@ -48,10 +48,12 @@ namespace tactiles
     // initialize the vector of tactiles
     this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(
             new std::vector<AllTactileData>(1));
+    this->all_tactile_data->at(0).type = "mst";
 
-    for (size_t i = 0; i < this->all_tactile_data->size(); ++i)
+    for (uint8_t id_sensor; id_sensor < this->nb_tactiles; ++id_sensor)
     {
-      this->all_tactile_data->at(i).type = "mst";
+      sensor_data.tactiles[id_sensor].magnetic_data.resize(NUMBER_OF_TAXELS);
+      sensor_data.tactiles[id_sensor].temperature_data.resize(NUMBER_OF_TAXELS);
     }
   }
 
@@ -92,17 +94,17 @@ namespace tactiles
           {
             // ROS_WARN("Received sensor magnetic data: ");
             // ROS_WARN("===============================");
-            for (int i = 0; i < NUMBER_OF_SENSORS; i++)
+            for (uint8_t taxel_index = 0; taxel_index < NUMBER_OF_TAXELS; taxel_index++)
             {
-              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x = read12bits(
-                status_data->tactile[id_sensor].string, i * 3);
-              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y = read12bits(
-                status_data->tactile[id_sensor].string, i * 3 + 1);
-              sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z = read12bits(
-                status_data->tactile[id_sensor].string, i * 3 + 2);
+              // Set a timestamp right before obtaining magnetic data
+              sensor_data.tactiles[id_sensor].timestamp = ros::Time::now();
+              geometry_msgs::Point taxel_magnetic_data;
+              taxel_magnetic_data.x = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3);
+              taxel_magnetic_data.y = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 1);
+              taxel_magnetic_data.z = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 2);
+              sensor_data.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
             }
-            // ROS_WARN("===============================");
-
+              // ROS_WARN("===============================");
           }
           break;
 
@@ -111,41 +113,19 @@ namespace tactiles
           {
             // ROS_WARN("Received sensor temperature data: ");
             // ROS_WARN("===============================");
-            for (int i = 0; i < NUMBER_OF_SENSORS; i++)
+            for (uint8_t taxel_index = 0; taxel_index < NUMBER_OF_TAXELS; taxel_index++)
             {
               char* tactile_data_pointer = status_data->tactile[id_sensor].string;
-
-              sensor_data.fingers[id_sensor].sensors[i].temperature =
-                read12bits(++tactile_data_pointer, i); // +1 To skip PSoC temperature
-              
-              // Temperature is send as little-endian value
-              // sensor_data.fingers[id_sensor].sensors[i].temperature =
-              //   status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
-              //   (uint8_t)status_data->tactile[id_sensor].string[i * 2];
+              // Set a timestamp right before obtaining temperature data
+              sensor_data.tactiles[id_sensor].timestamp = ros::Time::now();
+              sensor_data.tactiles[id_sensor].temperature_data[taxel_index] =
+                  // (read12bits(++tactile_data_pointer, taxel_index)); // +1 To skip PSoC temperature
+                  (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25; // +1 To skip PSoC temperature; converted to deg
             }
             // ROS_WARN("===============================");
 
           }
           break;
-
-        // case TACTILE_SENSOR_TYPE_MST_MAGNETIC_AND_TEMPERATURE:
-        //   if (sr_math_utils::is_bit_mask_index_true(tactile_mask, id_sensor))
-        //   {
-        //     for (int i = 0; i < NUMBER_OF_SENSORS; i++)
-        //     {
-        //       sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_x = read12bits(
-        //         status_data->tactile[id_sensor].string, i * 3);
-        //       sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_y = read12bits(
-        //         status_data->tactile[id_sensor].string, i * 3 + 1);
-        //       sensor_data.fingers[id_sensor].sensors[i].magnetic_induction_z = read12bits(
-        //         status_data->tactile[id_sensor].string, i * 3 + 2);
-        //       // Temperature is send as little-endian value
-        //       sensor_data.fingers[id_sensor].sensors[i].temperature =
-        //         status_data->tactile[id_sensor].string[i * 2 + 1] << 8 |
-        //         (uint8_t)status_data->tactile[id_sensor].string[i * 2];
-        //     }
-        //   }
-        //   break;
       }
     }
   }
@@ -153,42 +133,29 @@ namespace tactiles
   template<class StatusType, class CommandType>
   void MST<StatusType, CommandType>::publish()
   {
-
-    // sensor_data.header.stamp = ros::Time::now();
-    // publisher->publish(sensor_data);
-    // ROS_WARN("Sensor data: ");
-    // ROS_WARN("===============================");
-    // for (int i = 0; i < NUMBER_OF_SENSORS; i++)
-    // {
-    //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": X_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_x);
-    //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": Y_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_y);
-    //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": Z_data: "<< sensor_data.fingers[3].sensors[i].magnetic_induction_z);
-    //   ROS_WARN_STREAM("Sensor 3: Taxel : " << i << ": temp: "  << sensor_data.fingers[3].sensors[i].temperature);
-    // }
-    // ROS_WARN("===============================");
-
+    // left empty, as this is published from the controller publisher
   }
 
   template<class StatusType, class CommandType>
   void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                                       diagnostic_updater::DiagnosticStatusWrapper &diagnostic_status_wrapper)
   {
-    for (int i = 0; i < this->nb_tactiles; i++)
+    for (int id_sensor = 0; id_sensor < this->nb_tactiles; id_sensor++)
     {
       std::stringstream ss;
       std::string prefix = this->device_id_.empty() ? this->device_id_ : (this->device_id_ + " ");
 
-      ss << prefix << "Tactile " << i + 1;
+      ss << prefix << "Tactile " << id_sensor + 1;
 
       diagnostic_status_wrapper.name = ss.str().c_str();
       diagnostic_status_wrapper.summary(diagnostic_status_wrapper.OK, "OK");
       diagnostic_status_wrapper.clear();
 
-      diagnostic_status_wrapper.addf("Sample Frequency", "%d", diagnostic_data[i].sample_frequency);
-      diagnostic_status_wrapper.addf("Manufacturer", "%s", diagnostic_data[i].manufacturer.c_str());
-      diagnostic_status_wrapper.addf("Serial Number", "%s", diagnostic_data[i].serial_number.c_str());
-      diagnostic_status_wrapper.addf("Software Version", "%s", diagnostic_data[i].git_revision.c_str());
-      diagnostic_status_wrapper.addf("PCB Version", "%s", diagnostic_data[i].pcb_version.c_str());
+      diagnostic_status_wrapper.addf("Sample Frequency", "%d", diagnostic_data[id_sensor].sample_frequency);
+      diagnostic_status_wrapper.addf("Manufacturer", "%s", diagnostic_data[id_sensor].manufacturer.c_str());
+      diagnostic_status_wrapper.addf("Serial Number", "%s", diagnostic_data[id_sensor].serial_number.c_str());
+      diagnostic_status_wrapper.addf("Software Version", "%s", diagnostic_data[id_sensor].git_revision.c_str());
+      diagnostic_status_wrapper.addf("PCB Version", "%s", diagnostic_data[id_sensor].pcb_version.c_str());
 
       vec.push_back(diagnostic_status_wrapper);
     }
@@ -197,11 +164,8 @@ namespace tactiles
   template<class StatusType, class CommandType>
   std::vector<AllTactileData> *MST<StatusType, CommandType>::get_tactile_data()
   {
-    // Should be size 1
-    for (unsigned int i = 0; i < this->all_tactile_data->size(); ++i)
-    {
-      this->all_tactile_data->at(i).mst.sensor_data = sensor_data;
-    }
+    this->all_tactile_data->at(0).mst.sensor_data = sensor_data;
+
     return this->all_tactile_data.get();
   }
 

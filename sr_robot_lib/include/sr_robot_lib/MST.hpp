@@ -22,7 +22,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <sr_robot_msgs/MSTPalm.h>
+#include <sr_robot_msgs/MSTAll.h>
 
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include "sr_robot_lib/generic_updater.hpp"
@@ -70,7 +70,7 @@ public:
   virtual std::vector<AllTactileData> *get_tactile_data();
   
 private:
-  sr_robot_msgs::MSTPalm sensor_data;
+  sr_robot_msgs::MSTAll sensor_data;
   std::shared_ptr<ros::Publisher> publisher;
   std::vector<GenericTactileData> diagnostic_data;
 

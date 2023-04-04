@@ -25,7 +25,7 @@
 
 #include <sr_tactile_sensor_controller/sr_tactile_sensor_publisher.hpp>
 #include <realtime_tools/realtime_publisher.h>
-#include <sr_robot_msgs/MSTPalm.h>
+#include <sr_robot_msgs/MSTAll.h>
 #include <vector>
 #include <string>
 
@@ -42,7 +42,7 @@ public:
   virtual void update(const ros::Time& time, const ros::Duration& period);
 
 private:
-  typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MSTPalm> MSTPublisher;
+  typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MSTAll> MSTPublisher;
   typedef boost::shared_ptr<MSTPublisher > MSTPublisherPtr;
   MSTPublisherPtr mst_realtime_pub_;
 };

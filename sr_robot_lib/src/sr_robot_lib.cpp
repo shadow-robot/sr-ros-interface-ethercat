@@ -297,7 +297,7 @@ namespace shadow_robot
         tactile_current_state = operation_mode::device_update_state::OPERATION;
 
         tactile_check_init_timeout_timer.stop();
-
+        ROS_WARN_STREAM(tactiles_init->tactiles_vector->at(0).which_sensor);
         switch (tactiles_init->tactiles_vector->at(0).which_sensor)
         {
           case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:
