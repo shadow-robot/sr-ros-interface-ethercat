@@ -1,45 +1,26 @@
-//
-// © 2010 Shadow Robot Company Limited.
-//
-// FileName:        tactile_edc_ethercat_protocol.h
-// Dependencies:
-// Processor:       PIC32
-// Compiler:        MPLAB® C32
-//
-//  +------------------------------------------------------------------------+
-//  | This file is part of The Shadow Robot PIC32 firmware code base.        |
-//  |                                                                        |
-//  | It is free software: you can redistribute it and/or modify             |
-//  | it under the terms of the GNU General Public License as published by   |
-//  | the Free Software Foundation, either version 3 of the License, or      |
-//  | (at your option) any later version.                                    |
-//  |                                                                        |
-//  | It is distributed in the hope that it will be useful,                  |
-//  | but WITHOUT ANY WARRANTY; without even the implied warranty of         |
-//  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          |
-//  | GNU General Public License for more details.                           |
-//  |                                                                        |
-//  | You should have received a copy of the GNU General Public License      |
-//  | along with this code repository. The text of the license can be found  |
-//  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
-//  +------------------------------------------------------------------------+
-//
-//
-//
-//  Doxygen
-//  -------
-//
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
-//
+/* 
+* Copyright 2010, 2023 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+/** 
+  * @file tactile_edc_ethercat_protocol.h
+  *
+  * @brief Defines the tactile protocols available to all Ethercat devices
+  *
+  * Processor:       PIC32
+  * Compiler:        MPLAB® C32
+  */
 
 #ifndef TACTILE_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
 #define TACTILE_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -108,8 +89,7 @@ typedef enum                                                            // Data 
 {
     TACTILE_SENSOR_TYPE_MST_INVALID                    = 0x0000,
     TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION         = 0x0001,
-    TACTILE_SENSOR_TYPE_MST_TEMPERATURE                = 0x0002,
-    TACTILE_SENSOR_TYPE_MST_MAGNETIC_AND_TEMPERATURE   = 0x0003
+    TACTILE_SENSOR_TYPE_MST_TEMPERATURE                = 0x0002
 }FROM_TACTILE_SENSOR_TYPE_MST;
 
 typedef enum                                                            // Data you can request from BioTacs

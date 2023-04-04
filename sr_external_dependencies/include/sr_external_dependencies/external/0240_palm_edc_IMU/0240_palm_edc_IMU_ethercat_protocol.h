@@ -18,10 +18,8 @@
   *
   * @brief EtherCat protocol for devices with Product ID 9
   *
-  * The term "Command" refers to data going from the ROS PC to the Node on the robot
-  * Previously known as "Incoming"
-  * The term "Status" refers to data going from Node on the robot the to the ROS PC
-  * Previously known as "Outgoing"
+  *  The Ethercat "Command" packet refers to data sent from the ROS host to the Node on the robot
+  *  The Ethercat "Status" packet refers to data sent from Node on the robot the to the ROS host.
   *
   * Processor:       PIC32
   * Compiler:        MPLAB® C32
@@ -33,6 +31,7 @@
 #include "../0220_palm_edc/0220_palm_edc_ethercat_protocol.h"
 
 /// Data structure sent from the Palm to the host (Status).
+/// Data is written to the EtherCAT bus sequencially, in the same order defined below.
 typedef struct
 {
     EDC_COMMAND                 EDC_command;                        //!< This tells us the contents of the data below.
@@ -64,7 +63,8 @@ typedef struct
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS;
 
 
-/// Data structure sent to by the host (Command).
+/// Data structure sent from the host to the Palm (Command).
+/// Data is written to the EtherCAT bus sequencially, in the same order defined below.
 typedef struct
 {
     EDC_COMMAND                 EDC_command;                        //!< What type of data should the palm send back in the next packet?

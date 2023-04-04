@@ -127,7 +127,7 @@ void SR10::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 }
 
 /**
-  * Initialize the SR10 driver containg a the necessary EtherCAT data and the SrMotorHandLib structures
+  * Initialize the SR10 driver containg a the EtherCAT data and the SrMotorHandLib structures
   * necessary to build new commands and read current status from the Hand.
   *
   * @param hw the HardwareInterface pointer
