@@ -45,7 +45,7 @@ void SrMSTTactileSensorPublisher::update(const ros::Time& time, const ros::Durat
       // we're actually publishing, so increment time
       last_publish_time_ = last_publish_time_ + ros::Duration(1.0 / publish_rate_);
       // populate message
-      mst_realtime_pub_->msg_ = sensors_->at(0).mst.sensor_data; // data for all fingers
+      mst_realtime_pub_->msg_ = sensors_->at(0).mst.sensor_data;  // contains data of sensors on all fingers
       mst_realtime_pub_->msg_.header.stamp = time;
       mst_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
       mst_realtime_pub_->unlockAndPublish();

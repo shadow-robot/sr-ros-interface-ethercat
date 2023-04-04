@@ -190,7 +190,7 @@ private:
   int imu_scale_gyr_;
   int imu_scale_acc_;
   bool imu_scale_change_;
-  
+
   /// A counter used to publish the tactiles at 100Hz. Counts 10 cycles, then reset the cycle_count to 0.
   int16_t cycle_count;
   

@@ -109,8 +109,8 @@ namespace tactiles
             tactiles_vector->at(id_sensor).manufacturer = sanitise_string(status_data->tactile[id_sensor].string,
                                                                           TACTILE_DATA_LENGTH_BYTES);
           }
-          ROS_INFO_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_MANUFACTURER = " << tactiles_vector->at(id_sensor).manufacturer);
-
+          ROS_INFO_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_MANUFACTURER = " <<
+                          tactiles_vector->at(id_sensor).manufacturer);
         }
           break;
 

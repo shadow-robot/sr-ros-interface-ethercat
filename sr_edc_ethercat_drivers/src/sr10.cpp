@@ -180,7 +180,7 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   // Initialize default IMU scaling values
   ros::param::param<int>("/" + imu_name + "/acc_scale", imu_scale_acc_, 0);
   ros::param::param<int>("/" + imu_name + "/gyr_scale", imu_scale_gyr_, 0);
-  
+
   // and set the flag to true so that the IMU data is scaled
   imu_scale_change_ = true;
 
