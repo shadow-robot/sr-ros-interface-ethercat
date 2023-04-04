@@ -257,9 +257,9 @@ void SR10::packCommand(unsigned char *buffer, bool halt, bool reset)
   SrEdc::packCommand(buffer, halt, reset);
 
   ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND *command =
-                                            reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND *>(buffer);
-  ETHERCAT_CAN_BRIDGE_DATA                      *message =
-                                            reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
+                                    reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND *>(buffer);
+  ETHERCAT_CAN_BRIDGE_DATA *message =
+                                    reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
 
   if (!flashing)
   {
@@ -286,7 +286,6 @@ void SR10::packCommand(unsigned char *buffer, bool halt, bool reset)
   // It alternates between even and uneven motors everytime.
   // It also builds the next control command to send to the motors (e.g. torque control)
   sr_hand_lib->build_command(command);
-
 
   ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X "
                     "0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",

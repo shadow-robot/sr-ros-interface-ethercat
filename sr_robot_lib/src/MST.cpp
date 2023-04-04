@@ -132,7 +132,7 @@ namespace tactiles
 
   template<class StatusType, class CommandType>
   void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
-                                                      diagnostic_updater::DiagnosticStatusWrapper &diagnostic_status_wrapper)
+                                                diagnostic_updater::DiagnosticStatusWrapper &diagnostic_status_wrapper)
   {
     for (int id_sensor = 0; id_sensor < this->nb_tactiles; id_sensor++)
     {

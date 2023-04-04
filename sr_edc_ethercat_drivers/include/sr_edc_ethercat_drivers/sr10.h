@@ -193,7 +193,7 @@ private:
 
   /// A counter used to publish the tactiles at 100Hz. Counts 10 cycles, then reset the cycle_count to 0.
   int16_t cycle_count;
-  
+
   /** 
     * This funcion reads the ethercat status and fills the imu_state with the relevant values.
     *
