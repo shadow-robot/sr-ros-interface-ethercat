@@ -33,8 +33,8 @@ namespace tactiles
   MST<StatusType, CommandType>::MST(ros::NodeHandle nh, std::string device_id,
                                       std::vector<generic_updater::UpdateConfig> update_configs_vector,
                                       operation_mode::device_update_state::DeviceUpdateState update_state,
-                                      boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
-          : GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
+                                      boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector) :
+    GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
   {
     diagnostic_data = *init_tactiles_vector;
     init(update_configs_vector, update_state);
@@ -120,7 +120,8 @@ namespace tactiles
               sensor_data.tactiles[id_sensor].timestamp = ros::Time::now();
               sensor_data.tactiles[id_sensor].temperature_data[taxel_index] =
                   // (read12bits(++tactile_data_pointer, taxel_index)); // +1 To skip PSoC temperature
-                  (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25; // +1 To skip PSoC temperature; converted to deg
+                  // +1 To skip PSoC temperature; converting reading to Celsius degrees
+                  (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25;
             }
             // ROS_WARN("===============================");
 

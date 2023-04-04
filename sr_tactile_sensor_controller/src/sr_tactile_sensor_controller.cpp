@@ -150,7 +150,6 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
     else if (sensors_->at(0).type == "mst")
     {
       sensor_publisher_.reset(new SrMSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-
     }
     else
     {

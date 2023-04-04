@@ -177,7 +177,7 @@ private:
 
   /// Robot state interface
   ros_ethercat_model::RobotState * hw_;
-  
+
   /// IMU state interface
   ros_ethercat_model::ImuState * imu_state_;
   /// Pointer to etherCAT hand. Contains the necessary structures to build the (etherCAT) commands and read the status

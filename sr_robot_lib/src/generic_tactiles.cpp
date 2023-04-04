@@ -107,7 +107,8 @@ namespace tactiles
               tactiles_vector->at(id_sensor).sample_frequency =
                       static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
             }
-            ROS_WARN_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ = " << tactiles_vector->at(id_sensor).sample_frequency);
+            ROS_WARN_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ = " <<
+                            tactiles_vector->at(id_sensor).sample_frequency);
           }
           break;
 

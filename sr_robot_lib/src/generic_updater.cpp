@@ -53,7 +53,6 @@ namespace generic_updater
             {
               initialization_configs_vector.push_back(config);
               ROS_DEBUG_STREAM("   Adding value to initialization_configs_vector: " << config.what_to_update);
-
             }
             else if (config.when_to_update != -1.0)
             {

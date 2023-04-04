@@ -116,7 +116,7 @@ SR10::SR10()
   *
   */
 void SR10::construct(EtherCAT_SlaveHandler *sh, int &start_address)
-{ 
+{
   // Calls parent class construct function
   SrEdc::construct(sh, start_address, ETHERCAT_COMMAND_DATA_SIZE, ETHERCAT_STATUS_DATA_SIZE,
                    ETHERCAT_CAN_BRIDGE_DATA_SIZE,

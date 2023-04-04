@@ -32,7 +32,6 @@ void SrMSTTactileSensorPublisher::init(const ros::Time& time)
   // realtime publisher
   mst_realtime_pub_ = MSTPublisherPtr(
     new realtime_tools::RealtimePublisher<sr_robot_msgs::MSTAll>(nh_prefix_, "tactile", 4));
-
 }
 
 void SrMSTTactileSensorPublisher::update(const ros::Time& time, const ros::Duration& period)

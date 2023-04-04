@@ -68,7 +68,7 @@ public:
                                diagnostic_updater::DiagnosticStatusWrapper &d);
 
   virtual std::vector<AllTactileData> *get_tactile_data();
-  
+
 private:
   sr_robot_msgs::MSTAll sensor_data;
   std::shared_ptr<ros::Publisher> publisher;
