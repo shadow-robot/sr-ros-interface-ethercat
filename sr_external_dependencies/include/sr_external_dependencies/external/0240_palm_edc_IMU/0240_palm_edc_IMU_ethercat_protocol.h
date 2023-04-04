@@ -22,9 +22,6 @@
   * Previously known as "Incoming"
   * The term "Status" refers to data going from Node on the robot the to the ROS PC
   * Previously known as "Outgoing"
-  *
-  * Processor:       PIC32
-  * Compiler:        MPLAB® C32
   */
 
 #ifndef PALM_EDC_0240_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -60,7 +57,6 @@ typedef struct
 
     int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
                                                                     //!< packet, and the next packet arriving. Ideally, this number should be more than 50.
-
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS;
 
 
@@ -78,7 +74,6 @@ typedef struct
 
     int32u                      tactile_data_type;                  //!< Request for specific tactile data
     IMU_COMMAND_TYPE            imu_command;                        // Command to configure the IMU
-
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND;
 
 /// EtherCAT protocol packet/header sizes

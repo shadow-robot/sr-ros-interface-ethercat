@@ -1,9 +1,4 @@
-/**
-* @file   sr_robot_lib.cpp
-* @author Ugo Cupcic <ugo@shadowrobot.com>
-* @date   Wed Jun 22 10:06:14 2011
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,12 +11,12 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This is a generic robot library for Shadow Robot's Hardware.
-*
-*
 */
+/**
+  * @file   sr_robot_lib.hpp
+  * @author Ugo Cupcic <ugo@shadowrobot.com>
+  * @brief This is a generic robot library for Shadow Robot's Hardware.
+  */
 
 #include "sr_robot_lib/sr_robot_lib.hpp"
 #include <string>
@@ -241,9 +236,6 @@ namespace shadow_robot
             coupled_calibration_map(read_coupled_joint_calibration())
   {
       std::vector<std::string> calibration_map_keys = calibration_map.keys();
-      // if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-      // ros::console::notifyLoggerLevelsChanged();
-      //   }
       for (auto & coupled_calibration : coupled_calibration_map)
       {
         if (std::find(calibration_map_keys.begin(),
@@ -288,7 +280,6 @@ namespace shadow_robot
     // Mutual exclusion with the the initialization timeout
     boost::mutex::scoped_lock l(*lock_tactile_init_timeout_);
 
-    ROS_DEBUG_STREAM(">> Build_tactile_command(): tactile_current_state is: " << tactile_current_state);
     if (tactile_current_state == operation_mode::device_update_state::INITIALIZATION)
     {
       if (tactiles_init->sensor_updater->build_init_command(command)
@@ -297,7 +288,7 @@ namespace shadow_robot
         tactile_current_state = operation_mode::device_update_state::OPERATION;
 
         tactile_check_init_timeout_timer.stop();
-        ROS_WARN_STREAM(tactiles_init->tactiles_vector->at(0).which_sensor);
+
         switch (tactiles_init->tactiles_vector->at(0).which_sensor)
         {
           case TACTILE_SENSOR_PROTOCOL_TYPE_PST3:

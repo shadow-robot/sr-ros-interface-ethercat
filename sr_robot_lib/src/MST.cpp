@@ -1,4 +1,4 @@
-/* Copyright 2021 Shadow Robot Company Ltd.
+/* Copyright 2021, 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -11,10 +11,12 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This is a class for accessing the data from the MST tactiles.
 */
+/** 
+  * @file MST.cpp
+  *
+  * @brief This is a class for accessing the data from the MST tactiles.
+  */
 
 #include "sr_robot_lib/MST.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
@@ -30,6 +32,10 @@
 namespace tactiles
 {
   template<class StatusType, class CommandType>
+  /**
+    * MST object constructor.
+    *
+    */
   MST<StatusType, CommandType>::MST(ros::NodeHandle nh, std::string device_id,
                                       std::vector<generic_updater::UpdateConfig> update_configs_vector,
                                       operation_mode::device_update_state::DeviceUpdateState update_state,

@@ -97,7 +97,7 @@ public:
     *        Can we remove this? It would involve also removing
     *        it from ethercat_hardware (EthercatHardwareDiagnosticsPublisher::publishDiagnostics)
     */
-  virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
+  virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnostic_vector, unsigned char *buffer)
 
   /** 
     *  Packs the commands before sending them to the EtherCAT bus
@@ -114,6 +114,8 @@ public:
     *        The buffer has been allocated with command_size_ bytes, which is the sum of the two command size,
     *        so we have to put the two commands one next to the other.
     *        These are then sent via EtherCAT.
+    * @param halt   if true, it will disable actuator, usually by disabling H-bridge
+    * @param reset  if true, it will clear diagnostic error conditions device safety disable
     */
   virtual void packCommand(unsigned char *buffer, bool halt, bool reset);
 
@@ -197,7 +199,7 @@ private:
     *
     * @param status_data pointer to the received EtherCAT Status data
     */
-  void readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status);
+  void readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status_data);
 
   /// Debug real time publisher: publishes the raw ethercat data
   boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;

@@ -22,9 +22,6 @@
   * Previously known as "Incoming"
   * The term "Status" refers to data going from Node on the robot the to the ROS PC
   * Previously known as "Outgoing"
-  *
-  * Processor:       PIC32
-  * Compiler:        MPLAB® C32
   */
 
 #ifndef PALM_EDC_0250_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -53,7 +50,7 @@ typedef struct
                                                             // This value should be the same as the one sent in the previous command
                                                             // ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND
   FROM_MOTOR_DATA_TYPE        motor_data_type;              // 4 bytes
-                                                                  
+
                                                             // Identifies the group of motors sending data through motor_data_packet[] below.
                                                             // 0: Even motor numbers.  1: Odd motor numbers
                                                             // This value should be the same as the one sent in the previous command

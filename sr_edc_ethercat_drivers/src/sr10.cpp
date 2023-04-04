@@ -246,9 +246,11 @@ void SR10::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnosti
   *  by the size of the first command.
   * 
   * @param buffer is a pointer to an array containing 2 commands to be sent to the hand (and CAN busses).
-           The buffer has been allocated with command_size_ bytes, which is the sum of the two command size,
-           so we have to put the two commands one next to the other.
+  *        The buffer has been allocated with command_size_ bytes, which is the sum of the two command size,
+  *        so we have to put the two commands one next to the other.
   *        These are then sent via EtherCAT.
+  * @param halt   if true, it will disable actuator, usually by disabling H-bridge
+  * @param reset  if true, it will clear diagnostic error conditions device safety disable
   */
 void SR10::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
