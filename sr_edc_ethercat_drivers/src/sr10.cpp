@@ -116,7 +116,7 @@ SR10::SR10()
   *
   */
 void SR10::construct(EtherCAT_SlaveHandler *sh, int &start_address)
-{ 
+{
   // Calls parent class construct function
   SrEdc::construct(sh, start_address, ETHERCAT_COMMAND_DATA_SIZE, ETHERCAT_STATUS_DATA_SIZE,
                    ETHERCAT_CAN_BRIDGE_DATA_SIZE,
@@ -180,7 +180,7 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   // Initialize default IMU scaling values
   ros::param::param<int>("/" + imu_name + "/acc_scale", imu_scale_acc_, 0);
   ros::param::param<int>("/" + imu_name + "/gyr_scale", imu_scale_gyr_, 0);
-  
+
   // and set the flag to true so that the IMU data is scaled
   imu_scale_change_ = true;
 
@@ -246,18 +246,20 @@ void SR10::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnosti
   *  by the size of the first command.
   * 
   * @param buffer is a pointer to an array containing 2 commands to be sent to the hand (and CAN busses).
-           The buffer has been allocated with command_size_ bytes, which is the sum of the two command size,
-           so we have to put the two commands one next to the other.
+  *        The buffer has been allocated with command_size_ bytes, which is the sum of the two command size,
+  *        so we have to put the two commands one next to the other.
   *        These are then sent via EtherCAT.
+  * @param halt   if true, it will disable actuator, usually by disabling H-bridge
+  * @param reset  if true, it will clear diagnostic error conditions device safety disable
   */
 void SR10::packCommand(unsigned char *buffer, bool halt, bool reset)
 {
   SrEdc::packCommand(buffer, halt, reset);
 
   ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND *command =
-                                            reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND *>(buffer);
-  ETHERCAT_CAN_BRIDGE_DATA                      *message =
-                                            reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
+                                    reinterpret_cast<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND *>(buffer);
+  ETHERCAT_CAN_BRIDGE_DATA *message =
+                                    reinterpret_cast<ETHERCAT_CAN_BRIDGE_DATA *>(buffer + ETHERCAT_COMMAND_DATA_SIZE);
 
   if (!flashing)
   {
@@ -284,7 +286,6 @@ void SR10::packCommand(unsigned char *buffer, bool halt, bool reset)
   // It alternates between even and uneven motors everytime.
   // It also builds the next control command to send to the motors (e.g. torque control)
   sr_hand_lib->build_command(command);
-
 
   ROS_DEBUG("Sending command : Type : 0x%02X ; data : 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X "
                     "0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X",

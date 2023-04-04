@@ -1,5 +1,4 @@
-/* 
-* Copyright 2010, 2023 Shadow Robot Company Ltd.
+/* Copyright 2010, 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,10 +15,12 @@
 /** 
   * @file tactile_edc_ethercat_protocol.h
   *
-  * @brief Defines the tactile protocols available to all Ethercat devices
+  * @brief Tactile sensor specific EtherCat protocol, common to all devices
   *
-  * Processor:       PIC32
-  * Compiler:        MPLAB® C32
+  * The term "Command" refers to data going from the ROS PC to the Node on the robot
+  * Previously known as "Incoming"
+  * The term "Status" refers to data going from Node on the robot the to the ROS PC
+  * Previously known as "Outgoing"
   */
 
 #ifndef TACTILE_EDC_ETHERCAT_PROTOCOL_H_INCLUDED

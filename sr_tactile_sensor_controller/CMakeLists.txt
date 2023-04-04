@@ -27,6 +27,7 @@ include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} src/sr_tactile_sensor_controller.cpp
                             src/sr_tactile_sensor_publisher.cpp
                             src/sr_pst_tactile_sensor_publisher.cpp
+                            src/sr_mst_tactile_sensor_publisher.cpp
                             src/sr_biotac_tactile_sensor_publisher.cpp
                             src/sr_ubi_tactile_sensor_publisher.cpp)
 add_dependencies(sr_tactile_sensor_controller ${catkin_EXPORTED_TARGETS})

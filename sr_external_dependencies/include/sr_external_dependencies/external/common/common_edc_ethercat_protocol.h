@@ -1,5 +1,4 @@
-/* 
-* Copyright 2010, 2023 Shadow Robot Company Ltd.
+/* Copyright 2010, 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -21,9 +20,6 @@
   *
   *  The Ethercat "Command" packet refers to data sent from the ROS host to the Node on the robot
   *  The Ethercat "Status" packet refers to data sent from Node on the robot the to the ROS host.
-  *
-  * Processor:       PIC32
-  * Compiler:        MPLAB® C32
   */
 
 #ifndef COMMON_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -139,14 +135,14 @@ typedef enum
 	MFJ1,   MFJ2,  MFJ3, MFJ4,                      // [ 4...7]
 	RFJ1,   RFJ2,  RFJ3, RFJ4,                      // [ 8..11]
 	LFJ1,   LFJ2,  LFJ3, LFJ4, LFJ5,                // [12..16]
-    THJ1,   THJ2,  THJ3, THJ4, THJ5A, THJ5B,        // [17..22]
-    WRJ1A,  WRJ1B, WRJ2,                            // [23..25]
+  THJ1,   THJ2,  THJ3, THJ4, THJ5A, THJ5B,        // [17..22]
+  WRJ1A,  WRJ1B, WRJ2,                            // [23..25]
 
 	ACCX, ACCY, ACCZ,                               // [26..28]
 	GYRX, GYRY, GYRZ,                               // [29..31]
 
-	ANA0, ANA1, ANA2, ANA3,                     // [32..35]
-    IGNORE                                          // [36]
+	ANA0, ANA1, ANA2, ANA3,                         // [32..35]
+  IGNORE                                          // [36]
 }SENSOR_NAME_ENUM;
 
 

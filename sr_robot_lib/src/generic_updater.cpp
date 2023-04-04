@@ -1,9 +1,4 @@
-/**
-* @file   generic_updater.cpp
-* @author toni <toni@shadowrobot.com>
-* @date   20 Oct 2011
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,14 +11,14 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This is a generic command updater: it has 2 different queues one for
-*        the important data which is updated as fast as possible, one for
-*        unimportant data which is updated on a time basis.
-*
-*
 */
+/** 
+  * @file   generic_updater.hpp
+  * @author Toni Oliver <toni@shadowrobot.com>
+  * @brief This is a generic command updater: it has 2 different queues one for
+  *        the important data which is updated as fast as possible, one for
+  *        unimportant data which is updated on a time basis.
+  */
 
 #include "sr_robot_lib/generic_updater.hpp"
 #include <boost/foreach.hpp>
@@ -40,20 +35,12 @@ namespace generic_updater
           update_configs_vector)
   {
     mutex = boost::shared_ptr<boost::mutex>(new boost::mutex());
-    // if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-    //   ros::console::notifyLoggerLevelsChanged();
-    // }
-
-    ROS_DEBUG_STREAM(">> GenericUpdater()");
-
 
     BOOST_FOREACH(UpdateConfig config, update_configs_vector)
           {
             if (config.when_to_update == -2.0)
             {
               initialization_configs_vector.push_back(config);
-              ROS_DEBUG_STREAM("   Adding value to initialization_configs_vector: " << config.what_to_update);
-
             }
             else if (config.when_to_update != -1.0)
             {
@@ -79,8 +66,6 @@ namespace generic_updater
       ROS_INFO_STREAM("No init command. Switching to operation");
       update_state = operation_mode::device_update_state::OPERATION;
     }
-    ROS_DEBUG_STREAM("<< GenericUpdater()");
-
   }
 
   template<class CommandType>

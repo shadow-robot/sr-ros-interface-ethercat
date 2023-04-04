@@ -1,9 +1,4 @@
-/*
-* @file   sr_joint_motor.hpp
-* @author toni <toni@shadowrobot.com>
-* @date   26 Oct 2011
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,12 +11,12 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief Contains the definitions of Motor and Joint
-*
-*
 */
+/**
+  * @file   sr_joint_motor.hpp
+  * @author Toni Oliver <toni@shadowrobot.com>
+  * @brief Contains the definitions of Motor and Joint
+  */
 
 #ifndef SR_JOINT_MOTOR_HPP_
 #define SR_JOINT_MOTOR_HPP_

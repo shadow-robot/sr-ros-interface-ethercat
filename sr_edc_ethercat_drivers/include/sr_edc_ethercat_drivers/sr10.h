@@ -97,7 +97,7 @@ public:
     *        Can we remove this? It would involve also removing
     *        it from ethercat_hardware (EthercatHardwareDiagnosticsPublisher::publishDiagnostics)
     */
-  virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &vec, unsigned char *buffer);
+  virtual void multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnostic_vector, unsigned char *buffer);
 
   /** 
     *  Packs the commands before sending them to the EtherCAT bus
@@ -114,6 +114,8 @@ public:
     *        The buffer has been allocated with command_size_ bytes, which is the sum of the two command size,
     *        so we have to put the two commands one next to the other.
     *        These are then sent via EtherCAT.
+    * @param halt   if true, it will disable actuator, usually by disabling H-bridge
+    * @param reset  if true, it will clear diagnostic error conditions device safety disable
     */
   virtual void packCommand(unsigned char *buffer, bool halt, bool reset);
 
@@ -177,7 +179,7 @@ private:
 
   /// Robot state interface
   ros_ethercat_model::RobotState * hw_;
-  
+
   /// IMU state interface
   ros_ethercat_model::ImuState * imu_state_;
   /// Pointer to etherCAT hand. Contains the necessary structures to build the (etherCAT) commands and read the status
@@ -188,16 +190,16 @@ private:
   int imu_scale_gyr_;
   int imu_scale_acc_;
   bool imu_scale_change_;
-  
+
   /// A counter used to publish the tactiles at 100Hz. Counts 10 cycles, then reset the cycle_count to 0.
   int16_t cycle_count;
-  
+
   /** 
     * This funcion reads the ethercat status and fills the imu_state with the relevant values.
     *
     * @param status_data pointer to the received EtherCAT Status data
     */
-  void readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status);
+  void readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status_data);
 
   /// Debug real time publisher: publishes the raw ethercat data
   boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;
