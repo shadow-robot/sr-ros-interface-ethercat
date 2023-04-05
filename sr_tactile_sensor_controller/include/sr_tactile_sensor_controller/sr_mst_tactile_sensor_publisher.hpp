@@ -49,7 +49,7 @@ class SrMSTTactileSensorPublisher: public SrTactileSensorPublisher
       SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix)
       {
       }
-      
+
     /**
       * Initialize the MST sensor publisher.
       *

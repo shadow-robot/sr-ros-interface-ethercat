@@ -60,7 +60,7 @@ MST<StatusType, CommandType>::MST(ros::NodeHandle nh, std::string device_id,
 template<class StatusType, class CommandType>
 void MST<StatusType, CommandType>::initialise_tactile_data_structure()
 {
-  // This is defined as an array of size 1, so that it's compatible with SrTactileSensorController::update() 
+  // This is defined as an array of size 1, so that it's compatible with SrTactileSensorController::update()
   this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(new std::vector<AllTactileData>(1));
   this->all_tactile_data->at(0).type = "mst";
 

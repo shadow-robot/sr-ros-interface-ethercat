@@ -92,7 +92,7 @@ public:
 private:
   /// Stores current MST tactile data
   sr_robot_msgs::MSTAll sensor_data;
-  /// Stores MST diagnostics data 
+  /// Stores MST diagnostics data
   std::vector<GenericTactileData> diagnostic_data;
 
   /**
@@ -105,9 +105,6 @@ private:
     */
   int read12bits(char* buffer, int index);
 };  // end class
-
-
-// class template specialization.
 
 /*
 * This is a specialization of the template class to avoid that the compiler try to access non existent fields,
