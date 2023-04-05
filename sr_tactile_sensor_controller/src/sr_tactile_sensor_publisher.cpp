@@ -27,7 +27,7 @@
 namespace controller
 {
 SrTactileSensorPublisher::SrTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors,
-                                                     double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
+                                                   double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
 {
   sensors_ = sensors;
   publish_rate_ = publish_rate;
