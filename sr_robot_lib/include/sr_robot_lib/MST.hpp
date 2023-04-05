@@ -77,16 +77,23 @@ public:
   /**
     *  This function appends MST specific diagnostic data to the runtime_monitor node of a running Hand.
     *
-    * @param diagnostic_vector The vector of diagnostic messages. Not used by this class
-    * @param diagnostic_status_wrapper The diagnostic status wrapper which to append the sensor's diagnostic data
+    * @param diagnostic_vector The vector of diagnostic messages which to append the sensor's diagnostic data.
+    * @param diagnostic_status_wrapper A diagnostic status wrapper used to update the sensor's diagnostics with.
     */
-  virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
-                               diagnostic_updater::DiagnosticStatusWrapper &d);
+  virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &diagnostic_vector,
+                               diagnostic_updater::DiagnosticStatusWrapper &diagnostic_status_wrapper);
 
+  /**
+    * Getter for the current MST tactile data
+    * 
+    * @return A vector of tactiles::AllTactileData messages, updated with MST tactile data
+    */
   virtual std::vector<AllTactileData> *get_tactile_data();
 
 private:
+  /// Stores current MST tactile data
   sr_robot_msgs::MSTAll sensor_data;
+  /// Stores MST diagnostics data 
   std::vector<GenericTactileData> diagnostic_data;
 
   /**
