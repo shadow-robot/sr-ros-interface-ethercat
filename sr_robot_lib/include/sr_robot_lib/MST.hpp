@@ -31,7 +31,6 @@
 
 namespace tactiles
 {
-
 /** 
   * Class that contains all functions and member variables relevant to read the MST sensor data.
   * It inherits from the GenericTactiles class.
