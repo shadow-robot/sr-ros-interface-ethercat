@@ -36,7 +36,7 @@ typedef struct
   EDC_COMMAND                 EDC_command;                  // 4 bytes
 
                                                             // Joints' sensor data
-	int16u					            sensors[SENSORS_NUM_0220+1];  // 74 bytes
+  int16u					            sensors[SENSORS_NUM_0220+1];  // 74 bytes
 
                                                             // Tacile sensor data
   int32u                      tactile_data_type;            // 4 bytes

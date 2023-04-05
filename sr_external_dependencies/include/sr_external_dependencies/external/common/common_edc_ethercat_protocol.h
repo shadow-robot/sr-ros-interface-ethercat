@@ -131,17 +131,17 @@ typedef enum
 //! This enum defines which ADC reading goes into which sensors[].
 typedef enum
 {
-	FFJ1=0, FFJ2,  FFJ3, FFJ4,                      // [ 0...3]
-	MFJ1,   MFJ2,  MFJ3, MFJ4,                      // [ 4...7]
-	RFJ1,   RFJ2,  RFJ3, RFJ4,                      // [ 8..11]
-	LFJ1,   LFJ2,  LFJ3, LFJ4, LFJ5,                // [12..16]
+  FFJ1=0, FFJ2,  FFJ3, FFJ4,                      // [ 0...3]
+  MFJ1,   MFJ2,  MFJ3, MFJ4,                      // [ 4...7]
+  RFJ1,   RFJ2,  RFJ3, RFJ4,                      // [ 8..11]
+  LFJ1,   LFJ2,  LFJ3, LFJ4, LFJ5,                // [12..16]
   THJ1,   THJ2,  THJ3, THJ4, THJ5A, THJ5B,        // [17..22]
   WRJ1A,  WRJ1B, WRJ2,                            // [23..25]
 
-	ACCX, ACCY, ACCZ,                               // [26..28]
-	GYRX, GYRY, GYRZ,                               // [29..31]
+  ACCX, ACCY, ACCZ,                               // [26..28]
+  GYRX, GYRY, GYRZ,                               // [29..31]
 
-	ANA0, ANA1, ANA2, ANA3,                         // [32..35]
+  ANA0, ANA1, ANA2, ANA3,                         // [32..35]
   IGNORE                                          // [36]
 }SENSOR_NAME_ENUM;
 

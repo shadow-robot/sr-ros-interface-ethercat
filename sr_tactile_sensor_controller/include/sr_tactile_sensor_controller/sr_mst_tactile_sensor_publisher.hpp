@@ -1,5 +1,4 @@
-/* 
-*Copyright 2023 Shadow Robot Company Ltd.
+/* Copyright 2023 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -14,8 +13,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 /**
-  * @file   sr_mst_tactile_sensor_publisher.hpp
-  * @author Rodrigo Zenha <rodrigo@shadowrobot.com>
+  * @file  sr_mst_tactile_sensor_publisher.hpp
   *
   * @brief Publish MST tactile state
   */
@@ -31,22 +29,48 @@
 
 namespace controller
 {
+  /** 
+  * Class that contains all functions and member variables relevant to publish the MST sensor data.
+  * It inherits from the SrTactileSensorPublisher class.
+  */ 
+  class SrMSTTactileSensorPublisher: public SrTactileSensorPublisher
+  {
+    public:
+      /**
+        * MST tactile sensor publisher constructor.
+        *
+        * @param sensors Is a pointer to the current tactile data to be published
+        * @param publish_rate Defines the data publishing time rate.
+        * @param nh_prefix The prefix of the ROS node handle to be used for publishing.
+        * @param prefix The hand prefix (e.g. "rh_" or "lh_")
+        */
+      SrMSTTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors,
+                                  double publish_rate, ros::NodeHandle nh_prefix, std::string prefix) :
+        SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix)
+        {
+        }
+      
+      /**
+        * Initialize the MST sensor publisher.
+        *
+        * @param time The current process time with wich to initialize last_publish_time_
+        */
+      virtual void init(const ros::Time& time);
 
-class SrMSTTactileSensorPublisher: public SrTactileSensorPublisher
-{
-public:
-  SrMSTTactileSensorPublisher(std::vector<tactiles::AllTactileData>* sensors,
-                              double publish_rate, ros::NodeHandle nh_prefix, std::string prefix)
-    : SrTactileSensorPublisher(sensors, publish_rate, nh_prefix, prefix) {}
-  virtual void init(const ros::Time& time);
-  virtual void update(const ros::Time& time, const ros::Duration& period);
+      /**
+        * Populate and publish the MST sensor data.
+        *
+        * @param time The current process time.
+        * @param period The time since the last call to update. Not used by this class
+        */
+      virtual void update(const ros::Time& time, const ros::Duration& period);
 
-private:
-  typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MSTAll> MSTPublisher;
-  typedef boost::shared_ptr<MSTPublisher > MSTPublisherPtr;
-  MSTPublisherPtr mst_realtime_pub_;
-};
-
+    private:
+      // ROS realtime publisher of sr_robot_msgs::MSTAll
+      typedef realtime_tools::RealtimePublisher<sr_robot_msgs::MSTAll> MSTPublisher;
+      typedef boost::shared_ptr<MSTPublisher > MSTPublisherPtr;
+      MSTPublisherPtr mst_realtime_pub_;
+  };
 }  // namespace controller
 
 /* For the emacs weenies in the crowd.

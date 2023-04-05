@@ -44,36 +44,42 @@ public:
   /**
     * MST object constructor.
     *
+    * @param nh ROS node handle.
+    * @param device_id The device id.
+    * @param update_configs_vector A vector containing information regarding which type of data to poll.
+    * @param update_state Defines current operation state of the sensor (INITIALIZATION or OPERATION).
+    * @param init_tactiles_vector A generic tactile data vector containing sensor information (e.g. Serial Number).
     */
   MST(ros::NodeHandle nh, std::string device_id, std::vector<generic_updater::UpdateConfig> update_configs_vector,
        operation_mode::device_update_state::DeviceUpdateState update_state,
        boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
 
-  /*
-   * This function is called in the constructors, to initialize the necessary objects
-   */
-  void init(std::vector<generic_updater::UpdateConfig> update_configs_vector,
-            operation_mode::device_update_state::DeviceUpdateState update_state);
+  /**
+    * Initialise relevant MST sensor data arrays.
+    */
+  void initialise_tactile_data_structure();
 
-  /*
-   * This function is called each time a new etherCAT message
-   * is received in the sr08.cpp driver. It  updates the tactile
-   * sensors values contained in sensor_data.
-   *
-   * @param status_data the received etherCAT message
-   */
+  /**
+    * Extract the tactile specific data from the incoming EtherCAT status message from the Palm.
+    * And update the tactile data structure.
+    *
+    * @param status_data Is a pointer to an incoming EtherCAT status message from the Palm.
+    */
   virtual void update(StatusType *status_data);
 
-  /*
-   * Publish the information to a ROS topic.
-   *
-   */
+  /**
+    * Publish MST tactile data. 
+    * Not implemented, as this is published from the controller publisher.
+    * But still necessary to keep it in the class, as it maybe be called by the hand drivers
+    */
   virtual void publish();
 
-  /*
-   * This function adds the diagnostics for the tactiles to the
-   * multi diagnostic status published by the hand.
-   */
+  /**
+    *  This function appends MST specific diagnostic data to the runtime_monitor node of a running Hand.
+    *
+    * @param diagnostic_vector The vector of diagnostic messages. Not used by this class
+    * @param diagnostic_status_wrapper The diagnostic status wrapper which to append the sensor's diagnostic data
+    */
   virtual void add_diagnostics(std::vector<diagnostic_msgs::DiagnosticStatus> &vec,
                                diagnostic_updater::DiagnosticStatusWrapper &d);
 
@@ -81,9 +87,16 @@ public:
 
 private:
   sr_robot_msgs::MSTAll sensor_data;
-  std::shared_ptr<ros::Publisher> publisher;
   std::vector<GenericTactileData> diagnostic_data;
 
+  /**
+    * Decode incoming message from the MST tactile sensor, which are sent in chunks of 12 bits
+    * Message is decoded for specified index of the data array. 
+    *
+    * @param buffer Is pointer to array containing incoming tactile data bytes.
+    * @param index Is an index that corresponds the taxel (and channel - X, Y or Z) to be decoded.
+    * @return The decoded integer value of the requested sensor's taxel and channel.
+    */
   int read12bits(char* buffer, int index);
 };  // end class
 
