@@ -86,15 +86,15 @@ int MST<StatusType, CommandType>::read12bits(char* buffer, int index)
   // Finds the correct index of the data in the data buffer
   int start = index * 3 / 2;
 
-  // If requested index is even, return the current byte, and the first 4 bits of the next byte 
+  // If requested index is even, return the current byte, and the first 4 bits of the next byte
   if (index % 2 == 0)
   {
     int byte1 = buffer[start];
-    int byte2 = buffer[start + 1];  
+    int byte2 = buffer[start + 1];
 
     return byte1 << 4 | byte2 >> 4 & 0x0F;
   }
-  // If requested index is odd, return the last 4 bits of the current byte, and the next byte 
+  // If requested index is odd, return the last 4 bits of the current byte, and the next byte
   int byte1 = (int8_t)(buffer[start] << 4);
   int byte2 = buffer[start + 1];
 
@@ -109,7 +109,7 @@ int MST<StatusType, CommandType>::read12bits(char* buffer, int index)
   */
 template<class StatusType, class CommandType>
 void MST<StatusType, CommandType>::update(StatusType *status_data)
-{ 
+{
   // Returns a bit mask describing which fingers contain MST tactile sensors
   int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
   for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
