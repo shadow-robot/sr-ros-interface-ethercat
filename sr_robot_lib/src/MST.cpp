@@ -133,6 +133,11 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             taxel_magnetic_data.z = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 2);
             sensor_data.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
           }
+          if (diagnostic_data[id_sensor].git_revision.back() == '1')
+            sensor_data.tactiles[id_sensor].status = (int8_t)status_data->tactile[id_sensor].string[(taxel_index-1) * 3 + 2] & 0x0F;
+          else
+            sensor_data.tactiles[id_sensor].status = -1;
+
         }
         break;
 
@@ -149,6 +154,10 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             sensor_data.tactiles[id_sensor].temperature_data[taxel_index] =
                 (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25;  // Converts to Celsius degrees
           }
+          if (diagnostic_data[id_sensor].git_revision.back() == '1')
+            sensor_data.tactiles[id_sensor].status = (int8_t)status_data->tactile[id_sensor].string[(taxel_index-1)] & 0x0F;
+          else
+            sensor_data.tactiles[id_sensor].status = -1;
         }
         break;
     }
