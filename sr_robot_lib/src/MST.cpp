@@ -31,6 +31,8 @@
 
 /// The number of sensitive taxels on each MST tactile sensor
 #define NUMBER_OF_TAXELS 17
+#define MAGNETIC_DATA_BYTES       77
+#define TEMPERATURE_DATA_BYTES    27
 
 namespace tactiles
 {
@@ -133,11 +135,16 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             taxel_magnetic_data.z = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 2);
             sensor_data.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
           }
+          // If MST sensor has Status Check enabled, retrieve status from latest measurment 
           if (diagnostic_data[id_sensor].git_revision.back() == '1')
-            sensor_data.tactiles[id_sensor].status = (int8_t)status_data->tactile[id_sensor].string[(taxel_index-1) * 3 + 2] & 0x0F;
+          {
+              sensor_data.tactiles[id_sensor].status = (int8_t)status_data->tactile[id_sensor].string[MAGNETIC_DATA_BYTES - 1] & 0x0F;
+          }
+          // Otherwise set status as "disabled" (-1)
           else
+          {
             sensor_data.tactiles[id_sensor].status = -1;
-
+          }
         }
         break;
 
@@ -154,10 +161,16 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             sensor_data.tactiles[id_sensor].temperature_data[taxel_index] =
                 (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25;  // Converts to Celsius degrees
           }
+          // If MST sensor has Status Check enabled, retrieve status from latest measurment 
           if (diagnostic_data[id_sensor].git_revision.back() == '1')
-            sensor_data.tactiles[id_sensor].status = (int8_t)status_data->tactile[id_sensor].string[(taxel_index-1)] & 0x0F;
+          {
+            sensor_data.tactiles[id_sensor].status = (int8_t)status_data->tactile[id_sensor].string[TEMPERATURE_DATA_BYTES - 1] & 0x0F;
+          }
           else
+          {
+          // Otherwise set status as "disabled" (-1)
             sensor_data.tactiles[id_sensor].status = -1;
+          }
         }
         break;
     }
