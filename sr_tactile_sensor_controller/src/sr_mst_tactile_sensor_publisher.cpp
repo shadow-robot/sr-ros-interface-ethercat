@@ -35,6 +35,14 @@ void SrMSTTactileSensorPublisher::init(const ros::Time& time)
   // Instantiate MST realtime publisher object
   mst_realtime_pub_ = MSTPublisherPtr(
     new realtime_tools::RealtimePublisher<sr_robot_msgs::MSTAll>(nh_prefix_, "tactile", 4));
+  mst_realtime_pub_->lock();
+  for(unsigned int id_sensor = 0; id_sensor < sensors_->size(); id_sensor++)
+  {
+    mst_realtime_pub_->msg_.tactiles[id_sensor].magnetic_data.resize(sensors_->at(id_sensor).mst.magnetic_data.size());
+    mst_realtime_pub_->msg_.tactiles[id_sensor].temperature_data.resize(sensors_->at(id_sensor).mst.temperature_data.size());
+  }
+  mst_realtime_pub_->unlock();
+
 }
 
 /**
@@ -53,10 +61,25 @@ void SrMSTTactileSensorPublisher::update(const ros::Time& time, const ros::Durat
     {
       // Update time in last_publish_time_
       last_publish_time_ = last_publish_time_ + ros::Duration(1.0 / publish_rate_);
-      // Populate message to be published
-      mst_realtime_pub_->msg_ = sensors_->at(0).mst.sensor_data;  // contains data of sensors on all fingers
       mst_realtime_pub_->msg_.header.stamp = time;
       mst_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
+
+      // Populate message to be published
+      for(unsigned int id_sensor = 0; id_sensor < sensors_->size(); id_sensor++)
+      {
+        mst_realtime_pub_->msg_.tactiles[id_sensor].magnetic_data = sensors_->at(id_sensor).mst.magnetic_data;
+        mst_realtime_pub_->msg_.tactiles[id_sensor].temperature_data = sensors_->at(id_sensor).mst.temperature_data;
+        mst_realtime_pub_->msg_.tactiles[id_sensor].status = sensors_->at(id_sensor).mst.status_check;
+        mst_realtime_pub_->msg_.tactiles[id_sensor].header.stamp = time;
+        switch(id_sensor)
+        {
+          case(finger_index::FF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "FF_tactile";
+          case(finger_index::MF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "MF_tactile";
+          case(finger_index::RF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "RF_tactile";
+          case(finger_index::LF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "LF_tactile";
+          case(finger_index::TH): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "TH_tactile";
+        }
+      }
       mst_realtime_pub_->unlockAndPublish();
     }
   }

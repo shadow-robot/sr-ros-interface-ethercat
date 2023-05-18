@@ -56,7 +56,7 @@ public:
   /**
     * Initialise relevant MST sensor data arrays.
     */
-  void initialise_tactile_data_structure();
+  void initialise_tactile_data_structure(boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector);
 
   /**
     * Extract the tactile specific data from the incoming EtherCAT status message from the Palm.

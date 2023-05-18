@@ -53,24 +53,29 @@ MST<StatusType, CommandType>::MST(ros::NodeHandle nh, std::string device_id,
   GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
 {
   diagnostic_data = *init_tactiles_vector;
-  initialise_tactile_data_structure();
+  initialise_tactile_data_structure(init_tactiles_vector);
 }
 
 /**
   * Initialise relevant MST sensor data arrays.
   */
 template<class StatusType, class CommandType>
-void MST<StatusType, CommandType>::initialise_tactile_data_structure()
+void MST<StatusType, CommandType>::initialise_tactile_data_structure(boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
 {
-  // This is defined as an array of size 1, so that it's compatible with SrTactileSensorController::update()
-  this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(new std::vector<AllTactileData>(1));
-  this->all_tactile_data->at(0).type = "mst";
+  // Initialise the vector of tactiles
+  this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(new std::vector<AllTactileData>(this->nb_tactiles));
 
-  // Resize the tactile data structure to match the number of taxels on each sensor
   for (uint8_t id_sensor; id_sensor < this->nb_tactiles; ++id_sensor)
-  {
+  { 
+    // For each sensor found, add the type and diagnostics data (freq, sw version, git version, status check)  
+    MSTData mst_diagnostics(init_tactiles_vector->at(id_sensor));
+    this->all_tactile_data->at(id_sensor).mst = mst_diagnostics;
+    this->all_tactile_data->at(id_sensor).type = "mst";
+
+    // Resize the tactile data structure to match the number of taxels on each sensor
     sensor_data.tactiles[id_sensor].magnetic_data.resize(NUMBER_OF_TAXELS);
     sensor_data.tactiles[id_sensor].temperature_data.resize(NUMBER_OF_TAXELS);
+    sensor_data.tactiles[id_sensor].status = -1;  // Status check is inactive by default
   }
 }
 
@@ -125,8 +130,6 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
         {
           for (uint8_t taxel_index = 0; taxel_index < NUMBER_OF_TAXELS; taxel_index++)
           {
-            // Set a timestamp right before extracting magnetic data
-            sensor_data.tactiles[id_sensor].timestamp = ros::Time::now();
             geometry_msgs::Point taxel_magnetic_data;
             // Decode incoming tactile data for each taxel and channel (X, Y or Z)
             // And build ROS message
@@ -155,8 +158,6 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
           for (uint8_t taxel_index = 0; taxel_index < NUMBER_OF_TAXELS; taxel_index++)
           {
             char* tactile_data_pointer = status_data->tactile[id_sensor].string;
-            // Set a timestamp right before extracting temperature data
-            sensor_data.tactiles[id_sensor].timestamp = ros::Time::now();
             // Decode incoming tactile data for each taxel; Skiping first byte, as it contains MST's PSoC temperature
             sensor_data.tactiles[id_sensor].temperature_data[taxel_index] =
                 (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25;  // Converts to Celsius degrees
@@ -227,9 +228,12 @@ void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::
 template<class StatusType, class CommandType>
 std::vector<AllTactileData> *MST<StatusType, CommandType>::get_tactile_data()
 {
-  // sensor_data contains the data for all available tactile sensors
-  this->all_tactile_data->at(0).mst.sensor_data = sensor_data;
-
+  for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; id_sensor++)
+  {
+    this->all_tactile_data->at(id_sensor).mst.magnetic_data = sensor_data.tactiles[id_sensor].magnetic_data;
+    this->all_tactile_data->at(id_sensor).mst.temperature_data = sensor_data.tactiles[id_sensor].temperature_data;
+    this->all_tactile_data->at(id_sensor).mst.status_check = sensor_data.tactiles[id_sensor].status;
+  }
   return this->all_tactile_data.get();
 }
 
