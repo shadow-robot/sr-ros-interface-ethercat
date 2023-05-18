@@ -70,15 +70,7 @@ void SrMSTTactileSensorPublisher::update(const ros::Time& time, const ros::Durat
         mst_realtime_pub_->msg_.tactiles[id_sensor].magnetic_data = sensors_->at(id_sensor).mst.magnetic_data;
         mst_realtime_pub_->msg_.tactiles[id_sensor].temperature_data = sensors_->at(id_sensor).mst.temperature_data;
         mst_realtime_pub_->msg_.tactiles[id_sensor].status = sensors_->at(id_sensor).mst.status_check;
-        mst_realtime_pub_->msg_.tactiles[id_sensor].header.stamp = time;
-        switch(id_sensor)
-        {
-          case(finger_index::FF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "FF_tactile"; break;
-          case(finger_index::MF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "MF_tactile"; break;
-          case(finger_index::RF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "RF_tactile"; break;
-          case(finger_index::LF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "LF_tactile"; break;
-          case(finger_index::TH): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "TH_tactile"; break;
-        }
+        mst_realtime_pub_->msg_.tactiles[id_sensor].timestamp = time;
       }
       mst_realtime_pub_->unlockAndPublish();
     }
