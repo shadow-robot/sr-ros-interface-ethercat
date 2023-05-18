@@ -73,11 +73,11 @@ void SrMSTTactileSensorPublisher::update(const ros::Time& time, const ros::Durat
         mst_realtime_pub_->msg_.tactiles[id_sensor].header.stamp = time;
         switch(id_sensor)
         {
-          case(finger_index::FF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "FF_tactile";
-          case(finger_index::MF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "MF_tactile";
-          case(finger_index::RF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "RF_tactile";
-          case(finger_index::LF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "LF_tactile";
-          case(finger_index::TH): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "TH_tactile";
+          case(finger_index::FF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "FF_tactile"; break;
+          case(finger_index::MF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "MF_tactile"; break;
+          case(finger_index::RF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "RF_tactile"; break;
+          case(finger_index::LF): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "LF_tactile"; break;
+          case(finger_index::TH): mst_realtime_pub_->msg_.tactiles[id_sensor].header.frame_id = "TH_tactile"; break;
         }
       }
       mst_realtime_pub_->unlockAndPublish();
