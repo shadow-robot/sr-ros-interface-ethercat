@@ -27,8 +27,8 @@
 
 #include "../0220_palm_edc/0220_palm_edc_ethercat_protocol.h"
 
-/// Data structure sent from the Palm to the host (Status).
-/// Data is written to the EtherCAT bus sequencially, in the same order defined below.
+//! Data structure sent from the Palm to the host (Status).
+//! Data is written to the EtherCAT bus sequencially, in the same order defined below.
 typedef struct
 {
     EDC_COMMAND                 EDC_command;                        //!< This tells us the contents of the data below.
@@ -36,7 +36,7 @@ typedef struct
                                                                     //!< value which arrived from the host in the previous
                                                                     //!< EtherCAT packet
 
-	int16u					    sensors[SENSORS_NUM_0220+1];
+    int16u                      sensors[SENSORS_NUM_0220+1];        //!< Joint sensors data
 
     FROM_MOTOR_DATA_TYPE        motor_data_type;                    //!< Which data does motor[] contain?
                                                                     //!< This value should agree with the previous value
@@ -50,17 +50,18 @@ typedef struct
 
     MOTOR_DATA_PACKET           motor_data_packet[10];              //!< Data for 10 motors only. (Even ones or Odd ones)
 
-    int32u                      tactile_data_type;
+    int32u                      tactile_data_type;                  //!< Identifies the tactile data type
     int16u                      tactile_data_valid;                 //!< Bit 0: FF. Bit 4: TH.
-    TACTILE_SENSOR_STATUS_v1    tactile[5];                         //
+    TACTILE_SENSOR_STATUS_v1    tactile[5];                         //!< Tactile sensors data
 
     int16u                      idle_time_us;                       //!< The idle time from when the palm has finished dealing with one EtherCAT
                                                                     //!< packet, and the next packet arriving. Ideally, this number should be more than 50.
+
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS;
 
 
-/// Data structure sent from the host to the Palm (Command).
-/// Data is written to the EtherCAT bus sequencially, in the same order defined below.
+//! Data structure sent from the host to the Palm (Command).
+//! Data is written to the EtherCAT bus sequencially, in the same order defined below.
 typedef struct
 {
     EDC_COMMAND                 EDC_command;                        //!< What type of data should the palm send back in the next packet?
@@ -73,19 +74,20 @@ typedef struct
     int16s                      motor_data[NUM_MOTORS];             //!< Data to send to motors. Typically torque/PWM demands, or configs.
 
     int32u                      tactile_data_type;                  //!< Request for specific tactile data
-    IMU_COMMAND_TYPE            imu_command;                        // Command to configure the IMU
+    IMU_COMMAND_TYPE            imu_command;                        //!< Command to configure the IMU
+
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND;
 
-/// EtherCAT protocol packet/header sizes
+//! EtherCAT protocol packet/header sizes
 #define PALM_0240_ETHERCAT_COMMAND_HEADER_SIZE  (sizeof(EDC_COMMAND) + sizeof(FROM_MOTOR_DATA_TYPE) + sizeof(int16s))
 
 #define PALM_0240_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS)
 #define PALM_0240_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND)
 
-// Ethercat Command and Status packets "agreed" sizes.
-// They are use by the host and clients to assert if the incoming packets are the correct size.
-#define ETHERCAT_STATUS_0240_AGREED_SIZE     232  // This is the size of the Status  EtherCAT packet (Status + CAN packet)
-#define ETHERCAT_COMMAND_0240_AGREED_SIZE    74   // This is the size of the Command EtherCAT packet (Command + CAN packet)
+//! Ethercat Command and Status packets "agreed" sizes.
+//! They are use by the host and clients to assert if the incoming packets are the correct size.
+#define ETHERCAT_STATUS_0240_AGREED_SIZE     232  //!< This is the size of the Status  EtherCAT packet (Status + CAN packet)
+#define ETHERCAT_COMMAND_0240_AGREED_SIZE    74   //!< This is the size of the Command EtherCAT packet (Command + CAN packet)
 
 
 
@@ -100,7 +102,7 @@ typedef struct
 //!
 //!
 
-/// Command/Status EtherCAT packet memory addresses. Necessary to Read/write data through Direct Memory Access (DMA)
+//! Command/Status EtherCAT packet memory addresses. Necessary to Read/write data through Direct Memory Access (DMA)
 #define PALM_0240_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
 #define PALM_0240_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (PALM_0240_ETHERCAT_COMMAND_DATA_ADDRESS            + PALM_0240_ETHERCAT_COMMAND_DATA_SIZE)
 
@@ -108,6 +110,5 @@ typedef struct
 #define PALM_0240_ETHERCAT_CAN_BRIDGE_DATA_STATUS_ADDRESS     (PALM_0240_ETHERCAT_STATUS_DATA_ADDRESS             + PALM_0240_ETHERCAT_STATUS_DATA_SIZE)
 
 //#define NUM_CONFIGS_REQUIRED 5
-
 
 #endif

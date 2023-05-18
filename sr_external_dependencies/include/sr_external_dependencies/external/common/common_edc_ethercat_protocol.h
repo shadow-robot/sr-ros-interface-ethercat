@@ -37,6 +37,7 @@ typedef enum
     //EDC_COMMAND_TEST_RESULTS,                                   //!< Might be used in the future for running automated tests inside the firmware.
 }EDC_COMMAND;
 
+//! Define IMU available commands
 typedef struct
 {
   int16u command;
@@ -46,7 +47,7 @@ typedef struct
 #define  IMU_COMMAND_NONE        0
 #define  IMU_COMMAND_SET_SCALE   1
 
-#ifndef NO_STRINGS													                        // The PIC compiler doesn't deal well with strings.
+#ifndef NO_STRINGS                                              // The PIC compiler doesn't deal well with strings.
 
     static const char* slow_data_types[17] = {  "Invalid",                                  // 0x0000
                                                 "SVN revision",                             // 0x0001
@@ -102,7 +103,7 @@ typedef enum
 
 
 
-#ifndef NO_STRINGS                                              //   The PIC compiler doesn't deal well with strings.
+#ifndef NO_STRINGS                                              //  The PIC compiler doesn't deal well with strings.
 
     static const char* joint_names[JOINTS_NUM_0X20] = {  "FFJ0", "FFJ1", "FFJ2", "FFJ3", "FFJ4",
                                                          "MFJ0", "MFJ1", "MFJ2", "MFJ3", "MFJ4",

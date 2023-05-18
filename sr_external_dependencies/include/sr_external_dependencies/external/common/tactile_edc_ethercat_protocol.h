@@ -105,7 +105,7 @@ typedef enum                                                            // Data 
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4     = 0x0007,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5     = 0x0008,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6     = 0x0009,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7     = 0x000A, 
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7     = 0x000A,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8     = 0x000B,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9     = 0x000C,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10    = 0x000D,
@@ -151,7 +151,7 @@ typedef struct
 
     int16u  other_sensor_1;                                 // This is placed here to make this struct backwards compatible
                                                             // with older versions of the host side driver.
-    
+
     int16u  nothing[TACTILE_DATA_LENGTH_WORDS_v1 - 5];
 }TACTILE_SENSOR_BIOTAC_DATA_CONTENTS;
 
@@ -169,7 +169,8 @@ typedef union
 }TACTILE_SENSOR_STATUS_v2;
 
 // Length for 17 taxel-MST tactile sensors
-#define TACTILE_DATA_LENGTH_BYTES_v3   78
+#define TACTILE_DATA_LENGTH_BYTES_v3   78 /// In reality we only need 77 bytes
+                                          /// but this number needs to be even so that it's divisible by 2
 #define TACTILE_DATA_LENGTH_WORDS_v3   (TACTILE_DATA_LENGTH_BYTES_v3/2)
 
 typedef union

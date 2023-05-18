@@ -27,97 +27,99 @@
 
 #include "../0220_palm_edc/0220_palm_edc_ethercat_protocol.h"
 
-/// Data structure sent from the Palm to the host (Status).
-/// Data is written to the EtherCAT bus sequencially, in the same order defined below.
+//! Data structure sent from the Palm to the host (Status).
+//! Data is written to the EtherCAT bus sequencially, in the same order defined below.
 typedef struct
 {
-                                                            // Identifies the contents of the data below and should be identical to the EDC_command
-                                                            // value which arrived from the host in the previous EtherCAT packet
-  EDC_COMMAND                 EDC_command;                  // 4 bytes
+  EDC_COMMAND                 EDC_command;                  //!< Identifies the contents of the data below and should be identical to the EDC_command
+                                                            //!< value which arrived from the host in the previous EtherCAT packet
+                                                            // 4 bytes
 
-                                                            // Joints' sensor data
-  int16u					            sensors[SENSORS_NUM_0220+1];  // 74 bytes
+  int16u					            sensors[SENSORS_NUM_0220+1];  //!< Joints sensors data
+                                                            // 74 bytes
 
-                                                            // Tacile sensor data
-  int32u                      tactile_data_type;            // 4 bytes
-  int16u                      tactile_data_valid;           // 2 bytes  (Bit 0: FF. Bit 4: TH.)
-  TACTILE_SENSOR_STATUS_v3    tactile[5];                   // 78 * 5 = 390 bytes
+  int32u                      tactile_data_type;            //!< Identifies the tactile data type
+                                                            // 4 bytes
+  int16u                      tactile_data_valid;           //!< Identifies if tactile data is valid for each finger (Bit 0: FF. Bit 4: TH)
+                                                            // 2 bytes
+  TACTILE_SENSOR_STATUS_v3    tactile[5];                   //!< Tacile sensors data
+                                                            // 78 * 5 = 390 bytes
                                                             // TOTAL Tactile data = 396 bytes
 
-                                                            // Identifies the contents present in motor_data_packet[] below
-                                                            // This value should be the same as the one sent in the previous command
-                                                            // ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND
-  FROM_MOTOR_DATA_TYPE        motor_data_type;              // 4 bytes
+  FROM_MOTOR_DATA_TYPE        motor_data_type;              //!< Identifies the contents present in motor_data_packet[] below
+                                                            //!< This value should be the same as the one sent in the previous command
+                                                            //!< ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND
+                                                            // 4 bytes
+                                                                  
+  int16s                      which_motors;                 //!< Identifies the group of motors sending data in motor_data_packet[] below.
+                                                            //!< 0: Even motor numbers.  1: Odd motor numbers
+                                                            //!< This value should be the same as the one sent in the previous command
+                                                            //!< ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND                                                              
+                                                            // 2 bytes
 
-                                                            // Identifies the group of motors sending data through motor_data_packet[] below.
-                                                            // 0: Even motor numbers.  1: Odd motor numbers
-                                                            // This value should be the same as the one sent in the previous command
-                                                            // ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND                                                              
-  int16s                      which_motors;                 // 2 bytes
+  int32u                      which_motor_data_arrived;     //!< Bit N set when motor CAN message arrives.
+                                                            //!< Ideally, bits 0..19 get set
+                                                            // 4 bytes     
 
-                                                            // Bit N set when motor CAN message arrives.
-                                                            // Ideally, bits 0..19 get set
-  int32u                      which_motor_data_arrived;     // 4 bytes     
+  int32u                      which_motor_data_had_errors;  //!< Bit N set when motor sends bad CAN message.
+                                                            //!< Ideally, no bits get set.
+                                                            // 4 bytes     
 
-                                                            // Bit N set when motor sends bad CAN message.
-                                                            // Ideally, no bits get set.
-  int32u                      which_motor_data_had_errors;  // 4 bytes     
-
-                                                            // Data from the motors. 
-                                                            // Only 10 motors send data at a time (even ones or odd ones).
-  MOTOR_DATA_PACKET           motor_data_packet[10];        // 4 * 10 = 40 bytes
+  MOTOR_DATA_PACKET           motor_data_packet[10];        //!< Data from the motors. 
+                                                            //!< Only 10 motors send data at a time (even or odd ones).
+                                                            // 4 * 10 = 40 bytes
                                                             // Total Motor data = 54 bytes
 
-                                                            // Time distance between the previous EtherCAT Status being sent, and next Command packet arriving.
-                                                            // Ideally, this number should be more than 50.
-  int16u                      idle_time_us;                 // 2 bytes
+  int16u                      idle_time_us;                 //!< Time distance between the previous EtherCAT Status being sent, and next Command packet arriving.
+                                                            //!< Ideally, this number should be more than 50.
+                                                            // 2 bytes
 
                                                             // Total: 530 bytes
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS;
 
 
-/// Data structure sent from the host to the Palm (Command).
-/// Data is written to the EtherCAT bus sequencially, in the same order defined below.
+//! Data structure sent from the host to the Palm (Command).
+//! Data is written to the EtherCAT bus sequencially, in the same order defined below.
 typedef struct
 {
-                                                                    // Identifies the data being request from the Palm
-    EDC_COMMAND                 EDC_command;                        // 4 bytes
+    EDC_COMMAND                 EDC_command;                        //!< Identifies the data being requested to the Palm
+                                                                    // 4 bytes
 
-                                                                    // Identifies the type of data we want to read from the motors
-    FROM_MOTOR_DATA_TYPE        from_motor_data_type;               // 4  bytes
+    FROM_MOTOR_DATA_TYPE        from_motor_data_type;               //!< Identifies the type of data we want to read from the motors
+                                                                    // 4  bytes
     
-                                                                    // Identifies the group of motors (odd or even) we want to read data from.
-                                                                    // 0: Even motor numbers.  1: Odd motor numbers
-    int16s                      which_motors;                       // 2  bytes
+    int16s                      which_motors;                       //!< Identifies the group of motors (odd or even) we want to read data from.
+                                                                    //!< 0: Even motor numbers. 1: Odd motor numbers
+                                                                    // 2  bytes
 
-                                                                    // Identifies the command/data type being sent to the motors
-    TO_MOTOR_DATA_TYPE          to_motor_data_type;                 // 4  bytes
+    TO_MOTOR_DATA_TYPE          to_motor_data_type;                 //!< Identifies the command/data type being sent to the motors
+                                                                    // 4  bytes
     
-                                                                    // Data to send to the motors. Typically torque/PWM demands, or configs.
-    int16s                      motor_data[NUM_MOTORS];             // 2 * 20 = 40 bytes
+    int16s                      motor_data[NUM_MOTORS];             //!< Data to send to the motors. Typically torque/PWM demands, or configs.
+                                                                    // 2 * 20 = 40 bytes
 
-                                                                    // Identifies the type of data we want to read from the tactile sensors
-    int32u                      tactile_data_type;                  // 4  bytes
+    int32u                      tactile_data_type;                  //!< Identifies the type of data we want to read from the tactile sensors
+                                                                    // 4  bytes
     
-                                                                    // Identifies the command being sent to the IMU.
-                                                                    // For IMU configuration purposes.
-    IMU_COMMAND_TYPE            imu_command;                        // 4 bytes
+    IMU_COMMAND_TYPE            imu_command;                        //!< Identifies the command being sent to the IMU.
+                                                                    //!< For IMU configuration purposes.
+                                                                    // 4 bytes
 
                                                                     // Total: 62 bytes
 
 } __attribute__((packed)) ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND;
 
-/// EtherCAT protocol packet/header sizes
+//! EtherCAT protocol packet/header sizes
 #define PALM_0250_ETHERCAT_COMMAND_HEADER_SIZE  (sizeof(EDC_COMMAND) + sizeof(FROM_MOTOR_DATA_TYPE) + sizeof(int16s))
 
 #define PALM_0250_ETHERCAT_STATUS_DATA_SIZE       sizeof(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS)
 #define PALM_0250_ETHERCAT_COMMAND_DATA_SIZE      sizeof(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND)
 
-// Ethercat Command and Status packets "agreed" sizes.
-// They are use by the host and clients to assert if the incoming packets are the correct size.
-#define ETHERCAT_STATUS_0250_AGREED_SIZE     542  // This is the size of the Status  EtherCAT packet (Status + CAN packet) 
-#define ETHERCAT_COMMAND_0250_AGREED_SIZE    74   // This is the size of the Command EtherCAT packet (Command + CAN packet)
+//! Ethercat Command and Status packets "agreed" sizes.
+//! They are use by the host and clients to assert if the incoming packets are the correct size.
+#define ETHERCAT_STATUS_0250_AGREED_SIZE     542  //!< This is the size of the Status  EtherCAT packet (Status + CAN packet) 
+#define ETHERCAT_COMMAND_0250_AGREED_SIZE    74   //!< This is the size of the Command EtherCAT packet (Command + CAN packet)
 
 
 //! | ETHERCAT_COMMAND_DATA | ETHERCAT_CAN_BRIDGE_DATA_COMMAND | ETHERCAT_STATUS_DATA | ETHERCAT_CAN_BRIDGE_DATA_STATUS |
@@ -131,7 +133,7 @@ typedef struct
 //!
 //!
 
-/// Command/Status EtherCAT packet memory addresses. Necessary to Read/write data through Direct Memory Access (DMA)
+//! Command/Status EtherCAT packet memory addresses. Necessary to Read/write data through Direct Memory Access (DMA)
 #define PALM_0250_ETHERCAT_COMMAND_DATA_ADDRESS               0x1000
 #define PALM_0250_ETHERCAT_CAN_BRIDGE_DATA_COMMAND_ADDRESS    (PALM_0250_ETHERCAT_COMMAND_DATA_ADDRESS            + PALM_0250_ETHERCAT_COMMAND_DATA_SIZE)
 
