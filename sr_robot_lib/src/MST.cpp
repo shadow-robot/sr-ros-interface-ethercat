@@ -60,10 +60,12 @@ MST<StatusType, CommandType>::MST(ros::NodeHandle nh, std::string device_id,
   * Initialise relevant MST sensor data arrays.
   */
 template<class StatusType, class CommandType>
-void MST<StatusType, CommandType>::initialise_tactile_data_structure(boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector)
+void MST<StatusType, CommandType>::initialise_tactile_data_structure(
+                                          boost::shared_ptr<std::vector<GenericTactileData>> init_tactiles_vector)
 {
   // Initialise the vector of tactiles
-  this->all_tactile_data = boost::shared_ptr<std::vector<AllTactileData> >(new std::vector<AllTactileData>(this->nb_tactiles));
+  this->all_tactile_data =
+                boost::shared_ptr<std::vector<AllTactileData>>(new std::vector<AllTactileData>(this->nb_tactiles));
 
   for (uint8_t id_sensor; id_sensor < this->nb_tactiles; ++id_sensor)
   { 
@@ -141,7 +143,8 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
           // If MST sensor has Status Check enabled, retrieve status from latest measurment 
           if (diagnostic_data[id_sensor].git_revision.back() == '1')
           {
-              sensor_data.tactiles[id_sensor].status = (int8_t)status_data->tactile[id_sensor].string[MAGNETIC_DATA_BYTES - 1] & 0x0F;
+              sensor_data.tactiles[id_sensor].status =
+                                  (int8_t)status_data->tactile[id_sensor].string[MAGNETIC_DATA_BYTES - 1] & 0x0F;
           }
           // Otherwise set status as "disabled" (-1)
           else
@@ -165,7 +168,8 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
           // If MST sensor has Status Check enabled, retrieve status from latest measurment 
           if (diagnostic_data[id_sensor].git_revision.back() == '1')
           {
-            sensor_data.tactiles[id_sensor].status = (int8_t)status_data->tactile[id_sensor].string[TEMPERATURE_DATA_BYTES - 1] & 0x0F;
+            sensor_data.tactiles[id_sensor].status =
+                                (int8_t)status_data->tactile[id_sensor].string[TEMPERATURE_DATA_BYTES - 1] & 0x0F;
           }
           else
           {

@@ -36,7 +36,7 @@ void SrMSTTactileSensorPublisher::init(const ros::Time& time)
   mst_realtime_pub_ = MSTPublisherPtr(
     new realtime_tools::RealtimePublisher<sr_robot_msgs::MSTAll>(nh_prefix_, "tactile", 4));
   mst_realtime_pub_->lock();
-  for(unsigned int id_sensor = 0; id_sensor < sensors_->size(); id_sensor++)
+  for (unsigned int id_sensor = 0; id_sensor < sensors_->size(); id_sensor++)
   {
     mst_realtime_pub_->msg_.tactiles[id_sensor].magnetic_data.resize(sensors_->at(id_sensor).mst.magnetic_data.size());
     mst_realtime_pub_->msg_.tactiles[id_sensor].temperature_data.resize(sensors_->at(id_sensor).mst.temperature_data.size());
