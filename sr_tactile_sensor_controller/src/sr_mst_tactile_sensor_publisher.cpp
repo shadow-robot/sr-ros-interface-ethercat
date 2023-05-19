@@ -44,7 +44,6 @@ void SrMSTTactileSensorPublisher::init(const ros::Time& time)
                                                                   sensors_->at(id_sensor).mst.temperature_data.size());
   }
   mst_realtime_pub_->unlock();
-
 }
 
 /**
@@ -67,7 +66,7 @@ void SrMSTTactileSensorPublisher::update(const ros::Time& time, const ros::Durat
       mst_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
 
       // Populate message to be published
-      for(unsigned int id_sensor = 0; id_sensor < sensors_->size(); id_sensor++)
+      for (unsigned int id_sensor = 0; id_sensor < sensors_->size(); id_sensor++)
       {
         mst_realtime_pub_->msg_.tactiles[id_sensor].magnetic_data = sensors_->at(id_sensor).mst.magnetic_data;
         mst_realtime_pub_->msg_.tactiles[id_sensor].temperature_data = sensors_->at(id_sensor).mst.temperature_data;

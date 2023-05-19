@@ -68,8 +68,8 @@ void MST<StatusType, CommandType>::initialise_tactile_data_structure(
                 boost::shared_ptr<std::vector<AllTactileData>>(new std::vector<AllTactileData>(this->nb_tactiles));
 
   for (uint8_t id_sensor; id_sensor < this->nb_tactiles; ++id_sensor)
-  { 
-    // For each sensor found, add the type and diagnostics data (freq, sw version, git version, status check)  
+  {
+    // For each sensor found, add the type and diagnostics data (freq, sw version, git version, status check) 
     MSTData mst_diagnostics(init_tactiles_vector->at(id_sensor));
     this->all_tactile_data->at(id_sensor).mst = mst_diagnostics;
     this->all_tactile_data->at(id_sensor).type = "mst";
@@ -140,7 +140,7 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             taxel_magnetic_data.z = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 2);
             sensor_data.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
           }
-          // If MST sensor has Status Check enabled, retrieve status from latest measurment 
+          // If MST sensor has Status Check enabled, retrieve status from latest measurment
           if (diagnostic_data[id_sensor].git_revision.back() == '1')
           {
               sensor_data.tactiles[id_sensor].status =
@@ -165,7 +165,7 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             sensor_data.tactiles[id_sensor].temperature_data[taxel_index] =
                 (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25;  // Converts to Celsius degrees
           }
-          // If MST sensor has Status Check enabled, retrieve status from latest measurment 
+          // If MST sensor has Status Check enabled, retrieve status from latest measurment
           if (diagnostic_data[id_sensor].git_revision.back() == '1')
           {
             sensor_data.tactiles[id_sensor].status =
