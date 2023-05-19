@@ -69,7 +69,7 @@ void MST<StatusType, CommandType>::initialise_tactile_data_structure(
 
   for (uint8_t id_sensor; id_sensor < this->nb_tactiles; ++id_sensor)
   {
-    // For each sensor found, add the type and diagnostics data (freq, sw version, git version, status check) 
+    // For each sensor found, add the type and diagnostics data (freq, sw version, git version, status check)
     MSTData mst_diagnostics(init_tactiles_vector->at(id_sensor));
     this->all_tactile_data->at(id_sensor).mst = mst_diagnostics;
     this->all_tactile_data->at(id_sensor).type = "mst";
@@ -83,7 +83,7 @@ void MST<StatusType, CommandType>::initialise_tactile_data_structure(
 
 /**
   * Decode incoming message from the MST tactile sensor, which are sent in chunks of 12 bits
-  * Message is decoded for specified index of the data array. 
+  * Message is decoded for specified index of the data array.
   *
   * @param buffer Is pointer to array containing incoming tactile data bytes.
   * @param index Is an index that corresponds the taxel (and channel - X, Y or Z) to be decoded.
@@ -183,7 +183,7 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
 }
 
 /**
-  * Publish MST tactile data. 
+  * Publish MST tactile data.
   * Not implemented, as this is published from the controller publisher.
   * But still necessary to keep it in the class, as it maybe be called by the hand drivers
   */
