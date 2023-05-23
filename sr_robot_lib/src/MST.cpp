@@ -33,6 +33,7 @@
 #define NUMBER_OF_TAXELS 17
 #define MAGNETIC_DATA_BYTES       77
 #define TEMPERATURE_DATA_BYTES    27
+#define MAX_STATUS_VALUE 15
 
 namespace tactiles
 {
@@ -140,8 +141,14 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             taxel_magnetic_data.z = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 2);
             sensor_data.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
           }
+          /// Detects if there was a sensor reading error, i.e. the tactile data was pulled too soon
+          ///see https://shadowrobot.atlassian.net/wiki/spaces/MST/pages/3401318401/MST+firmware#Communication
+          if (sensor_data.tactiles[id_sensor].magnetic_data[0].x == sensor_data.tactiles[id_sensor].magnetic_data[0].z)
+          {
+            sensor_data.tactiles[id_sensor].status = MAX_STATUS_VALUE + 1;
+          }
           // If MST sensor has Status Check enabled, retrieve status from latest measurment
-          if (diagnostic_data[id_sensor].git_revision.back() == '1')
+          else if (diagnostic_data[id_sensor].git_revision.back() == '1')
           {
               sensor_data.tactiles[id_sensor].status =
                                   (int8_t)status_data->tactile[id_sensor].string[MAGNETIC_DATA_BYTES - 1] & 0x0F;
