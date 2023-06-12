@@ -53,7 +53,7 @@ MST<StatusType, CommandType>::MST(ros::NodeHandle nh, std::string device_id,
                                     boost::shared_ptr<std::vector<GenericTactileData> > init_tactiles_vector) :
   GenericTactiles<StatusType, CommandType>(nh, device_id, update_configs_vector, update_state)
 {
-  diagnostic_data = *init_tactiles_vector;
+  diagnostic_data_ = *init_tactiles_vector;
   initialise_tactile_data_structure(init_tactiles_vector);
 }
 
@@ -76,9 +76,9 @@ void MST<StatusType, CommandType>::initialise_tactile_data_structure(
     this->all_tactile_data->at(id_sensor).type = "mst";
 
     // Resize the tactile data structure to match the number of taxels on each sensor
-    sensor_data.tactiles[id_sensor].magnetic_data.resize(NUMBER_OF_TAXELS);
-    sensor_data.tactiles[id_sensor].temperature_data.resize(NUMBER_OF_TAXELS);
-    sensor_data.tactiles[id_sensor].status = -1;  // Status check is inactive by default
+    sensor_data_.tactiles[id_sensor].magnetic_data.resize(NUMBER_OF_TAXELS);
+    sensor_data_.tactiles[id_sensor].temperature_data.resize(NUMBER_OF_TAXELS);
+    sensor_data_.tactiles[id_sensor].status = -1;  // Status check is inactive by default
   }
 }
 
@@ -139,24 +139,24 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             taxel_magnetic_data.x = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3);
             taxel_magnetic_data.y = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 1);
             taxel_magnetic_data.z = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 2);
-            sensor_data.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
+            sensor_data_.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
           }
           /// Detects if there was a sensor reading error, i.e. the tactile data was pulled too soon
           ///see https://shadowrobot.atlassian.net/wiki/spaces/MST/pages/3401318401/MST+firmware#Communication
-          if (sensor_data.tactiles[id_sensor].magnetic_data[0].x == sensor_data.tactiles[id_sensor].magnetic_data[0].z)
+          if (sensor_data_.tactiles[id_sensor].magnetic_data[0].x == sensor_data_.tactiles[id_sensor].magnetic_data[0].z)
           {
-            sensor_data.tactiles[id_sensor].status = MAX_STATUS_VALUE + 1;
+            sensor_data_.tactiles[id_sensor].status = MAX_STATUS_VALUE + 1;
           }
           // If MST sensor has Status Check enabled, retrieve status from latest measurment
-          else if (diagnostic_data[id_sensor].git_revision.back() == '1')
+          else if (diagnostic_data_[id_sensor].git_revision.back() == '1')
           {
-              sensor_data.tactiles[id_sensor].status =
+              sensor_data_.tactiles[id_sensor].status =
                                   (int8_t)status_data->tactile[id_sensor].string[MAGNETIC_DATA_BYTES - 1] & 0x0F;
           }
           // Otherwise set status as "disabled" (-1)
           else
           {
-            sensor_data.tactiles[id_sensor].status = -1;
+            sensor_data_.tactiles[id_sensor].status = -1;
           }
         }
         break;
@@ -169,19 +169,19 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
           {
             char* tactile_data_pointer = status_data->tactile[id_sensor].string;
             // Decode incoming tactile data for each taxel; Skiping first byte, as it contains MST's PSoC temperature
-            sensor_data.tactiles[id_sensor].temperature_data[taxel_index] =
+            sensor_data_.tactiles[id_sensor].temperature_data[taxel_index] =
                 (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25;  // Converts to Celsius degrees
           }
           // If MST sensor has Status Check enabled, retrieve status from latest measurment
-          if (diagnostic_data[id_sensor].git_revision.back() == '1')
+          if (diagnostic_data_[id_sensor].git_revision.back() == '1')
           {
-            sensor_data.tactiles[id_sensor].status =
+            sensor_data_.tactiles[id_sensor].status =
                                 (int8_t)status_data->tactile[id_sensor].string[TEMPERATURE_DATA_BYTES - 1] & 0x0F;
           }
           else
           {
           // Otherwise set status as "disabled" (-1)
-            sensor_data.tactiles[id_sensor].status = -1;
+            sensor_data_.tactiles[id_sensor].status = -1;
           }
         }
         break;
@@ -221,11 +221,11 @@ void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::
     diagnostic_status_wrapper.summary(diagnostic_status_wrapper.OK, "OK");
     diagnostic_status_wrapper.clear();
 
-    diagnostic_status_wrapper.addf("Sample Frequency", "%d", diagnostic_data[id_sensor].sample_frequency);
-    diagnostic_status_wrapper.addf("Manufacturer", "%s", diagnostic_data[id_sensor].manufacturer.c_str());
-    diagnostic_status_wrapper.addf("Serial Number", "%s", diagnostic_data[id_sensor].serial_number.c_str());
-    diagnostic_status_wrapper.addf("Software Version", "%s", diagnostic_data[id_sensor].git_revision.c_str());
-    diagnostic_status_wrapper.addf("PCB Version", "%s", diagnostic_data[id_sensor].pcb_version.c_str());
+    diagnostic_status_wrapper.addf("Sample Frequency", "%d", diagnostic_data_[id_sensor].sample_frequency);
+    diagnostic_status_wrapper.addf("Manufacturer", "%s", diagnostic_data_[id_sensor].manufacturer.c_str());
+    diagnostic_status_wrapper.addf("Serial Number", "%s", diagnostic_data_[id_sensor].serial_number.c_str());
+    diagnostic_status_wrapper.addf("Software Version", "%s", diagnostic_data_[id_sensor].git_revision.c_str());
+    diagnostic_status_wrapper.addf("PCB Version", "%s", diagnostic_data_[id_sensor].pcb_version.c_str());
 
     diagnostic_vector.push_back(diagnostic_status_wrapper);
   }
@@ -241,9 +241,9 @@ std::vector<AllTactileData> *MST<StatusType, CommandType>::get_tactile_data()
 {
   for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; id_sensor++)
   {
-    this->all_tactile_data->at(id_sensor).mst.magnetic_data = sensor_data.tactiles[id_sensor].magnetic_data;
-    this->all_tactile_data->at(id_sensor).mst.temperature_data = sensor_data.tactiles[id_sensor].temperature_data;
-    this->all_tactile_data->at(id_sensor).mst.status_check = sensor_data.tactiles[id_sensor].status;
+    this->all_tactile_data->at(id_sensor).mst.magnetic_data = sensor_data_.tactiles[id_sensor].magnetic_data;
+    this->all_tactile_data->at(id_sensor).mst.temperature_data = sensor_data_.tactiles[id_sensor].temperature_data;
+    this->all_tactile_data->at(id_sensor).mst.status_check = sensor_data_.tactiles[id_sensor].status;
   }
   return this->all_tactile_data.get();
 }

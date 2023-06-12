@@ -91,9 +91,9 @@ public:
 
 private:
   /// Stores current MST tactile data
-  sr_robot_msgs::MSTAll sensor_data;
+  sr_robot_msgs::MSTAll sensor_data_;
   /// Stores MST diagnostics data
-  std::vector<GenericTactileData> diagnostic_data;
+  std::vector<GenericTactileData> diagnostic_data_;
 
   /**
     * Decode incoming message from the MST tactile sensor, which are sent in chunks of 12 bits
