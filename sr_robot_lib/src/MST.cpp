@@ -141,6 +141,13 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             taxel_magnetic_data.z = read12bits(status_data->tactile[id_sensor].string, taxel_index * 3 + 2);
             sensor_data_.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
           }
+
+          // Fetch last git_revision byte sent by the sensor (related to status check enable flag) from hex string
+          // For now, this byte is either set to 0x00 (disabled) or 0x01 (enabled)
+          std::string git_revision_hex_string_last_byte =
+                diagnostic_data_[id_sensor].git_revision.substr(diagnostic_data_[id_sensor].git_revision.length() - 2);
+          int8_t status_check_byte = std::stoi(git_revision_hex_string_last_byte, 0, 16);
+
           /// Detects if there was a sensor reading error, i.e. the tactile data was pulled too soon
           ///see https://shadowrobot.atlassian.net/wiki/spaces/MST/pages/3401318401/MST+firmware#Communication
           if (sensor_data_.tactiles[id_sensor].magnetic_data[0].x == sensor_data_.tactiles[id_sensor].magnetic_data[0].z)
@@ -148,12 +155,12 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             sensor_data_.tactiles[id_sensor].status = MAX_STATUS_VALUE + 1;
           }
           // If MST sensor has Status Check enabled, retrieve status from latest measurment
-          else if (diagnostic_data_[id_sensor].git_revision.back() == '1')
+          else if (status_check_byte == 0x01)
           {
-              sensor_data_.tactiles[id_sensor].status =
+            sensor_data_.tactiles[id_sensor].status =
                                   (int8_t)status_data->tactile[id_sensor].string[MAGNETIC_DATA_BYTES - 1] & 0x0F;
           }
-          // Otherwise set status as "disabled" (-1)
+          // Otherwise set status as "disabled", and tactiles messages are published with "status = -1"
           else
           {
             sensor_data_.tactiles[id_sensor].status = -1;
