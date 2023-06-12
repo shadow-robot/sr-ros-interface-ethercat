@@ -390,10 +390,10 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     return true;
   }
 
-  // We've received a coherent/valid message. 
+  // We've received a coherent/valid message.
   // Read IMU status and update internal structures
   readImu(status_data);
-  
+
   //Update the library (positions, diagnostics values, actuators, etc...)
   // with the received information received from the master
   sr_hand_lib->update(status_data);
