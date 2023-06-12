@@ -156,9 +156,14 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             sensor_data_.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
           }
 
-          /// Detects if there was a sensor reading error, i.e. the tactile data was pulled too soon
-          ///see https://shadowrobot.atlassian.net/wiki/spaces/MST/pages/3401318401/MST+firmware#Communication
-          if (sensor_data_.tactiles[id_sensor].magnetic_data[0].x == sensor_data_.tactiles[id_sensor].magnetic_data[0].z)
+          /// Detects if there was a sensor polling error, i.e. 2 consecutive tactile data pollings
+          /// being less than 900ms apart
+          /// see https://shadowrobot.atlassian.net/wiki/spaces/MST/pages/3401318401/MST+firmware#Communication
+          /// We do this by checking if batches of 12 bits are following a pattern that indicates "repeated bytes"
+          if (sensor_data_.tactiles[id_sensor].magnetic_data[0].x == sensor_data_.tactiles[id_sensor].magnetic_data[0].z &&
+              sensor_data_.tactiles[id_sensor].magnetic_data[0].x == sensor_data_.tactiles[id_sensor].magnetic_data[1].y &&
+              sensor_data_.tactiles[id_sensor].magnetic_data[0].y == sensor_data_.tactiles[id_sensor].magnetic_data[1].x &&
+              sensor_data_.tactiles[id_sensor].magnetic_data[0].y == sensor_data_.tactiles[id_sensor].magnetic_data[1].z)
           {
             sensor_data_.tactiles[id_sensor].status = MAX_STATUS_VALUE + 1;
           }
@@ -195,7 +200,7 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
           }
           else
           {
-          // Otherwise set status as "disabled" (-1)
+          // Otherwise set status as "disabled", and tactiles messages are published with "status = -1"
             sensor_data_.tactiles[id_sensor].status = -1;
           }
         }
