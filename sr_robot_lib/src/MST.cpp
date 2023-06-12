@@ -68,7 +68,7 @@ void MST<StatusType, CommandType>::initialise_tactile_data_structure(
   this->all_tactile_data =
                 boost::shared_ptr<std::vector<AllTactileData>>(new std::vector<AllTactileData>(this->nb_tactiles));
 
-  for (uint8_t id_sensor; id_sensor < this->nb_tactiles; ++id_sensor)
+  for (uint8_t id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
   {
     // For each sensor found, add the type and diagnostics data (freq, sw version, git version, status check)
     MSTData mst_diagnostics(init_tactiles_vector->at(id_sensor));
@@ -79,6 +79,20 @@ void MST<StatusType, CommandType>::initialise_tactile_data_structure(
     sensor_data_.tactiles[id_sensor].magnetic_data.resize(NUMBER_OF_TAXELS);
     sensor_data_.tactiles[id_sensor].temperature_data.resize(NUMBER_OF_TAXELS);
     sensor_data_.tactiles[id_sensor].status = -1;  // Status check is inactive by default
+
+    // Fetch last git_revision byte sent by each sensor (related to status check enable flag) from hex string
+    // For now, this byte is either set to 0x00 (disabled) or 0x01 (enabled)
+    if (diagnostic_data_[id_sensor].git_revision.length() > 2)
+    {
+      std::string git_revision_hex_string_last_byte =
+            diagnostic_data_[id_sensor].git_revision.substr(diagnostic_data_[id_sensor].git_revision.length() - 2);
+      status_check_byte_[id_sensor] = std::stoi(git_revision_hex_string_last_byte, 0, 16);
+    }
+    else
+    {
+      // If git_version received is invalid, or no sensor was found for this finger, treat it as status check disbaled
+      status_check_byte_[id_sensor] = 0x00;
+    }
   }
 }
 
@@ -142,12 +156,6 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             sensor_data_.tactiles[id_sensor].magnetic_data[taxel_index] = taxel_magnetic_data;
           }
 
-          // Fetch last git_revision byte sent by the sensor (related to status check enable flag) from hex string
-          // For now, this byte is either set to 0x00 (disabled) or 0x01 (enabled)
-          std::string git_revision_hex_string_last_byte =
-                diagnostic_data_[id_sensor].git_revision.substr(diagnostic_data_[id_sensor].git_revision.length() - 2);
-          int8_t status_check_byte = std::stoi(git_revision_hex_string_last_byte, 0, 16);
-
           /// Detects if there was a sensor reading error, i.e. the tactile data was pulled too soon
           ///see https://shadowrobot.atlassian.net/wiki/spaces/MST/pages/3401318401/MST+firmware#Communication
           if (sensor_data_.tactiles[id_sensor].magnetic_data[0].x == sensor_data_.tactiles[id_sensor].magnetic_data[0].z)
@@ -155,7 +163,7 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
             sensor_data_.tactiles[id_sensor].status = MAX_STATUS_VALUE + 1;
           }
           // If MST sensor has Status Check enabled, retrieve status from latest measurment
-          else if (status_check_byte == 0x01)
+          else if (status_check_byte_[id_sensor] == 0x01)
           {
             sensor_data_.tactiles[id_sensor].status =
                                   (int8_t)status_data->tactile[id_sensor].string[MAGNETIC_DATA_BYTES - 1] & 0x0F;
@@ -180,7 +188,7 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
                 (read12bits(++tactile_data_pointer, taxel_index) - 1180) * 0.24 + 25;  // Converts to Celsius degrees
           }
           // If MST sensor has Status Check enabled, retrieve status from latest measurment
-          if (diagnostic_data_[id_sensor].git_revision.back() == '1')
+          if (status_check_byte_[id_sensor] == 0x01)
           {
             sensor_data_.tactiles[id_sensor].status =
                                 (int8_t)status_data->tactile[id_sensor].string[TEMPERATURE_DATA_BYTES - 1] & 0x0F;

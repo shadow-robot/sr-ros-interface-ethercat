@@ -94,6 +94,8 @@ private:
   sr_robot_msgs::MSTAll sensor_data_;
   /// Stores MST diagnostics data
   std::vector<GenericTactileData> diagnostic_data_;
+  /// Status Check "enable flag" found for each sensor
+  int8_t status_check_byte_[5];
 
   /**
     * Decode incoming message from the MST tactile sensor, which are sent in chunks of 12 bits
