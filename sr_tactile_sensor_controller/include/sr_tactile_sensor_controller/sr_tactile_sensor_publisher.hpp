@@ -47,7 +47,6 @@ protected:
   double publish_rate_;
   ros::NodeHandle nh_prefix_;
   std::string prefix_;
-  enum finger_index {FF, MF, RF, LF, TH};
 };
 
 }  // namespace controller
