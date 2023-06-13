@@ -37,6 +37,7 @@
 #include <bfd.h>
 #include <map>
 #include <vector>
+#include <memory>
 
 #include <sr_robot_lib/sr_motor_hand_lib.hpp>
 
