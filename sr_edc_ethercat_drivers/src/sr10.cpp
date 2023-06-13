@@ -36,6 +36,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <memory>
 
 #include <sr_utilities/sr_math_utils.hpp>
 
