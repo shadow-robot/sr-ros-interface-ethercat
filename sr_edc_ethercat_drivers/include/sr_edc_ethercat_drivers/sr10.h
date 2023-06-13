@@ -35,12 +35,8 @@
 #include <sr_robot_msgs/SimpleMotorFlasher.h>
 #include <pthread.h>
 #include <bfd.h>
-#include <boost/smart_ptr.hpp>
 #include <map>
 #include <vector>
-#include <boost/assign.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/find_iterator.hpp>
 
 #include <sr_robot_lib/sr_motor_hand_lib.hpp>
 
@@ -135,12 +131,12 @@ public:
 protected:
   /// can be removed?
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
-  std::vector<boost::shared_ptr<rt_pub_int16_t> > realtime_pub_;
+  std::vector<std::shared_ptr<rt_pub_int16_t> > realtime_pub_;
 
   int bad_frame_counter_ = 0;
 
   /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
-  boost::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
+  std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
 
   /**
     * This function will call the reinitialization function for the boards attached to the CAN bus
@@ -185,7 +181,7 @@ private:
   /// IMU state interface
   ros_ethercat_model::ImuState * imu_state_;
   /// Pointer to etherCAT hand. Contains the necessary structures to build the (etherCAT) commands and read the status
-  boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS,
+  std::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND> > sr_hand_lib;
 
   // IMU scaling variables
@@ -204,7 +200,7 @@ private:
   void readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status_data);
 
   /// Debug real time publisher: publishes the raw ethercat data
-  boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;
+  std::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> > debug_publisher;
 };
 
 

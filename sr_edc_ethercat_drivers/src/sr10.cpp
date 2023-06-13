@@ -32,7 +32,6 @@
 #include <string>
 #include <vector>
 #include <iomanip>
-#include <boost/foreach.hpp>
 #include <std_msgs/Int16.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -46,12 +45,11 @@ using std::vector;
 
 #include <sr_external_dependencies/types_for_external.h>
 
-#include <boost/static_assert.hpp>
 
 namespace is_edc_command_32_bits
 {
 // Assert if the EDC_COMMAND is 32bits (4 bytes) on the computer
-  BOOST_STATIC_ASSERT(sizeof(EDC_COMMAND) == 4);
+  static_assert(sizeof(EDC_COMMAND) == 4);
 }  // namespace is_edc_command_32_bits
 
 /// The EtherCAT data structures for the SR10 driver
@@ -147,7 +145,7 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   hw_ = static_cast<ros_ethercat_model::RobotState *> (hw);
 
   // Create the SrMotorHandLib structure
-  sr_hand_lib = boost::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS,
+  sr_hand_lib = std::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS,
           ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND> >(
           new shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS,
                   ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>(hw, nodehandle_, nh_tilde_,
@@ -162,7 +160,7 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
           new realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray>(nodehandle_, "palm_extras", 10));
 
   // Debug real time publisher: publishes the raw ethercat data
-  debug_publisher = boost::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(
+  debug_publisher = std::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(
           new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
 
 
