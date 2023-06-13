@@ -50,10 +50,10 @@ typedef struct
 #ifndef NO_STRINGS                                              // The PIC compiler doesn't deal well with strings.
 
     static const char* slow_data_types[17] = {  "Invalid",                                  // 0x0000
-                                                "SVN revision",                             // 0x0001
-                                                "SVN revision on server at build time",     // 0x0002
+                                                "Git revision",                             // 0x0001
+                                                "Git revision on server at build time",     // 0x0002
 
-                                                "Modified from SVN revision",               // 0x0003
+                                                "Modified from Git revision",               // 0x0003
                                                 "Serial number low",                        // 0x0004
                                                 "Serial number high",                       // 0x0005
                                                 "Motor gear ratio",                         // 0x0006
@@ -151,8 +151,8 @@ typedef enum
 
 typedef enum
 {
-      PALM_SVN_VERSION              =  0,
-    SERVER_SVN_VERSION              =  1
+      PALM_GIT_VERSION              =  0,
+    SERVER_GIT_VERSION              =  1
 }HARD_CONFIGURATION_INFORMATION;
 
 

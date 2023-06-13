@@ -170,7 +170,8 @@ typedef union
 
 // Length for 17 taxel-MST tactile sensors
 #define TACTILE_DATA_LENGTH_BYTES_v3   78 /// In reality we only need 77 bytes
-                                          /// but this number needs to be even so that it's divisible by 2
+                                          /// But due to the underlying union structure bellow
+                                          /// this number needs to be even so that it's divisible by 2
 #define TACTILE_DATA_LENGTH_WORDS_v3   (TACTILE_DATA_LENGTH_BYTES_v3/2)
 
 typedef union
@@ -235,15 +236,16 @@ typedef struct
 
 
 
-    static const char* tactile_sensor_manufacturer_strings[4] = {   "None",
+    static const char* tactile_sensor_manufacturer_strings[5] = {   "None",
                                                                     "Shadow Robot Company Ltd.",
                                                                     "Syntouch",
-                                                                    "Bielefeld University"};
+                                                                    "Bielefeld University",
+                                                                    "Shadow Robot Company Ltd."};
 
     static const char* tactile_sensor_generic_info_strings[7] = {   "Invalid",
-                                                                    "SVN revision",
+                                                                    "Git revision",
                                                                     "Revision is modified",
-                                                                    "SVN revision on server at build time",
+                                                                    "Git revision on server at build time",
                                                                     "PCB version",
                                                                     "Part serial number low",
                                                                     "Part serial number high"};
