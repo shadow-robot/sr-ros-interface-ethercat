@@ -214,7 +214,6 @@ void SR10::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnosti
   diagnostic_status.addf("Serial Number", "%d", sh_->get_serial());
   diagnostic_status.addf("Revision", "%d", sh_->get_revision());
   diagnostic_status.addf("Counter", "%d", ++counter_);
-  diagnostic_status.addf("Bad Frame Counter", "%d", bad_frame_counter_);
 
   diagnostic_status.addf("PIC idle time (in microsecs)", "%d", sr_hand_lib->main_pic_idle_time);
   diagnostic_status.addf("Min PIC idle time (since last diagnostics)", "%d", sr_hand_lib->main_pic_idle_time_min);
@@ -336,6 +335,9 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
   ++num_rxed_packets;
 
+  // Read IMU status and update internal structures
+  readImu(status_data);
+
   // publishes the debug information (a slightly formatted version of the incoming ethercat packet):
   if (debug_publisher->trylock())
   {
@@ -383,17 +385,12 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     float percentage_packet_loss = 100.f * (static_cast<float>(zero_buffer_read) /
                                             static_cast<float>(num_rxed_packets));
 
-    bad_frame_counter_++;
     ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus",
               zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
     return true;
   }
 
-  // We've received a coherent/valid message.
-  // Read IMU status and update internal structures
-  readImu(status_data);
-
-  // Update the library (positions, diagnostics values, actuators, etc...)
+  // We've received a coherent/valid message. Update the library (positions, diagnostics values, actuators, etc...)
   // with the received information received from the master
   sr_hand_lib->update(status_data);
 
