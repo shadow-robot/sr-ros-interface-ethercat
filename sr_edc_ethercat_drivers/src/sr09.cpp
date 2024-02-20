@@ -477,15 +477,15 @@ bool SR09::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
     extra_analog_msg.layout.dim[0].label = "accelerometer";
     extra_analog_msg.layout.dim[0].size = 3;
-    extra_analog_msg.data[0] = status_data->sensors[ACCX];
-    extra_analog_msg.data[1] = status_data->sensors[ACCY];
-    extra_analog_msg.data[2] = status_data->sensors[ACCZ];
+    extra_analog_msg.data[0] = (int16_t)status_data->sensors[ACCX];
+    extra_analog_msg.data[1] = (int16_t)status_data->sensors[ACCY];
+    extra_analog_msg.data[2] = (int16_t)status_data->sensors[ACCZ];
 
     extra_analog_msg.layout.dim[1].label = "gyrometer";
     extra_analog_msg.layout.dim[1].size = 3;
-    extra_analog_msg.data[3] = status_data->sensors[GYRX];
-    extra_analog_msg.data[4] = status_data->sensors[GYRY];
-    extra_analog_msg.data[5] = status_data->sensors[GYRZ];
+    extra_analog_msg.data[3] = (int16_t)status_data->sensors[GYRX];
+    extra_analog_msg.data[4] = (int16_t)status_data->sensors[GYRY];
+    extra_analog_msg.data[5] = (int16_t)status_data->sensors[GYRZ];
 
     extra_analog_msg.layout.dim[2].label = "analog_inputs";
     extra_analog_msg.layout.dim[2].size = 4;
