@@ -134,6 +134,8 @@ protected:
   typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
   std::vector<std::shared_ptr<rt_pub_int16_t> > realtime_pub_;
 
+  int bad_frame_counter_ = 0;
+
   /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
   std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
 
