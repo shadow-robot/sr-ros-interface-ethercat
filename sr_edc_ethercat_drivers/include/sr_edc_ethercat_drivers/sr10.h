@@ -14,11 +14,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 /**
-  * @file   sr10.h
-  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
-  *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>,
-  *         Dan Greenwald <dg@shadowrobot.com>, Rodrigo Zenha <rodrigo@shadowrobot.com>
-  *         contact <software@shadowrobot.com>
+  * @file  sr10.h
   * @brief This is a ROS driver for Shadow Robot #10 EtherCAT product ID
   */
 
@@ -130,12 +126,6 @@ public:
   virtual bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
 
 protected:
-  /// can be removed?
-  typedef realtime_tools::RealtimePublisher<std_msgs::Int16> rt_pub_int16_t;
-  std::vector<std::shared_ptr<rt_pub_int16_t> > realtime_pub_;
-
-  int bad_frame_counter_ = 0;
-
   /// Extra analog inputs real time publisher (+ accelerometer and gyroscope)
   std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> > extra_analog_inputs_publisher;
 
@@ -183,15 +173,19 @@ private:
   ros_ethercat_model::ImuState * imu_state_;
   /// Pointer to etherCAT hand. Contains the necessary structures to build the (etherCAT) commands and read the status
   std::shared_ptr<shadow_robot::SrMotorHandLib<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS,
-          ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND> > sr_hand_lib;
+                                               ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>> sr_hand_lib;
 
   // IMU scaling variables
   int imu_scale_gyr_;
   int imu_scale_acc_;
   bool imu_scale_change_;
+  std_msgs::Float64MultiArray extra_analog_msg_;
 
   /// A counter used to publish the tactiles at 100Hz. Counts 10 cycles, then reset the cycle_count to 0.
   int16_t cycle_count;
+
+  /// A counter for the number of frames received with status EDC_COMMAND_INVALID
+  int invalid_frame_counter_;
 
   /** 
     * This funcion reads the ethercat status and fills the imu_state with the relevant values.

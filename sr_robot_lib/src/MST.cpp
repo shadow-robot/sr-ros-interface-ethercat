@@ -1,4 +1,4 @@
-/* Copyright 2021, 2023 Shadow Robot Company Ltd.
+/* Copyright 2021, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -13,11 +13,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 /**
-  * @file   MST.cpp
-  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
-  *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>,
-  *         Dan Greenwald <dg@shadowrobot.com>, Rodrigo Zenha <rodrigo@shadowrobot.com>
-  *         contact <software@shadowrobot.com>
+  * @file  MST.cpp
   * @brief This is a class for accessing the data from the MST tactiles.
   */
 
@@ -138,7 +134,6 @@ void MST<StatusType, CommandType>::update(StatusType *status_data)
   int tactile_mask = static_cast<int16u>(status_data->tactile_data_valid);
   for (unsigned int id_sensor = 0; id_sensor < this->nb_tactiles; ++id_sensor)
   {
-    // Assert the received MST data type
     switch (static_cast<int32u>(status_data->tactile_data_type))
     {
       case TACTILE_SENSOR_TYPE_MST_MAGNETIC_INDUCTION:

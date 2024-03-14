@@ -1,4 +1,4 @@
-/* Copyright 2021, 2023 Shadow Robot Company Ltd.
+/* Copyright 2021, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -12,9 +12,8 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-/** 
-  * @file MST.hpp
-  *
+/**
+  * @file  MST.hpp
   * @brief This is a class for accessing the data from the MST tactiles.
   */
 

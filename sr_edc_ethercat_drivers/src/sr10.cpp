@@ -14,11 +14,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 /**
-  * @file   sr10.cpp
-  * @author Yann Sionneau <yann.sionneau@gmail.com>, Hugo Elias <hugo@shadowrobot.com>,
-  *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>,
-  *         Dan Greenwald <dg@shadowrobot.com>, Rodrigo Zenha <rodrigo@shadowrobot.com>
-  *         contact <software@shadowrobot.com>
+  * @file  sr10.cpp
   * @brief This is a ROS driver for Shadow Robot #10 EtherCAT product ID
   */
 
@@ -164,6 +160,11 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   debug_publisher = std::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(
           new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
 
+  debug_publisher->msg_.sensors.reserve(SENSORS_NUM_0220 + 1);
+  debug_publisher->msg_.motor_data_packet_torque.reserve(10);
+  debug_publisher->msg_.motor_data_packet_misc.reserve(10);
+
+  debug_publisher->msg_.tactile.reserve(5);
 
   std::string imu_name = device_joint_prefix_ + "imu";
   imu_state_ = hw_->getImuState(imu_name);
@@ -182,6 +183,19 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
 
   // and set the flag to true so that the IMU data is scaled
   imu_scale_change_ = true;
+
+  // Adjust extra_analog_msg_ data labels and sizes
+  extra_analog_msg_.layout.dim.resize(3);
+  extra_analog_msg_.data.resize(3 + 3 + 4);
+  extra_analog_msg_.layout.dim[0].label = "accelerometer";
+  extra_analog_msg_.layout.dim[0].size = 3;
+  extra_analog_msg_.layout.dim[1].label = "gyrometer";
+  extra_analog_msg_.layout.dim[1].size = 3;
+  extra_analog_msg_.layout.dim[2].label = "analog_inputs";
+  extra_analog_msg_.layout.dim[2].size = 4;
+
+  /// A counter for the number of frames received with status EDC_COMMAND_INVALID
+  invalid_frame_counter_ = 0;
 
   return retval;
 }
@@ -214,7 +228,7 @@ void SR10::multiDiagnostics(vector<diagnostic_msgs::DiagnosticStatus> &diagnosti
   diagnostic_status.addf("Serial Number", "%d", sh_->get_serial());
   diagnostic_status.addf("Revision", "%d", sh_->get_revision());
   diagnostic_status.addf("Counter", "%d", ++counter_);
-  diagnostic_status.addf("Bad Frame Counter", "%d", bad_frame_counter_);
+  diagnostic_status.addf("Invalid Frames Received Counter", "%d", invalid_frame_counter_);
 
   diagnostic_status.addf("PIC idle time (in microsecs)", "%d", sr_hand_lib->main_pic_idle_time);
   diagnostic_status.addf("Min PIC idle time (since last diagnostics)", "%d", sr_hand_lib->main_pic_idle_time_min);
@@ -342,6 +356,7 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     debug_publisher->msg_.header.stamp = ros::Time::now();
 
     debug_publisher->msg_.sensors.clear();
+    debug_publisher->msg_.sensors.reserve(SENSORS_NUM_0220 + 1);
     for (unsigned int i = 0; i < SENSORS_NUM_0220 + 1; ++i)
     {
       debug_publisher->msg_.sensors.push_back(status_data->sensors[i]);
@@ -354,22 +369,16 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
 
     debug_publisher->msg_.motor_data_packet_torque.clear();
     debug_publisher->msg_.motor_data_packet_misc.clear();
+    debug_publisher->msg_.motor_data_packet_torque.reserve(10);
+    debug_publisher->msg_.motor_data_packet_misc.reserve(10);
     for (unsigned int i = 0; i < 10; ++i)
     {
       debug_publisher->msg_.motor_data_packet_torque.push_back(status_data->motor_data_packet[i].torque);
       debug_publisher->msg_.motor_data_packet_misc.push_back(status_data->motor_data_packet[i].misc);
     }
 
-    debug_publisher->msg_.tactile_data_type = static_cast<unsigned int>(
-            static_cast<int32u>(status_data->tactile_data_type));
-    debug_publisher->msg_.tactile_data_valid = static_cast<unsigned int> (
-            static_cast<int16u> (status_data->tactile_data_valid));
-    debug_publisher->msg_.tactile.clear();
-    for (unsigned int i = 0; i < 5; ++i)
-    {
-      debug_publisher->msg_.tactile.push_back(
-              static_cast<unsigned int> (static_cast<int16u> (status_data->tactile[i].word[0])));
-    }
+    debug_publisher->msg_.tactile_data_type = static_cast<int32u>(status_data->tactile_data_type);
+    debug_publisher->msg_.tactile_data_valid = static_cast<int16u> (status_data->tactile_data_valid);
 
     debug_publisher->msg_.idle_time_us = status_data->idle_time_us;
 
@@ -383,7 +392,7 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     float percentage_packet_loss = 100.f * (static_cast<float>(zero_buffer_read) /
                                             static_cast<float>(num_rxed_packets));
 
-    bad_frame_counter_++;
+    invalid_frame_counter_++;
     ROS_DEBUG("Reception error detected : %d errors out of %d rxed packets (%2.3f%%) ; idle time %dus",
               zero_buffer_read, num_rxed_packets, percentage_packet_loss, status_data->idle_time_us);
     return true;
@@ -400,40 +409,23 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   // Now publish the data at 100Hz (every 10 cycles)
   if (cycle_count >= 10)
   {
-    // publish tactiles if we have them
-    if (sr_hand_lib->tactiles != NULL)
-    {
-      sr_hand_lib->tactiles->publish();
-    }
+    // Publish additional data (accelerometer / gyroscope / analog inputs)
+    extra_analog_msg_.data[0] = (int16_t) status_data->sensors[ACCX];
+    extra_analog_msg_.data[1] = (int16_t) status_data->sensors[ACCY];
+    extra_analog_msg_.data[2] = (int16_t) status_data->sensors[ACCZ];
 
-    // And we also publish the additional data (accelerometer / gyroscope / analog inputs)
-    std_msgs::Float64MultiArray extra_analog_msg;
-    extra_analog_msg.layout.dim.resize(3);
-    extra_analog_msg.data.resize(3 + 3 + 4);
-    std::vector<double> data;
+    extra_analog_msg_.data[3] = (int16_t) status_data->sensors[GYRX];
+    extra_analog_msg_.data[4] = (int16_t) status_data->sensors[GYRY];
+    extra_analog_msg_.data[5] = (int16_t) status_data->sensors[GYRZ];
 
-    extra_analog_msg.layout.dim[0].label = "accelerometer";
-    extra_analog_msg.layout.dim[0].size = 3;
-    extra_analog_msg.data[0] = (int16_t) status_data->sensors[ACCX];
-    extra_analog_msg.data[1] = (int16_t) status_data->sensors[ACCY];
-    extra_analog_msg.data[2] = (int16_t) status_data->sensors[ACCZ];
-
-    extra_analog_msg.layout.dim[1].label = "gyrometer";
-    extra_analog_msg.layout.dim[1].size = 3;
-    extra_analog_msg.data[3] = (int16_t) status_data->sensors[GYRX];
-    extra_analog_msg.data[4] = (int16_t) status_data->sensors[GYRY];
-    extra_analog_msg.data[5] = (int16_t) status_data->sensors[GYRZ];
-
-    extra_analog_msg.layout.dim[2].label = "analog_inputs";
-    extra_analog_msg.layout.dim[2].size = 4;
-    extra_analog_msg.data[6] = status_data->sensors[ANA0];
-    extra_analog_msg.data[7] = status_data->sensors[ANA1];
-    extra_analog_msg.data[8] = status_data->sensors[ANA2];
-    extra_analog_msg.data[9] = status_data->sensors[ANA3];
+    extra_analog_msg_.data[6] = status_data->sensors[ANA0];
+    extra_analog_msg_.data[7] = status_data->sensors[ANA1];
+    extra_analog_msg_.data[8] = status_data->sensors[ANA2];
+    extra_analog_msg_.data[9] = status_data->sensors[ANA3];
 
     if (extra_analog_inputs_publisher->trylock())
     {
-      extra_analog_inputs_publisher->msg_ = extra_analog_msg;
+      extra_analog_inputs_publisher->msg_ = extra_analog_msg_;
       extra_analog_inputs_publisher->unlockAndPublish();
     }
 

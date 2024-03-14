@@ -24,7 +24,6 @@
 #include <boost/foreach.hpp>
 #include <iostream>
 #include <vector>
-#include <ros/console.h>
 
 namespace generic_updater
 {
