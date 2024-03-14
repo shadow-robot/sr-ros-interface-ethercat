@@ -160,11 +160,11 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   debug_publisher = std::shared_ptr<realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug> >(
           new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
 
-  debug_publisher->msg_.sensors.reserve(SENSORS_NUM_0220 + 1);
-  debug_publisher->msg_.motor_data_packet_torque.reserve(10);
-  debug_publisher->msg_.motor_data_packet_misc.reserve(10);
-
-  debug_publisher->msg_.tactile.reserve(5);
+  debug_publisher->msg_.sensors.resize(SENSORS_NUM_0220 + 1);
+  
+  // Obtaining information from 10 motors (odd or even motors) for each Palm loop cycle
+  debug_publisher->msg_.motor_data_packet_torque.resize(10);
+  debug_publisher->msg_.motor_data_packet_misc.resize(10);
 
   std::string imu_name = device_joint_prefix_ + "imu";
   imu_state_ = hw_->getImuState(imu_name);
@@ -355,11 +355,9 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
   {
     debug_publisher->msg_.header.stamp = ros::Time::now();
 
-    debug_publisher->msg_.sensors.clear();
-    debug_publisher->msg_.sensors.reserve(SENSORS_NUM_0220 + 1);
-    for (unsigned int i = 0; i < SENSORS_NUM_0220 + 1; ++i)
+    for (unsigned int index = 0; index < SENSORS_NUM_0220 + 1; ++index)
     {
-      debug_publisher->msg_.sensors.push_back(status_data->sensors[i]);
+      debug_publisher->msg_.sensors[index] = (status_data->sensors[index]);
     }
 
     debug_publisher->msg_.motor_data_type.data = static_cast<int> (status_data->motor_data_type);
@@ -367,14 +365,11 @@ bool SR10::unpackState(unsigned char *this_buffer, unsigned char *prev_buffer)
     debug_publisher->msg_.which_motor_data_arrived = status_data->which_motor_data_arrived;
     debug_publisher->msg_.which_motor_data_had_errors = status_data->which_motor_data_had_errors;
 
-    debug_publisher->msg_.motor_data_packet_torque.clear();
-    debug_publisher->msg_.motor_data_packet_misc.clear();
-    debug_publisher->msg_.motor_data_packet_torque.reserve(10);
-    debug_publisher->msg_.motor_data_packet_misc.reserve(10);
-    for (unsigned int i = 0; i < 10; ++i)
+    // Getting information from 10 motors at a time
+    for (unsigned int index = 0; index < 10; ++index)
     {
-      debug_publisher->msg_.motor_data_packet_torque.push_back(status_data->motor_data_packet[i].torque);
-      debug_publisher->msg_.motor_data_packet_misc.push_back(status_data->motor_data_packet[i].misc);
+      debug_publisher->msg_.motor_data_packet_torque[index] = (status_data->motor_data_packet[index].torque);
+      debug_publisher->msg_.motor_data_packet_misc[index] = (status_data->motor_data_packet[index].misc);
     }
 
     debug_publisher->msg_.tactile_data_type = static_cast<int32u>(status_data->tactile_data_type);
