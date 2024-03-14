@@ -63,7 +63,6 @@ void SrMSTTactileSensorPublisher::update(const ros::Time& time, const ros::Durat
       // Update time in last_publish_time_
       last_publish_time_ = last_publish_time_ + ros::Duration(1.0 / publish_rate_);
       mst_realtime_pub_->msg_.header.stamp = time;
-      mst_realtime_pub_->msg_.header.frame_id = prefix_+"distal";
 
       // Populate message to be published
       for (unsigned int id_sensor = 0; id_sensor < sensors_->size(); id_sensor++)

@@ -161,7 +161,7 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
           new realtime_tools::RealtimePublisher<sr_robot_msgs::EthercatDebug>(nodehandle_, "debug_etherCAT_data", 4));
 
   debug_publisher->msg_.sensors.resize(SENSORS_NUM_0220 + 1);
-  
+
   // Obtaining information from 10 motors (odd or even motors) for each Palm loop cycle
   debug_publisher->msg_.motor_data_packet_torque.resize(10);
   debug_publisher->msg_.motor_data_packet_misc.resize(10);
