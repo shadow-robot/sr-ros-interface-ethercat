@@ -83,6 +83,9 @@ void MST<StatusType, CommandType>::initialise_tactile_data_structure(
       std::string git_revision_hex_string_last_byte =
             diagnostic_data_[id_sensor].git_revision.substr(diagnostic_data_[id_sensor].git_revision.length() - 2);
       status_check_byte_[id_sensor] = std::stoi(git_revision_hex_string_last_byte, 0, 16);
+      // Update git revision to exclude status check-enable byte
+      diagnostic_data_[id_sensor].git_revision =
+            diagnostic_data_[id_sensor].git_revision.substr(0, diagnostic_data_[id_sensor].git_revision.length() - 2);
     }
     else
     {
@@ -245,6 +248,8 @@ void MST<StatusType, CommandType>::add_diagnostics(std::vector<diagnostic_msgs::
     diagnostic_status_wrapper.addf("Serial Number", "%s", diagnostic_data_[id_sensor].serial_number.c_str());
     diagnostic_status_wrapper.addf("Software Version", "%s", diagnostic_data_[id_sensor].git_revision.c_str());
     diagnostic_status_wrapper.addf("PCB Version", "%s", diagnostic_data_[id_sensor].pcb_version.c_str());
+    diagnostic_status_wrapper.addf("Status Enabled", "%s", (status_check_byte_[id_sensor] == 0x01 ? "ON" c  : "OFF"));
+    diagnostic_status_wrapper.addf("Status", "%d", sensor_data_.tactiles[id_sensor].status);
 
     diagnostic_vector.push_back(diagnostic_status_wrapper);
   }
