@@ -4,7 +4,7 @@
 *         Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>,
 *         Dan Greenwald <dg@shadowrobot.com>, contact <software@shadowrobot.com>
 *
-/* Copyright 2017 Shadow Robot Company Ltd.
+/* Copyright 2017, 2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
