@@ -150,6 +150,17 @@ namespace shadow_robot
       joint.joint_name = joint_names[index];
       joint.joint_to_sensor = joint_to_sensors[index];
 
+      if ((!joint.joint_to_sensor.calibrate_after_combining_sensors)
+         && (joint.joint_to_sensor.joint_to_sensor_vector.size() == 2))
+      {
+        joint.pos_filter_2 = sr_math_utils::filters::LowPassFilter(tau);
+      }
+
+      full_param << act_name << "/effort_filter/tau";
+      this->nodehandle_.template param<float>(full_param.str(), tau, 0.05);
+      full_param.str("");
+      joint.effort_filter = sr_math_utils::filters::LowPassFilter(tau);
+
       if (actuator_ids[index] != -1)
       {
         joint.has_actuator = true;
