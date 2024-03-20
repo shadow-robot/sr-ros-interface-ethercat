@@ -1,10 +1,4 @@
-/**
-* @file   motor_updater.cpp
-* @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
-* @date   Tue Jun  7 09:15:21 2011
-*
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -17,13 +11,13 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief  This contains a class used to determin which data we should ask the motor for,
-* depending on the config we're using.
-*
-*
 */
+/**
+  * @file   motor_updater.hpp
+  * @author Ugo Cupcic <ugo@shadowrobot.com>, <contact@shadowrobot.com>
+  * @brief  This contains a class used to determin which data we should ask the motor for,
+  *         depending on the config we're using.
+  */
 
 #include "sr_robot_lib/motor_updater.hpp"
 #include <boost/foreach.hpp>
@@ -154,6 +148,9 @@ namespace generic_updater
 
   template
   class MotorUpdater<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class MotorUpdater<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 }  // namespace generic_updater
 
 

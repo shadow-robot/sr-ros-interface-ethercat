@@ -1,45 +1,26 @@
-//
-// © 2010 Shadow Robot Company Limited.
-//
-// FileName:        ethercat_can_bridge_protocol.h
-// Dependencies:
-// Processor:       PIC32
-// Compiler:        MPLAB® C32
-//
-//  +------------------------------------------------------------------------+
-//  | This file is part of The Shadow Robot PIC32 firmware code base.        |
-//  |                                                                        |
-//  | It is free software: you can redistribute it and/or modify             |
-//  | it under the terms of the GNU General Public License as published by   |
-//  | the Free Software Foundation, either version 3 of the License, or      |
-//  | (at your option) any later version.                                    |
-//  |                                                                        |
-//  | It is distributed in the hope that it will be useful,                  |
-//  | but WITHOUT ANY WARRANTY; without even the implied warranty of         |
-//  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          |
-//  | GNU General Public License for more details.                           |
-//  |                                                                        |
-//  | You should have received a copy of the GNU General Public License      |
-//  | along with this code repository. The text of the license can be found  |
-//  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
-//  +------------------------------------------------------------------------+
-//
-//
-//
-//  Doxygen
-//  -------
-//
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
-//
+/* Copyright 2010, 2023-2024 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+/** 
+  * @file ethercat_can_bridge_protocol.h
+  *
+  * @brief Can Bridge specific Ethercat Protocol, common to all devices 
+  *
+  *  The Ethercat "Command" packet refers to data sent from the ROS host to the Node on the robot
+  *  The Ethercat "Status" packet refers to data sent from Node on the robot the to the ROS host.
+  */
+
 
 #ifndef ETHERCAT_CAN_BRIDGE_PROTOCOL_H_INCLUDED
 #define ETHERCAT_CAN_BRIDGE_PROTOCOL_H_INCLUDED

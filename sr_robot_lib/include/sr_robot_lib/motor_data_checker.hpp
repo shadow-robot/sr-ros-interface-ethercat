@@ -1,9 +1,4 @@
-/*
-* @file   motor_data_checker.hpp
-* @author toni <toni@shadowrobot.com>
-* @date   25 Oct 2011
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,12 +11,12 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This is a class to check that all expected initialization data have been received from each motor.
-*
-*
 */
+/**
+  * @file   motor_data_checker.hpp
+  * @author Toni Oliver <toni@shadowrobot.com>
+  * @brief This is a class to check that all expected initialization data have been received from each motor.
+  */
 
 #ifndef MOTOR_DATA_CHECKER_HPP_
 #define MOTOR_DATA_CHECKER_HPP_
@@ -38,6 +33,7 @@ extern "C"
 {
 #include <sr_external_dependencies/external/0220_palm_edc/0220_palm_edc_ethercat_protocol.h>
 #include <sr_external_dependencies/external/0240_palm_edc_IMU/0240_palm_edc_IMU_ethercat_protocol.h>
+#include <sr_external_dependencies/external/0250_palm_edc_IMU_MST/0250_palm_edc_IMU_ethercat_protocol.h>
 }
 
 namespace generic_updater

@@ -41,6 +41,7 @@
 #include "sr_tactile_sensor_controller/sr_tactile_sensor_controller.hpp"
 #include <pluginlib/class_list_macros.h>
 #include <sr_tactile_sensor_controller/sr_pst_tactile_sensor_publisher.hpp>
+#include <sr_tactile_sensor_controller/sr_mst_tactile_sensor_publisher.hpp>
 #include <sr_tactile_sensor_controller/sr_biotac_tactile_sensor_publisher.hpp>
 #include <sr_tactile_sensor_controller/sr_ubi_tactile_sensor_publisher.hpp>
 #include <string>
@@ -145,6 +146,10 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
     else if (sensors_->at(0).type == "ubi")
     {
       sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+    }
+    else if (sensors_->at(0).type == "mst")
+    {
+      sensor_publisher_.reset(new SrMSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
     }
     else
     {

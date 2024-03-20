@@ -1,9 +1,4 @@
-/**
-* @file   generic_tactiles.cpp
-* @author Toni Oliver <toni@shadowrobot.com>
-* @date   Th Oct 20 10:06:14 2011
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,19 +11,21 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This is the main class for accessing the data from the
-*        tactiles.
-*
-*
 */
+/**
+  * @file   generic_tactiles.hpp
+  * @author Toni Oliver <toni@shadowrobot.com>
+  * @brief This is the main class for accessing the data from the
+  *        tactiles.
+  */
 
 #include "sr_robot_lib/generic_tactiles.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
 #include <cctype>
 #include <string>
 #include <vector>
+#include <ros/console.h>
+
 
 // NOTE: The length used in this generic tactile class (that is used to obtain common information to determine
 // the actual type of tactile sensors)
@@ -100,6 +97,8 @@ namespace tactiles
               tactiles_vector->at(id_sensor).sample_frequency =
                       static_cast<unsigned int>(static_cast<int16u>(status_data->tactile[id_sensor].word[0]));
             }
+            ROS_DEBUG_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_SAMPLE_FREQUENCY_HZ = " <<
+                            tactiles_vector->at(id_sensor).sample_frequency);
           }
           break;
 
@@ -110,6 +109,8 @@ namespace tactiles
             tactiles_vector->at(id_sensor).manufacturer = sanitise_string(status_data->tactile[id_sensor].string,
                                                                           TACTILE_DATA_LENGTH_BYTES);
           }
+          ROS_DEBUG_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_MANUFACTURER = " <<
+                          tactiles_vector->at(id_sensor).manufacturer);
         }
           break;
 
@@ -120,6 +121,8 @@ namespace tactiles
             tactiles_vector->at(id_sensor).serial_number = sanitise_string(status_data->tactile[id_sensor].string,
                                                                            TACTILE_DATA_LENGTH_BYTES);
           }
+          ROS_DEBUG_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_SERIAL_NUMBER = " <<
+                          tactiles_vector->at(id_sensor).serial_number);
         }
           break;
 
@@ -130,6 +133,8 @@ namespace tactiles
             {
               tactiles_vector->at(id_sensor).set_software_version(status_data->tactile[id_sensor].string);
             }
+          ROS_DEBUG_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_SOFTWARE_VERSION = " <<
+                          status_data->tactile[id_sensor].string);
           }
           break;
 
@@ -141,6 +146,8 @@ namespace tactiles
               tactiles_vector->at(id_sensor).pcb_version = sanitise_string(status_data->tactile[id_sensor].string,
                                                                            TACTILE_DATA_LENGTH_BYTES);
             }
+          ROS_DEBUG_STREAM(" tact[" << id_sensor << "]: TACTILE_SENSOR_TYPE_PCB_VERSION = " <<
+                          tactiles_vector->at(id_sensor).pcb_version);
           }
           break;
 
@@ -248,6 +255,9 @@ namespace tactiles
 
   template
   class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 
   template
   class GenericTactiles<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;

@@ -1,9 +1,4 @@
-/**
-* @file   sensor_updater.cpp
-* @author toni <toni@shadowrobot.com>
-* @date   20 Oct 2011
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,11 +11,11 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This class is used to update the tactile sensor command.
-*
-*
+*/
+/**
+  * @file   sensor_updater.hpp
+  * @author Toni Oliver <toni@shadowrobot.com>
+  * @brief This class is used to update the tactile sensor command.
 */
 
 
@@ -149,6 +144,9 @@ namespace generic_updater
 
   template
   class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 
   template
   class SensorUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;

@@ -1,45 +1,27 @@
-//
-// © 2010 Shadow Robot Company Limited.
-//
-// FileName:        tactile_edc_ethercat_protocol.h
-// Dependencies:
-// Processor:       PIC32
-// Compiler:        MPLAB® C32
-//
-//  +------------------------------------------------------------------------+
-//  | This file is part of The Shadow Robot PIC32 firmware code base.        |
-//  |                                                                        |
-//  | It is free software: you can redistribute it and/or modify             |
-//  | it under the terms of the GNU General Public License as published by   |
-//  | the Free Software Foundation, either version 3 of the License, or      |
-//  | (at your option) any later version.                                    |
-//  |                                                                        |
-//  | It is distributed in the hope that it will be useful,                  |
-//  | but WITHOUT ANY WARRANTY; without even the implied warranty of         |
-//  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          |
-//  | GNU General Public License for more details.                           |
-//  |                                                                        |
-//  | You should have received a copy of the GNU General Public License      |
-//  | along with this code repository. The text of the license can be found  |
-//  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
-//  +------------------------------------------------------------------------+
-//
-//
-//
-//  Doxygen
-//  -------
-//
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
-//
+/* Copyright 2010, 2023-2024 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+/** 
+  * @file tactile_edc_ethercat_protocol.h
+  *
+  * @brief Tactile sensor specific EtherCat protocol, common to all devices
+  *
+  * The term "Command" refers to data going from the ROS PC to the Node on the robot
+  * Previously known as "Incoming"
+  * The term "Status" refers to data going from Node on the robot the to the ROS PC
+  * Previously known as "Outgoing"
+  */
 
 #ifndef TACTILE_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
 #define TACTILE_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -123,7 +105,7 @@ typedef enum                                                            // Data 
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_4     = 0x0007,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_5     = 0x0008,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_6     = 0x0009,
-    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7     = 0x000A, 
+    TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_7     = 0x000A,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_8     = 0x000B,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_9     = 0x000C,
     TACTILE_SENSOR_TYPE_BIOTAC_ELECTRODE_10    = 0x000D,
@@ -169,7 +151,7 @@ typedef struct
 
     int16u  other_sensor_1;                                 // This is placed here to make this struct backwards compatible
                                                             // with older versions of the host side driver.
-    
+
     int16u  nothing[TACTILE_DATA_LENGTH_WORDS_v1 - 5];
 }TACTILE_SENSOR_BIOTAC_DATA_CONTENTS;
 
@@ -185,6 +167,18 @@ typedef union
     int16u  word[TACTILE_DATA_LENGTH_WORDS_v2];                            //!< As yet unspecified
     char    string[TACTILE_DATA_LENGTH_BYTES_v2];
 }TACTILE_SENSOR_STATUS_v2;
+
+// Length for 17 taxel-MST tactile sensors
+#define TACTILE_DATA_LENGTH_BYTES_v3   78 /// In reality we only need 77 bytes
+                                          /// But due to the underlying union structure bellow
+                                          /// this number needs to be even so that it's divisible by 2
+#define TACTILE_DATA_LENGTH_WORDS_v3   (TACTILE_DATA_LENGTH_BYTES_v3/2)
+
+typedef union
+{
+    int16u  word[TACTILE_DATA_LENGTH_WORDS_v3];
+    char    string[TACTILE_DATA_LENGTH_BYTES_v3];
+}TACTILE_SENSOR_STATUS_v3;
 
 typedef struct
 {
@@ -242,15 +236,16 @@ typedef struct
 
 
 
-    static const char* tactile_sensor_manufacturer_strings[4] = {   "None",
+    static const char* tactile_sensor_manufacturer_strings[5] = {   "None",
                                                                     "Shadow Robot Company Ltd.",
                                                                     "Syntouch",
-                                                                    "Bielefeld University"};
+                                                                    "Bielefeld University",
+                                                                    "Shadow Robot Company Ltd."};
 
     static const char* tactile_sensor_generic_info_strings[7] = {   "Invalid",
-                                                                    "SVN revision",
+                                                                    "Git revision",
                                                                     "Revision is modified",
-                                                                    "SVN revision on server at build time",
+                                                                    "Git revision on server at build time",
                                                                     "PCB version",
                                                                     "Part serial number low",
                                                                     "Part serial number high"};

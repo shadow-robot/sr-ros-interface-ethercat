@@ -1,9 +1,4 @@
-/**
-* @file   biotac.cpp
-* @author Toni Oliver <toni@shadowrobot.com>
-* @date   Th Oct 20 10:06:14 2011
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,13 +11,13 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This is a class for accessing the data from the
-*        Biotac tactiles.
-*
-*
 */
+/**
+  * @file   biotac.hpp
+  * @author Ugo Cupcic <ugo@shadowrobot.com>
+  * @brief This is a class for accessing the data from the
+  *        Biotac tactiles.
+  */
 
 #include "sr_robot_lib/biotac.hpp"
 #include <sr_utilities/sr_math_utils.hpp>
@@ -476,6 +471,9 @@ namespace tactiles
 
   template
   class Biotac<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class Biotac<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 
   template
   class Biotac<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;

@@ -1,9 +1,4 @@
-/**
-* @file   generic_updater.cpp
-* @author toni <toni@shadowrobot.com>
-* @date   20 Oct 2011
-*
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -16,14 +11,14 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This is a generic command updater: it has 2 different queues one for
-*        the important data which is updated as fast as possible, one for
-*        unimportant data which is updated on a time basis.
-*
-*
 */
+/** 
+  * @file   generic_updater.hpp
+  * @author Toni Oliver <toni@shadowrobot.com>
+  * @brief This is a generic command updater: it has 2 different queues one for
+  *        the important data which is updated as fast as possible, one for
+  *        unimportant data which is updated on a time basis.
+  */
 
 #include "sr_robot_lib/generic_updater.hpp"
 #include <boost/foreach.hpp>
@@ -93,6 +88,9 @@ namespace generic_updater
 
   template
   class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 
   template
   class GenericUpdater<ETHERCAT_DATA_STRUCTURE_0300_PALM_EDC_COMMAND>;

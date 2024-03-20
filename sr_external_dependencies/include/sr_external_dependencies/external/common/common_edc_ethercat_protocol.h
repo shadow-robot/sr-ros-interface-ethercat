@@ -1,45 +1,26 @@
-//
-// © 2010 Shadow Robot Company Limited.
-//
-// FileName:        common_edc_ethercat_protocol.h
-// Dependencies:
-// Processor:       PIC32
-// Compiler:        MPLAB® C32
-//
-//  +------------------------------------------------------------------------+
-//  | This file is part of The Shadow Robot PIC32 firmware code base.        |
-//  |                                                                        |
-//  | It is free software: you can redistribute it and/or modify             |
-//  | it under the terms of the GNU General Public License as published by   |
-//  | the Free Software Foundation, either version 3 of the License, or      |
-//  | (at your option) any later version.                                    |
-//  |                                                                        |
-//  | It is distributed in the hope that it will be useful,                  |
-//  | but WITHOUT ANY WARRANTY; without even the implied warranty of         |
-//  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          |
-//  | GNU General Public License for more details.                           |
-//  |                                                                        |
-//  | You should have received a copy of the GNU General Public License      |
-//  | along with this code repository. The text of the license can be found  |
-//  | in Pic32/License/gpl.txt. If not, see <http://www.gnu.org/licenses/>.  |
-//  +------------------------------------------------------------------------+
-//
-//
-//
-//  Doxygen
-//  -------
-//
-//! @file
-//!
-//! The term "Command" means data going from the ROS PC to the Node on the robot
-//! Previously known as "Incoming"
-//!
-//! The term "Status"  means data going from Node on the robot the to the ROS PC
-//! Previously known as "Outgoing"
-//!
-//!
-//! @addtogroup
-//
+/* Copyright 2010, 2023-2024 Shadow Robot Company Ltd.
+*
+* This program is free software: you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation version 2 of the License.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+/** 
+  * @file common_edc_ethercat_protocol.h
+  *
+  * @brief Defines the EDC commands available to all Ethercat devices
+  *        as well as the list of joints and sensors in the hand.
+  *
+  *  The Ethercat "Command" packet refers to data sent from the ROS host to the Node on the robot
+  *  The Ethercat "Status" packet refers to data sent from Node on the robot the to the ROS host.
+  */
 
 #ifndef COMMON_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
 #define COMMON_EDC_ETHERCAT_PROTOCOL_H_INCLUDED
@@ -56,15 +37,23 @@ typedef enum
     //EDC_COMMAND_TEST_RESULTS,                                   //!< Might be used in the future for running automated tests inside the firmware.
 }EDC_COMMAND;
 
+//! Define IMU available commands
+typedef struct
+{
+  int16u command;
+  int8u  argument[2];
+} IMU_COMMAND_TYPE;
 
+#define  IMU_COMMAND_NONE        0
+#define  IMU_COMMAND_SET_SCALE   1
 
-#ifndef NO_STRINGS													                        // The PIC compiler doesn't deal well with strings.
+#ifndef NO_STRINGS                                              // The PIC compiler doesn't deal well with strings.
 
     static const char* slow_data_types[17] = {  "Invalid",                                  // 0x0000
-                                                "SVN revision",                             // 0x0001
-                                                "SVN revision on server at build time",     // 0x0002
+                                                "Git revision",                             // 0x0001
+                                                "Git revision on server at build time",     // 0x0002
 
-                                                "Modified from SVN revision",               // 0x0003
+                                                "Modified from Git revision",               // 0x0003
                                                 "Serial number low",                        // 0x0004
                                                 "Serial number high",                       // 0x0005
                                                 "Motor gear ratio",                         // 0x0006
@@ -114,7 +103,7 @@ typedef enum
 
 
 
-#ifndef NO_STRINGS                                              //   The PIC compiler doesn't deal well with strings.
+#ifndef NO_STRINGS                                              //  The PIC compiler doesn't deal well with strings.
 
     static const char* joint_names[JOINTS_NUM_0X20] = {  "FFJ0", "FFJ1", "FFJ2", "FFJ3", "FFJ4",
                                                          "MFJ0", "MFJ1", "MFJ2", "MFJ3", "MFJ4",
@@ -143,18 +132,18 @@ typedef enum
 //! This enum defines which ADC reading goes into which sensors[].
 typedef enum
 {
-	FFJ1=0, FFJ2,  FFJ3, FFJ4,                      // [ 0...3]
-	MFJ1,   MFJ2,  MFJ3, MFJ4,                      // [ 4...7]
-	RFJ1,   RFJ2,  RFJ3, RFJ4,                      // [ 8..11]
-	LFJ1,   LFJ2,  LFJ3, LFJ4, LFJ5,                // [12..16]
-    THJ1,   THJ2,  THJ3, THJ4, THJ5A, THJ5B,        // [17..22]
-    WRJ1A,  WRJ1B, WRJ2,                            // [23..25]
+  FFJ1=0, FFJ2,  FFJ3, FFJ4,                      // [ 0...3]
+  MFJ1,   MFJ2,  MFJ3, MFJ4,                      // [ 4...7]
+  RFJ1,   RFJ2,  RFJ3, RFJ4,                      // [ 8..11]
+  LFJ1,   LFJ2,  LFJ3, LFJ4, LFJ5,                // [12..16]
+  THJ1,   THJ2,  THJ3, THJ4, THJ5A, THJ5B,        // [17..22]
+  WRJ1A,  WRJ1B, WRJ2,                            // [23..25]
 
-	ACCX, ACCY, ACCZ,                               // [26..28]
-	GYRX, GYRY, GYRZ,                               // [29..32]
+  ACCX, ACCY, ACCZ,                               // [26..28]
+  GYRX, GYRY, GYRZ,                               // [29..31]
 
-	ANA0, ANA1, ANA2, ANA3,                     // [31..35]
-    IGNORE                                          // [36]
+  ANA0, ANA1, ANA2, ANA3,                         // [32..35]
+  IGNORE                                          // [36]
 }SENSOR_NAME_ENUM;
 
 
@@ -162,8 +151,8 @@ typedef enum
 
 typedef enum
 {
-      PALM_SVN_VERSION              =  0,
-    SERVER_SVN_VERSION              =  1
+      PALM_GIT_VERSION              =  0,
+    SERVER_GIT_VERSION              =  1
 }HARD_CONFIGURATION_INFORMATION;
 
 

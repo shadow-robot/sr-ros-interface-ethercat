@@ -1,10 +1,4 @@
-/**
-* @file   sr_motor_robot_lib.cpp
-* @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
-* @date   Tue Mar  19 17:12:13 2013
-*
-*
-/* Copyright 2013 Shadow Robot Company Ltd.
+/* Copyright 2013, 2023-2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -17,12 +11,12 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*
-* @brief This is a generic robot library for Shadow Robot's  motor-actuated Hardware.
-*
-*
 */
+/**
+  * @file   sr_motor_robot_lib.hpp
+  * @author Ugo Cupcic <ugo@shadowrobot.com>, Toni Oliver <toni@shadowrobot.com>, contact <software@shadowrobot.com>
+  * @brief This is a generic robot library for Shadow Robot's motor-actuated Hardware.
+  */
 
 #include "sr_robot_lib/sr_motor_robot_lib.hpp"
 #include <string>
@@ -1358,6 +1352,9 @@ namespace shadow_robot
 
   template
   class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0240_PALM_EDC_COMMAND>;
+
+  template
+  class SrMotorRobotLib<ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS, ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_COMMAND>;
 }  // namespace shadow_robot
 
 /* For the emacs weenies in the crowd.

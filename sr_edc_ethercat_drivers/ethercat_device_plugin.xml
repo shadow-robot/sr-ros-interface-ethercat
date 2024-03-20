@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 Shadow Robot Company Ltd.
+ Copyright 2022-2024 Shadow Robot Company Ltd.
  This program is free software: you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
  Software Foundation version 2 of the License.
@@ -40,6 +40,11 @@
   <class name="9" type="SR09" base_class_type="EthercatDevice">
     <description>
       SR09 etherCAT driver (IMU)
+    </description>
+  </class>
+  <class name="10" type="SR10" base_class_type="EthercatDevice">
+    <description>
+      SR10 etherCAT driver (IMU + MST)
     </description>
   </class>
   <class name="16777218" type="SrEdcMuscle" base_class_type="EthercatDevice">
