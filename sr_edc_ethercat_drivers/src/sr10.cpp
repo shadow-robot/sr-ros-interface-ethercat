@@ -169,6 +169,16 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   std::string imu_name = device_joint_prefix_ + "imu";
   imu_state_ = hw_->getImuState(imu_name);
 
+  imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
+  imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
+
+  std::fill(std::begin(imu_state_->data_.linear_acceleration_covariance),
+            std::end(imu_state_->data_.linear_acceleration_covariance), 0.0);
+  std::fill(std::begin(imu_state_->data_.angular_velocity_covariance),
+            std::end(imu_state_->data_.angular_velocity_covariance), 0.0);
+  std::fill(std::begin(imu_state_->data_.orientation_covariance),
+            std::end(imu_state_->data_.orientation_covariance), 0.0);
+
   // Broadcast /set_gyr_scale and /set_acc_scale services
   imu_gyr_scale_server_ =  nodehandle_.advertiseService
     <sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>
@@ -518,21 +528,18 @@ bool SR10::imu_scale_callback_(sr_robot_msgs::SetImuScale::Request &request,
   */
 void SR10::readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status_data)
 {
-  imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
-  imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
-
   double acc_multiplier = 1 << imu_scale_acc_;
   double gyr_multiplier = 1 << imu_scale_gyr_;
 
-  int zero_catch = 0;
+  int16_t zero_catch = 0;
 
   for (size_t index = 0; index < 2; ++index)
   {
-    if (status_data->sensors[ACCX + 0] == 0)
+    if (status_data->sensors[ACCX + index] == 0)
     {
       ++zero_catch;
     }
-    if (status_data->sensors[GYRX + 0] == 0)
+    if (status_data->sensors[GYRX + index] == 0)
     {
       ++zero_catch;
     }
@@ -546,12 +553,6 @@ void SR10::readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status_data)
     imu_state_->data_.angular_velocity[0] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRX]);
     imu_state_->data_.angular_velocity[1] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRY]);
     imu_state_->data_.angular_velocity[2] = gyr_multiplier * static_cast<int16s>(status_data->sensors[GYRZ]);
-  }
-  for (size_t index = 0; index < 9; ++index)
-  {
-    imu_state_->data_.linear_acceleration_covariance[index] = 0.0;
-    imu_state_->data_.angular_velocity_covariance[index] = 0.0;
-    imu_state_->data_.orientation_covariance[index] = 0.0;
   }
 }
 
