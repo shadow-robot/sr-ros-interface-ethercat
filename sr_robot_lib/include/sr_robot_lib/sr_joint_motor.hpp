@@ -186,6 +186,8 @@ struct Joint
   sr_math_utils::filters::LowPassFilter pos_filter;
   // used to filter the effort
   sr_math_utils::filters::LowPassFilter effort_filter;
+  // used to filter the position and the velocity of a second joint
+  sr_math_utils::filters::LowPassFilter pos_filter_2;
 
   bool has_actuator;
   boost::shared_ptr<SrActuatorWrapper> actuator_wrapper;
