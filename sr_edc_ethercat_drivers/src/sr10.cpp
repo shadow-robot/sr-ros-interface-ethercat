@@ -169,15 +169,16 @@ int SR10::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
   std::string imu_name = device_joint_prefix_ + "imu";
   imu_state_ = hw_->getImuState(imu_name);
 
+  // Imu initialization
   imu_state_->data_.orientation[0] = 0.0; imu_state_->data_.orientation[1] = 0.0;
   imu_state_->data_.orientation[2] = 0.0; imu_state_->data_.orientation[3] = 1.0;
 
-  std::fill(std::begin(imu_state_->data_.linear_acceleration_covariance),
-            std::end(imu_state_->data_.linear_acceleration_covariance), 0.0);
-  std::fill(std::begin(imu_state_->data_.angular_velocity_covariance),
-            std::end(imu_state_->data_.angular_velocity_covariance), 0.0);
-  std::fill(std::begin(imu_state_->data_.orientation_covariance),
-            std::end(imu_state_->data_.orientation_covariance), 0.0);
+  std::fill(imu_state_->data_.linear_acceleration_covariance,
+            imu_state_->data_.linear_acceleration_covariance + 9, 0.0);
+  std::fill(imu_state_->data_.angular_velocity_covariance,
+            imu_state_->data_.angular_velocity_covariance + 9, 0.0);
+  std::fill(imu_state_->data_.orientation_covariance,
+            imu_state_->data_.orientation_covariance + 9, 0.0);
 
   // Broadcast /set_gyr_scale and /set_acc_scale services
   imu_gyr_scale_server_ =  nodehandle_.advertiseService
