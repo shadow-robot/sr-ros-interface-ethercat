@@ -547,7 +547,7 @@ void SR10::readImu(ETHERCAT_DATA_STRUCTURE_0250_PALM_EDC_STATUS * status_data)
   }
   // It seems that this was an attempt to identify an invalid status sent by the IMU
   // However, it is not clear that "all zeros" would not be a valid IMU state
-  if (zero_catch <= 6)
+  if (zero_catch < 6)
   {
     imu_state_->data_.linear_acceleration[0] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCX]);
     imu_state_->data_.linear_acceleration[1] = acc_multiplier * static_cast<int16s>(status_data->sensors[ACCY]);
