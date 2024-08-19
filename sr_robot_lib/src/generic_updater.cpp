@@ -46,10 +46,11 @@ namespace generic_updater
               double tmp_dur = config.when_to_update;
               ros::Duration duration(tmp_dur);
 
+              int32u data_type = config.what_to_update;
               timers.push_back(
                       nh_tilde.createTimer(
                               duration,
-                              boost::bind(&GenericUpdater::timer_callback, this, _1, config.what_to_update)));
+                              [this, data_type](auto event){ timer_callback(event, data_type); }));
             }
             else
             {

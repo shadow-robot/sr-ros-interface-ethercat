@@ -4,7 +4,7 @@
 * @date   Tue Mar  19 17:12:13 2013
 *
 *
-/* Copyright 2013 Shadow Robot Company Ltd.
+/* Copyright 2013, 2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -75,10 +75,7 @@ namespace shadow_robot
 
             // Create a one-shot timer
             check_init_timeout_timer(this->nh_tilde.createTimer(init_max_duration,
-                                                                boost::bind(
-                                                                        &SrMuscleRobotLib<StatusType,
-                                                                                CommandType>::init_timer_callback,
-                                                                        this, _1), true)),
+                                                                [this](auto ev){ init_timer_callback(ev); }, true)),
             pressure_calibration_map_(read_pressure_calibration())
   {
 #ifdef DEBUG_PUBLISHER

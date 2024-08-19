@@ -171,10 +171,10 @@ int SR09::initialize(hardware_interface::HardwareInterface *hw, bool allow_unpro
 
   imu_gyr_scale_server_ =  nodehandle_.advertiseService
     <sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>
-    ("/" + imu_name + "/set_gyr_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "gyr"));
+    ("/" + imu_name + "/set_gyr_scale", [this](auto req, auto res){ return imu_scale_callback_(req, res, "gyr"); });
   imu_acc_scale_server_ =  nodehandle_.advertiseService
     <sr_robot_msgs::SetImuScale::Request, sr_robot_msgs::SetImuScale::Response>
-    ("/" + imu_name + "/set_acc_scale", boost::bind(&SR09::imu_scale_callback_, this, _1, _2, "acc"));
+    ("/" + imu_name + "/set_acc_scale", [this](auto req, auto res){ return imu_scale_callback_(req, res, "acc"); });
 
   ros::param::param<int>("/" + imu_name + "/acc_scale", imu_scale_acc_, 0);
   ros::param::param<int>("/" + imu_name + "/gyr_scale", imu_scale_gyr_, 0);

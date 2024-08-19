@@ -3,7 +3,7 @@
 * @author toni <toni@shadowrobot.com>
 * @date   25 Oct 2011
 *
-/* Copyright 2011 Shadow Robot Company Ltd.
+/* Copyright 2011, 2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -53,7 +53,7 @@ namespace generic_updater
   {
     // Create a one-shot timer
     check_timeout_timer = nh_tilde.createTimer(init_max_duration,
-                                               boost::bind(&MotorDataChecker::timer_callback, this, _1), true);
+                                               [this](auto event){ timer_callback(event); }, true);
     update_state = operation_mode::device_update_state::INITIALIZATION;
     msg_checkers_.clear();
 

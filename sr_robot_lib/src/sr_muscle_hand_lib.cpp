@@ -4,7 +4,7 @@
 * @date   Tue Mar  19 17:12:13 2013
 *
 *
-/* Copyright 2013 Shadow Robot Company Ltd.
+/* Copyright 2013, 2024 Shadow Robot Company Ltd.
 *
 * This program is free software: you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -113,13 +113,10 @@ namespace shadow_robot
       ostringstream ss;
       ss << "reset_muscle_driver_" << i;
       // initialize the reset muscle driver service
+      auto reset_driver_cb = [this, i](auto req, auto res){ return reset_muscle_driver_callback(req, res, i); };
       driver.reset_driver_service =
               this->nh_tilde.template advertiseService<std_srvs::Empty::Request,
-                      std_srvs::Empty::Response>(ss.str().c_str(),
-                                                 boost::bind(
-                                                         &SrMuscleHandLib<StatusType,
-                                                                 CommandType>::reset_muscle_driver_callback,
-                                                         this, _1, _2, i));
+                      std_srvs::Empty::Response>(ss.str().c_str(), reset_driver_cb);
 
       this->muscle_drivers_vector_.push_back(driver);
     }

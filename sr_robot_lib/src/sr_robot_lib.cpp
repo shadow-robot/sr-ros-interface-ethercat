@@ -220,10 +220,7 @@ namespace shadow_robot
             // Create a one-shot timer
             tactile_check_init_timeout_timer(
                     this->nh_tilde.createTimer(tactile_init_max_duration,
-                                               boost::bind(
-                                                       &SrRobotLib<StatusType,
-                                                               CommandType>::tactile_init_timer_callback,
-                                                       this, _1), true)),
+                                               [this](auto event){ tactile_init_timer_callback(event); }, true)),
             lock_tactile_init_timeout_(boost::shared_ptr<boost::mutex>(new boost::mutex())),
             tactiles_init(shared_ptr<GenericTactiles<StatusType, CommandType> >(
                     new GenericTactiles<StatusType, CommandType>(nodehandle_, device_id_,

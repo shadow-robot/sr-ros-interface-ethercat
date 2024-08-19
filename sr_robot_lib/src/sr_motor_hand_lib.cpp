@@ -164,25 +164,23 @@ namespace shadow_robot
         ostringstream ss;
         ss << "change_force_PID_" << joint_names[index];
         // initialize the force pid service
+        const int motor_id = motor_wrapper->motor_id;
+        auto change_force_cb = [this, motor_id](auto req, auto res){ return force_pid_callback(req, res, motor_id); };
         // NOTE: the template keyword is needed to avoid a compiler complaint apparently due to the fact that
         // we are using an explicit template function inside this template class
         motor_wrapper->force_pid_service =
                 this->nh_tilde.template advertiseService<sr_robot_msgs::ForceController::Request,
-                        sr_robot_msgs::ForceController::Response>(ss.str().c_str(),
-                                                                  boost::bind(
-                                                                          &SrMotorHandLib<StatusType,
-                                                                                  CommandType>::force_pid_callback,
-                                                                          this, _1, _2,
-                                                                          motor_wrapper->motor_id));
+                        sr_robot_msgs::ForceController::Response>(ss.str().c_str(), change_force_cb);
 
         ss.str("");
         ss << "reset_motor_" << joint_names[index];
         // initialize the reset motor service
+        pair<int, string> joint_pair(motor_wrapper->motor_id, joint.joint_name);
+        auto reset_motor_cb =
+                [this, joint_pair](auto req, auto res){ return reset_motor_callback(req, res, joint_pair); };
         motor_wrapper->reset_motor_service =
                 this->nh_tilde.template advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(
-                        ss.str().c_str(),
-                        boost::bind(&SrMotorHandLib<StatusType, CommandType>::reset_motor_callback, this, _1, _2,
-                                    pair<int, string>(motor_wrapper->motor_id, joint.joint_name)));
+                        ss.str().c_str(), reset_motor_cb);
       }
       else
       { // no motor associated to this joint
